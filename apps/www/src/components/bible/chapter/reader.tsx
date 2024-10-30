@@ -3,12 +3,14 @@ import { QueryBoundary } from '@/www/components/query-boundary';
 import { H1, Muted } from '@/www/components/ui/typography';
 import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
+import { useSwipe } from '@/www/hooks/use-swipe';
 import { cn } from '@/www/lib/utils';
-import { A, useNavigate } from '@solidjs/router';
+import { A, useIsRouting, useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
 import { Show } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
@@ -103,6 +105,7 @@ export type ChapterReaderProps = {
 
 export default function ChapterReader(props: ChapterReaderProps) {
   const navigate = useNavigate();
+  const isRouting = useIsRouting();
 
   const [, setBibleStore] = useBibleStore();
 
@@ -114,8 +117,10 @@ export default function ChapterReader(props: ChapterReaderProps) {
     }),
   );
 
+  const [containerRef, setContainerRef] = createSignal<HTMLDivElement>();
+
   return (
-    <div class='flex max-w-3xl flex-col items-center px-8 py-5'>
+    <div class='relative flex max-w-3xl flex-col items-center px-8 py-5' ref={setContainerRef}>
       <QueryBoundary
         query={query}
         notFoundFallback={
@@ -142,6 +147,23 @@ export default function ChapterReader(props: ChapterReaderProps) {
         {({ bible, book, chapter, rightsHolder }) => {
           const previousChapter = chapter.previous ?? book.previous?.chapters[0];
           const nextChapter = chapter.next ?? book.next?.chapters[0];
+
+          useSwipe(containerRef, {
+            onSwipeLeft: () => {
+              if (nextChapter && !isRouting()) {
+                navigate(
+                  `/bible/${bible.abbreviation}/${nextChapter.code.split('.')[0]}/${nextChapter.number}`,
+                );
+              }
+            },
+            onSwipeRight: () => {
+              if (previousChapter && !isRouting()) {
+                navigate(
+                  `/bible/${bible.abbreviation}/${previousChapter.code.split('.')[0]}/${previousChapter.number}`,
+                );
+              }
+            },
+          });
 
           return (
             <BibleReaderProvider bible={bible} book={book} chapter={chapter}>
@@ -177,7 +199,8 @@ export default function ChapterReader(props: ChapterReaderProps) {
                         as={A}
                         class={cn(
                           buttonVariants(),
-                          'fixed bottom-0 left-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tr-2xl p-0 pb-safe pl-safe md:w-12 lg:w-16 xl:w-20',
+                          '-translate-y-1/2 fixed top-1/2 left-0 flex size-8 items-center justify-center rounded-full p-0 md:left-2 md:size-10 lg:left-4 lg:size-12',
+                          isRouting() && 'pointer-events-none opacity-50',
                         )}
                         href={`/bible/${bible.abbreviation}/${previousChapter.code.split('.')[0]}/${previousChapter.number}`}
                       >
@@ -196,7 +219,8 @@ export default function ChapterReader(props: ChapterReaderProps) {
                         as={A}
                         class={cn(
                           buttonVariants(),
-                          'fixed right-0 bottom-0 my-auto flex h-20 w-8 flex-col place-items-center justify-center rounded-none rounded-tl-2xl p-0 pr-safe pb-safe md:w-12 lg:w-16 xl:w-20',
+                          '-translate-y-1/2 fixed top-1/2 right-0 flex size-8 items-center justify-center rounded-full p-0 md:right-2 md:size-10 lg:right-4 lg:size-12',
+                          isRouting() && 'pointer-events-none opacity-50',
                         )}
                         href={`/bible/${bible.abbreviation}/${nextChapter.code.split('.')[0]}/${nextChapter.number}`}
                       >

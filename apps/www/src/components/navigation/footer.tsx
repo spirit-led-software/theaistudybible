@@ -28,6 +28,16 @@ export const NavigationFooter = () => {
             <Button variant='link' size='sm' as='a' href='mailto:support@theaistudybible.com'>
               Contact
             </Button>
+            <Button
+              variant='link'
+              size='sm'
+              as={A}
+              href='https://donate.stripe.com/cN23fc1mFdW2dXOcMM'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              Donate
+            </Button>
             <Button variant='link' size='sm' as={A} href='/privacy'>
               Privacy Policy
             </Button>

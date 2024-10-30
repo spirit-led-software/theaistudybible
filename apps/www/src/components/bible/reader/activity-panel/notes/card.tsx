@@ -157,13 +157,7 @@ export const NotesCard = () => {
         <CardContent class='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
           <div class='flex h-full w-full flex-col place-items-center justify-center'>
             <P class='text-lg'>
-              Please{' '}
-              <Button
-                as={SignInButton}
-                variant={'link'}
-                class='px-0 text-accent-foreground text-lg capitalize'
-              />{' '}
-              to take notes
+              Please <Button as={SignInButton} /> to take notes
             </P>
           </div>
         </CardContent>

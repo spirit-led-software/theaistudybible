@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@ai-sdk/solid": "^0.0.53",
-    "@ark-ui/solid": "^4.3.0",
+    "@ark-ui/solid": "4.2.0",
     "@corvu/drawer": "^0.2.2",
     "@fontsource-variable/inter": "^5.1.0",
     "@fontsource/goldman": "^5.1.0",

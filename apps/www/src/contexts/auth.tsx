@@ -57,7 +57,7 @@ export type AuthProviderProps = {
 };
 
 export const AuthProvider = (props: AuthProviderProps) => {
-  const initialData = isServer
+  const placeholderData = isServer
     ? getAuth()
     : {
         session: undefined,
@@ -67,7 +67,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
   const query = createQuery(() => ({
     ...authProviderQueryOptions(),
-    initialData,
+    placeholderData: placeholderData as unknown as ReturnType<typeof getAuth>,
   }));
 
   return (
