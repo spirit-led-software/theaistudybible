@@ -3,7 +3,7 @@ import { StartServer, createHandler } from '@solidjs/start/server';
 
 export default createHandler(() => (
   <StartServer
-    document={({ assets, scripts, children }) => (
+    document={(props) => (
       <html lang='en'>
         <head>
           <meta charset='utf-8' />
@@ -11,10 +11,11 @@ export default createHandler(() => (
             name='viewport'
             content='width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'
           />
-          <link rel='manifest' href='/_build/manifest.webmanifest' />
-          <meta name='theme-color' content='#030527' />
           <link rel='icon' href='/favicon.ico' sizes='48x48' />
           <link rel='icon' href='/icon.svg' sizes='any' type='image/svg+xml' />
+          {/* PWA */}
+          <link rel='manifest' href='/_build/manifest.webmanifest' />
+          <meta name='theme-color' content='#030527' />
           <link rel='apple-touch-icon' href='/apple-touch-icon-180x180.png' />
           <link
             rel='apple-touch-startup-image'
@@ -316,11 +317,18 @@ export default createHandler(() => (
             media='screen and (prefers-color-scheme: dark) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)'
             href='/pwa/apple-splash/landscape-dark-1136x640.png'
           />
-          {assets}
+          {/* Google Ads */}
+          <script
+            async
+            src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7748872527931209'
+            crossorigin='anonymous'
+          />
+          <meta name='google-adsense-account' content='ca-pub-7748872527931209' />
+          {props.assets}
         </head>
         <body>
-          <div id='app'>{children}</div>
-          {scripts}
+          <div id='app'>{props.children}</div>
+          {props.scripts}
         </body>
       </html>
     )}

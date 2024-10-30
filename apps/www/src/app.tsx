@@ -27,6 +27,7 @@ import { DevotionProvider } from './contexts/devotion';
 import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
+import { PosthogInit } from './components/posthog/init';
 
 const getServerCookies = GET(() => {
   'use server';
@@ -99,6 +100,7 @@ export default function App() {
                           {props.children}
                         </Suspense>
                         <Toaster />
+                        <PosthogInit />
                       </SentryErrorBoundary>
                     </DevotionProvider>
                   </ChatProvider>
