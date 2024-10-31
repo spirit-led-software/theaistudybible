@@ -2,7 +2,16 @@ import type { Role } from '@/schemas/roles';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import type { Session, User } from 'lucia';
-import { type Accessor, type JSX, createContext, createMemo, useContext } from 'solid-js';
+import posthog from 'posthog-js';
+import {
+  type Accessor,
+  type JSX,
+  createContext,
+  createEffect,
+  createMemo,
+  on,
+  useContext,
+} from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { auth } from '../server/auth';
 
@@ -70,15 +79,19 @@ export const AuthProvider = (props: AuthProviderProps) => {
     placeholderData: placeholderData as unknown as ReturnType<typeof getAuth>,
   }));
 
+  const session = createMemo(() => query.data?.session);
+  const user = createMemo(() => query.data?.user);
+  const roles = createMemo(() => query.data?.roles);
+
+  createEffect(
+    on(user, (user) => {
+      if (user) {
+        posthog.identify(user.id, { email: user.email });
+      }
+    }),
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        session: createMemo(() => query.data?.session),
-        user: createMemo(() => query.data?.user),
-        roles: createMemo(() => query.data?.roles),
-      }}
-    >
-      {props.children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ session, user, roles }}>{props.children}</AuthContext.Provider>
   );
 };

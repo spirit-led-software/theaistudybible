@@ -51,6 +51,12 @@ export default function App() {
     posthog.init('phc_z3PcZTeDMCT53dKzb0aqDXkrM1o3LpNcC9QlJDdG9sO', {
       api_host: 'https://us.i.posthog.com',
       person_profiles: 'always',
+      loaded: () => {
+        if (import.meta.env.PUBLIC_STAGE !== 'production') {
+          posthog.opt_out_capturing();
+          posthog.set_config({ disable_session_recording: true });
+        }
+      },
     });
   });
 

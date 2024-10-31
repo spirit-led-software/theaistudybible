@@ -318,12 +318,16 @@ export default createHandler(() => (
             href='/pwa/apple-splash/landscape-dark-1136x640.png'
           />
           {/* Google Ads */}
-          <script
-            async
-            src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7748872527931209'
-            crossorigin='anonymous'
-          />
-          <meta name='google-adsense-account' content='ca-pub-7748872527931209' />
+          {import.meta.env.PUBLIC_STAGE !== 'production' && (
+            <>
+              <script
+                async
+                src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7748872527931209'
+                crossorigin='anonymous'
+              />
+              <meta name='google-adsense-account' content='ca-pub-7748872527931209' />
+            </>
+          )}
           {props.assets}
         </head>
         <body>
