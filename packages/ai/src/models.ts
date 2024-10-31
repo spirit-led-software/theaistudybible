@@ -21,6 +21,15 @@ export const freeTierModels: ModelInfo[] = [
     link: 'https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/',
     tier: 'free',
   },
+  {
+    id: 'claude-3-haiku-20240307',
+    name: 'Claude 3 Haiku',
+    description: 'A large language model trained by Anthropic',
+    contextSize: 200_000,
+    provider: 'anthropic',
+    link: 'https://www.anthropic.com/news/claude-3-haiku',
+    tier: 'free',
+  },
 ];
 export type FreeTierModelId = (typeof freeTierModels)[number]['id'];
 export const freeTierModelIds = freeTierModels.map((model) => model.id);
@@ -33,6 +42,15 @@ export const plusTierModels: ModelInfo[] = [
     contextSize: 128_000,
     provider: 'openai',
     link: 'https://openai.com/index/hello-gpt-4o/',
+    tier: 'plus',
+  },
+  {
+    id: 'claude-3-5-sonnet-latest',
+    name: 'Claude 3.5 Sonnet',
+    description: 'A large language model trained by Anthropic',
+    contextSize: 200_000,
+    provider: 'anthropic',
+    link: 'https://www.anthropic.com/news/claude-3-5-sonnet',
     tier: 'plus',
   },
 ];

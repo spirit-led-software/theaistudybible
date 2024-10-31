@@ -20,6 +20,7 @@ import { H6 } from '../ui/typography';
 import { EmptyWindow } from './empty-window';
 import { ChatMenu } from './menu';
 import { Message } from './message';
+import { SelectModelButton } from './select-model-button';
 
 export type ChatWindowProps = {
   chatId?: string;
@@ -27,7 +28,7 @@ export type ChatWindowProps = {
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
-  const [, setChatStore] = useChatStore();
+  const [chatStore, setChatStore] = useChatStore();
 
   const {
     input,
@@ -45,6 +46,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
     id: props.chatId,
     body: {
       additionalContext: props.additionalContext,
+      modelId: chatStore.modelId,
     },
   }));
   const chat = createMemo(() => {
@@ -144,7 +146,10 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </Carousel>
             </div>
           </Show>
-          <For each={messagesReversed} fallback={<EmptyWindow append={append} />}>
+          <For
+            each={messagesReversed}
+            fallback={<EmptyWindow append={append} additionalContext={props.additionalContext} />}
+          >
             {(message, idx) => (
               <div data-index={idx()} class='flex w-full max-w-2xl flex-col'>
                 <Message
@@ -171,6 +176,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         }}
       >
         <div class='flex h-fit w-full max-w-2xl items-center rounded-full border py-2 pr-1 pl-5'>
+          <SelectModelButton />
           <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>
             <TextFieldTextArea
               placeholder='Type a message'

@@ -1,7 +1,9 @@
+import { allModels } from '@/ai/models';
 import { Markdown } from '@/www/components/ui/markdown';
 import { cn } from '@/www/lib/utils';
 import type { useChat } from '@ai-sdk/solid';
 import { writeClipboard } from '@solid-primitives/clipboard';
+import { A } from '@solidjs/router';
 import type { Message as AIMessage } from 'ai/solid';
 import { Copy } from 'lucide-solid';
 import { type Accessor, Match, Show, Switch } from 'solid-js';
@@ -75,6 +77,39 @@ export const Message = (props: MessageProps) => {
               props.message.role === 'assistant' && props.message.role !== props.nextMessage?.role
             }
           >
+            <Show
+              when={
+                props.message.annotations?.find(
+                  (a) =>
+                    typeof a === 'object' &&
+                    a !== null &&
+                    !Array.isArray(a) &&
+                    'modelId' in a &&
+                    typeof a.modelId === 'string',
+                ) as { modelId: string } | undefined
+              }
+              keyed
+            >
+              {({ modelId }) => {
+                const modelInfo = allModels.find((m) => m.id === modelId.split(':')[1]);
+                return (
+                  <Show when={modelInfo} keyed>
+                    {(modelInfo) => (
+                      <Button
+                        variant='outline'
+                        as={A}
+                        href={modelInfo.link}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        class='w-fit rounded-full border p-2 text-muted-foreground text-xs'
+                      >
+                        {modelInfo.name}
+                      </Button>
+                    )}
+                  </Show>
+                );
+              }}
+            </Show>
             <Button
               variant='ghost'
               class='h-fit w-fit p-1'

@@ -7,13 +7,13 @@ import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/cr
 import { MessageSchema } from '@/schemas/chats';
 import type { Chat } from '@/schemas/chats/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
+import { getDefaultModelId, getValidMessages, validateModelId } from '@/www/server/api/utils/chat';
 import { zValidator } from '@hono/zod-validator';
 import { StreamData } from 'ai';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
 import { z } from 'zod';
-import { getDefaultModelId, getValidMessages, validateModelId } from '../../utils/chat';
 
 const maxResponseTokens = 4096;
 
@@ -37,8 +37,8 @@ const app = new Hono<{
     zValidator(
       'json',
       z.object({
-        chatId: z.string().optional(),
-        modelId: z.string().optional(),
+        chatId: z.string().nullish(),
+        modelId: z.string().nullish(),
         messages: MessageSchema.merge(
           z.object({
             createdAt: z.string().datetime(),
@@ -53,7 +53,7 @@ const app = new Hono<{
           })
           .passthrough()
           .array(),
-        additionalContext: z.string().optional(),
+        additionalContext: z.string().nullish(),
       }),
     ),
     async (c) => {
@@ -64,18 +64,6 @@ const app = new Hono<{
         modelId: providedModelId,
         additionalContext,
       } = c.req.valid('json');
-
-      console.time('checkAndConsumeCredits');
-      const hasCredits = await checkAndConsumeCredits(c.var.user!.id, 'chat');
-      console.timeEnd('checkAndConsumeCredits');
-      if (!hasCredits) {
-        return c.json(
-          {
-            message: 'You must have at least 1 credit to use this resource.',
-          },
-          400,
-        );
-      }
 
       console.time('validateModelId');
       if (providedModelId) {
@@ -89,6 +77,31 @@ const app = new Hono<{
       }
       console.timeEnd('validateModelId');
       const modelId = providedModelId ?? getDefaultModelId(c);
+
+      const modelInfo = allModels.find((m) => m.id === modelId.split(':')[1]);
+      if (!modelInfo) {
+        return c.json(
+          {
+            message: 'Invalid model provided',
+          },
+          400,
+        );
+      }
+
+      console.time('checkAndConsumeCredits');
+      const hasCredits = await checkAndConsumeCredits(
+        c.var.user!.id,
+        modelInfo.tier === 'plus' ? 'advanced-chat' : 'chat',
+      );
+      console.timeEnd('checkAndConsumeCredits');
+      if (!hasCredits) {
+        return c.json(
+          {
+            message: `You must have at least ${modelInfo.tier === 'plus' ? 5 : 1} credit to use this resource.`,
+          },
+          400,
+        );
+      }
 
       console.time('getChat');
       let chat: Chat;
@@ -159,16 +172,6 @@ const app = new Hono<{
         });
       console.timeEnd('saveMessage');
 
-      const modelInfo = allModels.find((m) => m.id === modelId.split(':')[1]);
-      if (!modelInfo) {
-        return c.json(
-          {
-            message: 'Invalid model provided',
-          },
-          400,
-        );
-      }
-
       let additionalContextTokens = 0;
       if (additionalContext) {
         additionalContextTokens = numTokensFromString({ text: additionalContext });
@@ -208,6 +211,9 @@ const app = new Hono<{
         streamData,
         additionalContext,
         maxTokens: maxResponseTokens,
+        onStepFinish: () => {
+          streamData.appendMessageAnnotation({ modelId });
+        },
         onFinish: async (event) => {
           await Promise.all(pendingPromises);
           if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {

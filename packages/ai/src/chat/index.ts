@@ -21,7 +21,7 @@ export const renameChat = async ({
 }: {
   chatId: string;
   messages: Pick<Message, 'role' | 'content'>[];
-  additionalContext?: string;
+  additionalContext?: string | null;
 }) => {
   const { object } = await generateObject({
     model: registry.languageModel(`${defaultModel.provider}:${defaultModel.id}`),
@@ -65,7 +65,7 @@ export type CreateChatChainOptions = {
   userMessageId: string;
   userId: string;
   streamData: StreamData;
-  additionalContext?: string;
+  additionalContext?: string | null;
   maxTokens?: number;
   onStepFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onStepFinish'];
   onFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onFinish'];
@@ -117,10 +117,8 @@ ${options.additionalContext}
               ...t,
               state: 'execute' in resolvedTools[t.toolName] ? 'call' : 'partial-call',
             })),
+            annotations: [{ modelId: options.modelId }],
             finishReason: step.finishReason,
-            data: {
-              modelId: options.modelId,
-            },
             originMessageId: options.userMessageId,
             userId: options.userId,
             chatId: options.chatId,
