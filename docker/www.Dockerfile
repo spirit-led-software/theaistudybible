@@ -1,4 +1,4 @@
-FROM oven/bun:1-slim AS base
+FROM oven/bun:1-debian AS base
 
 ########################################################
 # Install

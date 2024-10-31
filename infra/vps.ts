@@ -248,7 +248,7 @@ if (!$dev) {
               ),
             },
             healthcheck: {
-              tests: ['CMD', 'curl', '-f', 'http://localhost:3000/health'],
+              tests: ['CMD-SHELL', 'curl -f http://localhost:3000/health || exit 1'],
               interval: '30s',
               timeout: '10s',
               retries: 3,
@@ -346,7 +346,7 @@ if (!$dev) {
               },
             ],
             healthcheck: {
-              tests: ['CMD', 'curl', '-kf', 'https://localhost:443/health'],
+              tests: ['CMD-SHELL', 'curl -kf https://localhost:443/health || exit 1'],
               interval: '30s',
               timeout: '10s',
               retries: 3,
