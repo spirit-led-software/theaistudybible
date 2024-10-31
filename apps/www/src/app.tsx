@@ -50,6 +50,11 @@ export default function App() {
           return query.state.data === undefined;
         },
       },
+      mutations: {
+        onError: (error) => {
+          Sentry.captureException(error);
+        },
+      },
     },
   });
 
