@@ -8,7 +8,7 @@ export const GET: APIHandler = async ({ params }) => {
     attributeNamePrefix: '$',
   });
 
-  const bibleAbbr = params.sitemap.split('.')[0];
+  const bibleAbbr = params.bibleAbbrXml.split('.')[0];
 
   const bible = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),

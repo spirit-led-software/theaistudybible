@@ -212,10 +212,10 @@ if (!$dev) {
         'PurgeCache',
         {
           zoneId: CLOUDFLARE_ZONE.zoneId,
-          triggers: [webAppService!.id],
+          triggers: [webAppBuildImage!.ref],
           purge_everything: true,
         },
-        { dependsOn: [ruleset] },
+        { dependsOn: [webAppService!, ruleset] },
       );
     }
   }

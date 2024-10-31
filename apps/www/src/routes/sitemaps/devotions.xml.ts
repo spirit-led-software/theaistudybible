@@ -8,20 +8,16 @@ export const GET: APIHandler = async () => {
     attributeNamePrefix: '$',
   });
 
-  const bibles = await db.query.bibles.findMany({
-    columns: { abbreviation: true },
+  const devotions = await db.query.devotions.findMany({
+    columns: { id: true },
   });
 
   const sitemapXml = sitemapXmlBuilder.build({
-    sitemapindex: {
+    urlset: {
       $xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9',
-      sitemap: [
-        { loc: 'https://theaistudybible.com/sitemaps/static.xml' },
-        { loc: 'https://theaistudybible.com/sitemaps/devotions.xml' },
-        ...bibles.map((bible) => ({
-          loc: `https://theaistudybible.com/sitemaps/bibles/${bible.abbreviation}.xml`,
-        })),
-      ],
+      url: devotions.map((devotion) => ({
+        loc: `https://theaistudybible.com/devotion/${devotion.id}`,
+      })),
     },
   });
 
