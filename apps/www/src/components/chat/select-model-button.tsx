@@ -19,13 +19,19 @@ export const SelectModelButton = () => {
 
   return (
     <Popover open={open()} onOpenChange={setOpen}>
-      <PopoverTrigger as={Button} type='button' variant='outline' size='icon' class='size-6'>
-        <Switch fallback={<OpenAI fill='hsl(var(--foreground))' />}>
+      <PopoverTrigger
+        as={Button}
+        type='button'
+        variant='ghost'
+        size='icon'
+        class='size-10 rounded-full p-0'
+      >
+        <Switch fallback={<OpenAI fill='hsl(var(--foreground))' class='size-full' />}>
           <Match when={selectedModel().provider === 'openai'}>
-            <OpenAI fill='hsl(var(--foreground))' />
+            <OpenAI fill='hsl(var(--foreground))' class='size-full' />
           </Match>
           <Match when={selectedModel().provider === 'anthropic'}>
-            <Anthropic fill='hsl(var(--foreground))' />
+            <Anthropic fill='hsl(var(--foreground))' class='size-full' />
           </Match>
         </Switch>
       </PopoverTrigger>
@@ -45,13 +51,13 @@ export const SelectModelButton = () => {
                 }}
               >
                 <div class='flex items-center gap-2'>
-                  <div class='size-5'>
+                  <div class='size-6'>
                     <Switch>
                       <Match when={model.provider === 'openai'}>
-                        <OpenAI fill='hsl(var(--foreground))' />
+                        <OpenAI fill='hsl(var(--foreground))' class='size-full' />
                       </Match>
                       <Match when={model.provider === 'anthropic'}>
-                        <Anthropic fill='hsl(var(--foreground))' />
+                        <Anthropic fill='hsl(var(--foreground))' class='size-full' />
                       </Match>
                     </Switch>
                   </div>

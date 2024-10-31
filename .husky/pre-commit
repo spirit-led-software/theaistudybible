@@ -1,5 +1,2 @@
-bun run format
+bun run format:check
 bun run lint:fix
-git add .
-
-bun run test

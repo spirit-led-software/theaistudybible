@@ -175,12 +175,12 @@ export const ChatWindow = (props: ChatWindowProps) => {
           handleSubmit(e);
         }}
       >
-        <div class='flex h-fit w-full max-w-2xl items-center rounded-full border py-2 pr-1 pl-5'>
+        <div class='flex h-fit w-full max-w-2xl items-center gap-1 rounded-full border px-1 py-2'>
           <SelectModelButton />
           <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>
             <TextFieldTextArea
               placeholder='Type a message'
-              class='flex max-h-24 min-h-fit w-full resize-none items-center justify-center border-none bg-transparent py-0 pl-3 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
+              class='flex max-h-24 min-h-fit w-full resize-none items-center justify-center border-none bg-transparent px-2 py-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
               rows={1}
               minlength={1}
               autoResize
