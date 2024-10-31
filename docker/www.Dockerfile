@@ -72,6 +72,7 @@ WORKDIR /app
 ENV NODE_ENV="production"
 
 COPY --from=build /build/apps/www/.output .
+COPY --link ./apps/www/sentry.plugin.ts ./
 
-ENTRYPOINT [ "bun", "run", "./server/index.mjs" ]
+ENTRYPOINT [ "bun", "run", "--preload", "./sentry.plugin.ts", "./server/index.mjs" ]
 EXPOSE 3000
