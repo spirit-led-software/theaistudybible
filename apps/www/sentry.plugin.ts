@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/solidstart';
 
-const isProduction = process.env.PUBLIC_STAGE === 'production';
+const isProd = process.env.PUBLIC_STAGE === 'production';
 const isDev = process.env.DEV;
 
 Sentry.init({
