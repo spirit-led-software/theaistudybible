@@ -247,6 +247,7 @@ if (!$dev) {
                 ),
               ),
             },
+            stopGracePeriod: '5m',
           },
           restartPolicy: {
             condition: 'any',
@@ -345,6 +346,7 @@ if (!$dev) {
               retries: 5,
               startPeriod: '20s',
             },
+            stopGracePeriod: '5m',
           },
           restartPolicy: {
             condition: 'any',
