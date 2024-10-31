@@ -24,7 +24,7 @@ export const SelectModelButton = () => {
         type='button'
         variant='ghost'
         size='icon'
-        class='size-10 rounded-full p-0'
+        class='size-7 rounded-full p-0'
       >
         <Switch fallback={<OpenAI fill='hsl(var(--foreground))' class='size-full' />}>
           <Match when={selectedModel().provider === 'openai'}>
