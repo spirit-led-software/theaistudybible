@@ -1,7 +1,8 @@
 import { db } from '@/core/database';
+import type { APIHandler } from '@solidjs/start/server';
 import { XMLBuilder } from 'fast-xml-parser';
 
-export const GET = async () => {
+export const GET: APIHandler = async () => {
   const sitemapXmlBuilder = new XMLBuilder({
     ignoreAttributes: false,
     attributeNamePrefix: '$',
@@ -38,5 +39,5 @@ export const GET = async () => {
     },
   });
 
-  return new Response(sitemapXml, { headers: { 'Content-Type': 'application/xml' } });
+  return new Response(sitemapXml, { status: 200, headers: { 'Content-Type': 'application/xml' } });
 };

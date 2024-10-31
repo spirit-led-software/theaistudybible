@@ -247,8 +247,27 @@ if (!$dev) {
                 ),
               ),
             },
+            healthcheck: {
+              tests: ['CMD', 'curl', '-f', 'http://localhost:3000/health'],
+              interval: '30s',
+              timeout: '10s',
+              retries: 3,
+              startPeriod: '40s',
+            },
+          },
+          restartPolicy: {
+            condition: 'any',
+            delay: '5s',
+            maxAttempts: 10,
+            window: '120s',
           },
           networksAdvanceds: [{ name: webAppNetwork.name }],
+        },
+        updateConfig: {
+          parallelism: 1,
+          delay: '10s',
+          order: 'start-first',
+          failureAction: 'rollback',
         },
       },
       { provider: dockerProvider, dependsOn: [dockerSwarmInitCmd] },
@@ -326,6 +345,13 @@ if (!$dev) {
                 fileName: '/etc/nginx/ssl/key.pem',
               },
             ],
+            healthcheck: {
+              tests: ['CMD', 'curl', '-kf', 'https://localhost:443/health'],
+              interval: '30s',
+              timeout: '10s',
+              retries: 3,
+              startPeriod: '40s',
+            },
           },
           restartPolicy: {
             condition: 'any',
@@ -337,6 +363,12 @@ if (!$dev) {
         },
         endpointSpec: {
           ports: [{ targetPort: 443, publishedPort: 443 }],
+        },
+        updateConfig: {
+          parallelism: 1,
+          delay: '10s',
+          order: 'start-first',
+          failureAction: 'rollback',
         },
       },
       { provider: dockerProvider },
@@ -374,12 +406,15 @@ server {
     proxy_http_version 1.1;
     proxy_set_header Connection "";
 
-    proxy_connect_timeout 300;
-    proxy_read_timeout 300;
-    proxy_send_timeout 300;
+    proxy_connect_timeout 300s;
+    proxy_read_timeout 300s;
+    proxy_send_timeout 300s;
 
     proxy_buffering off;
     proxy_request_buffering off;
+
+    keepalive_timeout 300s;
+    keepalive_requests 100;
   }
 }
     `;

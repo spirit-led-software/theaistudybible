@@ -42,7 +42,5 @@ export const GET: APIHandler = async ({ params }) => {
     },
   });
 
-  return new Response(sitemapXml, {
-    headers: { 'Content-Type': 'application/xml' },
-  });
+  return new Response(sitemapXml, { status: 200, headers: { 'Content-Type': 'application/xml' } });
 };
