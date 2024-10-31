@@ -5,11 +5,13 @@ import {
   ColorModeScript,
   cookieStorageManagerSSR,
 } from '@kobalte/core';
+import * as Sentry from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { GET } from '@solidjs/start';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
+import posthog from 'posthog-js';
 import { Show, Suspense, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { getCookie } from 'vinxi/http';
@@ -27,7 +29,6 @@ import { DevotionProvider } from './contexts/devotion';
 import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
-import posthog from 'posthog-js';
 
 const getServerCookies = GET(() => {
   'use server';
@@ -41,6 +42,13 @@ export default function App() {
       queries: {
         staleTime: 1000 * 60 * 5,
         experimental_prefetchInRender: true,
+        // This is just the default with added Sentry capture
+        // this seems to be the only way to capture errors in solid-query
+        // https://tanstack.com/query/latest/docs/framework/react/guides/suspense#throwonerror-default
+        throwOnError: (error, query) => {
+          Sentry.captureException(error);
+          return query.state.data === undefined;
+        },
       },
     },
   });

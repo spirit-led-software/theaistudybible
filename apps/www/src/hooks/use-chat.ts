@@ -6,6 +6,7 @@ import { createId } from '@/core/utils/id';
 import { getValidMessages } from '@/www/server/api/utils/chat';
 import type { UseChatOptions } from '@ai-sdk/solid';
 import { useChat as useAIChat } from '@ai-sdk/solid';
+import * as Sentry from '@sentry/solidstart';
 import { createWritableMemo } from '@solid-primitives/memo';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/solid-query';
@@ -150,6 +151,7 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
       return props?.().onResponse?.(response);
     },
     onError: (err) => {
+      Sentry.captureException(err);
       console.error(err);
       return props?.().onError?.(err);
     },
