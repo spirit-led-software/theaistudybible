@@ -5,7 +5,6 @@ import { useChatStore } from '@/www/contexts/chat';
 import { cn } from '@/www/lib/utils';
 import { For, Match, Switch, createMemo, createSignal } from 'solid-js';
 import { Anthropic, OpenAI } from '../ui/brand-icons';
-import {} from '../ui/tooltip';
 
 export const SelectModelButton = () => {
   const [store, setStore] = useChatStore();
