@@ -1,4 +1,4 @@
-FROM oven/bun:1-debian AS base
+FROM oven/bun:1-slim AS base
 
 ########################################################
 # Install
@@ -71,6 +71,11 @@ WORKDIR /app
 
 ENV NODE_ENV="production"
 
+RUN apt update \
+&& apt install -y curl \
+&& rm -rf /var/lib/apt/lists/* \
+&& apt clean
+
 COPY --from=build /build/apps/www/.output .
 
 COPY --link ./apps/www/sentry.plugin.ts ./server/
@@ -81,3 +86,6 @@ RUN cd server \
 
 ENTRYPOINT [ "bun", "run", "--preload", "./server/sentry.plugin.ts", "./server/index.mjs" ]
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=15s --retries=5 --start-period=20s \
+  CMD curl -f http://localhost:3000/health || exit 1

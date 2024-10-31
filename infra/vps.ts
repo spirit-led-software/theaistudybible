@@ -247,13 +247,6 @@ if (!$dev) {
                 ),
               ),
             },
-            healthcheck: {
-              tests: ['CMD-SHELL', 'curl -f http://localhost:3000/health || exit 1'],
-              interval: '30s',
-              timeout: '10s',
-              retries: 3,
-              startPeriod: '40s',
-            },
           },
           restartPolicy: {
             condition: 'any',
@@ -348,9 +341,9 @@ if (!$dev) {
             healthcheck: {
               tests: ['CMD-SHELL', 'curl -kf https://localhost:443/health || exit 1'],
               interval: '30s',
-              timeout: '10s',
-              retries: 3,
-              startPeriod: '40s',
+              timeout: '15s',
+              retries: 5,
+              startPeriod: '20s',
             },
           },
           restartPolicy: {
