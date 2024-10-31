@@ -72,7 +72,7 @@ function processVerseChunk(
   const name = `${book.shortName} ${chapter.number}:${verseRange} (${bible.abbreviationLocal})`;
 
   const content = `"${currentPageContent}" - ${name}`;
-  const id = Buffer.from(sha256(content)).toString('hex');
+  const id = `${bible.abbreviation}_${Buffer.from(sha256(content)).toString('hex')}`;
 
   return {
     id,
