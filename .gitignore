@@ -20,4 +20,4 @@ node_modules
 .libsql.db
 
 # SSH key
-key_rsa
+*key_rsa

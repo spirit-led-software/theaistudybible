@@ -20,9 +20,9 @@ const getProducts = GET(async () => {
     active: true,
     expand: ['data.default_price'],
   });
-  const products = productsListResponse.data.toSorted(
-    (a, b) => Number(a.metadata.credits) - Number(b.metadata.credits),
-  );
+  const products = productsListResponse.data
+    .filter((p) => p.default_price && 'credits' in p.metadata)
+    .toSorted((a, b) => Number(a.metadata.credits) - Number(b.metadata.credits));
   return products;
 });
 

@@ -13,7 +13,7 @@ export let dockerProvider: docker.Provider | undefined;
 export let webAppService: docker.Service | undefined;
 export let nginxService: docker.Service | undefined;
 if (!$dev) {
-  const firewall = new hcloud.Firewall('Firewall', {
+  const firewall = new hcloud.Firewall('VpsFirewall', {
     rules: [
       {
         direction: 'in',
@@ -34,25 +34,18 @@ if (!$dev) {
 
   const { vpsAwsAccessKey } = buildVpsIamUser();
 
-  const privateKey = new tls.PrivateKey('PrivateKey', {
+  const privateKey = new tls.PrivateKey('VpsPrivateKey', {
     algorithm: 'RSA',
     rsaBits: 4096,
   });
-  const publicKey = new hcloud.SshKey('PublicKey', {
+  const publicKey = new hcloud.SshKey('VpsPublicKey', {
     publicKey: privateKey.publicKeyOpenssh,
   });
-  vps = new hcloud.Server('Server', {
+  vps = new hcloud.Server('Vps', {
     location: 'ash',
     image: 'debian-12',
     serverType: 'cpx11',
     sshKeys: [publicKey.id],
-    userData: [
-      '#!/bin/bash',
-      'apt-get update',
-      'apt-get install -y docker.io apparmor',
-      'systemctl enable --now docker',
-      'usermod -aG docker debian',
-    ].join('\n'),
     firewallIds: firewall.id.apply((id) => [Number(id)]),
   });
   const vpsConnection = {
@@ -61,8 +54,8 @@ if (!$dev) {
     privateKey: $util.secret(privateKey.privateKeyOpenssh),
   };
 
-  const keyPath = privateKey.privateKeyOpenssh.apply((key) => {
-    const keyPath = 'key_rsa';
+  const keyPath = $util.all([vps.name, privateKey.privateKeyOpenssh]).apply(([vpsName, key]) => {
+    const keyPath = path.join(process.cwd(), `${vpsName}-key_rsa`);
     fs.writeFileSync(keyPath, key, { mode: 0o600 });
     return path.resolve(keyPath);
   });
@@ -116,50 +109,79 @@ if (!$dev) {
   }
 
   function buildDockerProvider() {
-    const dockerProvider = new docker.Provider('DockerProvider', {
-      host: $interpolate`ssh://root@${vps!.ipv4Address}`,
-      sshOpts: ['-i', keyPath, '-o', 'StrictHostKeyChecking=no'],
-      registryAuth: [
-        aws.ecr
-          .getAuthorizationTokenOutput({
-            registryId: webAppImageRepo.id,
-          })
-          .apply((auth) => ({
-            address: auth.proxyEndpoint,
-            username: auth.userName,
-            password: $util.secret(auth.password),
-          })),
-      ],
-    });
+    const dockerInstallCmd = new command.remote.Command(
+      'VpsDockerInstall',
+      {
+        connection: vpsConnection,
+        create: [
+          'apt-get update',
+          'apt-get install -y docker.io apparmor',
+          'systemctl enable --now docker',
+          'usermod -aG docker $(whoami)',
+        ].join(' && '),
+        delete: ['systemctl disable --now docker', 'apt-get remove -y docker.io apparmor'].join(
+          ' && ',
+        ),
+      },
+      { parent: vps },
+    );
+
+    const dockerProvider = new docker.Provider(
+      'VpsDockerProvider',
+      {
+        host: $interpolate`ssh://root@${vps!.ipv4Address}`,
+        sshOpts: ['-i', keyPath, '-o', 'StrictHostKeyChecking=no'],
+        registryAuth: [
+          aws.ecr
+            .getAuthorizationTokenOutput({
+              registryId: webAppImageRepo.id,
+            })
+            .apply((auth) => ({
+              address: auth.proxyEndpoint,
+              username: auth.userName,
+              password: $util.secret(auth.password),
+            })),
+        ],
+      },
+      { dependsOn: [dockerInstallCmd], parent: vps },
+    );
 
     const dockerSwarmInitCmd = new command.remote.Command(
-      'DockerSwarmInit',
+      'VpsDockerSwarmInit',
       {
         connection: vpsConnection,
         create: 'docker swarm init',
         delete: 'docker swarm leave --force',
       },
-      { dependsOn: [dockerProvider, vps!] },
+      { dependsOn: [dockerInstallCmd], parent: vps },
     );
 
-    return { dockerProvider, dockerSwarmInitCmd };
+    return { dockerProvider, dockerInstallCmd, dockerSwarmInitCmd };
   }
 
   function buildCloudflareRecordsAndCache() {
-    new cloudflare.Record('WebAppIpv4Record', {
-      zoneId: CLOUDFLARE_ZONE.zoneId,
-      type: 'A',
-      name: $app.stage === 'production' ? '@' : $app.stage,
-      value: vps!.ipv4Address,
-      proxied: true,
-    });
-    new cloudflare.Record('WebAppIpv6Record', {
-      zoneId: CLOUDFLARE_ZONE.zoneId,
-      type: 'AAAA',
-      name: $app.stage === 'production' ? '@' : $app.stage,
-      value: vps!.ipv6Address,
-      proxied: true,
-    });
+    new cloudflare.Record(
+      'WebAppIpv4Record',
+      {
+        zoneId: CLOUDFLARE_ZONE.zoneId,
+        type: 'A',
+        name: $app.stage === 'production' ? '@' : $app.stage,
+        value: vps!.ipv4Address,
+        proxied: true,
+      },
+      { dependsOn: [webAppService!, nginxService!] },
+    );
+    new cloudflare.Record(
+      'WebAppIpv6Record',
+      {
+        zoneId: CLOUDFLARE_ZONE.zoneId,
+        type: 'AAAA',
+        name: $app.stage === 'production' ? '@' : $app.stage,
+        value: vps!.ipv6Address,
+        proxied: true,
+      },
+      { dependsOn: [webAppService!, nginxService!] },
+    );
     if ($app.stage === 'production') {
       const ruleset = new cloudflare.Ruleset(
         `${$app.stage}-CacheRuleset`,
@@ -184,7 +206,7 @@ if (!$dev) {
             },
           ],
         },
-        { dependsOn: [webAppService!] },
+        { dependsOn: [webAppService!, nginxService!] },
       );
       new cloudflareHelpers.PurgeCache(
         'PurgeCache',
@@ -226,7 +248,7 @@ if (!$dev) {
               ),
             },
           },
-          networksAdvanceds: [{ name: webAppNetwork.name, aliases: ['web-app'] }],
+          networksAdvanceds: [{ name: webAppNetwork.name }],
         },
       },
       { provider: dockerProvider, dependsOn: [dockerSwarmInitCmd] },
@@ -311,13 +333,13 @@ if (!$dev) {
             maxAttempts: 10,
             window: '120s',
           },
-          networksAdvanceds: [{ name: webAppNetwork.name, aliases: ['nginx'] }],
+          networksAdvanceds: [{ name: webAppNetwork.name }],
         },
         endpointSpec: {
           ports: [{ targetPort: 443, publishedPort: 443 }],
         },
       },
-      { provider: dockerProvider, dependsOn: [dockerSwarmInitCmd] },
+      { provider: dockerProvider },
     );
   }
 
@@ -341,7 +363,7 @@ server {
   ssl_session_tickets off;
 
   location / {
-    proxy_pass http://web-app:3000;
+    proxy_pass http://${webAppService!.name}:3000;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

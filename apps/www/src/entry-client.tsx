@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/solidstart';
 import { solidRouterBrowserTracingIntegration } from '@sentry/solidstart/solidrouter';
 import { StartClient, mount } from '@solidjs/start/client';
 
-const isProduction = import.meta.env.PUBLIC_STAGE === 'production';
+const isProd = import.meta.env.PUBLIC_STAGE === 'production';
 const isDev = import.meta.env.DEV;
 
 Sentry.init({
@@ -13,9 +13,9 @@ Sentry.init({
     Sentry.replayIntegration(),
     Sentry.browserProfilingIntegration(),
   ],
-  tracesSampleRate: isDev ? 0 : isProduction ? 1.0 : 0.5,
-  replaysOnErrorSampleRate: isProduction ? 0.25 : 0,
-  profilesSampleRate: isDev ? 0 : isProduction ? 0.75 : 0.5,
+  tracesSampleRate: isDev ? 0 : isProd ? 1.0 : 0.5,
+  replaysOnErrorSampleRate: isProd ? 0.25 : 0,
+  profilesSampleRate: isDev ? 0 : isProd ? 0.5 : 0.25,
   environment: import.meta.env.PUBLIC_STAGE,
 });
 

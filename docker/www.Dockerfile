@@ -73,5 +73,11 @@ ENV NODE_ENV="production"
 
 COPY --from=build /build/apps/www/.output .
 
-ENTRYPOINT [ "bun", "run", "./server/index.mjs" ]
+COPY --link ./apps/www/sentry.plugin.ts ./server/
+RUN cd server \
+&& bun install \
+&& bun add @sentry/bun \
+&& bun pm cache rm
+
+ENTRYPOINT [ "bun", "run", "--preload", "./server/sentry.plugin.ts", "./server/index.mjs" ]
 EXPOSE 3000

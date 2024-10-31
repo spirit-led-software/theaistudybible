@@ -1,4 +1,6 @@
 import type { Role } from '@/schemas/roles';
+import { auth } from '@/www/server/auth';
+import * as Sentry from '@sentry/solidstart';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import type { Session, User } from 'lucia';
@@ -13,7 +15,6 @@ import {
   useContext,
 } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import { auth } from '../server/auth';
 
 export type AuthContextType = {
   session: Accessor<Session | null | undefined>;
@@ -87,6 +88,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
     on(user, (user) => {
       if (user) {
         posthog.identify(user.id, { email: user.email });
+        Sentry.setUser({ id: user.id, email: user.email });
       }
     }),
   );

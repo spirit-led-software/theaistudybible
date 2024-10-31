@@ -318,7 +318,7 @@ export default createHandler(() => (
             href='/pwa/apple-splash/landscape-dark-1136x640.png'
           />
           {/* Google Ads */}
-          {import.meta.env.PUBLIC_STAGE !== 'production' && (
+          {import.meta.env.PUBLIC_STAGE === 'production' && (
             <>
               <script
                 async
