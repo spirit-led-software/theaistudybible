@@ -50,7 +50,11 @@ if (!$dev) {
 }
 
 export const webAppDevCommand = new sst.x.DevCommand('WebAppDev', {
-  dev: { autostart: true, directory: 'apps/www', command: 'bun run dev' },
+  dev: {
+    autostart: true,
+    directory: 'apps/www',
+    command: 'bun run --preload ./sentry.plugin.ts dev',
+  },
   link: allLinks,
   environment: webAppEnv,
 });

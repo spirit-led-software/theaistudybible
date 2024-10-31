@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/solidstart';
+import * as Sentry from '@sentry/bun';
 
 const isProd = process.env.PUBLIC_STAGE === 'production';
 const isDev = process.env.DEV;

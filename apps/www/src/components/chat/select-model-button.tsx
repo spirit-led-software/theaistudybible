@@ -21,9 +21,9 @@ export const SelectModelButton = () => {
       <PopoverTrigger
         as={Button}
         type='button'
-        variant='ghost'
+        variant='outline'
         size='icon'
-        class='size-7 rounded-full p-0'
+        class='size-10 rounded-full p-2'
       >
         <Switch fallback={<OpenAI fill='hsl(var(--foreground))' class='size-full' />}>
           <Match when={selectedModel().provider === 'openai'}>
@@ -35,7 +35,7 @@ export const SelectModelButton = () => {
         </Switch>
       </PopoverTrigger>
       <PopoverContent class='w-fit p-0'>
-        <div class='flex flex-col items-start'>
+        <div class='flex flex-col items-start gap-1'>
           <For each={allModels}>
             {(model) => (
               <Button
