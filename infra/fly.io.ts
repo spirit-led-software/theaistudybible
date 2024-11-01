@@ -81,7 +81,7 @@ if (!$dev) {
           },
         ],
         cpuType: 'shared',
-        cpus: isProd ? 2 : 1,
+        cpus: 1,
         memory: 1024,
         env: {
           AWS_ACCESS_KEY_ID: flyAwsAccessKey.id,
