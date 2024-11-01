@@ -1,5 +1,4 @@
 import { db } from '@/core/database';
-import {} from '@/core/database/schema';
 import { s3 } from '@/core/storage';
 import { generateChapterEmbeddings } from '@/core/utils/bibles/generate-chapter-embeddings';
 import { GetObjectCommand } from '@aws-sdk/client-s3';

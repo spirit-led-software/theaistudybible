@@ -1,5 +1,3 @@
-'use server';
-
 import type { Role } from '@/schemas/roles';
 import type { Session, User } from 'lucia';
 import { getRequestEvent } from 'solid-js/web';

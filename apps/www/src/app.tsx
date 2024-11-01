@@ -13,7 +13,6 @@ import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import posthog from 'posthog-js';
 import { Show, Suspense, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import {} from 'vinxi/http';
 import { Logo } from './components/branding/logo';
 import { SentryErrorBoundary } from './components/sentry/error-boundary';
 import { SentryRouter } from './components/sentry/router';
@@ -24,11 +23,11 @@ import { AuthProvider } from './contexts/auth';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
 import { DevotionProvider } from './contexts/devotion';
+import { getColorModeCookie } from './server/cookie';
 
 import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
-import { getColorModeCookie } from './server/cookie';
 
 export default function App() {
   const queryClient = new QueryClient({
