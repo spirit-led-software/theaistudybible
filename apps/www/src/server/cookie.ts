@@ -1,3 +1,5 @@
+'use server';
+
 import { COLOR_MODE_STORAGE_KEY } from '@kobalte/core';
 import { getCookie, setCookie } from 'vinxi/http';
 
