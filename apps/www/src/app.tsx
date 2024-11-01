@@ -14,7 +14,7 @@ import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import posthog from 'posthog-js';
 import { Show, Suspense, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import { getCookie } from 'vinxi/http';
+import { getCookie, setCookie } from 'vinxi/http';
 import { Logo } from './components/branding/logo';
 import { SentryErrorBoundary } from './components/sentry/error-boundary';
 import { SentryRouter } from './components/sentry/router';
@@ -32,8 +32,12 @@ import './app.css';
 
 const getServerCookies = GET(() => {
   'use server';
-  const colorMode = getCookie(COLOR_MODE_STORAGE_KEY);
-  return colorMode ? `${COLOR_MODE_STORAGE_KEY}=${colorMode}` : '';
+  let colorMode = getCookie(COLOR_MODE_STORAGE_KEY);
+  if (!colorMode) {
+    colorMode = 'system';
+    setCookie(COLOR_MODE_STORAGE_KEY, colorMode);
+  }
+  return { colorMode: `${COLOR_MODE_STORAGE_KEY}=${colorMode}` }
 });
 
 export default function App() {
@@ -58,7 +62,7 @@ export default function App() {
     },
   });
 
-  const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies() : document.cookie);
+  const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies().colorMode : document.cookie);
 
   onMount(() => {
     posthog.init('phc_z3PcZTeDMCT53dKzb0aqDXkrM1o3LpNcC9QlJDdG9sO', {
