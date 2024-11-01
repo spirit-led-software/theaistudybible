@@ -1,6 +1,8 @@
+import { isProd } from './constants';
+
 export let webAppSentryProject: versesentry.SentryProject | null = null;
 export let webAppSentryKey: versesentry.SentryKey | null = null;
-if ($app.stage === 'production') {
+if (isProd) {
   if (!process.env.SENTRY_ORG || !process.env.SENTRY_TEAM) {
     throw new Error('SENTRY_ORG and SENTRY_TEAM must be set');
   }

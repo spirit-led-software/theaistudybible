@@ -8,7 +8,7 @@ if (!$dev) {
     {
       name: 'default', // This must be default if not on the "Scale" plan or above
       primaryLocation: 'atl',
-      locations: ['lax', 'lhr'],
+      locations: ['fra', 'sin'],
     },
     {
       retainOnDelete: true, // Other apps or stages may need to reference this
@@ -22,8 +22,8 @@ if (!$dev) {
 
 export const database = new sst.Linkable('Database', {
   properties: {
-    name: tursoDb?.name ?? 'dev',
-    url: tursoDb ? $interpolate`https://${tursoDb.hostname}` : `file://${process.cwd()}/.libsql.db`,
+    name: tursoDb?.Name ?? 'dev',
+    url: tursoDb ? $interpolate`https://${tursoDb.Hostname}` : `file://${process.cwd()}/.libsql.db`,
     token: tursoDb?.token ?? '',
   },
 });

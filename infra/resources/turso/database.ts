@@ -34,6 +34,15 @@ const TursoDatabaseResourceProvider = (
   TursoDatabaseResourceProviderInputs,
   TursoDatabaseResourceProviderOutputs
 > => ({
+  read: async (id) => {
+    const { database } = await api.retrieve(id);
+    return {
+      id: database?.Name,
+      outs: {
+        ...database,
+      },
+    };
+  },
   create: async ({
     name,
     group,
@@ -134,29 +143,17 @@ const TursoDatabaseResourceProvider = (
 });
 
 export class TursoDatabase extends $util.dynamic.Resource {
-  declare readonly name: $util.Output<TursoDatabaseResourceProviderOutputs['Name']>;
-  declare readonly dbId: $util.Output<TursoDatabaseResourceProviderOutputs['DbId']>;
-  declare readonly hostname: $util.Output<TursoDatabaseResourceProviderOutputs['Hostname']>;
+  declare readonly Name: $util.Output<TursoDatabaseResourceProviderOutputs['Name']>;
+  declare readonly DbId: $util.Output<TursoDatabaseResourceProviderOutputs['DbId']>;
+  declare readonly Hostname: $util.Output<TursoDatabaseResourceProviderOutputs['Hostname']>;
   declare readonly token: $util.Output<TursoDatabaseResourceProviderOutputs['token']>;
-  declare readonly regions: $util.Output<TursoDatabaseResourceProviderOutputs['regions']>;
   declare readonly primaryRegion: $util.Output<
     TursoDatabaseResourceProviderOutputs['primaryRegion']
   >;
+  declare readonly regions: $util.Output<TursoDatabaseResourceProviderOutputs['regions']>;
 
   constructor(name: string, props: TursoDatabaseInputs, opts?: $util.CustomResourceOptions) {
-    super(
-      TursoDatabaseResourceProvider(new TursoDatabaseApi(), opts),
-      name,
-      {
-        dbId: undefined,
-        hostname: undefined,
-        token: undefined,
-        regions: undefined,
-        primaryRegion: undefined,
-        ...props,
-      },
-      opts,
-    );
+    super(TursoDatabaseResourceProvider(new TursoDatabaseApi(), opts), name, props, opts);
   }
 }
 

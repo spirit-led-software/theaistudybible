@@ -69,7 +69,8 @@ FROM base AS release
 
 WORKDIR /app
 
-ENV NODE_ENV="production"
+ENV NODE_ENV production
+ENV PORT 8080
 
 RUN apt update \
 && apt install -y curl \
@@ -84,8 +85,8 @@ RUN cd server \
 && bun add @sentry/bun \
 && bun pm cache rm
 
-ENTRYPOINT [ "bun", "run", "--preload", "./server/sentry.plugin.ts", "./server/index.mjs" ]
-EXPOSE 3000
+ENTRYPOINT [ "bun", "run", "--smol", "--preload", "./server/sentry.plugin.ts", "./server/index.mjs" ]
+EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=15s --retries=5 --start-period=20s \
-  CMD curl -f http://localhost:3000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=15s --retries=5 --start-period=30s \
+  CMD curl -f http://localhost:${PORT}/health || exit 1

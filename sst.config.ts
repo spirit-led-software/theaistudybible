@@ -11,6 +11,7 @@ export default $config({
       command: true,
       docker: true,
       'docker-build': true,
+      '@ediri/pulumi-fly': true,
       hcloud: true,
       'pulumi-stripe': true,
       '@pulumiverse/sentry': true,
@@ -31,7 +32,7 @@ export default $config({
     const { webhooksApi } = await import('./infra/webhooks');
     await import('./infra/jobs');
     await import('./infra/www');
-    await import('./infra/vps');
+    await import('./infra/fly.io');
     await import('./infra/dev');
 
     return {

@@ -1,5 +1,5 @@
 import { TURSO_API_BASE_URL } from './constants';
-import type { TursoGroup as TursoGroupType, TursoLocationId } from './types';
+import type { TursoGroup as TursoGroupType, TursoLocation } from './types';
 
 export type TursoGroupInputs = {
   [k in keyof TursoGroupResourceProviderInputs]: $util.Input<TursoGroupResourceProviderInputs[k]>;
@@ -7,8 +7,8 @@ export type TursoGroupInputs = {
 
 type TursoGroupResourceProviderInputs = {
   name: string;
-  primaryLocation: TursoLocationId;
-  locations: TursoLocationId[];
+  primaryLocation: TursoLocation;
+  locations: TursoLocation[];
 };
 
 type TursoGroupResourceProviderOutputs = TursoGroupType;
@@ -20,6 +20,15 @@ const TursoGroupResourceProvider = (
   TursoGroupResourceProviderInputs,
   TursoGroupResourceProviderOutputs
 > => ({
+  read: async (id) => {
+    const { group } = await api.retrieve(id);
+    return {
+      id: group?.name,
+      outs: {
+        ...group,
+      },
+    };
+  },
   create: async ({ name, primaryLocation, locations }) => {
     let { group } = await api.retrieve(name);
     if (!group) {
@@ -31,17 +40,17 @@ const TursoGroupResourceProvider = (
 
     const allLocations = [...locations, primaryLocation];
 
-    const locationsToAdd = allLocations.filter((location) => !group.locations.includes(location));
-    for (const location of locationsToAdd) {
-      const { group: updatedGroup } = await api.addLocation(name, location);
-      group = updatedGroup;
-    }
-
     const locationsToRemove = group.locations.filter(
       (location) => !allLocations.includes(location),
     );
     for (const location of locationsToRemove) {
       const { group: updatedGroup } = await api.removeLocation(name, location);
+      group = updatedGroup;
+    }
+
+    const locationsToAdd = allLocations.filter((location) => !group.locations.includes(location));
+    for (const location of locationsToAdd) {
+      const { group: updatedGroup } = await api.addLocation(name, location);
       group = updatedGroup;
     }
 
@@ -69,17 +78,17 @@ const TursoGroupResourceProvider = (
 
     const allLocations = [...locations, primaryLocation];
 
-    const locationsToAdd = allLocations.filter((location) => !group.locations.includes(location));
-    for (const location of locationsToAdd) {
-      const { group: updatedGroup } = await api.addLocation(name, location);
-      group = updatedGroup;
-    }
-
     const locationsToRemove = group.locations.filter(
       (location) => !allLocations.includes(location),
     );
     for (const location of locationsToRemove) {
       const { group: updatedGroup } = await api.removeLocation(name, location);
+      group = updatedGroup;
+    }
+
+    const locationsToAdd = allLocations.filter((location) => !group.locations.includes(location));
+    for (const location of locationsToAdd) {
+      const { group: updatedGroup } = await api.addLocation(name, location);
       group = updatedGroup;
     }
 
@@ -107,15 +116,7 @@ export class TursoGroup extends $util.dynamic.Resource {
   declare readonly locations: $util.Output<TursoGroupResourceProviderOutputs['locations']>;
 
   constructor(name: string, props: TursoGroupInputs, opts?: $util.CustomResourceOptions) {
-    super(
-      TursoGroupResourceProvider(new TursoGroupApi(), opts),
-      name,
-      {
-        uuid: undefined,
-        ...props,
-      },
-      opts,
-    );
+    super(TursoGroupResourceProvider(new TursoGroupApi(), opts), name, props, opts);
   }
 }
 
@@ -174,7 +175,7 @@ class TursoGroupApi {
     };
   }
 
-  async create(name: string, location: TursoLocationId) {
+  async create(name: string, location: TursoLocation) {
     const data = await this.fetch({
       options: {
         method: 'POST',
@@ -195,7 +196,7 @@ class TursoGroupApi {
     });
   }
 
-  async addLocation(name: string, location: TursoLocationId) {
+  async addLocation(name: string, location: TursoLocation) {
     const data = await this.fetch({
       path: `/${name}/locations/${location}`,
       options: {
@@ -207,7 +208,7 @@ class TursoGroupApi {
     };
   }
 
-  async removeLocation(name: string, location: TursoLocationId) {
+  async removeLocation(name: string, location: TursoLocation) {
     const data = await this.fetch({
       path: `/${name}/locations/${location}`,
       options: {
