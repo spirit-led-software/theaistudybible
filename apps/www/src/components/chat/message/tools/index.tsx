@@ -20,7 +20,7 @@ export const Tools = (props: ToolsProps) => {
   return (
     <For each={props.toolInvocations}>
       {(toolInvocation) => (
-        <div class='flex w-full flex-col'>
+        <div class='flex w-full flex-col [&:not(:first-child)]:mt-6'>
           <Switch
             fallback={
               <div class='flex w-full flex-col'>
