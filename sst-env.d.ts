@@ -6,5 +6,133 @@ import "sst"
 export {}
 declare module "sst" {
   export interface Resource {
+    "AdminEmail": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "AdminPassword": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "AnthropicApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "BibleBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "Cdn": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
+    "ChapterMessageBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "Database": {
+      "name": string
+      "token": string
+      "type": "sst.sst.Linkable"
+      "url": string
+    }
+    "DeadLetterQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "Dev": {
+      "type": "sst.sst.Linkable"
+      "value": string
+    }
+    "DevotionImagesBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "Domain": {
+      "type": "sst.sst.Linkable"
+      "value": string
+    }
+    "Email": {
+      "configSet": string
+      "sender": string
+      "type": "sst.aws.Email"
+    }
+    "EmailQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "GeneratedImagesBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "IndexBibleChapterQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "IndexBibleQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "OpenAiApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ProfileImagesBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "ProfileImagesQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "SentryAuthToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "Stage": {
+      "type": "sst.sst.Linkable"
+      "value": string
+    }
+    "StripePublishableKey": {
+      "type": "sst.sst.Linkable"
+      "value": string
+    }
+    "StripeSecretKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "StripeWebhookEndpoint": {
+      "secret": string
+      "type": "stripe.index/webhookEndpoint.WebhookEndpoint"
+    }
+    "UpstashRedis": {
+      "redisUrl": string
+      "restToken": string
+      "restUrl": string
+      "type": "upstash.index/redisDatabase.RedisDatabase"
+    }
+    "UpstashVectorIndex": {
+      "readOnlyRestToken": string
+      "restToken": string
+      "restUrl": string
+      "type": "upstash.index/vectorIndex.VectorIndex"
+    }
+    "WebAppUrl": {
+      "type": "sst.sst.Linkable"
+      "value": string
+    }
+    "WebhooksApi": {
+      "type": "sst.sst.Linkable"
+      "url": string
+    }
+    "WebhooksApiFunction": {
+      "name": string
+      "type": "sst.aws.Function"
+      "url": string
+    }
+    "WebhooksDomain": {
+      "type": "sst.sst.Linkable"
+      "value": string
+    }
   }
 }

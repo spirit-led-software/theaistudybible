@@ -4,18 +4,17 @@ export default $config({
     removal: 'remove',
     home: 'aws',
     providers: {
-      aws: {
-        region: 'us-east-1',
-      },
+      aws: { region: 'us-east-1' },
       cloudflare: true,
-      command: true,
-      docker: true,
       'docker-build': true,
       '@ediri/pulumi-fly': true,
       hcloud: true,
       'pulumi-stripe': true,
       '@pulumiverse/sentry': true,
       tls: true,
+      turso: {
+        organization: 'ian-pascoe',
+      },
       '@upstash/pulumi': true,
     },
   }),

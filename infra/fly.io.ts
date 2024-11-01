@@ -10,7 +10,7 @@ import { SENTRY_AUTH_TOKEN } from './secrets';
 import * as storage from './storage';
 import { webAppEnv } from './www';
 
-type FlyRegion =
+export type FlyRegion =
   // Regular regions
   | 'ams' // Amsterdam, Netherlands
   | 'arn' // Stockholm, Sweden
@@ -48,13 +48,15 @@ type FlyRegion =
   | 'yul' // Montreal, Canada
   | 'yyz'; // Toronto, Canada
 
-export const flyRegions: FlyRegion[] = $app.stage === 'prod' ? ['atl', 'fra', 'sin'] : ['atl'];
+export const flyRegions: FlyRegion[] = isProd ? ['iad', 'fra', 'sin'] : ['iad'];
 
 export let flyApp: fly.App | undefined;
 export let webAppBuildImage: dockerbuild.Image | undefined;
 export let flyMachines: fly.Machine[] | undefined;
 if (!$dev) {
   flyApp = new fly.App('FlyApp', { name: `${$app.name}-${$app.stage}` });
+  new fly.Ip('FlyIpv4', { app: flyApp.name, type: 'v4' });
+  new fly.Ip('FlyIpv6', { app: flyApp.name, type: 'v6' });
 
   webAppBuildImage = buildWebAppImage();
   const { flyAwsAccessKey } = buildFlyIamUser();
@@ -80,7 +82,7 @@ if (!$dev) {
         ],
         cpuType: 'shared',
         cpus: isProd ? 2 : 1,
-        memory: 512,
+        memory: 1024,
         env: {
           AWS_ACCESS_KEY_ID: flyAwsAccessKey.id,
           AWS_SECRET_ACCESS_KEY: $util.secret(flyAwsAccessKey.secret),

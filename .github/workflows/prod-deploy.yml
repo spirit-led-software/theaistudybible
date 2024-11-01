@@ -19,7 +19,7 @@ env:
   HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
   FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
   TURSO_ORG: ${{ vars.TURSO_ORG }}
-  TURSO_API_KEY: ${{ secrets.TURSO_API_KEY }}
+  TURSO_API_TOKEN: ${{ secrets.TURSO_API_KEY }}
   UPSTASH_EMAIL: ${{ vars.UPSTASH_EMAIL }}
   UPSTASH_API_KEY: ${{ secrets.UPSTASH_API_KEY }}
   STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}

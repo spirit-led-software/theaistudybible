@@ -1,30 +1,38 @@
-import { turso } from './resources';
+import { isProd } from './constants';
+import type { FlyRegion } from './fly.io';
 
-let tursoGroup: turso.TursoGroup | undefined;
-let tursoDb: turso.TursoDatabase | undefined;
+let tursoGroup: turso.Group | undefined;
+let tursoDb: turso.Database | undefined;
 if (!$dev) {
-  tursoGroup = new turso.TursoGroup(
-    'TursoGroup',
+  tursoGroup = isProd
+    ? new turso.Group(
+        'TursoGroup',
+        {
+          name: 'default',
+          primary: 'iad' satisfies FlyRegion,
+          locations: ['iad', 'fra', 'sin'] satisfies FlyRegion[],
+        },
+        { retainOnDelete: true },
+      )
+    : turso.Group.get('TursoGroup', 'default', {}, { retainOnDelete: true });
+
+  tursoDb = new turso.Database(
+    'TursoDatabase',
     {
-      name: 'default', // This must be default if not on the "Scale" plan or above
-      primaryLocation: 'atl',
-      locations: ['fra', 'sin'],
+      name: `${$app.name}-${$app.stage}`,
+      group: tursoGroup.name,
     },
-    {
-      retainOnDelete: true, // Other apps or stages may need to reference this
-    },
+    { retainOnDelete: isProd },
   );
-  tursoDb = new turso.TursoDatabase('TursoDatabase', {
-    name: `${$app.name}-${$app.stage}`,
-    group: tursoGroup.name,
-  });
 }
 
 export const database = new sst.Linkable('Database', {
   properties: {
-    name: tursoDb?.Name ?? 'dev',
-    url: tursoDb ? $interpolate`https://${tursoDb.Hostname}` : `file://${process.cwd()}/.libsql.db`,
-    token: tursoDb?.token ?? '',
+    name: tursoDb?.name ?? 'dev',
+    url: tursoDb
+      ? $interpolate`https://${tursoDb.database.hostname}`
+      : `file://${process.cwd()}/.libsql.db`,
+    token: tursoDb ? turso.getDatabaseTokenOutput({ id: tursoDb.id }).apply(({ jwt }) => jwt) : '',
   },
 });
 
