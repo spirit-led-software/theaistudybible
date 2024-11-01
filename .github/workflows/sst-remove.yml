@@ -28,9 +28,8 @@ jobs:
     name: Remove
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: CI setup
         uses: ./.github/actions/ci-setup

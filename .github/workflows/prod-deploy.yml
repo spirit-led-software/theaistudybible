@@ -31,12 +31,15 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: CI setup
         uses: ./.github/actions/ci-setup
+
+      - name: Set SST Stage
+        run: |
+          echo "production" > .sst/stage
 
       - name: Type check
         run: |
@@ -46,9 +49,9 @@ jobs:
         run: |
           bun run lint
 
-      - name: Set SST Stage
+      - name: Test
         run: |
-          echo "production" > .sst/stage
+          bun run test
 
       - name: Deploy
         run: |
