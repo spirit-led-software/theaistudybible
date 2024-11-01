@@ -71,10 +71,16 @@ export const generateReflection = async ({
 provide a thought-provoking and accurate reflection of the passage for the provided topic. You must only use
 the information from the vector store in your reflection. Your reflection must be 500 words or less.`,
     prompt: `The topic is "${topic}".
-Here is the Bible passage:
+
+Here is the Bible passage (delimited by triple dashes):
+---
 ${bibleReading}
-Here is a summary of the passage:
+---
+
+Here is a summary of the passage (delimited by triple dashes):
+---
 ${summary}
+---
 
 Write a reflection of the passage.`,
     tools: {
@@ -101,7 +107,8 @@ export const generatePrayer = async ({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
     system: `You are an expert at writing Christian prayers. You must write a closing prayer for the provided devotional. 
 Your prayer must be 200 words or less.`,
-    prompt: `Here is the devotional:
+    prompt: `Here is the devotional (delimited by triple dashes):
+---
 Topic:
 ${topic}
 Reading:
@@ -110,9 +117,9 @@ Summary:
 ${summary}
 Reflection:
 ${reflection}
+---
 
 Write a closing prayer.`,
-    maxToolRoundtrips: 5,
   });
 
   return prayer;
@@ -136,12 +143,13 @@ export const generateDiveDeeperQueries = async ({
     schema: z.object({
       queries: z.array(z.string()),
     }),
-    system: `You must generate 1 to 4 follow-up queries to help the user dive deeper into the topic explored in the devotional. The queries must be posed
+    system: `You must generate follow-up queries to help the user dive deeper into the topic explored in the devotional. The queries must be posed
 as though you are the user.
 
 Here is an example query given the topic of "money":
 How can I best utilize my money for the Gospel?`,
-    prompt: `Here is the devotional:
+    prompt: `Here is the devotional (delimited by triple dashes):
+---
 Topic:
 ${topic}
 Reading:
@@ -152,6 +160,7 @@ Reflection:
 ${reflection}
 Prayer:
 ${prayer}
+---
 
 Generate 1 to 4 follow-up queries to help the user dive deeper into the topic explored in the devotional.`,
   });
@@ -162,21 +171,18 @@ Generate 1 to 4 follow-up queries to help the user dive deeper into the topic ex
 export const generateImagePrompt = async (devotion: Devotion) => {
   const { text: imagePrompt } = await generateText({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
-    system: `You must generate a prompt that will generate an accurate image to represent the devotional. You must use the vector store to search
-for relevant resources to make your prompt extremely accurate. You must only use the information from the vector store in your prompt. 
-Your prompt must be 200 words or less.`,
-    prompt: `Here is the devotional:
+    system:
+      'You must generate a prompt that will generate an image to represent the devotional. Be creative and unique.',
+    prompt: `Here is the devotional (delimited by triple dashes):
+---
 Topic: ${devotion.topic}
 Reading: ${devotion.bibleReading}
 Summary: ${devotion.summary}
 Reflection: ${devotion.reflection}
 Prayer: ${devotion.prayer}
+---
 
-Generate a prompt that will generate an accurate image to represent the devotional.`,
-    tools: {
-      vectorStore: vectorStoreTool,
-    },
-    maxToolRoundtrips: 5,
+Generate the prompt.`,
   });
 
   return imagePrompt;

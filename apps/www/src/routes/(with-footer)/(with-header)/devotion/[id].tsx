@@ -12,7 +12,7 @@ import type { RouteDefinition } from '@solidjs/router';
 import { A, useParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import { Show, createEffect } from 'solid-js';
+import { For, Show, createEffect } from 'solid-js';
 
 const getDevotion = GET(async ({ id }: { id: string }) => {
   'use server';
@@ -118,6 +118,29 @@ const DevotionPage = () => {
                           </H2>
                           <img src={image.url!} alt='Illustration for the devotion' />
                           <p class='text-xs'>Prompt: {image.prompt}</p>
+                        </div>
+                      )}
+                    </Show>
+                    <Show when={devotion.diveDeeperQueries} keyed>
+                      {(queries) => (
+                        <div class='flex flex-col gap-2'>
+                          <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+                            Dive Deeper
+                          </H2>
+                          <div class='grid grid-cols-1 gap-2 sm:grid-cols-2'>
+                            <For each={queries}>
+                              {(query) => (
+                                <Button
+                                  as={A}
+                                  href={`/chat?query=${encodeURIComponent(query)}`}
+                                  variant='outline'
+                                  class='h-auto w-full whitespace-normal py-3 text-left'
+                                >
+                                  {query}
+                                </Button>
+                              )}
+                            </For>
+                          </div>
                         </div>
                       )}
                     </Show>

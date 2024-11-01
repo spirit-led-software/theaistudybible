@@ -1,8 +1,9 @@
 import { createScrollAnchor } from '@/www/hooks/create-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
 import { Title } from '@solidjs/meta';
+import { useSearchParams } from '@solidjs/router';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
-import { For, Match, Show, Switch, createEffect, createMemo, on } from 'solid-js';
+import { For, Match, Show, Switch, createEffect, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
@@ -49,21 +50,12 @@ export const ChatWindow = (props: ChatWindowProps) => {
       modelId: chatStore.modelId,
     },
   }));
-  const chat = createMemo(() => {
-    if (chatQuery.status === 'success') {
-      return chatQuery.data.chat;
-    }
-    return undefined;
-  });
-  const chatName = createMemo(on(chat, (chat) => chat?.name ?? 'New Chat'));
 
-  createEffect(
-    on(chat, (chat) => {
-      if (chat) {
-        setChatStore('chat', chat);
-      }
-    }),
-  );
+  createEffect(() => {
+    if (chatQuery.status === 'success') {
+      setChatStore('chat', chatQuery.data.chat);
+    }
+  });
 
   createEffect(
     on(error, (error) => {
@@ -83,9 +75,25 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const { isAtBottom, scrollToBottomSmooth, setScrollRef, setMessagesRef, setVisibilityRef } =
     createScrollAnchor();
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  createEffect(
+    on(
+      () => searchParams,
+      (searchParams) => {
+        if (searchParams.query) {
+          const query = Array.isArray(searchParams.query)
+            ? searchParams.query[0]
+            : searchParams.query;
+          append({ role: 'user', content: query });
+          setSearchParams({ query: undefined }, { replace: true });
+        }
+      },
+    ),
+  );
+
   return (
     <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
-      <Title>{chatName()} | The AI Study Bible</Title>
+      <Title>{chatQuery.data?.chat?.name ?? 'New Chat'} | The AI Study Bible</Title>
       <ChatMenu />
       <Show when={!isAtBottom()}>
         <Button
