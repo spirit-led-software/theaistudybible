@@ -62,7 +62,12 @@ export default function App() {
     },
   });
 
-  const storageManager = createMemo(() => cookieStorageManager(isServer ? getServerCookies().colorMode : undefined));
+  const storageManager = createMemo(
+    () => cookieStorageManager(
+      COLOR_MODE_STORAGE_KEY, 
+      isServer ? getServerCookies().colorMode : undefined,
+    )
+  );
 
   onMount(() => {
     posthog.init('phc_z3PcZTeDMCT53dKzb0aqDXkrM1o3LpNcC9QlJDdG9sO', {
