@@ -3,18 +3,17 @@ import {
   COLOR_MODE_STORAGE_KEY,
   ColorModeProvider,
   ColorModeScript,
-  cookieStorageManager,
+  createCookieStorageManager,
 } from '@kobalte/core';
 import * as Sentry from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
-import { GET } from '@solidjs/start';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import posthog from 'posthog-js';
-import { Show, Suspense, createMemo, onMount } from 'solid-js';
+import { Show, Suspense, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import { getCookie, setCookie } from 'vinxi/http';
+import {} from 'vinxi/http';
 import { Logo } from './components/branding/logo';
 import { SentryErrorBoundary } from './components/sentry/error-boundary';
 import { SentryRouter } from './components/sentry/router';
@@ -29,16 +28,7 @@ import { DevotionProvider } from './contexts/devotion';
 import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
-
-const getServerCookies = GET(() => {
-  'use server';
-  let colorMode = getCookie(COLOR_MODE_STORAGE_KEY);
-  if (!colorMode) {
-    colorMode = 'system';
-    setCookie(COLOR_MODE_STORAGE_KEY, colorMode);
-  }
-  return { colorMode: `${COLOR_MODE_STORAGE_KEY}=${colorMode}` }
-});
+import { getColorModeCookie } from './server/cookie';
 
 export default function App() {
   const queryClient = new QueryClient({
@@ -62,11 +52,9 @@ export default function App() {
     },
   });
 
-  const storageManager = createMemo(
-    () => cookieStorageManager(
-      COLOR_MODE_STORAGE_KEY, 
-      isServer ? getServerCookies().colorMode : undefined,
-    )
+  const storageManager = createCookieStorageManager(
+    COLOR_MODE_STORAGE_KEY,
+    isServer ? getColorModeCookie() : undefined,
   );
 
   onMount(() => {
@@ -93,8 +81,8 @@ export default function App() {
               name='description'
               content='The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.'
             />
-            <ColorModeScript storageType={storageManager().type} />
-            <ColorModeProvider storageManager={storageManager()} initialColorMode='system'>
+            <ColorModeScript storageType={storageManager.type} />
+            <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
               <AuthProvider>
                 <BibleProvider>
                   <ChatProvider>
