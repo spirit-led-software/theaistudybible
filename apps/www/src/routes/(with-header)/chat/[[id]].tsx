@@ -5,7 +5,7 @@ import { ChatWindow } from '@/www/components/chat/window';
 import { useChatStore } from '@/www/contexts/chat';
 import { getChatMessagesQueryProps, getChatQueryProps } from '@/www/hooks/use-chat';
 import type { RouteDefinition } from '@solidjs/router';
-import { Navigate, useParams } from '@solidjs/router';
+import { Navigate, useParams, useSearchParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
 import { Show } from 'solid-js';
 
@@ -23,6 +23,7 @@ export const route: RouteDefinition = {
 
 export default function ChatPage() {
   const params = useParams();
+  const [searchParams] = useSearchParams();
   const [chatStore] = useChatStore();
 
   return (
@@ -30,7 +31,7 @@ export default function ChatPage() {
       when={params.id}
       fallback={
         <Show
-          when={chatStore.chat}
+          when={!searchParams.query && chatStore.chat}
           fallback={
             <>
               <SignedIn>
@@ -45,7 +46,7 @@ export default function ChatPage() {
           }
           keyed
         >
-          {(chat) => <Navigate href={({ location }) => `/chat/${chat.id}?${location.search}`} />}
+          {(chat) => <Navigate href={({ location }) => `/chat/${chat.id}${location.search}`} />}
         </Show>
       }
       keyed
