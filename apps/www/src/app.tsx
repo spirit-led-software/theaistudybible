@@ -3,7 +3,7 @@ import {
   COLOR_MODE_STORAGE_KEY,
   ColorModeProvider,
   ColorModeScript,
-  cookieStorageManagerSSR,
+  cookieStorageManager,
 } from '@kobalte/core';
 import * as Sentry from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
@@ -12,7 +12,7 @@ import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import posthog from 'posthog-js';
-import { Show, Suspense, onMount } from 'solid-js';
+import { Show, Suspense, createMemo, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { getCookie, setCookie } from 'vinxi/http';
 import { Logo } from './components/branding/logo';
@@ -62,7 +62,7 @@ export default function App() {
     },
   });
 
-  const storageManager = cookieStorageManagerSSR(isServer ? getServerCookies().colorMode : document.cookie);
+  const storageManager = createMemo(() => cookieStorageManager(isServer ? getServerCookies().colorMode : undefined));
 
   onMount(() => {
     posthog.init('phc_z3PcZTeDMCT53dKzb0aqDXkrM1o3LpNcC9QlJDdG9sO', {
@@ -88,8 +88,8 @@ export default function App() {
               name='description'
               content='The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.'
             />
-            <ColorModeScript storageType={storageManager.type} />
-            <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
+            <ColorModeScript storageType={storageManager().type} />
+            <ColorModeProvider storageManager={storageManager()} initialColorMode='system'>
               <AuthProvider>
                 <BibleProvider>
                   <ChatProvider>
