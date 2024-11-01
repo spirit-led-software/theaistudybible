@@ -3,7 +3,7 @@ import { useChat } from '@/www/hooks/use-chat';
 import { Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
-import { For, Match, Show, Switch, createEffect, on } from 'solid-js';
+import { For, Match, Show, Switch, createEffect, createMemo, on } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
@@ -56,6 +56,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
       setChatStore('chat', chatQuery.data.chat);
     }
   });
+  const chatName = createMemo(() => chatStore.chat?.name ?? 'New Chat');
 
   createEffect(
     on(error, (error) => {
@@ -93,7 +94,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   return (
     <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
-      <Title>{chatQuery.data?.chat?.name ?? 'New Chat'} | The AI Study Bible</Title>
+      <Title>{chatName()} | The AI Study Bible</Title>
       <ChatMenu />
       <Show when={!isAtBottom()}>
         <Button

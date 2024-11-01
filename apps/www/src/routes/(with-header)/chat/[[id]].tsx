@@ -45,7 +45,7 @@ export default function ChatPage() {
           }
           keyed
         >
-          {(chat) => <Navigate href={`/chat/${chat.id}`} />}
+          {(chat) => <Navigate href={({ location }) => `/chat/${chat.id}?${location.search}`} />}
         </Show>
       }
       keyed
