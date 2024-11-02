@@ -15,7 +15,7 @@ export const webAppDevCommand = new sst.x.DevCommand('WebAppDev', {
   dev: {
     autostart: true,
     directory: 'apps/www',
-    command: 'bun run --preload ./sentry.plugin.ts dev',
+    command: 'bun run --preload ./sentry.instrumentation.mjs dev',
   },
   link: allLinks,
   environment: webAppEnv,

@@ -1,8 +1,10 @@
 import { embeddingsModelInfo } from '@/ai/embeddings';
 import type { Document } from '@/ai/types/document';
+import { numTokensFromString } from '@/ai/utils/num-tokens-from-string';
 import { contentsToText } from '@/core/utils/bible';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import { sha256 } from '@noble/hashes/sha256';
+import { bytesToHex } from '@noble/hashes/utils';
 
 export const versesToDocs = ({
   bible,
@@ -15,12 +17,10 @@ export const versesToDocs = ({
   chapter: Omit<Chapter, 'content'>;
   verses: Verse[];
 }) => {
-  const { chunkSize, chunkOverlap } = embeddingsModelInfo;
-
   const docs: Document[] = [];
   let i = 0;
   while (i < verses.length) {
-    const doc = processVerseChunk(verses, i, chunkSize, chunkOverlap, bible, book, chapter);
+    const doc = processVerseChunk(verses, i, bible, book, chapter);
     if (doc?.metadata?.verseIds) {
       docs.push(doc);
       i += (doc.metadata.verseIds as string[]).length;
@@ -35,8 +35,6 @@ export const versesToDocs = ({
 function processVerseChunk(
   verses: Verse[],
   startIndex: number,
-  chunkSize: number,
-  chunkOverlap: number,
   bible: Bible,
   book: Book,
   chapter: Omit<Chapter, 'content'>,
@@ -50,29 +48,41 @@ function processVerseChunk(
   let i = startIndex;
   if (i > 0) {
     let j = i - 1;
-    while (j >= 0 && currentPageContent.length < chunkOverlap) {
+    while (
+      j >= 0 &&
+      numTokensFromString({ text: currentPageContent }) < embeddingsModelInfo.chunkOverlap
+    ) {
       const prevVerse = verses[j];
       verseStart = prevVerse.number;
-      currentPageContent = `${contentsToText(prevVerse.content)}${currentPageContent}`;
+      currentPageContent = `${contentsToText(prevVerse.content).trim()} ${currentPageContent}`;
+      verseIds.unshift(prevVerse.id);
       j--;
     }
     i = j + 1;
   }
 
   // Handle content
-  while (i < verses.length && currentPageContent.length < chunkSize) {
+  while (
+    i < verses.length &&
+    numTokensFromString({ text: currentPageContent }) < embeddingsModelInfo.chunkSize
+  ) {
     const verse = verses[i];
     verseEnd = verse.number;
-    currentPageContent += contentsToText(verse.content);
+    currentPageContent += ` ${contentsToText(verse.content).trim()}`;
     verseIds.push(verse.id);
     i++;
   }
+
+  currentPageContent = currentPageContent.trim();
 
   const verseRange = `${verseStart}-${verseEnd}`;
   const name = `${book.shortName} ${chapter.number}:${verseRange} (${bible.abbreviationLocal})`;
 
   const content = `"${currentPageContent}" - ${name}`;
-  const id = `${bible.abbreviation}_${Buffer.from(sha256(content)).toString('hex')}`;
+
+  const sha265hasher = sha256.create();
+  sha265hasher.outputLen = 12;
+  const id = `${bible.abbreviation}_${bytesToHex(sha265hasher.update(content).digest())}`;
 
   return {
     id,

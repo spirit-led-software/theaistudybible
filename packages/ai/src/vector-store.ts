@@ -59,61 +59,51 @@ export class VectorStore {
     options: AddDocumentsOptions = addDocumentsDefaults,
   ): Promise<string[]> {
     const docsWithEmbeddings = await this.embeddings.embedDocuments(docs);
-    try {
-      const batches = Math.ceil(docsWithEmbeddings.length / VectorStore.MAX_UPSERT_BATCH_SIZE);
-      for (let i = 0; i < batches; i++) {
-        let batch = docsWithEmbeddings.slice(
-          i * VectorStore.MAX_UPSERT_BATCH_SIZE,
-          (i + 1) * VectorStore.MAX_UPSERT_BATCH_SIZE,
-        );
+    const batches = Math.ceil(docsWithEmbeddings.length / VectorStore.MAX_UPSERT_BATCH_SIZE);
+    for (let i = 0; i < batches; i++) {
+      let batch = docsWithEmbeddings.slice(
+        i * VectorStore.MAX_UPSERT_BATCH_SIZE,
+        (i + 1) * VectorStore.MAX_UPSERT_BATCH_SIZE,
+      );
 
-        let existingDocs: Document[] = [];
-        if (options.overwrite === false) {
-          existingDocs = await this.client
-            .fetch(
-              batch.map((d) => d.id),
-              {
-                includeMetadata: false,
-                includeVectors: false,
-                namespace: options.namespace,
-              },
-            )
-            .then((r) => r.filter((d) => d !== null) as Document[]);
-          batch = batch.filter((d) => !existingDocs.some((e) => e.id === d.id));
-        }
-
-        await this.client.upsert(
-          batch.map((d) => ({
-            id: d.id,
-            vector: d.embedding,
-            metadata: {
-              content: d.content,
-              ...d.metadata,
+      let existingDocs: Document[] = [];
+      if (options.overwrite === false) {
+        existingDocs = await this.client
+          .fetch(
+            batch.map((d) => d.id),
+            {
+              includeMetadata: false,
+              includeVectors: false,
+              namespace: options.namespace,
             },
-          })),
-          { namespace: options.namespace },
-        );
+          )
+          .then((r) => r.filter((d) => d !== null) as Document[]);
+        batch = batch.filter((d) => !existingDocs.some((e) => e.id === d.id));
       }
-      return docsWithEmbeddings.map((d) => d.id);
-    } catch (e) {
-      console.error(JSON.stringify(e));
-      throw e;
+
+      await this.client.upsert(
+        batch.map((d) => ({
+          id: d.id,
+          vector: d.embedding,
+          metadata: {
+            content: d.content,
+            ...d.metadata,
+          },
+        })),
+        { namespace: options.namespace },
+      );
     }
+    return docsWithEmbeddings.map((d) => d.id);
   }
 
   async deleteDocuments(ids: string[]): Promise<void> {
-    try {
-      const batches = Math.ceil(ids.length / VectorStore.MAX_DELETE_BATCH_SIZE);
-      for (let i = 0; i < batches; i++) {
-        const batch = ids.slice(
-          i * VectorStore.MAX_DELETE_BATCH_SIZE,
-          (i + 1) * VectorStore.MAX_DELETE_BATCH_SIZE,
-        );
-        await this.client.delete(batch);
-      }
-    } catch (e) {
-      console.error(JSON.stringify(e));
-      throw e;
+    const batches = Math.ceil(ids.length / VectorStore.MAX_DELETE_BATCH_SIZE);
+    for (let i = 0; i < batches; i++) {
+      const batch = ids.slice(
+        i * VectorStore.MAX_DELETE_BATCH_SIZE,
+        (i + 1) * VectorStore.MAX_DELETE_BATCH_SIZE,
+      );
+      await this.client.delete(batch);
     }
   }
 

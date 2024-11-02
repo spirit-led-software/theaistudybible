@@ -11,6 +11,8 @@
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
+    "@sentry/aws-serverless": "^8.36.0",
+    "@sentry/profiling-node": "^8.36.0",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",

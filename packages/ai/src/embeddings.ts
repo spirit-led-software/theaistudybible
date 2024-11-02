@@ -43,15 +43,15 @@ export class Embeddings {
   async embedDocuments(docs: Document[]) {
     let result: DocumentWithEmbedding[] = [];
 
-    const chunkSize = 25;
+    const chunkSize = 20;
     for (let i = 0; i < docs.length; i += chunkSize) {
       const chunk = docs.slice(i, i + chunkSize);
-      const embeddingResponse = await this.embeddings.doEmbed({
+      const { embeddings } = await this.embeddings.doEmbed({
         values: chunk.map((d) => d.content),
       });
 
       result = result.concat(
-        embeddingResponse.embeddings.map((d, index) => ({
+        embeddings.map((d, index) => ({
           ...chunk[index],
           embedding: d,
         })),

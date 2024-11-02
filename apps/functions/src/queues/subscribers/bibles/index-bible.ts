@@ -1,9 +1,12 @@
+import '@/functions/sentry.instrumentation';
+
 import { s3 } from '@/core/storage';
 import { createBibleFromDblZip } from '@/core/utils/bibles/create-from-dbl-zip';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
+import * as Sentry from '@sentry/aws-serverless';
 import type { S3EventRecord, SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
 
-export const handler: SQSHandler = async (event) => {
+export const handler: SQSHandler = Sentry.wrapHandler(async (event) => {
   console.log('Processing index bible event:', JSON.stringify(event, null, 2));
 
   const batchItemFailures: SQSBatchItemFailure[] = [];
@@ -52,4 +55,4 @@ export const handler: SQSHandler = async (event) => {
   }
 
   return { batchItemFailures };
-};
+});

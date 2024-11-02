@@ -79,14 +79,14 @@ RUN apt update \
 
 COPY --from=build /build/apps/www/.output .
 
-COPY --link ./apps/www/sentry.plugin.ts ./server/
+COPY --link ./apps/www/sentry.instrumentation.mjs ./server/
 RUN cd server \
 && bun install \
 && bun add @sentry/bun \
 && bun pm cache rm
 
-ENTRYPOINT [ "bun", "run", "--smol", "--preload", "./server/sentry.plugin.ts", "./server/index.mjs" ]
-EXPOSE 8080
+ENTRYPOINT [ "bun", "run", "--smol", "--preload", "./server/sentry.instrumentation.mjs", "./server/index.mjs" ]
+EXPOSE ${PORT}
 
 HEALTHCHECK --interval=30s --timeout=15s --retries=5 --start-period=30s \
   CMD curl -f http://localhost:${PORT}/health || exit 1

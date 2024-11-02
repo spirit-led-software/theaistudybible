@@ -40,7 +40,7 @@
     "@types/node": "^22.8.6",
     "cypress": "^13.15.1",
     "cypress-wait-until": "^3.0.2",
-    "drizzle-kit": "^0.27.0",
+    "drizzle-kit": "^0.27.1",
     "husky": "^9.1.6",
     "rimraf": "^6.0.1",
     "turbo": "^2.2.3",
@@ -49,10 +49,10 @@
     "vite-tsconfig-paths": "^5.0.1"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.682.0",
+    "@aws-sdk/client-s3": "^3.685.0",
     "@aws-sdk/client-ses": "^3.682.0",
     "@aws-sdk/client-sqs": "^3.682.0",
-    "@aws-sdk/s3-request-presigner": "^3.682.0",
+    "@aws-sdk/s3-request-presigner": "^3.685.0",
     "@ediri/pulumi-fly": "^0.1.16",
     "@libsql/client": "^0.14.0",
     "@upstash/ratelimit": "^2.0.4",
@@ -63,7 +63,7 @@
     "drizzle-zod": "^0.5.1",
     "lucia": "^3.2.2",
     "sst": "3.2.73",
-    "stripe": "^17.3.0",
+    "stripe": "^17.3.1",
     "zod": "^3.23.8"
   },
   "packageManager": "bun@1.1.27",
@@ -71,6 +71,7 @@
   "trustedDependencies": [
     "@biomejs/biome",
     "@sentry/cli",
+    "@sentry/profiling-node",
     "core-js",
     "cypress",
     "esbuild",

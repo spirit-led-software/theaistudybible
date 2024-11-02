@@ -1,10 +1,13 @@
+import '@/functions/sentry.instrumentation';
+
 import { ses } from '@/core/email';
 import { SendEmailCommand } from '@aws-sdk/client-ses';
+import * as Sentry from '@sentry/aws-serverless';
 import type { SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
 import { Resource } from 'sst';
 import { EmailQueueRecordSchema } from './schemas';
 
-export const handler: SQSHandler = async (event) => {
+export const handler: SQSHandler = Sentry.wrapHandler(async (event) => {
   console.log('Processing email event:', JSON.stringify(event, null, 2));
 
   const batchItemFailures: SQSBatchItemFailure[] = [];
@@ -43,4 +46,4 @@ export const handler: SQSHandler = async (event) => {
   }
 
   return { batchItemFailures };
-};
+});
