@@ -84,11 +84,6 @@ if (!$dev) {
         cpus: 1,
         memory: 1024,
         env: {
-          AWS_ACCESS_KEY_ID: flyAwsAccessKey.id,
-          AWS_SECRET_ACCESS_KEY: $util.secret(flyAwsAccessKey.secret),
-          AWS_REGION: $app.providers?.aws.region ?? 'us-east-1',
-          SST_RESOURCE_App: JSON.stringify({ name: $app.name, stage: $app.stage }),
-          ...webAppEnv,
           ...$output(links).apply((links) =>
             links.reduce(
               (acc, l) => {
@@ -98,6 +93,11 @@ if (!$dev) {
               {} as Record<string, string>,
             ),
           ),
+          SST_RESOURCE_App: JSON.stringify({ name: $app.name, stage: $app.stage }),
+          ...webAppEnv,
+          AWS_ACCESS_KEY_ID: flyAwsAccessKey.id,
+          AWS_SECRET_ACCESS_KEY: $util.secret(flyAwsAccessKey.secret),
+          AWS_REGION: $app.providers?.aws.region ?? 'us-east-1',
         },
       }),
     );
