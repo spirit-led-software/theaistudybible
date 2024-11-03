@@ -1,5 +1,3 @@
-import '@/functions/sentry.instrumentation';
-
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { s3 } from '@/core/storage';

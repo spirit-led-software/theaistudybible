@@ -1,5 +1,3 @@
-import '@/functions/sentry.instrumentation';
-
 import { db } from '@/core/database';
 import { s3 } from '@/core/storage';
 import { generateChapterEmbeddings } from '@/core/utils/bibles/generate-chapter-embeddings';

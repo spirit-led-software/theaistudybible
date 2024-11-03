@@ -1,5 +1,3 @@
-import '@/functions/sentry.instrumentation';
-
 import { ses } from '@/core/email';
 import { SendEmailCommand } from '@aws-sdk/client-ses';
 import * as Sentry from '@sentry/aws-serverless';

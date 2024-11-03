@@ -1,5 +1,3 @@
-import '@/functions/sentry.instrumentation';
-
 import { s3 } from '@/core/storage';
 import { createBibleFromDblZip } from '@/core/utils/bibles/create-from-dbl-zip';
 import { GetObjectCommand } from '@aws-sdk/client-s3';

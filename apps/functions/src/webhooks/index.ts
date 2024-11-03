@@ -1,5 +1,3 @@
-import '@/functions/sentry.instrumentation';
-
 import * as Sentry from '@sentry/aws-serverless';
 import { handle } from 'hono/aws-lambda';
 import { Hono } from 'hono/quick';

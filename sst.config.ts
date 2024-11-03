@@ -15,10 +15,10 @@ export default $config({
     },
   }),
   run: async () => {
+    await import('./infra/monitoring');
     await import('./infra/defaults');
     const { WEBAPP_URL } = await import('./infra/constants');
     await import('./infra/secrets');
-    await import('./infra/monitoring');
     await import('./infra/storage');
     const { cdn } = await import('./infra/cdn');
     const { database, upstashVectorIndex, upstashRedis } = await import('./infra/database');

@@ -2,6 +2,7 @@ import { cdn } from './cdn';
 import * as constants from './constants';
 import * as databases from './database';
 import { email } from './email';
+import { webAppSentryKey } from './monitoring';
 import * as queues from './queues';
 import { Constant } from './resources';
 import * as secrets from './secrets';
@@ -29,6 +30,24 @@ $transform(sst.aws.Function, (args) => {
   );
   args.nodejs = $output(args.nodejs).apply((nodejs) => ({
     ...nodejs,
-    install: Array.from(new Set([...(nodejs?.install || []), '@libsql/client'])),
+    install: Array.from(
+      new Set([...(nodejs?.install || []), '@libsql/client', '@sentry/aws-serverless']),
+    ),
+    esbuild: {
+      ...nodejs?.esbuild,
+      external: Array.from(
+        new Set([...(nodejs?.esbuild?.external || []), '@sentry/aws-serverless']),
+      ),
+    },
   }));
+  if (constants.isProd) {
+    args.environment = $util
+      .all([args.environment, webAppSentryKey?.dsnPublic])
+      .apply(([environment, sentryDsnPublic]) => ({
+        ...environment,
+        NODE_OPTIONS: '--import @sentry/aws-serverless/awslambda-auto',
+        SENTRY_DSN: sentryDsnPublic ?? '',
+        SENTRY_TRACES_SAMPLE_RATE: ($dev ? 0 : constants.isProd ? 1.0 : 0.5).toString(),
+      }));
+  }
 });

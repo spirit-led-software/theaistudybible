@@ -1,5 +1,3 @@
-import '@/functions/sentry.instrumentation';
-
 import { generateDevotion } from '@/ai/devotion';
 import { db } from '@/core/database';
 import { devotions } from '@/core/database/schema';

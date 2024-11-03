@@ -1,5 +1,3 @@
-import '@/functions/sentry.instrumentation';
-
 import { sqs } from '@/core/queues';
 import { SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import * as Sentry from '@sentry/aws-serverless';
