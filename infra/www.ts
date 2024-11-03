@@ -3,13 +3,15 @@ import { STRIPE_PUBLISHABLE_KEY, WEBAPP_URL } from './constants';
 import { allLinks } from './defaults';
 import { webAppSentryKey } from './monitoring';
 
-export const webAppEnv = {
-  PUBLIC_WEBAPP_URL: WEBAPP_URL.value,
-  PUBLIC_CDN_URL: cdn.url,
-  PUBLIC_STRIPE_PUBLISHABLE_KEY: STRIPE_PUBLISHABLE_KEY.value,
-  PUBLIC_STAGE: $app.stage,
-  PUBLIC_SENTRY_DSN: webAppSentryKey?.dsnPublic ?? '',
-};
+export const webAppEnv = $util
+  .all([WEBAPP_URL.value, cdn.url, STRIPE_PUBLISHABLE_KEY.value, webAppSentryKey?.dsnPublic])
+  .apply(([WEBAPP_URL, cdnUrl, stripePublishableKey, webAppSentryKeyDsnPublic]) => ({
+    PUBLIC_WEBAPP_URL: WEBAPP_URL,
+    PUBLIC_CDN_URL: cdnUrl,
+    PUBLIC_STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
+    PUBLIC_STAGE: $app.stage,
+    PUBLIC_SENTRY_DSN: webAppSentryKeyDsnPublic ?? '',
+  }));
 
 export const webAppDevCommand = new sst.x.DevCommand('WebAppDev', {
   dev: {

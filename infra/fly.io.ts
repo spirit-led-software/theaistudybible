@@ -62,6 +62,23 @@ if (!$dev) {
   const { flyAwsAccessKey } = buildFlyIamUser();
   const links = buildLinks(allLinks);
 
+  const env = $util
+    .all([links, webAppEnv, flyAwsAccessKey.id, $util.secret(flyAwsAccessKey.secret)])
+    .apply(([links, webAppEnv, flyAwsAccessKeyId, flyAwsAccessKeySecret]) => ({
+      ...links.reduce(
+        (acc, l) => {
+          acc[`SST_RESOURCE_${l.name}`] = JSON.stringify(l.properties);
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+      SST_RESOURCE_App: JSON.stringify({ name: $app.name, stage: $app.stage }),
+      ...webAppEnv,
+      AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
+      AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
+      AWS_REGION: $app.providers?.aws.region ?? 'us-east-1',
+    }));
+
   flyMachines = [];
   for (const region of flyRegions) {
     flyMachines.push(
@@ -83,22 +100,7 @@ if (!$dev) {
         cpuType: 'shared',
         cpus: 1,
         memory: 1024,
-        env: {
-          ...$output(links).apply((links) =>
-            links.reduce(
-              (acc, l) => {
-                acc[`SST_RESOURCE_${l.name}`] = JSON.stringify(l.properties);
-                return acc;
-              },
-              {} as Record<string, string>,
-            ),
-          ),
-          SST_RESOURCE_App: JSON.stringify({ name: $app.name, stage: $app.stage }),
-          ...webAppEnv,
-          AWS_ACCESS_KEY_ID: flyAwsAccessKey.id,
-          AWS_SECRET_ACCESS_KEY: $util.secret(flyAwsAccessKey.secret),
-          AWS_REGION: $app.providers?.aws.region ?? 'us-east-1',
-        },
+        env,
       }),
     );
   }
