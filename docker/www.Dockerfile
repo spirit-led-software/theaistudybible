@@ -72,6 +72,12 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV PORT 8080
 
+ENV PUBLIC_WEBAPP_URL=${webapp_url}
+ENV PUBLIC_CDN_URL=${cdn_url}
+ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
+ENV PUBLIC_STAGE=${stage}
+ENV PUBLIC_SENTRY_DSN=${sentry_dsn}
+
 RUN apt update \
 && apt install -y curl \
 && rm -rf /var/lib/apt/lists/* \

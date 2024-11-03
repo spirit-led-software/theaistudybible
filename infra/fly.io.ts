@@ -65,10 +65,10 @@ if (!$dev) {
   flyMachines = [];
   for (const region of flyRegions) {
     flyMachines.push(
-      new fly.Machine(`FlyMachine-${region}`, {
+      new fly.Machine(`FlyMachine-${region}-${Date.now()}`, {
         app: flyApp.name,
         region,
-        name: `${$app.name}-${$app.stage}-${region}`,
+        name: `${$app.stage}-${region}-${Date.now()}`,
         image: webAppBuildImage!.ref,
         services: [
           {

@@ -11,7 +11,7 @@
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^0.0.53",
+    "@ai-sdk/anthropic": "^0.0.54",
     "@ai-sdk/openai": "^0.0.71",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
