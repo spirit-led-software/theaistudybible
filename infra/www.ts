@@ -5,8 +5,8 @@ import { webAppSentryKey } from './monitoring';
 
 export const webAppEnv = $util
   .all([WEBAPP_URL.value, cdn.url, STRIPE_PUBLISHABLE_KEY.value, webAppSentryKey?.dsnPublic])
-  .apply(([WEBAPP_URL, cdnUrl, stripePublishableKey, webAppSentryKeyDsnPublic]) => ({
-    PUBLIC_WEBAPP_URL: WEBAPP_URL,
+  .apply(([webAppUrl, cdnUrl, stripePublishableKey, webAppSentryKeyDsnPublic]) => ({
+    PUBLIC_WEBAPP_URL: webAppUrl,
     PUBLIC_CDN_URL: cdnUrl,
     PUBLIC_STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
     PUBLIC_STAGE: $app.stage,
