@@ -11,8 +11,6 @@ export default $config({
       aws: { region: 'us-east-1' },
       cloudflare: true,
       fly: true,
-      hcloud: true,
-      tls: true,
       turso: { organization: 'ian-pascoe' },
     },
   }),
