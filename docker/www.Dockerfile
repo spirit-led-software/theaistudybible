@@ -81,8 +81,9 @@ COPY --from=build /build/apps/www/.output .
 
 COPY --link ./apps/www/sentry.instrumentation.mjs ./server/
 RUN cd server \
-&& bun install \
 && bun add @sentry/bun \
+&& bun pm trust --all \
+&& bun install \
 && bun pm cache rm
 
 ENTRYPOINT [ "bun", "run", "--smol", "--preload", "./server/sentry.instrumentation.mjs", "./server/index.mjs" ]
