@@ -60,7 +60,7 @@ if (!$dev) {
   const flyOrg = process.env.FLY_ORG;
   const flyApiToken = $util.secret(process.env.FLY_API_TOKEN);
 
-  flyWebApp = new fly.App('FlyApp', { name: `${$app.name}-${$app.stage}`, org: flyOrg });
+  flyWebApp = new fly.App('FlyApp', { name: `${$app.name}-${$app.stage}-www` });
   new fly.Ip('FlyIpv4', { app: flyWebApp.name, type: 'v4' });
   new fly.Ip('FlyIpv6', { app: flyWebApp.name, type: 'v6' });
 
@@ -155,7 +155,6 @@ if (!$dev) {
         new fly.Machine(`FlyMachine-${region}`, {
           app: flyWebApp!.name,
           region,
-          name: $interpolate`${flyWebApp!.name}-${region}`,
           image: webAppBuildImage!.ref,
           services: [
             {
@@ -224,10 +223,7 @@ if (!$dev) {
   }
 
   function buildFlyAutoscaler() {
-    const app = new fly.App('FlyAutoscalerApp', {
-      name: `${$app.name}-${$app.stage}-autoscaler`,
-      org: flyOrg,
-    });
+    const app = new fly.App('FlyAutoscalerApp', { name: `${$app.name}-${$app.stage}-autoscaler` });
     const env = $util.all([flyApiToken, flyWebApp!.name]).apply(([flyApiToken, appName]) => ({
       FAS_API_TOKEN: flyApiToken,
       FAS_PROMETHEUS_TOKEN: flyApiToken,
@@ -240,7 +236,6 @@ if (!$dev) {
     const machine = new fly.Machine('FlyAutoscalerMachine', {
       app: app.name,
       region: 'iad',
-      name: $interpolate`${app.name}-iad`,
       image: 'fly/fly-autoscaler:latest',
       env,
       cpuType: 'shared',
