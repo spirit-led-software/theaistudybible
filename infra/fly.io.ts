@@ -50,13 +50,19 @@ export type FlyRegion =
 
 export const flyRegions: FlyRegion[] = isProd ? ['iad', 'fra', 'sin'] : ['iad'];
 
-export let flyWebApp: fly.App | undefined;
+export let flyWebApp: flyio.App | undefined;
 export let webAppBuildImage: dockerbuild.Image | undefined;
-export let flyMachines: fly.Machine[] | undefined;
+export let flyMachines: flyio.Machine[] | undefined;
 if (!$dev) {
-  flyWebApp = new fly.App('FlyApp', { name: `${$app.name}-${$app.stage}` });
-  new fly.Ip('FlyIpv4', { app: flyWebApp.name, type: 'v4' });
-  new fly.Ip('FlyIpv6', { app: flyWebApp.name, type: 'v6' });
+  if (!process.env.FLY_ORG || !process.env.FLY_API_TOKEN) {
+    throw new Error('FLY_ORG and FLY_API_TOKEN environment variables must be set');
+  }
+  const flyOrg = process.env.FLY_ORG;
+  const flyApiToken = $util.secret(process.env.FLY_API_TOKEN);
+
+  flyWebApp = new flyio.App('FlyApp', { name: `${$app.name}-${$app.stage}`, org: flyOrg });
+  new flyio.IP('FlyIpv4', { app: flyWebApp.name, region: 'global', addrType: 'v4' });
+  new flyio.IP('FlyIpv6', { app: flyWebApp.name, region: 'global', addrType: 'v6' });
 
   webAppBuildImage = buildWebAppImage();
   flyMachines = buildFlyMachines();
@@ -67,13 +73,7 @@ if (!$dev) {
   function buildWebAppImage() {
     return new dockerbuild.Image('WebAppImage', {
       tags: [$interpolate`registry.fly.io/${flyWebApp!.name}:latest`],
-      registries: [
-        {
-          address: 'registry.fly.io',
-          username: 'x',
-          password: $util.secret(process.env.FLY_API_TOKEN!),
-        },
-      ],
+      registries: [{ address: 'registry.fly.io', username: 'x', password: flyApiToken }],
       dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
       context: { location: process.cwd() },
       buildArgs: {
@@ -148,28 +148,28 @@ if (!$dev) {
   }
 
   function buildFlyMachines() {
-    const machines: fly.Machine[] = [];
+    const machines: flyio.Machine[] = [];
     const env = buildEnv();
     for (const region of flyRegions) {
       machines.push(
-        new fly.Machine(`FlyMachine-${region}`, {
+        new flyio.Machine(`FlyMachine-${region}`, {
           app: flyWebApp!.name,
           region,
-          image: webAppBuildImage!.ref,
-          services: [
-            {
-              ports: [
-                { port: 80, handlers: ['http'] },
-                { port: 443, handlers: ['tls', 'http'] },
-              ],
-              internalPort: 8080,
-              protocol: 'tcp',
-            },
-          ],
-          cpuType: 'shared',
-          cpus: 1,
-          memory: 512,
-          env,
+          config: {
+            image: webAppBuildImage!.ref,
+            services: [
+              {
+                ports: [
+                  { port: 80, handlers: ['http'] },
+                  { port: 443, handlers: ['tls', 'http'] },
+                ],
+                internalPort: 8080,
+                protocol: 'tcp',
+              },
+            ],
+            env,
+            guest: { cpuKind: 'shared', cpus: 1, memoryMb: 512 },
+          },
         }),
       );
     }
@@ -223,26 +223,28 @@ if (!$dev) {
   }
 
   function buildFlyAutoscaler() {
-    const app = new fly.App('FlyAutoscalerApp', {
+    const app = new flyio.App('FlyAutoscalerApp', {
       name: `${$app.name}-${$app.stage}-autoscaler`,
+      org: flyOrg,
     });
-    const env = $util
-      .all([$util.secret(process.env.FLY_API_TOKEN!), flyWebApp!.name])
-      .apply(([flyApiToken, appName]) => ({
-        FAS_API_TOKEN: flyApiToken,
-        FAS_PROMETHEUS_TOKEN: flyApiToken,
-        FAS_PROMETHEUS_ADDRESS: 'https://api.fly.io/prometheus/spirit-led-software',
-        FAS_PROMETHEUS_METRIC_NAME: 'queue_depth',
-        FAS_PROMETHEUS_QUERY: 'sum(queue_depth)',
-        FAS_APP_NAME: appName,
-        FAS_CREATED_MACHINE_COUNT: 'ceil(queue_depth / 25)',
-      }));
-    const machine = new fly.Machine('FlyAutoscalerMachine', {
+    const env = $util.all([flyApiToken, flyWebApp!.name]).apply(([flyApiToken, appName]) => ({
+      FAS_API_TOKEN: flyApiToken,
+      FAS_PROMETHEUS_TOKEN: flyApiToken,
+      FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${flyOrg}`,
+      FAS_PROMETHEUS_METRIC_NAME: 'qdepth',
+      FAS_PROMETHEUS_QUERY: "sum(queue_depth{app='$APP_NAME'})",
+      FAS_APP_NAME: appName,
+      FAS_CREATED_MACHINE_COUNT: 'min(50, qdepth / 2)',
+    }));
+    const machine = new flyio.Machine('FlyAutoscalerMachine', {
       app: app.name,
-      name: `${$app.stage}-autoscaler`,
       region: 'iad',
-      image: 'flyio/fly-autoscaler:latest',
-      env,
+      config: {
+        image: 'flyio/fly-autoscaler:latest',
+        env,
+        guest: { cpuKind: 'shared', cpus: 1, memoryMb: 256 },
+        metrics: { port: 9090, path: '/metrics' },
+      },
     });
     return { app, machine };
   }

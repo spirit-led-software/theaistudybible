@@ -4,10 +4,10 @@ export default $config({
     removal: 'remove',
     home: 'aws',
     providers: {
-      '@ediri/pulumi-fly': true,
       '@pulumiverse/sentry': true,
       '@upstash/pulumi': true,
       'docker-build': true,
+      'pulumi-flyio': { token: process.env.FLY_API_TOKEN! },
       'pulumi-stripe': true,
       aws: { region: 'us-east-1' },
       cloudflare: true,
