@@ -57,12 +57,12 @@
     "@libsql/client": "^0.14.0",
     "@upstash/ratelimit": "^2.0.4",
     "@upstash/redis": "^1.34.3",
-    "ai": "^3.4.32",
+    "ai": "^3.4.33",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.36.0",
     "drizzle-zod": "^0.5.1",
     "lucia": "^3.2.2",
-    "sst": "3.2.73",
+    "sst": "3.2.74",
     "stripe": "^17.3.1",
     "zod": "^3.23.8"
   },
@@ -70,6 +70,7 @@
   "workspaces": ["apps/*", "packages/*", "tools/*"],
   "trustedDependencies": [
     "@biomejs/biome",
+    "@parcel/watcher",
     "@sentry/cli",
     "@sentry/profiling-node",
     "core-js",

@@ -50,50 +50,23 @@ export type FlyRegion =
 
 export const flyRegions: FlyRegion[] = isProd ? ['iad', 'fra', 'sin'] : ['iad'];
 
-export let flyApp: fly.App | undefined;
+export let flyWebApp: fly.App | undefined;
 export let webAppBuildImage: dockerbuild.Image | undefined;
 export let flyMachines: fly.Machine[] | undefined;
 if (!$dev) {
-  flyApp = new fly.App('FlyApp', { name: `${$app.name}-${$app.stage}` });
-  new fly.Ip('FlyIpv4', { app: flyApp.name, type: 'v4' });
-  new fly.Ip('FlyIpv6', { app: flyApp.name, type: 'v6' });
+  flyWebApp = new fly.App('FlyApp', { name: `${$app.name}-${$app.stage}` });
+  new fly.Ip('FlyIpv4', { app: flyWebApp.name, type: 'v4' });
+  new fly.Ip('FlyIpv6', { app: flyWebApp.name, type: 'v6' });
 
   webAppBuildImage = buildWebAppImage();
-  const { flyAwsAccessKey } = buildFlyIamUser();
-  const links = buildLinks(allLinks);
-  const env = buildEnv();
-
-  flyMachines = [];
-  for (const region of flyRegions) {
-    flyMachines.push(
-      new fly.Machine(`FlyMachine-${region}`, {
-        app: flyApp.name,
-        region,
-        name: `${$app.stage}-${region}`,
-        image: webAppBuildImage!.ref,
-        services: [
-          {
-            ports: [
-              { port: 80, handlers: ['http'] },
-              { port: 443, handlers: ['tls', 'http'] },
-            ],
-            internalPort: 8080,
-            protocol: 'tcp',
-          },
-        ],
-        cpuType: 'shared',
-        cpus: 1,
-        memory: 1024,
-        env,
-      }),
-    );
-  }
+  flyMachines = buildFlyMachines();
 
   buildCloudflareRecordsAndCache();
+  buildFlyAutoscaler();
 
   function buildWebAppImage() {
     return new dockerbuild.Image('WebAppImage', {
-      tags: [$interpolate`registry.fly.io/${flyApp!.name}:latest`],
+      tags: [$interpolate`registry.fly.io/${flyWebApp!.name}:latest`],
       registries: [
         {
           address: 'registry.fly.io',
@@ -154,6 +127,8 @@ if (!$dev) {
   }
 
   function buildEnv() {
+    const { flyAwsAccessKey } = buildFlyIamUser();
+    const links = buildLinks(allLinks);
     return $util
       .all([links, webAppEnv, flyAwsAccessKey.id, $util.secret(flyAwsAccessKey.secret)])
       .apply(([links, webAppEnv, flyAwsAccessKeyId, flyAwsAccessKeySecret]) => ({
@@ -168,8 +143,37 @@ if (!$dev) {
         ...webAppEnv,
         AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
         AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
-        AWS_REGION: $app.providers?.aws.region ?? 'us-east-1',
+        AWS_REGION: ($app.providers?.aws.region ?? 'us-east-1') as string,
       }));
+  }
+
+  function buildFlyMachines() {
+    const machines: fly.Machine[] = [];
+    const env = buildEnv();
+    for (const region of flyRegions) {
+      machines.push(
+        new fly.Machine(`FlyMachine-${region}`, {
+          app: flyWebApp!.name,
+          region,
+          image: webAppBuildImage!.ref,
+          services: [
+            {
+              ports: [
+                { port: 80, handlers: ['http'] },
+                { port: 443, handlers: ['tls', 'http'] },
+              ],
+              internalPort: 8080,
+              protocol: 'tcp',
+            },
+          ],
+          cpuType: 'shared',
+          cpus: 1,
+          memory: 512,
+          env,
+        }),
+      );
+    }
+    return machines;
   }
 
   function buildCloudflareRecordsAndCache() {
@@ -177,7 +181,7 @@ if (!$dev) {
       zoneId: CLOUDFLARE_ZONE.zoneId,
       type: 'CNAME',
       name: isProd ? '@' : $app.stage,
-      value: $interpolate`${flyApp!.name}.fly.dev`,
+      value: $interpolate`${flyWebApp!.name}.fly.dev`,
       proxied: true,
     });
     if (isProd) {
@@ -216,5 +220,30 @@ if (!$dev) {
         { dependsOn: [ruleset] },
       );
     }
+  }
+
+  function buildFlyAutoscaler() {
+    const app = new fly.App('FlyAutoscalerApp', {
+      name: `${$app.name}-${$app.stage}-autoscaler`,
+    });
+    const env = $util
+      .all([$util.secret(process.env.FLY_API_TOKEN!), flyWebApp!.name])
+      .apply(([flyApiToken, appName]) => ({
+        FAS_API_TOKEN: flyApiToken,
+        FAS_PROMETHEUS_TOKEN: flyApiToken,
+        FAS_PROMETHEUS_ADDRESS: 'https://api.fly.io/prometheus/spirit-led-software',
+        FAS_PROMETHEUS_METRIC_NAME: 'queue_depth',
+        FAS_PROMETHEUS_QUERY: 'sum(queue_depth)',
+        FAS_APP_NAME: appName,
+        FAS_CREATED_MACHINE_COUNT: 'ceil(queue_depth / 25)',
+      }));
+    const machine = new fly.Machine('FlyAutoscalerMachine', {
+      app: app.name,
+      name: `${$app.stage}-autoscaler`,
+      region: 'iad',
+      image: 'flyio/fly-autoscaler:latest',
+      env,
+    });
+    return { app, machine };
   }
 }
