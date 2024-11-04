@@ -65,6 +65,7 @@ if (!$dev) {
     org: flyOrg,
     assignSharedIpAddress: true,
   });
+  const flyIpv4 = new fly.Ip('FlyIpv4', { app: flyWebApp.name, type: 'v4' });
   const flyIpv6 = new fly.Ip('FlyIpv6', { app: flyWebApp.name, type: 'v6' });
 
   webAppBuildImage = buildWebAppImage();
@@ -184,7 +185,7 @@ if (!$dev) {
       zoneId: CLOUDFLARE_ZONE.zoneId,
       type: 'A',
       name: isProd ? '@' : $app.stage,
-      value: flyWebApp!.sharedIpAddress,
+      value: flyIpv4.address,
       proxied: true,
     });
     new cloudflare.Record('WebAppIpv6Record', {
@@ -239,9 +240,9 @@ if (!$dev) {
       FAS_PROMETHEUS_TOKEN: flyApiToken,
       FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${flyOrg}`,
       FAS_PROMETHEUS_METRIC_NAME: 'connects',
-      FAS_PROMETHEUS_QUERY: '(fly_app_tcp_connects_count{app="$APP_NAME"} or vector(1))',
+      FAS_PROMETHEUS_QUERY: '(fly_app_tcp_connects_count{app="$APP_NAME"} or vector(0))',
       FAS_APP_NAME: appName,
-      FAS_CREATED_MACHINE_COUNT: 'min(50, ceil(connects / 200))', // Max 50 machines, 200 connections per machine
+      FAS_CREATED_MACHINE_COUNT: 'min(50, ceil(connects / 1000))', // Max 50 machines, 1000 connections per machine
     }));
     const machine = new fly.Machine(
       'FlyAutoscalerMachine',
