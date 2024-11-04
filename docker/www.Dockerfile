@@ -82,8 +82,6 @@ COPY --from=build /build/apps/www/.output .
 COPY --link ./apps/www/sentry.instrumentation.mjs ./server/
 RUN cd server \
 && bun add @sentry/bun \
-&& bun add -D @sentry/cli \
-&& bun pm trust --all \
 && bun install --frozen-lockfile \
 && bun pm cache rm
 
