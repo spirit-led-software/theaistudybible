@@ -148,6 +148,7 @@ if (!$dev) {
         AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
         AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
         AWS_REGION: ($app.providers?.aws.region ?? 'us-east-1') as string,
+        PRIMARY_REGION: flyRegions[0],
       }));
   }
 
