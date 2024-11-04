@@ -52,7 +52,7 @@ export const flyRegions: FlyRegion[] = isProd ? ['iad', 'fra', 'sin'] : ['iad'];
 
 export let flyWebApp: fly.App | undefined;
 export let webAppBuildImage: dockerbuild.Image | undefined;
-export let flyMachines: fly.Machine[] | undefined;
+export let flyWebAppMachines: fly.Machine[] | undefined;
 if (!$dev) {
   if (!process.env.FLY_ORG || !process.env.FLY_API_TOKEN) {
     throw new Error('FLY_ORG and FLY_API_TOKEN environment variables must be set');
@@ -65,12 +65,13 @@ if (!$dev) {
     org: flyOrg,
     assignSharedIpAddress: true,
   });
-  new fly.Ip('FlyIpv6', { app: flyWebApp.name, type: 'v6' });
+  const flyIpv6 = new fly.Ip('FlyIpv6', { app: flyWebApp.name, type: 'v6' });
 
   webAppBuildImage = buildWebAppImage();
-  flyMachines = buildFlyMachines();
+  flyWebAppMachines = buildFlyMachines();
 
   buildCloudflareRecordsAndCache();
+  buildFlyAutoscaler();
 
   function buildWebAppImage() {
     return new dockerbuild.Image('WebAppImage', {
@@ -181,9 +182,16 @@ if (!$dev) {
   function buildCloudflareRecordsAndCache() {
     new cloudflare.Record('WebAppCnameRecord', {
       zoneId: CLOUDFLARE_ZONE.zoneId,
-      type: 'CNAME',
+      type: 'A',
       name: isProd ? '@' : $app.stage,
-      value: $interpolate`${flyWebApp!.name}.fly.dev`,
+      value: flyWebApp!.sharedIpAddress,
+      proxied: true,
+    });
+    new cloudflare.Record('WebAppIpv6Record', {
+      zoneId: CLOUDFLARE_ZONE.zoneId,
+      type: 'AAAA',
+      name: isProd ? '@' : $app.stage,
+      value: flyIpv6.address,
       proxied: true,
     });
     if (isProd) {
@@ -210,7 +218,7 @@ if (!$dev) {
             },
           ],
         },
-        { dependsOn: [...flyMachines!] },
+        { dependsOn: [...flyWebAppMachines!] },
       );
       new cloudflareHelpers.PurgeCache(
         'PurgeCache',
@@ -222,5 +230,32 @@ if (!$dev) {
         { dependsOn: [ruleset] },
       );
     }
+  }
+
+  function buildFlyAutoscaler() {
+    const app = new fly.App('FlyAutoscalerApp', { name: `${$app.name}-${$app.stage}-autoscaler` });
+    const env = $util.all([flyApiToken, flyWebApp!.name]).apply(([flyApiToken, appName]) => ({
+      FAS_API_TOKEN: flyApiToken,
+      FAS_PROMETHEUS_TOKEN: flyApiToken,
+      FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${flyOrg}`,
+      FAS_PROMETHEUS_METRIC_NAME: 'connects',
+      FAS_PROMETHEUS_QUERY: '(fly_app_tcp_connects_count{app="$APP_NAME"} or vector(1))',
+      FAS_APP_NAME: appName,
+      FAS_CREATED_MACHINE_COUNT: 'min(50, ceil(connects / 200))', // Max 50 machines, 200 connections per machine
+    }));
+    const machine = new fly.Machine(
+      'FlyAutoscalerMachine',
+      {
+        app: app.name,
+        region: 'iad',
+        image: 'fly/fly-autoscaler:0.3',
+        env,
+        cpuType: 'shared',
+        cpus: 1,
+        memory: 256,
+      },
+      { dependsOn: [...flyWebAppMachines!] },
+    );
+    return { app, machine };
   }
 }
