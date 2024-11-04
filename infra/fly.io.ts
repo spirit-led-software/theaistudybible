@@ -60,15 +60,17 @@ if (!$dev) {
   const flyOrg = process.env.FLY_ORG;
   const flyApiToken = $util.secret(process.env.FLY_API_TOKEN);
 
-  flyWebApp = new fly.App('FlyApp', { name: `${$app.name}-${$app.stage}-www` });
-  new fly.Ip('FlyIpv4', { app: flyWebApp.name, type: 'v4' });
+  flyWebApp = new fly.App('FlyApp', {
+    name: `${$app.name}-${$app.stage}`,
+    org: flyOrg,
+    assignSharedIpAddress: true,
+  });
   new fly.Ip('FlyIpv6', { app: flyWebApp.name, type: 'v6' });
 
   webAppBuildImage = buildWebAppImage();
   flyMachines = buildFlyMachines();
 
   buildCloudflareRecordsAndCache();
-  buildFlyAutoscaler();
 
   function buildWebAppImage() {
     return new dockerbuild.Image('WebAppImage', {
@@ -166,10 +168,10 @@ if (!$dev) {
               protocol: 'tcp',
             },
           ],
-          env,
           cpuType: 'shared',
           cpus: 1,
           memory: 512,
+          env,
         }),
       );
     }
@@ -220,28 +222,5 @@ if (!$dev) {
         { dependsOn: [ruleset] },
       );
     }
-  }
-
-  function buildFlyAutoscaler() {
-    const app = new fly.App('FlyAutoscalerApp', { name: `${$app.name}-${$app.stage}-autoscaler` });
-    const env = $util.all([flyApiToken, flyWebApp!.name]).apply(([flyApiToken, appName]) => ({
-      FAS_API_TOKEN: flyApiToken,
-      FAS_PROMETHEUS_TOKEN: flyApiToken,
-      FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${flyOrg}`,
-      FAS_PROMETHEUS_METRIC_NAME: 'connections',
-      FAS_PROMETHEUS_QUERY: 'fly_app_tcp_connects_count{app="$APP_NAME"} or vector(1)',
-      FAS_APP_NAME: appName,
-      FAS_CREATED_MACHINE_COUNT: 'min(50, ceil(connections / 200))', // Max 50 machines, 200 connections per machine
-    }));
-    const machine = new fly.Machine('FlyAutoscalerMachine', {
-      app: app.name,
-      region: 'iad',
-      image: 'fly/fly-autoscaler:latest',
-      env,
-      cpuType: 'shared',
-      cpus: 1,
-      memory: 256,
-    });
-    return { app, machine };
   }
 }

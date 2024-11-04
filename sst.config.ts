@@ -4,7 +4,7 @@ export default $config({
     removal: 'remove',
     home: 'aws',
     providers: {
-      '@ediri/pulumi-fly': { version: '0.1.17' },
+      '@ediri/pulumi-fly': true,
       '@pulumiverse/sentry': true,
       '@upstash/pulumi': true,
       'docker-build': true,
