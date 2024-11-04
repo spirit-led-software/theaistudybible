@@ -50,9 +50,9 @@ export type FlyRegion =
 
 export const flyRegions: FlyRegion[] = isProd ? ['iad', 'fra', 'sin'] : ['iad'];
 
-export let flyWebApp: flyio.App | undefined;
+export let flyWebApp: fly.App | undefined;
 export let webAppBuildImage: dockerbuild.Image | undefined;
-export let flyMachines: flyio.Machine[] | undefined;
+export let flyMachines: fly.Machine[] | undefined;
 if (!$dev) {
   if (!process.env.FLY_ORG || !process.env.FLY_API_TOKEN) {
     throw new Error('FLY_ORG and FLY_API_TOKEN environment variables must be set');
@@ -60,9 +60,9 @@ if (!$dev) {
   const flyOrg = process.env.FLY_ORG;
   const flyApiToken = $util.secret(process.env.FLY_API_TOKEN);
 
-  flyWebApp = new flyio.App('FlyApp', { name: `${$app.name}-${$app.stage}`, org: flyOrg });
-  new flyio.IP('FlyIpv4', { app: flyWebApp.name, region: 'global', addrType: 'v4' });
-  new flyio.IP('FlyIpv6', { app: flyWebApp.name, region: 'global', addrType: 'v6' });
+  flyWebApp = new fly.App('FlyApp', { name: `${$app.name}-${$app.stage}`, org: flyOrg });
+  new fly.Ip('FlyIpv4', { app: flyWebApp.name, type: 'v4' });
+  new fly.Ip('FlyIpv6', { app: flyWebApp.name, type: 'v6' });
 
   webAppBuildImage = buildWebAppImage();
   flyMachines = buildFlyMachines();
@@ -148,29 +148,29 @@ if (!$dev) {
   }
 
   function buildFlyMachines() {
-    const machines: flyio.Machine[] = [];
+    const machines: fly.Machine[] = [];
     const env = buildEnv();
     for (const region of flyRegions) {
       machines.push(
-        new flyio.Machine(`FlyMachine-${region}`, {
+        new fly.Machine(`FlyMachine-${region}`, {
           app: flyWebApp!.name,
           region,
           name: $interpolate`${flyWebApp!.name}-${region}`,
-          config: {
-            image: webAppBuildImage!.ref,
-            services: [
-              {
-                ports: [
-                  { port: 80, handlers: ['http'] },
-                  { port: 443, handlers: ['tls', 'http'] },
-                ],
-                internalPort: 8080,
-                protocol: 'tcp',
-              },
-            ],
-            env,
-            guest: { cpuKind: 'shared', cpus: 1, memoryMb: 512 },
-          },
+          image: webAppBuildImage!.ref,
+          services: [
+            {
+              ports: [
+                { port: 80, handlers: ['http'] },
+                { port: 443, handlers: ['tls', 'http'] },
+              ],
+              internalPort: 8080,
+              protocol: 'tcp',
+            },
+          ],
+          env,
+          cpuType: 'shared',
+          cpus: 1,
+          memory: 512,
         }),
       );
     }
@@ -224,7 +224,7 @@ if (!$dev) {
   }
 
   function buildFlyAutoscaler() {
-    const app = new flyio.App('FlyAutoscalerApp', {
+    const app = new fly.App('FlyAutoscalerApp', {
       name: `${$app.name}-${$app.stage}-autoscaler`,
       org: flyOrg,
     });
@@ -237,16 +237,15 @@ if (!$dev) {
       FAS_APP_NAME: appName,
       FAS_CREATED_MACHINE_COUNT: 'min(50, ceil(connections / 200))', // Max 50 machines, 200 connections per machine
     }));
-    const machine = new flyio.Machine('FlyAutoscalerMachine', {
+    const machine = new fly.Machine('FlyAutoscalerMachine', {
       app: app.name,
       region: 'iad',
       name: $interpolate`${app.name}-iad`,
-      config: {
-        image: 'flyio/fly-autoscaler:latest',
-        env,
-        guest: { cpuKind: 'shared', cpus: 1, memoryMb: 256 },
-        metrics: { port: 9090, path: '/metrics' },
-      },
+      image: 'fly/fly-autoscaler:latest',
+      env,
+      cpuType: 'shared',
+      cpus: 1,
+      memory: 256,
     });
     return { app, machine };
   }
