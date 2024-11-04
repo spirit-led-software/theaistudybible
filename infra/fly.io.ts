@@ -236,13 +236,17 @@ if (!$dev) {
   function buildFlyAutoscaler() {
     const app = new fly.App('FlyAutoscalerApp', { name: `${$app.name}-${$app.stage}-autoscaler` });
     const env = $util.all([flyApiToken, flyWebApp!.name]).apply(([flyApiToken, appName]) => ({
+      FAS_ORG: flyOrg,
+      FAS_APP_NAME: appName,
       FAS_API_TOKEN: flyApiToken,
-      FAS_PROMETHEUS_TOKEN: flyApiToken,
+      FAS_REGIONS: flyRegions.join(','),
+      FAS_CREATED_MACHINE_COUNT: 'ceil(connects / 1000)', // 1000 connections per machine
+      FAS_MIN_CREATED_MACHINE_COUNT: flyRegions.length.toString(),
+      FAS_MAX_CREATED_MACHINE_COUNT: (flyRegions.length * 20).toString(),
       FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${flyOrg}`,
+      FAS_PROMETHEUS_TOKEN: flyApiToken,
       FAS_PROMETHEUS_METRIC_NAME: 'connects',
       FAS_PROMETHEUS_QUERY: '(fly_app_tcp_connects_count{app="$APP_NAME"} or vector(0))',
-      FAS_APP_NAME: appName,
-      FAS_CREATED_MACHINE_COUNT: 'min(50, ceil(connects / 1000))', // Max 50 machines, 1000 connections per machine
     }));
     const machine = new fly.Machine(
       'FlyAutoscalerMachine',
