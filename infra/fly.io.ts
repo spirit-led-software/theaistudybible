@@ -61,31 +61,15 @@ if (!$dev) {
   webAppBuildImage = buildWebAppImage();
   const { flyAwsAccessKey } = buildFlyIamUser();
   const links = buildLinks(allLinks);
-
-  const env = $util
-    .all([links, webAppEnv, flyAwsAccessKey.id, $util.secret(flyAwsAccessKey.secret)])
-    .apply(([links, webAppEnv, flyAwsAccessKeyId, flyAwsAccessKeySecret]) => ({
-      ...links.reduce(
-        (acc, l) => {
-          acc[`SST_RESOURCE_${l.name}`] = JSON.stringify(l.properties);
-          return acc;
-        },
-        {} as Record<string, string>,
-      ),
-      SST_RESOURCE_App: JSON.stringify({ name: $app.name, stage: $app.stage }),
-      ...webAppEnv,
-      AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
-      AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
-      AWS_REGION: $app.providers?.aws.region ?? 'us-east-1',
-    }));
+  const env = buildEnv();
 
   flyMachines = [];
   for (const region of flyRegions) {
     flyMachines.push(
-      new fly.Machine(`FlyMachine-${region}-${Date.now()}`, {
+      new fly.Machine(`FlyMachine-${region}`, {
         app: flyApp.name,
         region,
-        name: `${$app.stage}-${region}-${Date.now()}`,
+        name: `${$app.stage}-${region}`,
         image: webAppBuildImage!.ref,
         services: [
           {
@@ -167,6 +151,25 @@ if (!$dev) {
       user: flyIamUser.name,
     });
     return { flyIamUser, flyAwsAccessKey };
+  }
+
+  function buildEnv() {
+    return $util
+      .all([links, webAppEnv, flyAwsAccessKey.id, $util.secret(flyAwsAccessKey.secret)])
+      .apply(([links, webAppEnv, flyAwsAccessKeyId, flyAwsAccessKeySecret]) => ({
+        ...links.reduce(
+          (acc, l) => {
+            acc[`SST_RESOURCE_${l.name}`] = JSON.stringify(l.properties);
+            return acc;
+          },
+          {} as Record<string, string>,
+        ),
+        SST_RESOURCE_App: JSON.stringify({ name: $app.name, stage: $app.stage }),
+        ...webAppEnv,
+        AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
+        AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
+        AWS_REGION: $app.providers?.aws.region ?? 'us-east-1',
+      }));
   }
 
   function buildCloudflareRecordsAndCache() {
