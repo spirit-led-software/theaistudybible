@@ -234,7 +234,7 @@ if (!$dev) {
       FAS_PROMETHEUS_METRIC_NAME: 'qdepth',
       FAS_PROMETHEUS_QUERY: "sum(queue_depth{app='$APP_NAME'})",
       FAS_APP_NAME: appName,
-      FAS_CREATED_MACHINE_COUNT: 'min(50, qdepth / 2)',
+      FAS_CREATED_MACHINE_COUNT: 'min(50, ceil(qdepth / 5))',
     }));
     const machine = new flyio.Machine('FlyAutoscalerMachine', {
       app: app.name,
