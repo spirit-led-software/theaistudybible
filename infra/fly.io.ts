@@ -231,10 +231,10 @@ if (!$dev) {
       FAS_API_TOKEN: flyApiToken,
       FAS_PROMETHEUS_TOKEN: flyApiToken,
       FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${flyOrg}`,
-      FAS_PROMETHEUS_METRIC_NAME: 'qdepth',
-      FAS_PROMETHEUS_QUERY: "sum(queue_depth{app='$APP_NAME'})",
+      FAS_PROMETHEUS_METRIC_NAME: 'connections',
+      FAS_PROMETHEUS_QUERY: 'fly_app_tcp_connects_count{app="$APP_NAME"} or vector(1)',
       FAS_APP_NAME: appName,
-      FAS_CREATED_MACHINE_COUNT: 'min(50, ceil(qdepth / 5))',
+      FAS_CREATED_MACHINE_COUNT: 'min(50, ceil(connections / 20))', // Max 50 machines, 20 connections per machine
     }));
     const machine = new flyio.Machine('FlyAutoscalerMachine', {
       app: app.name,
