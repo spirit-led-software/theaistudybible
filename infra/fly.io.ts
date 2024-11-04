@@ -248,7 +248,7 @@ if (!$dev) {
       {
         app: app.name,
         region: 'iad',
-        image: 'fly/fly-autoscaler:0.3',
+        image: 'flyio/fly-autoscaler:latest',
         env,
         cpuType: 'shared',
         cpus: 1,
