@@ -11,7 +11,7 @@ import {
 const isProd = process.env.PUBLIC_STAGE === 'production';
 const isDev = process.env.DEV;
 
-const integrations = getDefaultIntegrations({}).filter((integration) => integration.name !== 'Http')
+const integrations = getDefaultIntegrations({}).filter((integration) => integration.name !== 'Http');
 
 const client = new BunClient({
   dsn: process.env.PUBLIC_SENTRY_DSN,
@@ -20,7 +20,7 @@ const client = new BunClient({
   tracesSampleRate: isDev ? 0 : isProd ? 1.0 : 0.5,
   integrations,
   environment: process.env.PUBLIC_STAGE,
-})
+});
 
-setCurrentClient(client)
-client.init()
+setCurrentClient(client);
+client.init();
