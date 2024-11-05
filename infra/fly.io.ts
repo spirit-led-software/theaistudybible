@@ -48,7 +48,7 @@ export type FlyRegion =
   | 'yul' // Montreal, Canada
   | 'yyz'; // Toronto, Canada
 
-export const flyRegions: FlyRegion[] = isProd ? ['iad', 'fra', 'sin'] : ['iad'];
+export const flyRegions: FlyRegion[] = isProd ? ['iad', 'sin'] : ['iad'];
 
 export let flyWebApp: fly.App | undefined;
 export let webAppBuildImage: dockerbuild.Image | undefined;
@@ -172,8 +172,8 @@ if (!$dev) {
             },
           ],
           cpuType: 'shared',
-          cpus: 1,
-          memory: 512,
+          cpus: 2,
+          memory: 1024,
           env,
         }),
       );
