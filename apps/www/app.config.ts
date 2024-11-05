@@ -53,8 +53,8 @@ export default defineConfig({
         },
       }),
       sentrySolidStartVite({
-        org: process.env.SENTRY_ORG,
-        project: process.env.SENTRY_PROJECT,
+        org: process.env.PUBLIC_SENTRY_ORG,
+        project: process.env.PUBLIC_SENTRY_PROJECT_NAME,
         authToken: process.env.SENTRY_AUTH_TOKEN,
       }),
     ],

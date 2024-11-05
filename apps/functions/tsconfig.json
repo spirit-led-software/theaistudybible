@@ -13,6 +13,8 @@
       "@/ai/*": ["../../packages/ai/src/*"],
       "@/www": ["../www/src"],
       "@/www/*": ["../www/src/*"],
+      "@/workers": ["../workers/src"],
+      "@/workers/*": ["../workers/src/*"],
       "@/scripts": ["../../tools/scripts/src"],
       "@/scripts/*": ["../../tools/scripts/src/*"]
     }

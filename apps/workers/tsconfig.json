@@ -2,36 +2,28 @@
   "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
     "target": "ESNext",
+    "lib": ["ESNext", "ESNext.AsyncIterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "types": ["vinxi/types/client"],
-    "verbatimModuleSyntax": false,
-    "isolatedModules": true,
+    "types": ["@cloudflare/workers-types"],
     "baseUrl": "./",
     "paths": {
-      "@/www": ["./src"],
-      "@/www/*": ["./src/*"],
+      "@/workers": ["./src"],
+      "@/workers/*": ["./src/*"],
       "@/schemas": ["../../packages/schemas/src"],
       "@/schemas/*": ["../../packages/schemas/src/*"],
       "@/core": ["../../packages/core/src"],
       "@/core/*": ["../../packages/core/src/*"],
       "@/ai": ["../../packages/ai/src"],
       "@/ai/*": ["../../packages/ai/src/*"],
+      "@/www": ["../www/src"],
+      "@/www/*": ["../www/src/*"],
       "@/functions": ["../functions/src"],
       "@/functions/*": ["../functions/src/*"],
-      "@/workers": ["../workers/src"],
-      "@/workers/*": ["../workers/src/*"],
       "@/scripts": ["../../tools/scripts/src"],
       "@/scripts/*": ["../../tools/scripts/src/*"]
     }
   },
-  "include": [
-    "../../packages/core/globals.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "sentry.instrumentation.mjs"
-  ],
-  "exclude": ["node_modules", ".output", ".vinxi"]
+  "include": ["../../packages/core/globals.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }

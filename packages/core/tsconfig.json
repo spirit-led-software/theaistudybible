@@ -13,6 +13,8 @@
       "@/www/*": ["../../apps/www/src/*"],
       "@/functions": ["../../apps/functions/src"],
       "@/functions/*": ["../../apps/functions/src/*"],
+      "@/workers": ["../../apps/workers/src"],
+      "@/workers/*": ["../../apps/workers/src/*"],
       "@/scripts": ["../../tools/scripts/src"],
       "@/scripts/*": ["../../tools/scripts/src/*"]
     }

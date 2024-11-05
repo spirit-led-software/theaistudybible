@@ -14,7 +14,9 @@
       "@/www": ["../../apps/www/src"],
       "@/www/*": ["../../apps/www/src/*"],
       "@/functions": ["../../apps/functions/src"],
-      "@/functions/*": ["../../apps/functions/src/*"]
+      "@/functions/*": ["../../apps/functions/src/*"],
+      "@/workers": ["../../apps/workers/src"],
+      "@/workers/*": ["../../apps/workers/src/*"]
     }
   },
   "include": ["../../packages/core/globals.d.ts", "**/*.ts", "**/*.tsx"],

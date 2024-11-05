@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { ANALYTICS_URL } from './analytics';
 import { cdn } from './cdn';
 import { CLOUDFLARE_ZONE, STRIPE_PUBLISHABLE_KEY, WEBAPP_URL, isProd } from './constants';
 import { allLinks } from './defaults';
@@ -83,11 +84,13 @@ if (!$dev) {
       buildArgs: {
         webapp_url: WEBAPP_URL.value,
         cdn_url: cdn.url,
+        analytics_url: ANALYTICS_URL.value,
         stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
         stage: $app.stage,
         sentry_dsn: webAppSentryKey?.dsnPublic ?? '',
         sentry_org: webAppSentryProject?.organization ?? '',
-        sentry_project: webAppSentryProject?.name ?? '',
+        sentry_project_id: webAppSentryProject?.projectId?.toString() ?? '',
+        sentry_project_name: webAppSentryProject?.name ?? '',
         sentry_auth_token: SENTRY_AUTH_TOKEN.value,
       },
       platforms: ['linux/amd64'],

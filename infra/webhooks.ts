@@ -28,3 +28,5 @@ new cloudflare.Record('WebhooksApiRecord', {
 export const webhooksApi = new sst.Linkable('WebhooksApi', {
   properties: { url: `https://${WEBHOOKS_DOMAIN.value}` },
 });
+
+export const WEBHOOKS_URL = new Constant('WebhooksUrl', `https://${WEBHOOKS_DOMAIN.value}`);

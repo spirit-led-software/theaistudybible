@@ -31,12 +31,14 @@ FROM base AS build
 
 ARG webapp_url
 ARG cdn_url
+ARG analytics_url
 ARG stripe_publishable_key
 ARG stage
 
 ARG sentry_dsn
 ARG sentry_org
-ARG sentry_project
+ARG sentry_project_id
+ARG sentry_project_name
 ARG sentry_auth_token
 
 WORKDIR /build
@@ -50,13 +52,14 @@ COPY --from=install /install/node_modules ./node_modules
 
 ENV PUBLIC_WEBAPP_URL=${webapp_url}
 ENV PUBLIC_CDN_URL=${cdn_url}
+ENV PUBLIC_ANALYTICS_URL=${analytics_url}
 ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
 ENV PUBLIC_STAGE=${stage}
 
 ENV PUBLIC_SENTRY_DSN=${sentry_dsn}
-ENV SENTRY_ORG=${sentry_org}
-ENV SENTRY_PROJECT=${sentry_project}
-ENV SENTRY_RELEASE=${stage}
+ENV PUBLIC_SENTRY_ORG=${sentry_org}
+ENV PUBLIC_SENTRY_PROJECT_ID=${sentry_project_id}
+ENV PUBLIC_SENTRY_PROJECT_NAME=${sentry_project_name}
 ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
 
 COPY --link . .

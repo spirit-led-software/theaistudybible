@@ -10,8 +10,7 @@ import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
-import posthog from 'posthog-js';
-import { Show, Suspense, onMount } from 'solid-js';
+import { Show, Suspense } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { Logo } from './components/branding/logo';
 import { SentryErrorBoundary } from './components/sentry/error-boundary';
@@ -39,13 +38,22 @@ export default function App() {
         // this seems to be the only way to capture errors in solid-query
         // https://tanstack.com/query/latest/docs/framework/react/guides/suspense#throwonerror-default
         throwOnError: (error, query) => {
-          Sentry.captureException(error);
+          Sentry.captureException(error, {
+            data: {
+              queryKey: query.queryKey,
+              queryHash: query.queryHash,
+              queryState: query.state,
+              queryOptions: query.options,
+              queryMeta: query.meta,
+            },
+          });
           return query.state.data === undefined;
         },
       },
       mutations: {
-        onError: (error) => {
+        throwOnError: (error) => {
           Sentry.captureException(error);
+          return true;
         },
       },
     },
@@ -55,19 +63,6 @@ export default function App() {
     COLOR_MODE_STORAGE_KEY,
     isServer ? getColorModeCookie() : undefined,
   );
-
-  onMount(() => {
-    posthog.init('phc_z3PcZTeDMCT53dKzb0aqDXkrM1o3LpNcC9QlJDdG9sO', {
-      api_host: 'https://us.i.posthog.com',
-      person_profiles: 'always',
-      loaded: () => {
-        if (import.meta.env.PUBLIC_STAGE !== 'production') {
-          posthog.opt_out_capturing();
-          posthog.set_config({ disable_session_recording: true });
-        }
-      },
-    });
-  });
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -1,3 +1,4 @@
+import { ANALYTICS_URL } from './analytics';
 import { cdn } from './cdn';
 import * as constants from './constants';
 import * as databases from './database';
@@ -7,9 +8,12 @@ import * as queues from './queues';
 import { Constant } from './resources';
 import * as secrets from './secrets';
 import * as storage from './storage';
+import { WEBHOOKS_URL } from './webhooks';
 
 export const allLinks = [
   ...Object.values(constants).filter((l) => l instanceof Constant),
+  ANALYTICS_URL,
+  WEBHOOKS_URL,
   ...Object.values(secrets),
   ...Object.values(storage),
   cdn,

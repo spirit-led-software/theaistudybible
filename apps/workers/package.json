@@ -1,0 +1,13 @@
+{
+  "name": "@theaistudybible/workers",
+  "description": "The AI Study Bible Cloudflare Worker Code",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241022.0",
+    "@theaistudybible/tsconfig": "workspace:*"
+  }
+}
