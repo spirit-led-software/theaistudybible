@@ -125,7 +125,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           </Show>
         </div>
         <div ref={setMessagesRef} class='flex flex-1 flex-col-reverse items-center justify-start'>
-          <div ref={setVisibilityRef} class='h-5 w-full shrink-0' />
+          <div ref={setVisibilityRef} class='h-10 w-full shrink-0' />
           <Show
             when={
               !isLoading() &&
