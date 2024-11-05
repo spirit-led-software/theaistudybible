@@ -1,5 +1,5 @@
 import { isProd } from './constants';
-import type { FlyRegion } from './fly.io';
+import type { FlyRegion } from './types/fly.io';
 
 let tursoGroup: turso.Group | undefined;
 let tursoDb: turso.Database | undefined;

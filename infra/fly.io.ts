@@ -4,50 +4,16 @@ import { cdn } from './cdn';
 import { CLOUDFLARE_ZONE, STRIPE_PUBLISHABLE_KEY, WEBAPP_URL, isProd } from './constants';
 import { allLinks } from './defaults';
 import { buildLinks } from './helpers/link';
-import { webAppSentryKey, webAppSentryProject } from './monitoring';
+import { MONITORING_URL, webAppSentryKey, webAppSentryProject } from './monitoring';
 import * as queues from './queues';
 import { cloudflareHelpers } from './resources';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 import * as storage from './storage';
+import type { FlyRegion } from './types/fly.io';
 import { webAppEnv } from './www';
 
-export type FlyRegion =
-  // Regular regions
-  | 'ams' // Amsterdam, Netherlands
-  | 'arn' // Stockholm, Sweden
-  | 'atl' // Atlanta, Georgia (US)
-  | 'bog' // Bogotá, Colombia
-  | 'bom' // Mumbai, India
-  | 'bos' // Boston, Massachusetts (US)
-  | 'cdg' // Paris, France
-  | 'den' // Denver, Colorado (US)
-  | 'dfw' // Dallas, Texas (US)
-  | 'ewr' // Secaucus, NJ (US)
-  | 'eze' // Ezeiza, Argentina
-  | 'fra' // Frankfurt, Germany
-  | 'gdl' // Guadalajara, Mexico
-  | 'gig' // Rio de Janeiro, Brazil
-  | 'gru' // Sao Paulo, Brazil
-  | 'hkg' // Hong Kong, Hong Kong
-  | 'iad' // Ashburn, Virginia (US)
-  | 'jnb' // Johannesburg, South Africa
-  | 'lax' // Los Angeles, California (US)
-  | 'lhr' // London, United Kingdom
-  | 'mad' // Madrid, Spain
-  | 'mia' // Miami, Florida (US)
-  | 'nrt' // Tokyo, Japan
-  | 'ord' // Chicago, Illinois (US)
-  | 'otp' // Bucharest, Romania
-  | 'phx' // Phoenix, Arizona (US)
-  | 'qro' // Querétaro, Mexico
-  | 'scl' // Santiago, Chile
-  | 'sea' // Seattle, Washington (US)
-  | 'sin' // Singapore, Singapore
-  | 'sjc' // San Jose, California (US)
-  | 'syd' // Sydney, Australia
-  | 'waw' // Warsaw, Poland
-  | 'yul' // Montreal, Canada
-  | 'yyz'; // Toronto, Canada
+export const FLY_ORG = process.env.FLY_ORG;
+export const FLY_API_TOKEN = process.env.FLY_API_TOKEN;
 
 export const flyRegions: FlyRegion[] = isProd ? ['iad', 'sin'] : ['iad'];
 
@@ -55,15 +21,13 @@ export let flyWebApp: fly.App | undefined;
 export let webAppBuildImage: dockerbuild.Image | undefined;
 export let flyWebAppMachines: fly.Machine[] | undefined;
 if (!$dev) {
-  if (!process.env.FLY_ORG || !process.env.FLY_API_TOKEN) {
+  if (!FLY_ORG || !FLY_API_TOKEN) {
     throw new Error('FLY_ORG and FLY_API_TOKEN environment variables must be set');
   }
-  const flyOrg = process.env.FLY_ORG;
-  const flyApiToken = $util.secret(process.env.FLY_API_TOKEN);
 
   flyWebApp = new fly.App('FlyApp', {
     name: `${$app.name}-${$app.stage}`,
-    org: flyOrg,
+    org: FLY_ORG,
     assignSharedIpAddress: true,
   });
   const flyIpv4 = new fly.Ip('FlyIpv4', { app: flyWebApp.name, type: 'v4' });
@@ -78,7 +42,9 @@ if (!$dev) {
   function buildWebAppImage() {
     return new dockerbuild.Image('WebAppImage', {
       tags: [$interpolate`registry.fly.io/${flyWebApp!.name}:latest`],
-      registries: [{ address: 'registry.fly.io', username: 'x', password: flyApiToken }],
+      registries: [
+        { address: 'registry.fly.io', username: 'x', password: $util.secret(FLY_API_TOKEN!) },
+      ],
       dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
       context: { location: process.cwd() },
       buildArgs: {
@@ -87,10 +53,10 @@ if (!$dev) {
         analytics_url: ANALYTICS_URL.value,
         stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
         stage: $app.stage,
-        sentry_dsn: webAppSentryKey?.dsnPublic ?? '',
-        sentry_org: webAppSentryProject?.organization ?? '',
-        sentry_project_id: webAppSentryProject?.projectId?.toString() ?? '',
-        sentry_project_name: webAppSentryProject?.name ?? '',
+        sentry_dsn: MONITORING_URL.value,
+        sentry_org: webAppSentryKey.organization,
+        sentry_project_id: webAppSentryKey.projectId.toString(),
+        sentry_project_name: webAppSentryProject.name,
         sentry_auth_token: SENTRY_AUTH_TOKEN.value,
       },
       platforms: ['linux/amd64'],
@@ -239,17 +205,19 @@ if (!$dev) {
 
   function buildFlyAutoscaler() {
     const app = new fly.App('FlyAutoscalerApp', { name: `${$app.name}-${$app.stage}-autoscaler` });
-    const env = $util.all([flyApiToken, flyWebApp!.name]).apply(([flyApiToken, appName]) => ({
-      FAS_ORG: flyOrg,
-      FAS_APP_NAME: appName,
-      FAS_API_TOKEN: flyApiToken,
-      FAS_REGIONS: flyRegions.join(','),
-      FAS_CREATED_MACHINE_COUNT: `max(min(ceil(connects / 1000), ${flyRegions.length * 20}), ${flyRegions.length})`, // 1000 connections per machine, max 20 machines per region, min 1 machine per region
-      FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${flyOrg}`,
-      FAS_PROMETHEUS_TOKEN: flyApiToken,
-      FAS_PROMETHEUS_METRIC_NAME: 'connects',
-      FAS_PROMETHEUS_QUERY: 'fly_app_tcp_connects_count{app="$APP_NAME"} or vector(0)',
-    }));
+    const env = $util
+      .all([$util.secret(FLY_API_TOKEN!), flyWebApp!.name])
+      .apply(([flyApiToken, appName]) => ({
+        FAS_ORG: FLY_ORG!,
+        FAS_APP_NAME: appName,
+        FAS_API_TOKEN: flyApiToken,
+        FAS_REGIONS: flyRegions.join(','),
+        FAS_CREATED_MACHINE_COUNT: `max(min(ceil(connects / 1000), ${flyRegions.length * 20}), ${flyRegions.length})`, // 1000 connections per machine, max 20 machines per region, min 1 machine per region
+        FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${FLY_ORG!}`,
+        FAS_PROMETHEUS_TOKEN: flyApiToken,
+        FAS_PROMETHEUS_METRIC_NAME: 'connects',
+        FAS_PROMETHEUS_QUERY: 'fly_app_tcp_connects_count{app="$APP_NAME"} or vector(0)',
+      }));
     const machine = new fly.Machine(
       'FlyAutoscalerMachine',
       {

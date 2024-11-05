@@ -1,9 +1,9 @@
 import { DOMAIN } from './constants';
 import { Constant } from './resources';
 
-export const ANALYTICS_DOMAIN = new Constant('AnalyticsDomain', `ph.${DOMAIN.value}`);
+export const ANALYTICS_DOMAIN = new Constant('AnalyticsDomain', `a.${DOMAIN.value}`);
 
-export const usAnalyticsProxy = new sst.cloudflare.Worker('UsAnalyticsProxy', {
+export const analyticsProxy = new sst.cloudflare.Worker('AnalyticsProxy', {
   handler: 'apps/workers/src/proxy/analytics.ts',
   environment: {
     API_HOST: 'us.i.posthog.com',

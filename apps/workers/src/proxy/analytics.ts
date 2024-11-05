@@ -4,14 +4,13 @@ type Env = {
 };
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const pathname = url.pathname;
     const search = url.search;
     const pathWithParams = pathname + search;
 
     if (pathname.startsWith('/static/')) {
-      // @ts-ignore - idk why vscode is complaining
       const defaultCache = caches.default as Cache;
       let response = await defaultCache.match(request);
       if (!response) {

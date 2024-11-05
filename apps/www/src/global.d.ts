@@ -20,5 +20,9 @@ declare global {
     PUBLIC_CLERK_PUBLISHABLE_KEY: string;
     PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
     PUBLIC_STAGE: string;
+    PUBLIC_SENTRY_DSN: string;
+    PUBLIC_SENTRY_ORG: string;
+    PUBLIC_SENTRY_PROJECT_ID: string;
+    PUBLIC_SENTRY_PROJECT_NAME: string;
   }
 }

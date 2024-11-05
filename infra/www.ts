@@ -2,7 +2,7 @@ import { ANALYTICS_URL } from './analytics';
 import { cdn } from './cdn';
 import { STRIPE_PUBLISHABLE_KEY, WEBAPP_URL } from './constants';
 import { allLinks } from './defaults';
-import { webAppSentryKey, webAppSentryProject } from './monitoring';
+import { MONITORING_URL, webAppSentryKey, webAppSentryProject } from './monitoring';
 
 export const webAppEnv = $util
   .all([
@@ -10,10 +10,11 @@ export const webAppEnv = $util
     cdn.url,
     ANALYTICS_URL.value,
     STRIPE_PUBLISHABLE_KEY.value,
-    webAppSentryKey?.dsnPublic,
-    webAppSentryKey?.organization,
-    webAppSentryKey?.projectId,
-    webAppSentryProject?.name,
+    MONITORING_URL.value,
+    webAppSentryKey.organization,
+    $interpolate`${webAppSentryKey.projectId}`,
+    webAppSentryProject.name,
+    webAppSentryKey.dsnPublic,
   ])
   .apply(
     ([
@@ -21,20 +22,22 @@ export const webAppEnv = $util
       cdnUrl,
       analyticsUrl,
       stripePublishableKey,
-      webAppSentryKeyDsnPublic,
+      monitoringUrl,
       sentryOrg,
       sentryProjectId,
       sentryProjectName,
+      sentryDsnPublic,
     ]) => ({
       PUBLIC_WEBAPP_URL: webAppUrl,
       PUBLIC_CDN_URL: cdnUrl,
       PUBLIC_ANALYTICS_URL: analyticsUrl,
       PUBLIC_STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
       PUBLIC_STAGE: $app.stage,
-      PUBLIC_SENTRY_DSN: webAppSentryKeyDsnPublic ?? '',
-      PUBLIC_SENTRY_ORG: sentryOrg ?? '',
-      PUBLIC_SENTRY_PROJECT_ID: sentryProjectId?.toString() ?? '',
-      PUBLIC_SENTRY_PROJECT_NAME: sentryProjectName ?? '',
+      PUBLIC_SENTRY_DSN: monitoringUrl,
+      PUBLIC_SENTRY_ORG: sentryOrg,
+      PUBLIC_SENTRY_PROJECT_ID: sentryProjectId,
+      PUBLIC_SENTRY_PROJECT_NAME: sentryProjectName,
+      SENTRY_DSN: sentryDsnPublic,
     }),
   );
 
