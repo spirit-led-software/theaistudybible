@@ -241,13 +241,11 @@ if (!$dev) {
       FAS_APP_NAME: appName,
       FAS_API_TOKEN: flyApiToken,
       FAS_REGIONS: flyRegions.join(','),
-      FAS_CREATED_MACHINE_COUNT: 'ceil(connects / 1000)', // 1000 connections per machine
-      FAS_MIN_CREATED_MACHINE_COUNT: flyRegions.length.toString(),
-      FAS_MAX_CREATED_MACHINE_COUNT: (flyRegions.length * 20).toString(),
+      FAS_CREATED_MACHINE_COUNT: `max(min(ceil(connects / 1000), ${flyRegions.length * 20}), ${flyRegions.length})`, // 1000 connections per machine, max 20 machines per region, min 1 machine per region
       FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${flyOrg}`,
       FAS_PROMETHEUS_TOKEN: flyApiToken,
       FAS_PROMETHEUS_METRIC_NAME: 'connects',
-      FAS_PROMETHEUS_QUERY: '(fly_app_tcp_connects_count{app="$APP_NAME"} or vector(0))',
+      FAS_PROMETHEUS_QUERY: 'fly_app_tcp_connects_count{app="$APP_NAME"} or vector(0)',
     }));
     const machine = new fly.Machine(
       'FlyAutoscalerMachine',
