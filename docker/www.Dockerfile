@@ -32,7 +32,8 @@ FROM base AS build
 
 ARG webapp_url
 ARG cdn_url
-ARG analytics_url
+ARG posthog_api_host
+ARG posthog_api_key
 ARG stripe_publishable_key
 ARG stage
 
@@ -53,7 +54,8 @@ COPY --from=install /install/node_modules ./node_modules
 
 ENV PUBLIC_WEBAPP_URL=${webapp_url}
 ENV PUBLIC_CDN_URL=${cdn_url}
-ENV PUBLIC_ANALYTICS_URL=${analytics_url}
+ENV PUBLIC_POSTHOG_API_HOST=${posthog_api_host}
+ENV PUBLIC_POSTHOG_API_KEY=${posthog_api_key}
 ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
 ENV PUBLIC_STAGE=${stage}
 
@@ -83,13 +85,13 @@ RUN apt update \
 
 COPY --from=build /build/apps/www/.output .
 
-COPY --link ./apps/www/sentry.instrumentation.mjs ./server/
+COPY --link ./apps/www/instrument.mjs ./server/
 RUN cd server \
-&& bun add @sentry/bun \
+&& bun add @sentry/bun posthog-node \
 && bun install --frozen-lockfile \
 && bun pm cache rm
 
-ENTRYPOINT [ "bun", "run", "--smol", "--preload", "./server/sentry.instrumentation.mjs", "./server/index.mjs" ]
+ENTRYPOINT [ "bun", "run", "--smol", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
 EXPOSE ${PORT}
 
 HEALTHCHECK --interval=30s --timeout=15s --retries=5 --start-period=30s \

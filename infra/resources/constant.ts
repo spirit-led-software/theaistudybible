@@ -1,11 +1,24 @@
-export class Constant extends sst.Linkable<{
-  value: string;
-}> {
-  constructor(name: string, value: string) {
-    super(name, { properties: { value } });
+export class Constant extends $util.ComponentResource {
+  private _name: string;
+  private _value: $util.Input<string>;
+
+  constructor(name: string, value: $util.Input<string>, opts?: $util.ComponentResourceOptions) {
+    super('asb:asb:Constant', name, { value }, opts);
+    this._name = name;
+    this._value = value;
   }
 
-  get value() {
-    return this.properties.value;
+  public get name(): $util.Output<string> {
+    return $output(this._name);
+  }
+
+  public get value(): $util.Output<string> {
+    return $output(this._value);
   }
 }
+
+sst.Linkable.wrap(Constant, (resource) => ({
+  properties: {
+    value: resource.value,
+  },
+}));

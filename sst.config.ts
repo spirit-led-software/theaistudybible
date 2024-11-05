@@ -25,7 +25,7 @@ export default $config({
     const { database, upstashVectorIndex, upstashRedis } = await import('./infra/database');
     await import('./infra/email');
     await import('./infra/queues');
-    const { webhooksApi } = await import('./infra/webhooks');
+    const { WEBHOOKS_URL } = await import('./infra/webhooks');
     await import('./infra/jobs');
     await import('./infra/www');
     await import('./infra/fly.io');
@@ -37,7 +37,7 @@ export default $config({
       'Redis Endpoint': upstashRedis.endpoint,
       'Vector Store Endpoint': upstashVectorIndex.endpoint,
       'Web App URL': WEBAPP_URL.value,
-      'Webhooks API URL': webhooksApi.properties.url,
+      'Webhooks API URL': WEBHOOKS_URL.value,
     };
   },
 });

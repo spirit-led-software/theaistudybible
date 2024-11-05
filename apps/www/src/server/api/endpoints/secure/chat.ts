@@ -211,8 +211,16 @@ const app = new Hono<{
         streamData,
         additionalContext,
         maxTokens: maxResponseTokens,
-        onStepFinish: () => {
+        onStepFinish: (step) => {
           streamData.appendMessageAnnotation({ modelId });
+          globalThis.posthog.capture({
+            distinctId: c.var.user!.id,
+            event: 'chat step finished',
+            properties: {
+              modelId,
+              step,
+            },
+          });
         },
         onFinish: async (event) => {
           await Promise.all(pendingPromises);
@@ -221,6 +229,14 @@ const app = new Hono<{
           }
           streamData.append({ status: 'complete' });
           await streamData.close();
+          globalThis.posthog.capture({
+            distinctId: c.var.user!.id,
+            event: 'chat event finished',
+            properties: {
+              modelId,
+              event,
+            },
+          });
         },
       });
 

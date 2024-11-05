@@ -35,7 +35,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@sentry/esbuild-plugin": "^2.22.6",
     "@types/aws-lambda": "^8.10.145",
     "@types/bun": "^1.1.13",
     "@types/node": "^22.8.7",

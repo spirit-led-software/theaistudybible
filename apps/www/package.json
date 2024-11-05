@@ -63,6 +63,7 @@
     "hono": "^4.6.9",
     "lucide-solid": "^0.454.0",
     "posthog-js": "^1.180.1",
+    "posthog-node": "^4.2.1",
     "solid-js": "^1.9.3",
     "solid-marked": "^0.6.3",
     "solid-sonner": "^0.2.8",

@@ -1,6 +1,6 @@
 import { ANALYTICS_URL } from './analytics';
 import { cdn } from './cdn';
-import { STRIPE_PUBLISHABLE_KEY, WEBAPP_URL } from './constants';
+import { POSTHOG_API_KEY, STRIPE_PUBLISHABLE_KEY, WEBAPP_URL } from './constants';
 import { allLinks } from './defaults';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
 
@@ -9,6 +9,7 @@ export const webAppEnv = $util
     WEBAPP_URL.value,
     cdn.url,
     ANALYTICS_URL.value,
+    POSTHOG_API_KEY.value,
     STRIPE_PUBLISHABLE_KEY.value,
     webAppSentryKey.organization,
     $interpolate`${webAppSentryKey.projectId}`,
@@ -20,6 +21,7 @@ export const webAppEnv = $util
       webAppUrl,
       cdnUrl,
       analyticsUrl,
+      posthogApiKey,
       stripePublishableKey,
       sentryOrg,
       sentryProjectId,
@@ -28,7 +30,8 @@ export const webAppEnv = $util
     ]) => ({
       PUBLIC_WEBAPP_URL: webAppUrl,
       PUBLIC_CDN_URL: cdnUrl,
-      PUBLIC_ANALYTICS_URL: analyticsUrl,
+      PUBLIC_POSTHOG_API_HOST: analyticsUrl,
+      PUBLIC_POSTHOG_API_KEY: posthogApiKey,
       PUBLIC_STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
       PUBLIC_STAGE: $app.stage,
       PUBLIC_SENTRY_DSN: sentryDsnPublic,

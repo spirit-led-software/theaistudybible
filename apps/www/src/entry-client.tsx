@@ -7,8 +7,8 @@ import posthog from 'posthog-js';
 const isProd = import.meta.env.PUBLIC_STAGE === 'production';
 const isDev = import.meta.env.DEV;
 
-posthog.init('phc_z3PcZTeDMCT53dKzb0aqDXkrM1o3LpNcC9QlJDdG9sO', {
-  api_host: import.meta.env.PUBLIC_ANALYTICS_URL,
+posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
+  api_host: import.meta.env.PUBLIC_POSTHOG_API_HOST,
   person_profiles: 'always',
   loaded: () => {
     if (!isProd) {

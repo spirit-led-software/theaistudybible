@@ -35,20 +35,40 @@ $transform(sst.aws.Function, (args) => {
   args.nodejs = $output(args.nodejs).apply((nodejs) => ({
     ...nodejs,
     install: Array.from(
-      new Set([...(nodejs?.install || []), '@libsql/client', '@sentry/aws-serverless']),
+      new Set([
+        ...(nodejs?.install || []),
+        '@libsql/client',
+        '@sentry/aws-serverless',
+        'posthog-node',
+      ]),
     ),
     esbuild: {
       ...nodejs?.esbuild,
       external: Array.from(
-        new Set([...(nodejs?.esbuild?.external || []), '@sentry/aws-serverless']),
+        new Set([...(nodejs?.esbuild?.external || []), '@sentry/aws-serverless', 'posthog-node']),
       ),
     },
   }));
+  args.copyFiles = $output(args.copyFiles).apply((copyFiles) =>
+    Array.from(
+      new Set([
+        ...(copyFiles || []),
+        { from: 'apps/functions/src/instrument.mjs', to: 'instrument.mjs' },
+      ]),
+    ),
+  );
   args.environment = $util
-    .all([args.environment, webAppSentryKey.dsnPublic])
-    .apply(([environment, sentryDsnPublic]) => ({
+    .all([
+      args.environment,
+      constants.POSTHOG_API_KEY.value,
+      constants.POSTHOG_API_HOST.value,
+      webAppSentryKey.dsnPublic,
+    ])
+    .apply(([environment, posthogApiKey, posthogApiHost, sentryDsnPublic]) => ({
       ...environment,
-      NODE_OPTIONS: '--import @sentry/aws-serverless/awslambda-auto',
+      NODE_OPTIONS: '--import instrument.mjs',
+      POSTHOG_API_KEY: posthogApiKey,
+      POSTHOG_API_HOST: posthogApiHost,
       SENTRY_DSN: sentryDsnPublic,
       SENTRY_TRACES_SAMPLE_RATE: ($dev ? 0 : constants.isProd ? 1.0 : 0.5).toString(),
     }));

@@ -14,6 +14,18 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "AnalyticsDomain": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
+    "AnalyticsProxy": {
+      "type": "sst.cloudflare.Worker"
+      "url": string
+    }
+    "AnalyticsUrl": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
     "AnthropicApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -41,7 +53,7 @@ declare module "sst" {
       "url": string
     }
     "Dev": {
-      "type": "sst.sst.Linkable"
+      "type": "asb.asb.Constant"
       "value": string
     }
     "DevotionImagesBucket": {
@@ -49,7 +61,7 @@ declare module "sst" {
       "type": "sst.aws.Bucket"
     }
     "Domain": {
-      "type": "sst.sst.Linkable"
+      "type": "asb.asb.Constant"
       "value": string
     }
     "Email": {
@@ -77,6 +89,14 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "PostHogApiHost": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
+    "PostHogApiKey": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
     "ProfileImagesBucket": {
       "name": string
       "type": "sst.aws.Bucket"
@@ -90,11 +110,11 @@ declare module "sst" {
       "value": string
     }
     "Stage": {
-      "type": "sst.sst.Linkable"
+      "type": "asb.asb.Constant"
       "value": string
     }
     "StripePublishableKey": {
-      "type": "sst.sst.Linkable"
+      "type": "asb.asb.Constant"
       "value": string
     }
     "StripeSecretKey": {
@@ -118,12 +138,8 @@ declare module "sst" {
       "type": "upstash.index/vectorIndex.VectorIndex"
     }
     "WebAppUrl": {
-      "type": "sst.sst.Linkable"
+      "type": "asb.asb.Constant"
       "value": string
-    }
-    "WebhooksApi": {
-      "type": "sst.sst.Linkable"
-      "url": string
     }
     "WebhooksApiFunction": {
       "name": string
@@ -131,7 +147,11 @@ declare module "sst" {
       "url": string
     }
     "WebhooksDomain": {
-      "type": "sst.sst.Linkable"
+      "type": "asb.asb.Constant"
+      "value": string
+    }
+    "WebhooksUrl": {
+      "type": "asb.asb.Constant"
       "value": string
     }
   }
