@@ -4,7 +4,7 @@ import { StartServer, createHandler } from '@solidjs/start/server';
 export default createHandler(() => (
   <StartServer
     document={(props) => (
-      <html lang='en'>
+      <html>
         <head>
           <meta charset='utf-8' />
           <meta

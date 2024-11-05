@@ -37,7 +37,8 @@
       "a11y": {
         "noSvgWithoutTitle": "off",
         "useSemanticElements": "warn",
-        "noLabelWithoutControl": "warn"
+        "noLabelWithoutControl": "warn",
+        "useHtmlLang": "off"
       },
       "complexity": {
         "noBannedTypes": "error"

@@ -69,6 +69,9 @@ export type CreateChatChainOptions = {
   maxTokens?: number;
   onStepFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onStepFinish'];
   onFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onFinish'];
+  tracer?: NonNullable<
+    Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['experimental_telemetry']
+  >['tracer'];
 };
 
 export const createChatChain = (options: CreateChatChainOptions) => {
@@ -162,6 +165,10 @@ ${options.additionalContext}
         return await options.onStepFinish?.(step);
       },
       onFinish: (event) => options.onFinish?.(event),
+      experimental_telemetry: {
+        isEnabled: !!options.tracer,
+        tracer: options.tracer,
+      },
     });
   };
 };

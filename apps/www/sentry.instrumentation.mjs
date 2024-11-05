@@ -1,5 +1,6 @@
 // TODO: Issue with standard instrumentation:
 // https://github.com/getsentry/sentry-javascript/issues/12891
+// https://github.com/oven-sh/bun/issues/13165
 import {
   BunClient,
   defaultStackParser,

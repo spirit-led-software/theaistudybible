@@ -317,9 +317,9 @@ export const generateImageTool = (props: {
         .min(1)
         .max(1000),
       size: z
-        .enum(['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'])
+        .enum(['1024x1024', '1792x1024', '1024x1792'])
         .optional()
-        .default('512x512')
+        .default('1024x1024')
         .describe('The size of the generated image. More detailed images need a larger size.'),
     }),
     execute: async ({ prompt, size }) => {
