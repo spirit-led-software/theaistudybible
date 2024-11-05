@@ -53,7 +53,7 @@ $transform(sst.aws.Function, (args) => {
     Array.from(
       new Set([
         ...(copyFiles || []),
-        { from: 'apps/functions/src/instrument.mjs', to: 'instrument.mjs' },
+        { from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' },
       ]),
     ),
   );
