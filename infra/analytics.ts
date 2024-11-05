@@ -3,7 +3,6 @@ import { Constant } from './resources';
 
 export const ANALYTICS_DOMAIN = new Constant('AnalyticsDomain', `ph.${DOMAIN.value}`);
 
-// Create workers for both regions
 export const usAnalyticsProxy = new sst.cloudflare.Worker('UsAnalyticsProxy', {
   handler: 'apps/workers/src/proxy/analytics.ts',
   environment: {
