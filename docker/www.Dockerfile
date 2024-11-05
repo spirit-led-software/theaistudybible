@@ -14,6 +14,7 @@ RUN apt update \
 
 COPY --link ./package.json ./package.json
 COPY --link ./apps/functions/package.json ./apps/functions/package.json
+COPY --link ./apps/workers/package.json ./apps/workers/package.json
 COPY --link ./apps/www/package.json ./apps/www/package.json
 COPY --link ./packages/ai/package.json ./packages/ai/package.json
 COPY --link ./packages/core/package.json ./packages/core/package.json
