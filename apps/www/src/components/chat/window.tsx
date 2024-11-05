@@ -125,7 +125,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
           </Show>
         </div>
         <div ref={setMessagesRef} class='flex flex-1 flex-col-reverse items-center justify-start'>
-          <div ref={setVisibilityRef} class='h-10 w-full shrink-0' />
           <Show
             when={
               !isLoading() &&
@@ -155,6 +154,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </Carousel>
             </div>
           </Show>
+          <div ref={setVisibilityRef} class='h-[2px] w-full shrink-0' />
           <For
             each={messagesReversed}
             fallback={<EmptyWindow append={append} additionalContext={props.additionalContext} />}
