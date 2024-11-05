@@ -15,7 +15,7 @@ const isDev = process.env.DEV;
 const integrations = getDefaultIntegrations().filter((i) => i.name !== 'Http');
 
 const client = new BunClient({
-  dsn: process.env.SENTRY_DSN,
+  dsn: process.env.PUBLIC_SENTRY_DSN,
   stackParser: defaultStackParser,
   transport: makeFetchTransport,
   integrations,

@@ -2,7 +2,7 @@ import { ANALYTICS_URL } from './analytics';
 import { cdn } from './cdn';
 import { STRIPE_PUBLISHABLE_KEY, WEBAPP_URL } from './constants';
 import { allLinks } from './defaults';
-import { MONITORING_URL, webAppSentryKey, webAppSentryProject } from './monitoring';
+import { webAppSentryKey, webAppSentryProject } from './monitoring';
 
 export const webAppEnv = $util
   .all([
@@ -10,7 +10,6 @@ export const webAppEnv = $util
     cdn.url,
     ANALYTICS_URL.value,
     STRIPE_PUBLISHABLE_KEY.value,
-    MONITORING_URL.value,
     webAppSentryKey.organization,
     $interpolate`${webAppSentryKey.projectId}`,
     webAppSentryProject.name,
@@ -22,7 +21,6 @@ export const webAppEnv = $util
       cdnUrl,
       analyticsUrl,
       stripePublishableKey,
-      monitoringUrl,
       sentryOrg,
       sentryProjectId,
       sentryProjectName,
@@ -33,11 +31,10 @@ export const webAppEnv = $util
       PUBLIC_ANALYTICS_URL: analyticsUrl,
       PUBLIC_STRIPE_PUBLISHABLE_KEY: stripePublishableKey,
       PUBLIC_STAGE: $app.stage,
-      PUBLIC_SENTRY_DSN: monitoringUrl,
+      PUBLIC_SENTRY_DSN: sentryDsnPublic,
       PUBLIC_SENTRY_ORG: sentryOrg,
       PUBLIC_SENTRY_PROJECT_ID: sentryProjectId,
       PUBLIC_SENTRY_PROJECT_NAME: sentryProjectName,
-      SENTRY_DSN: sentryDsnPublic,
     }),
   );
 

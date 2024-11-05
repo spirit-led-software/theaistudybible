@@ -4,7 +4,7 @@ import { cdn } from './cdn';
 import { CLOUDFLARE_ZONE, STRIPE_PUBLISHABLE_KEY, WEBAPP_URL, isProd } from './constants';
 import { allLinks } from './defaults';
 import { buildLinks } from './helpers/link';
-import { MONITORING_URL, webAppSentryKey, webAppSentryProject } from './monitoring';
+import { webAppSentryKey, webAppSentryProject } from './monitoring';
 import * as queues from './queues';
 import { cloudflareHelpers } from './resources';
 import { SENTRY_AUTH_TOKEN } from './secrets';
@@ -53,7 +53,7 @@ if (!$dev) {
         analytics_url: ANALYTICS_URL.value,
         stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
         stage: $app.stage,
-        sentry_dsn: MONITORING_URL.value,
+        sentry_dsn: webAppSentryKey.dsnPublic,
         sentry_org: webAppSentryKey.organization,
         sentry_project_id: webAppSentryKey.projectId.toString(),
         sentry_project_name: webAppSentryProject.name,

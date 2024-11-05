@@ -1,7 +1,3 @@
-import { DOMAIN } from './constants';
-
-import { Constant } from './resources';
-
 export const SENTRY_ORG = process.env.SENTRY_ORG;
 export const SENTRY_TEAM = process.env.SENTRY_TEAM;
 
@@ -21,15 +17,3 @@ export const webAppSentryKey = new versesentry.SentryKey('WebAppSentryDsn', {
   organization: SENTRY_ORG,
   project: webAppSentryProject.name,
 });
-
-export const MONITORING_DOMAIN = new Constant('MonitoringDomain', `m.${DOMAIN.value}`);
-
-export const monitoringProxy = new sst.cloudflare.Worker('MonitoringProxy', {
-  handler: 'apps/workers/src/proxy/monitoring.ts',
-  environment: {
-    SENTRY_DSN: webAppSentryKey.dsnPublic,
-  },
-  domain: MONITORING_DOMAIN.value,
-});
-
-export const MONITORING_URL = new Constant('MonitoringUrl', `https://${MONITORING_DOMAIN.value}`);

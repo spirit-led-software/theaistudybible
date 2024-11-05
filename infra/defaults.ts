@@ -3,7 +3,7 @@ import { cdn } from './cdn';
 import * as constants from './constants';
 import * as databases from './database';
 import { email } from './email';
-import { MONITORING_URL, webAppSentryKey } from './monitoring';
+import { webAppSentryKey } from './monitoring';
 import * as queues from './queues';
 import { Constant } from './resources';
 import * as secrets from './secrets';
@@ -13,7 +13,6 @@ import { WEBHOOKS_URL } from './webhooks';
 export const allLinks = [
   ...Object.values(constants).filter((l) => l instanceof Constant),
   ANALYTICS_URL,
-  MONITORING_URL,
   WEBHOOKS_URL,
   ...Object.values(secrets),
   ...Object.values(storage),
