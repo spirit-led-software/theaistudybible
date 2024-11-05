@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/aws-serverless';
-import { PostHog, PostHogSentryIntegration } from 'posthog-node';
+import { PostHog } from 'posthog-node';
 
 const posthog = new PostHog(process.env.POSTHOG_API_KEY, {
   host: process.env.POSTHOG_API_HOST,
@@ -9,8 +9,6 @@ globalThis.posthog = posthog;
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   tracesSampleRate: Number.parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE),
-  // @ts-expect-error - PostHog type error, not my problem
-  integrations: [new PostHogSentryIntegration(posthog)],
 });
 
 process.on('beforeExit', async () => {
