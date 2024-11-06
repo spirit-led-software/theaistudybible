@@ -29,6 +29,7 @@ export default $config({
     await import('./infra/jobs');
     await import('./infra/www');
     await import('./infra/fly.io');
+    await import('./infra/redirects');
     await import('./infra/dev');
 
     return {
