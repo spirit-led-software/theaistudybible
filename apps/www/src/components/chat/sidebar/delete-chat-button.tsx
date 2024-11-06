@@ -43,9 +43,8 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
     onSettled: () => {
       if (chatStore.chat?.id === props.chat.id) {
         setChatStore('chat', null);
-
         if (location.pathname.startsWith('/chat')) {
-          navigate('/chat', { replace: true });
+          navigate('/chat');
         }
       }
       qc.invalidateQueries({ queryKey: ['chats'] });
@@ -79,7 +78,9 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
             onClick={() => {
               if (chatStore.chat?.id === props.chat.id) {
                 setChatStore('chat', null);
-                navigate('/chat', { replace: true });
+                if (location.pathname.startsWith('/chat')) {
+                  navigate('/chat');
+                }
               }
               deleteChatMutation.mutate();
             }}
