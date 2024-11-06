@@ -25,7 +25,7 @@ export const STRIPE_PUBLISHABLE_KEY = new Constant(
     : 'pk_test_51PxV2IGnwuYH30oD52AJgMZKmfA5qA63XUtEzELia4z7rvxidEqQa7yDy0qNsB4B3j5wMUJExN4LvB10sEwBi9V000nFzrntmv',
 );
 
-export const POSTHOG_UI_HOST = new Constant('PostHogUiHost', 'https://us.i.posthog.com');
+export const POSTHOG_UI_HOST = new Constant('PostHogUiHost', 'https://us.posthog.com');
 export const POSTHOG_ASSET_HOST = new Constant(
   'PostHogAssetHost',
   'https://us-assets.i.posthog.com',
