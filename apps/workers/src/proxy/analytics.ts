@@ -7,9 +7,7 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const pathname = url.pathname;
-    const search = url.search;
-    const pathWithParams = pathname + search;
-
+    const pathWithParams = `${pathname}${url.search}`;
     if (pathname.startsWith('/static/')) {
       const defaultCache = caches.default as Cache;
       let response = await defaultCache.match(request);
@@ -19,8 +17,6 @@ export default {
       }
       return response;
     }
-    const originRequest = new Request(request);
-    originRequest.headers.delete('Cookie');
-    return await fetch(`${env.API_HOST}${pathWithParams}`, originRequest);
+    return await fetch(`${env.API_HOST}${pathWithParams}`, request);
   },
 } satisfies ExportedHandler<Env>;

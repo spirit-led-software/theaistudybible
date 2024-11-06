@@ -213,7 +213,7 @@ const app = new Hono<{
         maxTokens: maxResponseTokens,
         onStepFinish: (step) => {
           streamData.appendMessageAnnotation({ modelId });
-          globalThis.posthog.capture({
+          globalThis.posthog?.capture({
             distinctId: c.var.user!.id,
             event: 'chat step finished',
             properties: {
@@ -229,7 +229,7 @@ const app = new Hono<{
           }
           streamData.append({ status: 'complete' });
           await streamData.close();
-          globalThis.posthog.capture({
+          globalThis.posthog?.capture({
             distinctId: c.var.user!.id,
             event: 'chat event finished',
             properties: {

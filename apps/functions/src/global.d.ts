@@ -1,7 +1,7 @@
 import type { PostHog } from 'posthog-node';
 
 declare global {
-  var posthog: PostHog;
+  export var posthog: PostHog | undefined;
   namespace NodeJS {
     interface ProcessEnv {
       POSTHOG_API_KEY: string;

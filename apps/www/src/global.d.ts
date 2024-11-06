@@ -28,7 +28,7 @@ interface Env {
 }
 
 declare global {
-  var posthog: PostHog;
+  export var posthog: PostHog | undefined;
   namespace NodeJS {
     interface ProcessEnv extends Env {}
   }

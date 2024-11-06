@@ -48,7 +48,7 @@ export const webAppDevCommand = new sst.x.DevCommand('WebAppDev', {
   dev: {
     autostart: true,
     directory: 'apps/www',
-    command: 'bun run --preload ./instrument.mjs dev',
+    command: 'bun run dev',
   },
   link: allLinks,
   environment: webAppEnv,

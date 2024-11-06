@@ -31,7 +31,7 @@ export default function ChatPage() {
       when={params.id}
       fallback={
         <Show
-          when={!searchParams.query && chatStore.chat}
+          when={!searchParams.query && chatStore.chatId}
           fallback={
             <>
               <SignedIn>
@@ -46,7 +46,7 @@ export default function ChatPage() {
           }
           keyed
         >
-          {(chat) => <Navigate href={({ location }) => `/chat/${chat.id}${location.search}`} />}
+          {(chatId) => <Navigate href={({ location }) => `/chat/${chatId}${location.search}`} />}
         </Show>
       }
       keyed

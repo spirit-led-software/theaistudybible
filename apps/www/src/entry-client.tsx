@@ -5,7 +5,7 @@ import { StartClient, mount } from '@solidjs/start/client';
 import posthog from 'posthog-js';
 
 const isProd = import.meta.env.PUBLIC_STAGE === 'production';
-const isDev = import.meta.env.DEV;
+const isDev = import.meta.dev;
 
 posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
   api_host: import.meta.env.PUBLIC_POSTHOG_API_HOST,

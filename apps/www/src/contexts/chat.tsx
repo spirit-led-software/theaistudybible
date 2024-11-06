@@ -6,6 +6,7 @@ import type { SetStoreFunction, Store } from 'solid-js/store';
 import { createStore } from 'solid-js/store';
 
 export type ChatStore = {
+  chatId: string | null;
   chat: Chat | null;
   modelId: string | null;
 };
@@ -15,7 +16,8 @@ export type ChatContextValue = [get: Store<ChatStore>, set: SetStoreFunction<Cha
 export const ChatContext = createContext<ChatContextValue>();
 
 export type ChatProviderProps = {
-  chat?: Chat;
+  chatId?: string;
+  modelId?: string;
   children: JSXElement;
 };
 
@@ -24,8 +26,9 @@ export const ChatProvider = (props: ChatProviderProps) => {
 
   const [store, setStore] = makePersisted(
     createStore<ChatStore>({
-      chat: others.chat ?? null,
-      modelId: null,
+      chatId: others.chatId ?? null,
+      chat: null,
+      modelId: others.modelId ?? null,
     }),
     { name: 'chat' },
   );
