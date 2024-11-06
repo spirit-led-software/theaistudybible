@@ -97,6 +97,10 @@ declare module "sst" {
       "type": "asb.asb.Constant"
       "value": string
     }
+    "PostHogAssetHost": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
     "ProfileImagesBucket": {
       "name": string
       "type": "sst.aws.Bucket"

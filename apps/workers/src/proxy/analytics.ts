@@ -5,13 +5,13 @@ type Env = {
 
 export default {
   async fetch(request, env, ctx) {
-    // Handle CORS preflight requests
+    // Handle preflight requests
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
           'Access-Control-Max-Age': '86400',
         },
       });
@@ -22,31 +22,28 @@ export default {
     const search = url.search;
     const pathWithParams = pathname + search;
 
+    let response: Response | undefined;
     if (pathname.startsWith('/static/')) {
       const defaultCache = caches.default as Cache;
-      let response = await defaultCache.match(request);
+      response = await defaultCache.match(request);
       if (!response) {
         response = await fetch(`https://${env.ASSET_HOST}${pathWithParams}`);
         ctx.waitUntil(defaultCache.put(request, response.clone()));
       }
-      return addCorsHeaders(response);
+    } else {
+      const originRequest = new Request(request);
+      originRequest.headers.delete('Cookie');
+      response = await fetch(`https://${env.API_HOST}${pathWithParams}`, originRequest);
     }
 
-    const originRequest = new Request(request);
-    originRequest.headers.delete('Cookie');
-    const response = await fetch(`https://${env.API_HOST}${pathWithParams}`, originRequest);
-    return addCorsHeaders(response);
+    // Add CORS headers to all responses
+    const corsHeaders = new Headers(response.headers);
+    corsHeaders.set('Access-Control-Allow-Origin', '*');
+
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: corsHeaders,
+    });
   },
 } satisfies ExportedHandler<Env>;
-
-function addCorsHeaders(response: Response): Response {
-  const headers = new Headers(response.headers);
-  headers.set('Access-Control-Allow-Origin', '*');
-  headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}
