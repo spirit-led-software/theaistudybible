@@ -78,14 +78,12 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   createEffect(
     on(
-      () => searchParams,
-      (searchParams) => {
-        if (searchParams.query) {
-          const query = Array.isArray(searchParams.query)
-            ? searchParams.query[0]
-            : searchParams.query;
-          append({ role: 'user', content: query });
-          setSearchParams({ query: undefined }, { replace: true });
+      () => searchParams?.query,
+      (query) => {
+        if (query) {
+          const messageContent = Array.isArray(query) ? query[0] : query;
+          append({ role: 'user', content: messageContent });
+          setSearchParams({ query: null });
         }
       },
     ),
