@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/bun';
 import { PostHog, PostHogSentryIntegration } from 'posthog-node';
 
 const isProd = process.env.PUBLIC_STAGE === 'production';
-const isDev = process.env.DEV;
+const isDev = process.env.PUBLIC_DEV === 'true';
 
 const posthog = new PostHog(process.env.PUBLIC_POSTHOG_API_KEY, {
   host: process.env.PUBLIC_POSTHOG_API_HOST,
