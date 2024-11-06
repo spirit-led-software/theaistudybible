@@ -4,6 +4,7 @@ import { cdn } from './cdn';
 import {
   CLOUDFLARE_ZONE,
   POSTHOG_API_KEY,
+  POSTHOG_UI_HOST,
   STRIPE_PUBLISHABLE_KEY,
   WEBAPP_URL,
   isProd,
@@ -54,12 +55,13 @@ if (!$dev) {
       dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
       context: { location: process.cwd() },
       buildArgs: {
+        stage: $app.stage,
         webapp_url: WEBAPP_URL.value,
         cdn_url: cdn.url,
+        stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
+        posthog_ui_host: POSTHOG_UI_HOST.value,
         posthog_api_host: ANALYTICS_URL.value,
         posthog_api_key: POSTHOG_API_KEY.value,
-        stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
-        stage: $app.stage,
         sentry_dsn: webAppSentryKey.dsnPublic,
         sentry_org: webAppSentryProject.organization,
         sentry_project_id: webAppSentryProject.projectId.apply((id) => id.toString()),

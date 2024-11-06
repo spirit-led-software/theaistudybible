@@ -9,6 +9,7 @@ const isDev = import.meta.env.DEV;
 
 posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
   api_host: import.meta.env.PUBLIC_POSTHOG_API_HOST,
+  ui_host: import.meta.env.PUBLIC_POSTHOG_UI_HOST,
   person_profiles: 'always',
   loaded: () => {
     if (!isProd) {

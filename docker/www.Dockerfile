@@ -30,12 +30,14 @@ RUN bun install --frozen-lockfile
 ########################################################
 FROM base AS build
 
+ARG stage
 ARG webapp_url
 ARG cdn_url
+ARG stripe_publishable_key
+
+ARG posthog_ui_host
 ARG posthog_api_host
 ARG posthog_api_key
-ARG stripe_publishable_key
-ARG stage
 
 ARG sentry_dsn
 ARG sentry_org
@@ -52,12 +54,14 @@ RUN apt update \
 
 COPY --from=install /install/node_modules ./node_modules
 
+ENV PUBLIC_STAGE=${stage}
 ENV PUBLIC_WEBAPP_URL=${webapp_url}
 ENV PUBLIC_CDN_URL=${cdn_url}
+ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
+
+ENV PUBLIC_POSTHOG_UI_HOST=${posthog_ui_host}
 ENV PUBLIC_POSTHOG_API_HOST=${posthog_api_host}
 ENV PUBLIC_POSTHOG_API_KEY=${posthog_api_key}
-ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
-ENV PUBLIC_STAGE=${stage}
 
 ENV PUBLIC_SENTRY_DSN=${sentry_dsn}
 ENV PUBLIC_SENTRY_ORG=${sentry_org}
