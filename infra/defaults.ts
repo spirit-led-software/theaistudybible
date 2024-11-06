@@ -66,6 +66,7 @@ $transform(sst.aws.Function, (args) => {
     ])
     .apply(([environment, posthogApiKey, posthogApiHost, sentryDsnPublic]) => ({
       ...environment,
+      STAGE: $app.stage,
       NODE_OPTIONS: '--import instrument.mjs',
       POSTHOG_API_KEY: posthogApiKey,
       POSTHOG_API_HOST: posthogApiHost,

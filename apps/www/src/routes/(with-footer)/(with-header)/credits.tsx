@@ -99,8 +99,7 @@ export default function CreditPurchasePage() {
 
   return (
     <>
-      <Title>Purchase Credits | The AI Study Bible</Title>
-      <Meta name='description' content='Purchase credits for The AI Study Bible' />
+      <MetaTags />
       <div class='container flex h-full w-full overflow-y-auto'>
         <div class='container flex max-w-2xl flex-1 flex-col px-4 py-8'>
           <div class='flex flex-col items-center gap-2 pb-8'>
@@ -177,3 +176,20 @@ export default function CreditPurchasePage() {
     </>
   );
 }
+
+const MetaTags = () => {
+  const title = 'Purchase Credits | The AI Study Bible - Unlock More Insights';
+  const description = 'Purchase credits to unlock premium AI-powered Bible study features.';
+
+  return (
+    <>
+      <Title>{title}</Title>
+      <Meta name='description' content={description} />
+      <Meta property='og:title' content={title} />
+      <Meta property='og:description' content={description} />
+      <Meta name='twitter:card' content='summary' />
+      <Meta name='twitter:title' content={title} />
+      <Meta name='twitter:description' content={description} />
+    </>
+  );
+};

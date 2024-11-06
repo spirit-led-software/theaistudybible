@@ -104,7 +104,7 @@ export const route: RouteDefinition = {
   },
 };
 
-const BookmarksPage = () => {
+export default function BookmarksPage() {
   const deleteBookmark = useAction(deleteBookmarkAction);
 
   const qc = useQueryClient();
@@ -127,11 +127,7 @@ const BookmarksPage = () => {
 
   return (
     <>
-      <Title>Bible Bookmarks | The AI Study Bible - Save Your Reading Progress</Title>
-      <Meta
-        name='description'
-        content='Access your saved Bible bookmarks. Keep track of chapters and verses for easy reference and continue your Bible study journey where you left off.'
-      />
+      <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <SignedIn>
           <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
@@ -240,6 +236,22 @@ const BookmarksPage = () => {
       </div>
     </>
   );
-};
+}
 
-export default BookmarksPage;
+const MetaTags = () => {
+  const title = 'Bible Bookmarks | The AI Study Bible - Save Your Reading Progress';
+  const description =
+    'Access your saved Bible bookmarks. Keep track of chapters and verses for easy reference and continue your Bible study journey where you left off.';
+
+  return (
+    <>
+      <Title>{title}</Title>
+      <Meta name='description' content={description} />
+      <Meta property='og:title' content={title} />
+      <Meta property='og:description' content={description} />
+      <Meta name='twitter:card' content='summary' />
+      <Meta name='twitter:title' content={title} />
+      <Meta name='twitter:description' content={description} />
+    </>
+  );
+};

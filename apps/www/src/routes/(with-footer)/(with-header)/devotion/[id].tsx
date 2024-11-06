@@ -39,7 +39,7 @@ export const route: RouteDefinition = {
   },
 };
 
-const DevotionPage = () => {
+export default function DevotionPage() {
   const params = useParams();
   const [, setDevotionStore] = useDevotionStore();
 
@@ -72,11 +72,7 @@ const DevotionPage = () => {
             >
               {(devotion) => (
                 <>
-                  <Title>{toTitleCase(devotion.topic)} | Devotion | The AI Study Bible</Title>
-                  <Meta
-                    name='description'
-                    content={`A devotion on '${toTitleCase(devotion.topic)}' from The AI Study Bible`}
-                  />
+                  <MetaTags devotion={devotion} />
                   <div class='flex w-full max-w-2xl flex-col gap-4 whitespace-pre-wrap'>
                     <div class='flex flex-col gap-2 text-center'>
                       <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
@@ -153,6 +149,29 @@ const DevotionPage = () => {
       </div>
     </div>
   );
-};
+}
 
-export default DevotionPage;
+const MetaTags = (props: {
+  devotion: NonNullable<Awaited<ReturnType<typeof getDevotion>>['devotion']>;
+}) => {
+  const topic = () => toTitleCase(props.devotion.topic);
+  const title = () => `${topic()} - Daily Bible Devotional | The AI Study Bible`;
+  const description = () =>
+    `Explore our daily devotional on ${topic()}. Find spiritual insights, biblical wisdom, and guided prayer for deeper faith and understanding with The AI Study Bible.`;
+  const keywords = () =>
+    `bible devotional, ${topic().toLowerCase()}, daily devotion, bible study, spiritual growth, christian meditation, prayer, biblical wisdom, AI bible study`;
+
+  return (
+    <>
+      <Title>{title()}</Title>
+      <Meta name='description' content={description()} />
+      <Meta name='keywords' content={keywords()} />
+      <Meta property='og:title' content={title()} />
+      <Meta property='og:description' content={description()} />
+      <Meta property='og:type' content='article' />
+      <Meta name='twitter:card' content='summary' />
+      <Meta name='twitter:title' content={title()} />
+      <Meta name='twitter:description' content={description()} />
+    </>
+  );
+};

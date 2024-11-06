@@ -79,7 +79,7 @@ export const route: RouteDefinition = {
   },
 };
 
-const HighlightsPage = () => {
+export default function HighlightsPage() {
   const deleteHighlight = useAction(deleteHighlightAction);
 
   const qc = useQueryClient();
@@ -102,11 +102,7 @@ const HighlightsPage = () => {
 
   return (
     <>
-      <Title>Bible Highlights | The AI Study Bible - Save & Review Important Verses</Title>
-      <Meta
-        name='description'
-        content='Access and manage your highlighted Bible verses. Use our AI-powered highlighting system to mark, organize, and revisit meaningful passages from Scripture.'
-      />
+      <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <SignedIn>
           <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
@@ -204,6 +200,22 @@ const HighlightsPage = () => {
       </div>
     </>
   );
-};
+}
 
-export default HighlightsPage;
+const MetaTags = () => {
+  const title = 'Bible Highlights | The AI Study Bible - Save & Review Important Verses';
+  const description =
+    'Access and manage your highlighted Bible verses. Use our AI-powered highlighting system to mark, organize, and revisit meaningful passages from Scripture.';
+
+  return (
+    <>
+      <Title>{title}</Title>
+      <Meta name='description' content={description} />
+      <Meta property='og:title' content={title} />
+      <Meta property='og:description' content={description} />
+      <Meta name='twitter:card' content='summary' />
+      <Meta name='twitter:title' content={title} />
+      <Meta name='twitter:description' content={description} />
+    </>
+  );
+};

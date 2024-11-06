@@ -102,19 +102,7 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
   return (
     <>
-      <Title>
-        {brStore.verse
-          ? `${brStore.verse.name} | ${brStore.bible.abbreviationLocal} | Read & Study the Bible with AI`
-          : `${brStore.chapter.name} | ${brStore.bible.abbreviationLocal} | The AI Study Bible`}
-      </Title>
-      <Meta
-        name='description'
-        content={`Study ${brStore.verse ? brStore.verse.name : brStore.chapter.name} with AI-powered insights, commentary, and cross-references. Access multiple translations and study tools to deepen your understanding of Scripture.`}
-      />
-      <Meta
-        name='keywords'
-        content={`${brStore.verse ? brStore.verse.name : brStore.chapter.name}, bible study, AI study bible, bible study tools, bible study notes, bible study annotations, bible study insights, bible study commentary, bible study cross-references`}
-      />
+      <MetaTags />
       <div class='eb-container w-full select-none'>
         <Contents
           contents={props.contents}
@@ -133,6 +121,28 @@ export const ReaderContent = (props: ReaderContentProps) => {
         <ActivityPanelButtons />
         <ActivityPanelContent />
       </ActivityPanel>
+    </>
+  );
+};
+
+const MetaTags = () => {
+  const [brStore] = useBibleReaderStore();
+  const title = () =>
+    `${brStore.verse ? brStore.verse.name : brStore.chapter.name} | ${brStore.bible.abbreviationLocal} | The AI Study Bible - Read & Study the Bible with AI`;
+  const description = () =>
+    `Study ${brStore.verse ? brStore.verse.name : brStore.chapter.name} with AI-powered insights, commentary, and cross-references. Access multiple translations and study tools to deepen your understanding of Scripture.`;
+  return (
+    <>
+      <Title>{title()}</Title>
+      <Meta name='description' content={description()} />
+      <Meta
+        name='keywords'
+        content={`${brStore.verse ? brStore.verse.name : brStore.chapter.name}, bible study, AI study bible, bible study tools, bible study notes, bible study annotations, bible study insights, bible study commentary, bible study cross-references`}
+      />
+      <Meta property='og:title' content={title()} />
+      <Meta property='og:description' content={description()} />
+      <Meta name='twitter:title' content={title()} />
+      <Meta name='twitter:description' content={description()} />
     </>
   );
 };

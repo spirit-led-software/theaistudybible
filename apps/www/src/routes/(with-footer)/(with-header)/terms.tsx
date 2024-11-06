@@ -5,11 +5,7 @@ import { formatDate } from 'date-fns';
 export default function TermsOfServicePage() {
   return (
     <>
-      <Title>Terms of Service | The AI Study Bible</Title>
-      <Meta
-        name='description'
-        content="Review our terms of service to understand the guidelines, user responsibilities, and conditions for using The AI Study Bible's AI-powered study tools and features."
-      />
+      <MetaTags />
       <div class='container mx-auto max-w-4xl px-4 py-12'>
         <header class='text-center'>
           <GradientH1>Terms of Service</GradientH1>
@@ -173,3 +169,21 @@ export default function TermsOfServicePage() {
     </>
   );
 }
+
+const MetaTags = () => {
+  const title = 'Terms of Service | The AI Study Bible';
+  const description =
+    "Review our terms of service to understand the guidelines, user responsibilities, and conditions for using The AI Study Bible's AI-powered study tools and features.";
+
+  return (
+    <>
+      <Title>{title}</Title>
+      <Meta name='description' content={description} />
+      <Meta property='og:title' content={title} />
+      <Meta property='og:description' content={description} />
+      <Meta name='twitter:card' content='summary' />
+      <Meta name='twitter:title' content={title} />
+      <Meta name='twitter:description' content={description} />
+    </>
+  );
+};

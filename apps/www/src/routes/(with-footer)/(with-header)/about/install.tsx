@@ -35,11 +35,7 @@ export default function InstallPage() {
 
   return (
     <>
-      <Title>Install The AI Study Bible - Access Scripture Anywhere</Title>
-      <Meta
-        name='description'
-        content='Learn how to install The AI Study Bible on your device. Get easy access to AI-powered Bible study tools, offline reading, and personalized insights on any platform.'
-      />
+      <MetaTags />
       <div class='mx-auto max-w-2xl p-4'>
         <Show
           when={isStandalone()}
@@ -243,3 +239,21 @@ function InstallInstructions(props: { icon: JSX.Element; steps: (string | JSX.El
     </Card>
   );
 }
+
+const MetaTags = () => {
+  const title = 'Install The AI Study Bible - Access Scripture Anywhere';
+  const description =
+    'Learn how to install The AI Study Bible on your device. Get easy access to AI-powered Bible study tools, offline reading, and personalized insights on any platform.';
+
+  return (
+    <>
+      <Title>{title}</Title>
+      <Meta name='description' content={description} />
+      <Meta property='og:title' content={title} />
+      <Meta property='og:description' content={description} />
+      <Meta name='twitter:card' content='summary' />
+      <Meta name='twitter:title' content={title} />
+      <Meta name='twitter:description' content={description} />
+    </>
+  );
+};

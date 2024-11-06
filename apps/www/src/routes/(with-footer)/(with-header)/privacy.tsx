@@ -5,11 +5,7 @@ import { formatDate } from 'date-fns';
 export default function PrivacyPolicyPage() {
   return (
     <>
-      <Title>Privacy Policy | The AI Study Bible - Your Data Security</Title>
-      <Meta
-        name='description'
-        content='Read our privacy policy to understand how The AI Study Bible protects your data, ensures your privacy, and maintains the security of your Bible study experience.'
-      />
+      <MetaTags />
       <div class='container mx-auto max-w-4xl px-4 py-12'>
         <header class='text-center'>
           <GradientH1>Privacy Policy</GradientH1>
@@ -201,3 +197,21 @@ export default function PrivacyPolicyPage() {
     </>
   );
 }
+
+const MetaTags = () => {
+  const title = 'Privacy Policy | The AI Study Bible - Your Data Security';
+  const description =
+    'Read our privacy policy to understand how The AI Study Bible protects your data, ensures your privacy, and maintains the security of your Bible study experience.';
+
+  return (
+    <>
+      <Title>{title}</Title>
+      <Meta name='description' content={description} />
+      <Meta property='og:title' content={title} />
+      <Meta property='og:description' content={description} />
+      <Meta name='twitter:card' content='summary' />
+      <Meta name='twitter:title' content={title} />
+      <Meta name='twitter:description' content={description} />
+    </>
+  );
+};

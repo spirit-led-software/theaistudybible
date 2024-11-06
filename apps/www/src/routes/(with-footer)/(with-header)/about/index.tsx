@@ -42,11 +42,7 @@ export default function AboutPage() {
 
   return (
     <>
-      <Title>About The AI Study Bible - AI-Powered Bible Study Tool</Title>
-      <Meta
-        name='description'
-        content='Learn how The AI Study Bible combines cutting-edge AI technology with biblical wisdom to provide deeper understanding, meaningful conversations, and advanced search capabilities for your Bible study journey.'
-      />
+      <MetaTags />
       <div class='mx-auto max-w-4xl space-y-12 px-4 py-12'>
         <header class='space-y-4 text-center'>
           <GradientH1>Here's What We Do</GradientH1>
@@ -106,3 +102,21 @@ export default function AboutPage() {
     </>
   );
 }
+
+const MetaTags = () => {
+  const title = 'About The AI Study Bible - AI-Powered Bible Study Tool';
+  const description =
+    'Learn how The AI Study Bible combines cutting-edge AI technology with biblical wisdom to provide deeper understanding, meaningful conversations, and advanced search capabilities for your Bible study journey.';
+
+  return (
+    <>
+      <Title>{title}</Title>
+      <Meta name='description' content={description} />
+      <Meta property='og:title' content={title} />
+      <Meta property='og:description' content={description} />
+      <Meta name='twitter:card' content='summary' />
+      <Meta name='twitter:title' content={title} />
+      <Meta name='twitter:description' content={description} />
+    </>
+  );
+};

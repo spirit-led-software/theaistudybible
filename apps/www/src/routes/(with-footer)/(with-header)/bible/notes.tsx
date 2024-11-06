@@ -74,7 +74,7 @@ export const route: RouteDefinition = {
   },
 };
 
-const NotesPage = () => {
+export default function NotesPage() {
   const notesQuery = createInfiniteQuery(() => getNotesQueryOptions());
 
   const [notes, setNotes] = createStore<Awaited<ReturnType<typeof getNotes>>['notes']>([]);
@@ -86,17 +86,7 @@ const NotesPage = () => {
 
   return (
     <>
-      <Title>
-        Bible Notes & Annotations | The AI Study Bible - Your Personal Bible Study Notes
-      </Title>
-      <Meta
-        name='description'
-        content='Access and manage your personal Bible study notes, annotations, and insights. Create, view, and organize your Bible study notes with The AI Study Bible.'
-      />
-      <Meta
-        name='keywords'
-        content='bible notes, bible study notes, bible annotations, bible study tools, AI study bible, personal bible notes'
-      />
+      <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <SignedIn>
           <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
@@ -159,6 +149,22 @@ const NotesPage = () => {
       </div>
     </>
   );
-};
+}
 
-export default NotesPage;
+const MetaTags = () => {
+  const title = 'Bible Notes & Annotations | The AI Study Bible - Your Personal Bible Study Notes';
+  const description =
+    'Access and manage your personal Bible study notes, annotations, and insights. Create, view, and organize your Bible study notes with The AI Study Bible.';
+
+  return (
+    <>
+      <Title>{title}</Title>
+      <Meta name='description' content={description} />
+      <Meta property='og:title' content={title} />
+      <Meta property='og:description' content={description} />
+      <Meta name='twitter:card' content='summary' />
+      <Meta name='twitter:title' content={title} />
+      <Meta name='twitter:description' content={description} />
+    </>
+  );
+};
