@@ -13,6 +13,7 @@ export const analyticsProxy = new sst.cloudflare.Worker('AnalyticsProxy', {
     ASSET_HOST: POSTHOG_ASSET_HOST.value,
   },
   domain: ANALYTICS_DOMAIN.value,
+  transform: { worker: { compatibilityFlags: ['nodejs_compat'] } },
 });
 
 export const ANALYTICS_URL = new Constant(

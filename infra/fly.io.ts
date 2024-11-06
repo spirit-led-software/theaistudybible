@@ -46,46 +46,6 @@ if (!$dev) {
   buildFlyAutoscaler();
 
   function buildWebAppImage() {
-    const buildArgs = $util
-      .all([
-        WEBAPP_URL.value,
-        cdn.url,
-        ANALYTICS_URL.value,
-        POSTHOG_API_KEY.value,
-        STRIPE_PUBLISHABLE_KEY.value,
-        webAppSentryKey.dsnPublic,
-        webAppSentryKey.organization,
-        webAppSentryKey.projectId.toString(),
-        webAppSentryProject.name,
-        SENTRY_AUTH_TOKEN.value,
-      ])
-      .apply(
-        ([
-          webapp_url,
-          cdn_url,
-          posthog_api_host,
-          posthog_api_key,
-          stripe_publishable_key,
-          stage,
-          sentry_dsn,
-          sentry_org,
-          sentry_project_id,
-          sentry_project_name,
-          sentry_auth_token,
-        ]) => ({
-          webapp_url,
-          cdn_url,
-          posthog_api_host,
-          posthog_api_key,
-          stripe_publishable_key,
-          stage,
-          sentry_dsn,
-          sentry_org,
-          sentry_project_id,
-          sentry_project_name,
-          sentry_auth_token,
-        }),
-      );
     return new dockerbuild.Image('WebAppImage', {
       tags: [$interpolate`registry.fly.io/${flyWebApp!.name}:latest`],
       registries: [
@@ -93,7 +53,19 @@ if (!$dev) {
       ],
       dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
       context: { location: process.cwd() },
-      buildArgs,
+      buildArgs: {
+        webapp_url: WEBAPP_URL.value,
+        cdn_url: cdn.url,
+        posthog_api_host: ANALYTICS_URL.value,
+        posthog_api_key: POSTHOG_API_KEY.value,
+        stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
+        stage: $app.stage,
+        sentry_dsn: webAppSentryKey.dsnPublic,
+        sentry_org: webAppSentryProject.organization,
+        sentry_project_id: webAppSentryProject.projectId.apply((id) => id.toString()),
+        sentry_project_name: webAppSentryProject.name,
+        sentry_auth_token: SENTRY_AUTH_TOKEN.value,
+      },
       platforms: ['linux/amd64'],
       push: true,
       network: 'host',
