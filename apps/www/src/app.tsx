@@ -8,10 +8,12 @@ import {
 } from '@kobalte/core';
 import * as Sentry from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
+import { useBeforeLeave, useLocation } from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
-import { Show, Suspense } from 'solid-js';
+import posthog from 'posthog-js';
+import { Show, Suspense, createEffect, on } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { Logo } from './components/branding/logo';
 import { SentryErrorBoundary } from './components/sentry/error-boundary';
@@ -62,66 +64,81 @@ export default function App() {
 
   const storageManager = createCookieStorageManager(
     COLOR_MODE_STORAGE_KEY,
-    isServer ? getColorModeCookie() : undefined,
+    isServer ? getColorModeCookie().cookie : undefined,
   );
 
   return (
     <QueryClientProvider client={queryClient}>
       <SolidQueryDevtools initialIsOpen={false} buttonPosition='top-left' />
       <SentryRouter
-        root={(props) => (
-          <MetaProvider>
-            <ColorModeScript storageType={storageManager.type} />
-            <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
-              <DefaultMetaTags />
-              <AuthProvider>
-                <BibleProvider>
-                  <ChatProvider>
-                    <DevotionProvider>
-                      <SentryErrorBoundary
-                        fallback={(err, reset) => (
-                          <div class='flex h-full w-full items-center justify-center'>
-                            <div class='flex w-full max-w-xl flex-col gap-3'>
-                              <H1>Oops, something went wrong. Please contact support.</H1>
-                              <H4>{err.message}</H4>
-                              <Show when={err.stack} keyed>
-                                {(stack) => (
-                                  <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
-                                    {stack}
-                                  </pre>
-                                )}
-                              </Show>
-                              <Show
-                                when={'cause' in err && err.cause instanceof Error && err.cause}
-                                keyed
-                              >
-                                {(cause) => <H3>{cause.message}</H3>}
-                              </Show>
-                              <Button onClick={reset}>Try again</Button>
-                            </div>
-                          </div>
-                        )}
-                      >
-                        <Suspense
-                          fallback={
+        root={(props) => {
+          const location = useLocation();
+          createEffect(
+            on(
+              () => location.pathname,
+              () => {
+                posthog.capture('$pageview');
+              },
+            ),
+          );
+          useBeforeLeave(() => {
+            posthog.capture('$pageleave');
+          });
+
+          return (
+            <MetaProvider>
+              <ColorModeScript storageType={storageManager.type} />
+              <ColorModeProvider storageManager={storageManager}>
+                <DefaultMetaTags />
+                <AuthProvider>
+                  <BibleProvider>
+                    <ChatProvider>
+                      <DevotionProvider>
+                        <SentryErrorBoundary
+                          fallback={(err, reset) => (
                             <div class='flex h-full w-full items-center justify-center'>
-                              <div class='w-full max-w-xl'>
-                                <Logo />
+                              <div class='flex w-full max-w-xl flex-col gap-3'>
+                                <H1>Oops, something went wrong. Please contact support.</H1>
+                                <H4>{err.message}</H4>
+                                <Show when={err.stack} keyed>
+                                  {(stack) => (
+                                    <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
+                                      {stack}
+                                    </pre>
+                                  )}
+                                </Show>
+                                <Show
+                                  when={'cause' in err && err.cause instanceof Error && err.cause}
+                                  keyed
+                                >
+                                  {(cause) => <H3>{cause.message}</H3>}
+                                </Show>
+                                <Button onClick={reset}>Try again</Button>
                               </div>
                             </div>
-                          }
+                          )}
                         >
-                          {props.children}
-                        </Suspense>
-                        <Toaster />
-                      </SentryErrorBoundary>
-                    </DevotionProvider>
-                  </ChatProvider>
-                </BibleProvider>
-              </AuthProvider>
-            </ColorModeProvider>
-          </MetaProvider>
-        )}
+                          <Suspense
+                            fallback={
+                              <div class='flex h-full w-full items-center justify-center'>
+                                <div class='w-full max-w-xl'>
+                                  <Logo />
+                                </div>
+                              </div>
+                            }
+                          >
+                            {props.children}
+                          </Suspense>
+                          <Toaster />
+                        </SentryErrorBoundary>
+                      </DevotionProvider>
+                    </ChatProvider>
+                  </BibleProvider>
+                </AuthProvider>
+              </ColorModeProvider>
+            </MetaProvider>
+          );
+        }}
       >
         <FileRoutes />
       </SentryRouter>

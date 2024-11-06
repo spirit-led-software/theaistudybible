@@ -10,7 +10,9 @@ const isDev = import.meta.env.DEV;
 posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
   api_host: import.meta.env.PUBLIC_POSTHOG_API_HOST,
   ui_host: import.meta.env.PUBLIC_POSTHOG_UI_HOST,
-  person_profiles: 'always',
+  person_profiles: 'identified_only',
+  capture_pageview: false,
+  capture_pageleave: false,
   loaded: () => {
     if (!isProd) {
       posthog.opt_out_capturing();
@@ -28,7 +30,7 @@ Sentry.init({
     posthog.sentryIntegration({
       organization: import.meta.env.PUBLIC_SENTRY_ORG,
       projectId: Number.parseInt(import.meta.env.PUBLIC_SENTRY_PROJECT_ID),
-      severityAllowList: ['fatal', 'warning', 'error', 'info'],
+      severityAllowList: '*',
     }),
   ],
   tracesSampleRate: isDev ? 0 : isProd ? 1.0 : 0.5,
