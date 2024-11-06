@@ -9,22 +9,6 @@ runs:
       with:
         bun-version: latest
 
-    - name: Cache Bun
-      uses: actions/cache@v4
-      with:
-        path: ~/.bun/install/cache
-        key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
-        restore-keys: |
-          ${{ runner.os }}-bun-
-
-    - name: Cache SST
-      uses: actions/cache@v4
-      with:
-        path: .sst
-        key: ${{ runner.os }}-sst-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-sst-
-
     - name: Cache TurboRepo
       uses: actions/cache@v4
       with:
