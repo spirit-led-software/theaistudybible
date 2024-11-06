@@ -45,6 +45,21 @@ ARG sentry_project_id
 ARG sentry_project_name
 ARG sentry_auth_token
 
+ENV PUBLIC_STAGE ${stage}
+ENV PUBLIC_WEBAPP_URL ${webapp_url}
+ENV PUBLIC_CDN_URL ${cdn_url}
+ENV PUBLIC_STRIPE_PUBLISHABLE_KEY ${stripe_publishable_key}
+
+ENV PUBLIC_POSTHOG_UI_HOST ${posthog_ui_host}
+ENV PUBLIC_POSTHOG_API_HOST ${posthog_api_host}
+ENV PUBLIC_POSTHOG_API_KEY ${posthog_api_key}
+
+ENV PUBLIC_SENTRY_DSN ${sentry_dsn}
+ENV PUBLIC_SENTRY_ORG ${sentry_org}
+ENV PUBLIC_SENTRY_PROJECT_ID ${sentry_project_id}
+ENV PUBLIC_SENTRY_PROJECT_NAME ${sentry_project_name}
+ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
+
 WORKDIR /build
 
 RUN apt update \
@@ -54,21 +69,6 @@ RUN apt update \
 
 COPY --from=install /install/node_modules ./node_modules
 
-ENV PUBLIC_STAGE=${stage}
-ENV PUBLIC_WEBAPP_URL=${webapp_url}
-ENV PUBLIC_CDN_URL=${cdn_url}
-ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
-
-ENV PUBLIC_POSTHOG_UI_HOST=${posthog_ui_host}
-ENV PUBLIC_POSTHOG_API_HOST=${posthog_api_host}
-ENV PUBLIC_POSTHOG_API_KEY=${posthog_api_key}
-
-ENV PUBLIC_SENTRY_DSN=${sentry_dsn}
-ENV PUBLIC_SENTRY_ORG=${sentry_org}
-ENV PUBLIC_SENTRY_PROJECT_ID=${sentry_project_id}
-ENV PUBLIC_SENTRY_PROJECT_NAME=${sentry_project_name}
-ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
-
 COPY --link . .
 RUN bun run build
 
@@ -77,10 +77,25 @@ RUN bun run build
 ########################################################
 FROM base AS release
 
-WORKDIR /app
-
 ENV NODE_ENV production
 ENV PORT 8080
+
+ENV PUBLIC_STAGE ${stage}
+ENV PUBLIC_WEBAPP_URL ${webapp_url}
+ENV PUBLIC_CDN_URL ${cdn_url}
+ENV PUBLIC_STRIPE_PUBLISHABLE_KEY ${stripe_publishable_key}
+
+ENV PUBLIC_POSTHOG_UI_HOST ${posthog_ui_host}
+ENV PUBLIC_POSTHOG_API_HOST ${posthog_api_host}
+ENV PUBLIC_POSTHOG_API_KEY ${posthog_api_key}
+
+ENV PUBLIC_SENTRY_DSN ${sentry_dsn}
+ENV PUBLIC_SENTRY_ORG ${sentry_org}
+ENV PUBLIC_SENTRY_PROJECT_ID ${sentry_project_id}
+ENV PUBLIC_SENTRY_PROJECT_NAME ${sentry_project_name}
+ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
+
+WORKDIR /app
 
 RUN apt update \
 && apt install -y curl \

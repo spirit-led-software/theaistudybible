@@ -5,12 +5,16 @@ export const WEBHOOKS_DOMAIN = new Constant(
   'WebhooksDomain',
   $interpolate`webhooks.${DOMAIN.value}`,
 );
+export const WEBHOOKS_URL = new Constant(
+  'WebhooksUrl',
+  $interpolate`https://${WEBHOOKS_DOMAIN.value}`,
+);
 
 sst.Linkable.wrap(stripe.WebhookEndpoint, (resource) => ({
   properties: { secret: $util.secret(resource.secret) },
 }));
 const stripeWebhookEndpoint = new stripe.WebhookEndpoint('StripeWebhookEndpoint', {
-  url: $interpolate`https://${WEBHOOKS_DOMAIN.value}/stripe`,
+  url: $interpolate`${WEBHOOKS_URL.value}/stripe`,
   enabledEvents: ['checkout.session.completed'],
 });
 
@@ -27,8 +31,3 @@ new cloudflare.Record('WebhooksApiRecord', {
   value: webhooksApiFn.url.apply((url) => new URL(url).hostname),
   proxied: true,
 });
-
-export const WEBHOOKS_URL = new Constant(
-  'WebhooksUrl',
-  $interpolate`https://${WEBHOOKS_DOMAIN.value}`,
-);

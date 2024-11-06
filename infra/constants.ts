@@ -26,11 +26,14 @@ export const STRIPE_PUBLISHABLE_KEY = new Constant(
 );
 
 export const POSTHOG_UI_HOST = new Constant('PostHogUiHost', 'https://us.posthog.com');
-export const POSTHOG_ASSET_HOST = new Constant(
-  'PostHogAssetHost',
+export const POSTHOG_ASSETS_HOST = new Constant(
+  'PostHogAssetsHost',
   'https://us-assets.i.posthog.com',
 );
-export const POSTHOG_API_HOST = new Constant('PostHogApiHost', 'https://us.i.posthog.com');
+export const POSTHOG_API_HOST = new Constant(
+  'PostHogApiHost',
+  'https://us-proxy-direct.i.posthog.com',
+);
 export const POSTHOG_API_KEY = new Constant(
   'PostHogApiKey',
   'phc_z3PcZTeDMCT53dKzb0aqDXkrM1o3LpNcC9QlJDdG9sO',
