@@ -47,6 +47,49 @@ if (!$dev) {
   buildFlyAutoscaler();
 
   function buildWebAppImage() {
+    const buildArgs = $util
+      .all([
+        WEBAPP_URL.value,
+        cdn.url,
+        STRIPE_PUBLISHABLE_KEY.value,
+        POSTHOG_UI_HOST.value,
+        ANALYTICS_URL.value,
+        POSTHOG_API_KEY.value,
+        webAppSentryKey.dsnPublic,
+        webAppSentryProject.organization,
+        webAppSentryProject.projectId.apply((id) => id.toString()),
+        webAppSentryProject.name,
+        SENTRY_AUTH_TOKEN.value,
+      ])
+      .apply(
+        ([
+          webappUrl,
+          cdnUrl,
+          stripePublishableKey,
+          posthogUiHost,
+          posthogApiHost,
+          posthogApiKey,
+          sentryDsn,
+          sentryOrg,
+          sentryProjectId,
+          sentryProjectName,
+          sentryAuthToken,
+        ]) => ({
+          stage: $app.stage,
+          webapp_url: webappUrl,
+          cdn_url: cdnUrl,
+          stripe_publishable_key: stripePublishableKey,
+          posthog_ui_host: posthogUiHost,
+          posthog_api_host: posthogApiHost,
+          posthog_api_key: posthogApiKey,
+          sentry_dsn: sentryDsn,
+          sentry_org: sentryOrg,
+          sentry_project_id: sentryProjectId,
+          sentry_project_name: sentryProjectName,
+          sentry_auth_token: sentryAuthToken,
+        }),
+      );
+
     return new dockerbuild.Image('WebAppImage', {
       tags: [$interpolate`registry.fly.io/${flyWebApp!.name}:latest`],
       registries: [
@@ -54,20 +97,7 @@ if (!$dev) {
       ],
       dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
       context: { location: process.cwd() },
-      buildArgs: {
-        stage: $app.stage,
-        webapp_url: WEBAPP_URL.value,
-        cdn_url: cdn.url,
-        stripe_publishable_key: STRIPE_PUBLISHABLE_KEY.value,
-        posthog_ui_host: POSTHOG_UI_HOST.value,
-        posthog_api_host: ANALYTICS_URL.value,
-        posthog_api_key: POSTHOG_API_KEY.value,
-        sentry_dsn: webAppSentryKey.dsnPublic,
-        sentry_org: webAppSentryProject.organization,
-        sentry_project_id: webAppSentryProject.projectId.apply((id) => id.toString()),
-        sentry_project_name: webAppSentryProject.name,
-        sentry_auth_token: SENTRY_AUTH_TOKEN.value,
-      },
+      buildArgs,
       platforms: ['linux/amd64'],
       push: true,
       network: 'host',
