@@ -86,8 +86,17 @@ const NotesPage = () => {
 
   return (
     <>
-      <Title>Notes | Bible | The AI Study Bible</Title>
-      <Meta name='description' content='Your notes for The AI Study Bible' />
+      <Title>
+        Bible Notes & Annotations | The AI Study Bible - Your Personal Bible Study Notes
+      </Title>
+      <Meta
+        name='description'
+        content='Access and manage your personal Bible study notes, annotations, and insights. Create, view, and organize your Bible study notes with The AI Study Bible.'
+      />
+      <Meta
+        name='keywords'
+        content='bible notes, bible study notes, bible annotations, bible study tools, AI study bible, personal bible notes'
+      />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <SignedIn>
           <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>

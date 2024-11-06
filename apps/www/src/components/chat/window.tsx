@@ -1,6 +1,6 @@
 import { createScrollAnchor } from '@/www/hooks/create-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
-import { Title } from '@solidjs/meta';
+import { Title, Meta } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createMemo, on } from 'solid-js';
@@ -94,7 +94,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   return (
     <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
-      <Title>{chatName()} | The AI Study Bible</Title>
+      <Title>{chatName()} | AI Bible Study Chat | The AI Study Bible</Title>
+      <Meta
+        name='description'
+        content='Engage in meaningful conversations about Scripture with our AI-powered Bible study assistant. Get instant insights, answers, and deeper understanding of biblical passages.'
+      />
       <ChatMenu />
       <Show when={!isAtBottom()}>
         <Button

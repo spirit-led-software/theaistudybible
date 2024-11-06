@@ -2,7 +2,7 @@ import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth } from '@/www/server/auth';
-import { Title } from '@solidjs/meta';
+import { Meta, Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
@@ -103,9 +103,18 @@ export const ReaderContent = (props: ReaderContentProps) => {
   return (
     <>
       <Title>
-        {brStore.verse ? brStore.verse.name : brStore.chapter.name} |{' '}
-        {brStore.bible.abbreviationLocal} | The AI Study Bible
+        {brStore.verse
+          ? `${brStore.verse.name} | ${brStore.bible.abbreviationLocal} | Read & Study the Bible with AI`
+          : `${brStore.chapter.name} | ${brStore.bible.abbreviationLocal} | The AI Study Bible`}
       </Title>
+      <Meta
+        name='description'
+        content={`Study ${brStore.verse ? brStore.verse.name : brStore.chapter.name} with AI-powered insights, commentary, and cross-references. Access multiple translations and study tools to deepen your understanding of Scripture.`}
+      />
+      <Meta
+        name='keywords'
+        content={`${brStore.verse ? brStore.verse.name : brStore.chapter.name}, bible study, AI study bible, bible study tools, bible study notes, bible study annotations, bible study insights, bible study commentary, bible study cross-references`}
+      />
       <div class='eb-container w-full select-none'>
         <Contents
           contents={props.contents}

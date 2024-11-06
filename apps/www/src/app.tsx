@@ -70,13 +70,9 @@ export default function App() {
       <SentryRouter
         root={(props) => (
           <MetaProvider>
-            <Title>The AI Study Bible</Title>
-            <Meta
-              name='description'
-              content='The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.'
-            />
             <ColorModeScript storageType={storageManager.type} />
             <ColorModeProvider storageManager={storageManager} initialColorMode='system'>
+              <DefaultMetaTags />
               <AuthProvider>
                 <BibleProvider>
                   <ChatProvider>
@@ -131,3 +127,43 @@ export default function App() {
     </QueryClientProvider>
   );
 }
+
+const DefaultMetaTags = () => {
+  return (
+    <>
+      <Title>The AI Study Bible - Intelligent Bible Study Assistant</Title>
+
+      {/* Core meta tags */}
+      <Meta
+        name='description'
+        content='Study the Bible with AI-powered insights, verse explanations, and personalized devotionals. Access multiple translations, create highlights, notes, and bookmarks.'
+      />
+      <Meta
+        name='keywords'
+        content='Bible study, AI Bible assistant, digital Bible, Bible commentary, Bible translations, Bible devotionals'
+      />
+
+      {/* Open Graph tags for social sharing */}
+      <Meta property='og:type' content='website' />
+      <Meta property='og:title' content='The AI Study Bible - Intelligent Bible Study Assistant' />
+      <Meta
+        property='og:description'
+        content='Study the Bible with AI-powered insights, verse explanations, and personalized devotionals. Access multiple translations, create highlights, notes, and bookmarks.'
+      />
+      <Meta property='og:site_name' content='The AI Study Bible' />
+
+      {/* Twitter Card tags */}
+      <Meta name='twitter:card' content='summary_large_image' />
+      <Meta name='twitter:title' content='The AI Study Bible - Intelligent Bible Study Assistant' />
+      <Meta
+        name='twitter:description'
+        content='Study the Bible with AI-powered insights, verse explanations, and personalized devotionals.'
+      />
+
+      {/* Additional meta tags */}
+      <Meta name='application-name' content='The AI Study Bible' />
+      <Meta name='theme-color' content='#030527' />
+      <Meta name='robots' content='index, follow' />
+    </>
+  );
+};

@@ -102,8 +102,11 @@ const HighlightsPage = () => {
 
   return (
     <>
-      <Title>Highlights | Bible | The AI Study Bible</Title>
-      <Meta name='description' content='Your highlights for The AI Study Bible' />
+      <Title>Bible Highlights | The AI Study Bible - Save & Review Important Verses</Title>
+      <Meta
+        name='description'
+        content='Access and manage your highlighted Bible verses. Use our AI-powered highlighting system to mark, organize, and revisit meaningful passages from Scripture.'
+      />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <SignedIn>
           <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>

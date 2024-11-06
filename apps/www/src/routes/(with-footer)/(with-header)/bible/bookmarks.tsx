@@ -127,8 +127,11 @@ const BookmarksPage = () => {
 
   return (
     <>
-      <Title>Bookmarks | The AI Study Bible</Title>
-      <Meta name='description' content='Your bookmarks for The AI Study Bible' />
+      <Title>Bible Bookmarks | The AI Study Bible - Save Your Reading Progress</Title>
+      <Meta
+        name='description'
+        content='Access your saved Bible bookmarks. Keep track of chapters and verses for easy reference and continue your Bible study journey where you left off.'
+      />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <SignedIn>
           <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>

@@ -35,8 +35,11 @@ export default function InstallPage() {
 
   return (
     <>
-      <Title>Install | The AI Study Bible</Title>
-      <Meta name='description' content='Install the AI Study Bible PWA on your device' />
+      <Title>Install The AI Study Bible - Access Scripture Anywhere</Title>
+      <Meta
+        name='description'
+        content='Learn how to install The AI Study Bible on your device. Get easy access to AI-powered Bible study tools, offline reading, and personalized insights on any platform.'
+      />
       <div class='mx-auto max-w-2xl p-4'>
         <Show
           when={isStandalone()}

@@ -6,7 +6,10 @@ export default function TermsOfServicePage() {
   return (
     <>
       <Title>Terms of Service | The AI Study Bible</Title>
-      <Meta name='description' content='Terms of Service for The AI Study Bible' />
+      <Meta
+        name='description'
+        content="Review our terms of service to understand the guidelines, user responsibilities, and conditions for using The AI Study Bible's AI-powered study tools and features."
+      />
       <div class='container mx-auto max-w-4xl px-4 py-12'>
         <header class='text-center'>
           <GradientH1>Terms of Service</GradientH1>

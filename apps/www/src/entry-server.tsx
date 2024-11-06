@@ -15,7 +15,6 @@ export default createHandler(() => (
           <link rel='icon' href='/icon.svg' sizes='any' type='image/svg+xml' />
           {/* PWA */}
           <link rel='manifest' href='/_build/manifest.webmanifest' />
-          <meta name='theme-color' content='#030527' />
           <link rel='apple-touch-icon' href='/apple-touch-icon-180x180.png' />
           <link
             rel='apple-touch-startup-image'

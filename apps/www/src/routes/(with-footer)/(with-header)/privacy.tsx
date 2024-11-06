@@ -5,8 +5,11 @@ import { formatDate } from 'date-fns';
 export default function PrivacyPolicyPage() {
   return (
     <>
-      <Title>Privacy Policy | The AI Study Bible</Title>
-      <Meta name='description' content='Privacy Policy for The AI Study Bible' />
+      <Title>Privacy Policy | The AI Study Bible - Your Data Security</Title>
+      <Meta
+        name='description'
+        content='Read our privacy policy to understand how The AI Study Bible protects your data, ensures your privacy, and maintains the security of your Bible study experience.'
+      />
       <div class='container mx-auto max-w-4xl px-4 py-12'>
         <header class='text-center'>
           <GradientH1>Privacy Policy</GradientH1>
