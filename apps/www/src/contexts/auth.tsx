@@ -4,17 +4,16 @@ import * as Sentry from '@sentry/solidstart';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import type { Session, User } from 'lucia';
-import posthog from 'posthog-js';
 import {
   type Accessor,
   type JSX,
   createContext,
   createEffect,
   createMemo,
-  on,
   useContext,
 } from 'solid-js';
 import { isServer } from 'solid-js/web';
+import { usePosthog } from './posthog';
 
 export type AuthContextType = {
   session: Accessor<Session | null | undefined>;
@@ -67,6 +66,8 @@ export type AuthProviderProps = {
 };
 
 export const AuthProvider = (props: AuthProviderProps) => {
+  const posthog = usePosthog();
+
   const placeholderData = isServer
     ? getAuth()
     : {
@@ -84,14 +85,13 @@ export const AuthProvider = (props: AuthProviderProps) => {
   const user = createMemo(() => query.data?.user);
   const roles = createMemo(() => query.data?.roles);
 
-  createEffect(
-    on(user, (user) => {
-      if (user) {
-        posthog.identify(user.id, { email: user.email });
-        Sentry.setUser({ id: user.id, email: user.email });
-      }
-    }),
-  );
+  createEffect(() => {
+    const currentUser = user();
+    if (currentUser) {
+      posthog()?.identify(currentUser.id, { email: currentUser.email });
+      Sentry.setUser({ id: currentUser.id, email: currentUser.email });
+    }
+  });
 
   return (
     <AuthContext.Provider value={{ session, user, roles }}>{props.children}</AuthContext.Provider>

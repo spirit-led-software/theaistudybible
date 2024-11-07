@@ -24,6 +24,7 @@ import { getColorModeCookie } from './server/cookie';
 import '@fontsource/goldman';
 import '@fontsource-variable/inter';
 import './app.css';
+import { PosthogProvider } from './contexts/posthog';
 
 export default function App() {
   const queryClient = new QueryClient({
@@ -79,57 +80,59 @@ export default function App() {
           });
 
           return (
-            <MetaProvider>
-              <DefaultMetaTags />
-              <ColorModeScript storageType={storageManager.type} />
-              <ColorModeProvider storageManager={storageManager}>
-                <AuthProvider>
-                  <BibleProvider>
-                    <ChatProvider>
-                      <DevotionProvider>
-                        <SentryErrorBoundary
-                          fallback={(err, reset) => (
-                            <div class='flex h-full w-full items-center justify-center'>
-                              <div class='flex w-full max-w-xl flex-col gap-3'>
-                                <H1>Oops, something went wrong. Please contact support.</H1>
-                                <H4>{err.message}</H4>
-                                <Show when={err.stack} keyed>
-                                  {(stack) => (
-                                    <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
-                                      {stack}
-                                    </pre>
-                                  )}
-                                </Show>
-                                <Show
-                                  when={'cause' in err && err.cause instanceof Error && err.cause}
-                                  keyed
-                                >
-                                  {(cause) => <H3>{cause.message}</H3>}
-                                </Show>
-                                <Button onClick={reset}>Try again</Button>
-                              </div>
-                            </div>
-                          )}
-                        >
-                          <Suspense
-                            fallback={
+            <PosthogProvider>
+              <MetaProvider>
+                <DefaultMetaTags />
+                <ColorModeScript storageType={storageManager.type} />
+                <ColorModeProvider storageManager={storageManager}>
+                  <AuthProvider>
+                    <BibleProvider>
+                      <ChatProvider>
+                        <DevotionProvider>
+                          <SentryErrorBoundary
+                            fallback={(err, reset) => (
                               <div class='flex h-full w-full items-center justify-center'>
-                                <div class='w-full max-w-xl'>
-                                  <Logo />
+                                <div class='flex w-full max-w-xl flex-col gap-3'>
+                                  <H1>Oops, something went wrong. Please contact support.</H1>
+                                  <H4>{err.message}</H4>
+                                  <Show when={err.stack} keyed>
+                                    {(stack) => (
+                                      <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
+                                        {stack}
+                                      </pre>
+                                    )}
+                                  </Show>
+                                  <Show
+                                    when={'cause' in err && err.cause instanceof Error && err.cause}
+                                    keyed
+                                  >
+                                    {(cause) => <H3>{cause.message}</H3>}
+                                  </Show>
+                                  <Button onClick={reset}>Try again</Button>
                                 </div>
                               </div>
-                            }
+                            )}
                           >
-                            {props.children}
-                          </Suspense>
-                          <Toaster />
-                        </SentryErrorBoundary>
-                      </DevotionProvider>
-                    </ChatProvider>
-                  </BibleProvider>
-                </AuthProvider>
-              </ColorModeProvider>
-            </MetaProvider>
+                            <Suspense
+                              fallback={
+                                <div class='flex h-full w-full items-center justify-center'>
+                                  <div class='w-full max-w-xl'>
+                                    <Logo />
+                                  </div>
+                                </div>
+                              }
+                            >
+                              {props.children}
+                            </Suspense>
+                            <Toaster />
+                          </SentryErrorBoundary>
+                        </DevotionProvider>
+                      </ChatProvider>
+                    </BibleProvider>
+                  </AuthProvider>
+                </ColorModeProvider>
+              </MetaProvider>
+            </PosthogProvider>
           );
         }}
       >
