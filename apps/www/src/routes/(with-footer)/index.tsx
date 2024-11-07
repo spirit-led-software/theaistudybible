@@ -27,7 +27,7 @@ export default function HomePage() {
                 width={256}
                 height={64}
                 lightClass='hidden sm:block dark:hidden'
-                darkClass='hidden dark:sm:block'
+                darkClass='hidden dark:hidden dark:sm:block'
               />
               <Button as={A} href='/bible' size='sm' class='text-xs sm:text-sm'>
                 Get Started
