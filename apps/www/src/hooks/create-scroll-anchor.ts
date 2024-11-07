@@ -2,22 +2,12 @@ import { createEffect, createSignal, onCleanup } from 'solid-js';
 
 export const createScrollAnchor = () => {
   const [scrollRef, setScrollRef] = createSignal<HTMLDivElement>();
-  const [visibilityRef, setVisibilityRef] = createSignal<HTMLDivElement>();
-
+  const [topOfLastMessageRef, setTopOfLastMessageRef] = createSignal<HTMLElement>();
+  const [bottomRef, setBottomRef] = createSignal<HTMLDivElement>();
+  const [isTopVisible, setIsTopVisible] = createSignal(true);
   const [isAtBottom, setIsAtBottom] = createSignal(true);
-  const [shouldScrollToBottom, setShouldScrollToBottom] = createSignal(true);
 
-  const scrollToBottomInstant = () => {
-    const current = scrollRef();
-    if (current) {
-      current.scrollTo({
-        top: current.scrollHeight,
-        behavior: 'instant',
-      });
-    }
-  };
-
-  const scrollToBottomSmooth = () => {
+  const scrollToBottom = () => {
     const current = scrollRef();
     if (current) {
       current.scrollTo({
@@ -28,25 +18,18 @@ export const createScrollAnchor = () => {
   };
 
   createEffect(() => {
-    if (shouldScrollToBottom()) {
-      scrollToBottomInstant();
-    }
-  });
+    const currentScroll = scrollRef();
+    const currentBottom = bottomRef();
 
-  createEffect(() => {
-    const current = scrollRef();
-    const visibilityCurrent = visibilityRef();
-
-    if (current && visibilityCurrent) {
+    if (currentScroll && currentBottom) {
       const observer = new IntersectionObserver(
         ([entry]) => {
           setIsAtBottom(entry.isIntersecting);
-          setShouldScrollToBottom(entry.isIntersecting);
         },
-        { root: current, threshold: 1 },
+        { root: currentScroll, threshold: 0.85 },
       );
 
-      observer.observe(visibilityCurrent);
+      observer.observe(currentBottom);
 
       onCleanup(() => {
         observer.disconnect();
@@ -55,31 +38,51 @@ export const createScrollAnchor = () => {
   });
 
   createEffect(() => {
-    const observer = new MutationObserver(() => {
-      if (isAtBottom()) {
-        scrollToBottomInstant();
-      }
-    });
+    const currentScroll = scrollRef();
+    const currentTop = topOfLastMessageRef();
 
+    if (currentScroll && currentTop) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setIsTopVisible(entry.isIntersecting);
+        },
+        { root: currentScroll, threshold: 1 },
+      );
+
+      observer.observe(currentTop);
+
+      onCleanup(() => {
+        observer.disconnect();
+      });
+    }
+  });
+
+  createEffect(() => {
     const current = scrollRef();
-    if (current) {
+    const visibilityCurrent = bottomRef();
+    if (current && visibilityCurrent) {
+      const observer = new MutationObserver(() => {
+        if (isAtBottom() && isTopVisible()) {
+          visibilityCurrent.scrollIntoView({ behavior: 'instant', block: 'end' });
+        }
+      });
       observer.observe(current, {
         childList: true,
         subtree: true,
         characterData: true,
       });
+      onCleanup(() => observer.disconnect());
     }
-
-    onCleanup(() => observer.disconnect());
   });
 
   return {
     scrollRef,
     setScrollRef,
-    visibilityRef,
-    setVisibilityRef,
-    scrollToBottomInstant,
-    scrollToBottomSmooth,
+    bottomRef,
+    setBottomRef,
+    topOfLastMessageRef,
+    setTopOfLastMessageRef,
+    scrollToBottom,
     isAtBottom,
   };
 };

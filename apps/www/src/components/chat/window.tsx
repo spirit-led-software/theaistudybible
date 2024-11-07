@@ -66,7 +66,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
   );
 
   const [setAnimateRef] = createAutoAnimate();
-  const { isAtBottom, scrollToBottomSmooth, setScrollRef, setVisibilityRef } = createScrollAnchor();
+  const { isAtBottom, scrollToBottom, setScrollRef, setBottomRef, setTopOfLastMessageRef } =
+    createScrollAnchor();
 
   const [searchParams, setSearchParams] = useSearchParams();
   createEffect(
@@ -95,7 +96,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             variant='outline'
             size='icon'
             class='-translate-x-1/2 absolute bottom-20 left-1/2 z-40 rounded-full bg-background shadow-lg'
-            onClick={scrollToBottomSmooth}
+            onClick={scrollToBottom}
             aria-label='Scroll to bottom of chat'
           >
             <ChevronDown />
@@ -135,13 +136,18 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 }
               >
                 {(message, idx) => (
-                  <Message
-                    previousMessage={messages()[idx() - 1]}
-                    message={message}
-                    nextMessage={messages()[idx() + 1]}
-                    addToolResult={addToolResult}
-                    isLoading={isLoading}
-                  />
+                  <>
+                    <Show when={idx() === messages().length - 1}>
+                      <div ref={setTopOfLastMessageRef} class='h-px w-full shrink-0' />
+                    </Show>
+                    <Message
+                      previousMessage={messages()[idx() - 1]}
+                      message={message}
+                      nextMessage={messages()[idx() + 1]}
+                      addToolResult={addToolResult}
+                      isLoading={isLoading}
+                    />
+                  </>
                 )}
               </For>
             </div>
@@ -178,7 +184,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 </Carousel>
               </section>
             </Show>
-            <div ref={setVisibilityRef} class='h-5 w-full shrink-0' />
+            <div ref={setBottomRef} class='h-5 w-full shrink-0' />
           </div>
         </div>
         <form
