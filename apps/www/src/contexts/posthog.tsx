@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/solidstart';
-import { useLocation } from '@solidjs/router';
+import { useBeforeLeave, useLocation } from '@solidjs/router';
 import posthog, { type PostHog } from 'posthog-js';
 import {
   type Accessor,
@@ -31,10 +31,17 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
 
   const location = useLocation();
   createEffect(
-    on([posthogClient, () => ({ ...location })], ([posthogClient]) => {
-      posthogClient?.capture('$pageview');
-    }),
+    on(
+      () => location.pathname,
+      () => {
+        posthogClient()?.capture('$pageview');
+      },
+    ),
   );
+
+  useBeforeLeave(() => {
+    posthogClient()?.capture('$pageleave');
+  });
 
   onMount(() => {
     const posthogClient = posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
