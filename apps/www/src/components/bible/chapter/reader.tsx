@@ -194,7 +194,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
                 </div>
                 <Show when={previousChapter} keyed>
                   {(previousChapter) => {
-                    preload(previousChapterRoute);
+                    preload(previousChapterRoute, { preloadData: true });
                     return (
                       <Tooltip placement='right'>
                         <TooltipTrigger
@@ -217,7 +217,7 @@ export default function ChapterReader(props: ChapterReaderProps) {
                 </Show>
                 <Show when={nextChapter} keyed>
                   {(nextChapter) => {
-                    preload(nextChapterRoute);
+                    preload(nextChapterRoute, { preloadData: true });
                     return (
                       <Tooltip placement='left'>
                         <TooltipTrigger

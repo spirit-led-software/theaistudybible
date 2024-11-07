@@ -257,7 +257,7 @@ export default function VerseReader(props: VerseReaderProps) {
                 </div>
                 <Show when={previousVerse} keyed>
                   {(previousVerse) => {
-                    preload(previousVerseRoute);
+                    preload(previousVerseRoute, { preloadData: true });
                     return (
                       <Tooltip placement='right'>
                         <TooltipTrigger
@@ -280,7 +280,7 @@ export default function VerseReader(props: VerseReaderProps) {
                 </Show>
                 <Show when={nextVerse} keyed>
                   {(nextVerse) => {
-                    preload(nextVerseRoute);
+                    preload(nextVerseRoute, { preloadData: true });
                     return (
                       <Tooltip placement='left'>
                         <TooltipTrigger
