@@ -5,7 +5,7 @@ import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { useSwipe } from '@/www/hooks/use-swipe';
 import { cn } from '@/www/lib/utils';
-import { A, useIsRouting, useNavigate } from '@solidjs/router';
+import { A, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
@@ -106,6 +106,7 @@ export type ChapterReaderProps = {
 export default function ChapterReader(props: ChapterReaderProps) {
   const navigate = useNavigate();
   const isRouting = useIsRouting();
+  const preload = usePreloadRoute();
 
   const [, setBibleStore] = useBibleStore();
 
@@ -146,21 +147,20 @@ export default function ChapterReader(props: ChapterReaderProps) {
       >
         {({ bible, book, chapter, rightsHolder }) => {
           const previousChapter = chapter.previous ?? book.previous?.chapters[0];
+          const previousChapterRoute = `/bible/${bible.abbreviation}/${previousChapter?.code.split('.')[0]}/${previousChapter?.number}`;
+
           const nextChapter = chapter.next ?? book.next?.chapters[0];
+          const nextChapterRoute = `/bible/${bible.abbreviation}/${nextChapter?.code.split('.')[0]}/${nextChapter?.number}`;
 
           useSwipe(containerRef, {
             onSwipeLeft: () => {
               if (nextChapter && !isRouting()) {
-                navigate(
-                  `/bible/${bible.abbreviation}/${nextChapter.code.split('.')[0]}/${nextChapter.number}`,
-                );
+                preload(nextChapterRoute);
               }
             },
             onSwipeRight: () => {
               if (previousChapter && !isRouting()) {
-                navigate(
-                  `/bible/${bible.abbreviation}/${previousChapter.code.split('.')[0]}/${previousChapter.number}`,
-                );
+                preload(previousChapterRoute);
               }
             },
           });
@@ -193,44 +193,50 @@ export default function ChapterReader(props: ChapterReaderProps) {
                   <div innerHTML={bible.copyrightStatement} class='text-muted-foreground' />
                 </div>
                 <Show when={previousChapter} keyed>
-                  {(previousChapter) => (
-                    <Tooltip placement='right'>
-                      <TooltipTrigger
-                        as={A}
-                        class={cn(
-                          buttonVariants(),
-                          '-translate-y-1/2 fixed top-1/2 left-0 flex size-8 items-center justify-center rounded-full p-0 md:left-2 md:size-10 lg:left-4 lg:size-12',
-                          isRouting() && 'pointer-events-none opacity-50',
-                        )}
-                        href={`/bible/${bible.abbreviation}/${previousChapter.code.split('.')[0]}/${previousChapter.number}`}
-                      >
-                        <ChevronLeft />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{previousChapter.name}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
+                  {(previousChapter) => {
+                    preload(previousChapterRoute);
+                    return (
+                      <Tooltip placement='right'>
+                        <TooltipTrigger
+                          as={A}
+                          class={cn(
+                            buttonVariants(),
+                            '-translate-y-1/2 fixed top-1/2 left-0 flex size-8 items-center justify-center rounded-full p-0 md:left-2 md:size-10 lg:left-4 lg:size-12',
+                            isRouting() && 'pointer-events-none opacity-50',
+                          )}
+                          href={previousChapterRoute}
+                        >
+                          <ChevronLeft />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{previousChapter.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  }}
                 </Show>
                 <Show when={nextChapter} keyed>
-                  {(nextChapter) => (
-                    <Tooltip placement='left'>
-                      <TooltipTrigger
-                        as={A}
-                        class={cn(
-                          buttonVariants(),
-                          '-translate-y-1/2 fixed top-1/2 right-0 flex size-8 items-center justify-center rounded-full p-0 md:right-2 md:size-10 lg:right-4 lg:size-12',
-                          isRouting() && 'pointer-events-none opacity-50',
-                        )}
-                        href={`/bible/${bible.abbreviation}/${nextChapter.code.split('.')[0]}/${nextChapter.number}`}
-                      >
-                        <ChevronRight />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{nextChapter.name}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
+                  {(nextChapter) => {
+                    preload(nextChapterRoute);
+                    return (
+                      <Tooltip placement='left'>
+                        <TooltipTrigger
+                          as={A}
+                          class={cn(
+                            buttonVariants(),
+                            '-translate-y-1/2 fixed top-1/2 right-0 flex size-8 items-center justify-center rounded-full p-0 md:right-2 md:size-10 lg:right-4 lg:size-12',
+                            isRouting() && 'pointer-events-none opacity-50',
+                          )}
+                          href={nextChapterRoute}
+                        >
+                          <ChevronRight />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{nextChapter.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  }}
                 </Show>
               </div>
             </BibleReaderProvider>

@@ -5,7 +5,7 @@ import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { useSwipe } from '@/www/hooks/use-swipe';
 import { cn } from '@/www/lib/utils';
-import { A, useIsRouting, useNavigate } from '@solidjs/router';
+import { A, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
@@ -153,6 +153,7 @@ export type VerseReaderProps = {
 export default function VerseReader(props: VerseReaderProps) {
   const navigate = useNavigate();
   const isRouting = useIsRouting();
+  const preload = usePreloadRoute();
 
   const [, setBibleStore] = useBibleStore();
 
@@ -195,24 +196,25 @@ export default function VerseReader(props: VerseReaderProps) {
         {({ bible, book, chapter, verse, rightsHolder }) => {
           const previousVerse =
             verse.previous ?? chapter.previous?.verses[0] ?? book.previous?.chapters[0]?.verses[0];
+          const previousVerseRoute =
+            `/bible/${bible.abbreviation}/${previousVerse?.code.split('.')[0]}` +
+            `/${previousVerse?.code.split('.')[1]}/${previousVerse?.number}`;
+
           const nextVerse =
             verse.next ?? chapter.next?.verses[0] ?? book.next?.chapters[0]?.verses[0];
+          const nextVerseRoute =
+            `/bible/${bible.abbreviation}/${nextVerse?.code.split('.')[0]}` +
+            `/${nextVerse?.code.split('.')[1]}/${nextVerse?.number}`;
 
           useSwipe(containerRef, {
             onSwipeLeft: () => {
               if (nextVerse && !isRouting()) {
-                navigate(
-                  `/bible/${bible.abbreviation}/${nextVerse.code.split('.')[0]}` +
-                    `/${nextVerse.code.split('.')[1]}/${nextVerse.number}`,
-                );
+                preload(nextVerseRoute);
               }
             },
             onSwipeRight: () => {
               if (previousVerse && !isRouting()) {
-                navigate(
-                  `/bible/${bible.abbreviation}/${previousVerse.code.split('.')[0]}` +
-                    `/${previousVerse.code.split('.')[1]}/${previousVerse.number}`,
-                );
+                preload(previousVerseRoute);
               }
             },
           });
@@ -254,50 +256,50 @@ export default function VerseReader(props: VerseReaderProps) {
                   </Button>
                 </div>
                 <Show when={previousVerse} keyed>
-                  {(previousVerse) => (
-                    <Tooltip placement='right'>
-                      <TooltipTrigger
-                        as={A}
-                        class={cn(
-                          buttonVariants(),
-                          '-translate-y-1/2 fixed top-1/2 left-0 flex size-8 items-center justify-center rounded-full p-0 md:left-2 md:size-10 lg:left-4 lg:size-12',
-                          isRouting() && 'pointer-events-none opacity-50',
-                        )}
-                        href={
-                          `/bible/${bible.abbreviation}/${previousVerse.code.split('.')[0]}` +
-                          `/${previousVerse.code.split('.')[1]}/${previousVerse.number}`
-                        }
-                      >
-                        <ChevronLeft size={20} class='shrink-0' />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{previousVerse.name}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
+                  {(previousVerse) => {
+                    preload(previousVerseRoute);
+                    return (
+                      <Tooltip placement='right'>
+                        <TooltipTrigger
+                          as={A}
+                          class={cn(
+                            buttonVariants(),
+                            '-translate-y-1/2 fixed top-1/2 left-0 flex size-8 items-center justify-center rounded-full p-0 md:left-2 md:size-10 lg:left-4 lg:size-12',
+                            isRouting() && 'pointer-events-none opacity-50',
+                          )}
+                          href={previousVerseRoute}
+                        >
+                          <ChevronLeft size={20} class='shrink-0' />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{previousVerse.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  }}
                 </Show>
                 <Show when={nextVerse} keyed>
-                  {(nextVerse) => (
-                    <Tooltip placement='left'>
-                      <TooltipTrigger
-                        as={A}
-                        class={cn(
-                          buttonVariants(),
-                          '-translate-y-1/2 fixed top-1/2 right-0 flex size-8 items-center justify-center rounded-full p-0 md:right-2 md:size-10 lg:right-4 lg:size-12',
-                          isRouting() && 'pointer-events-none opacity-50',
-                        )}
-                        href={
-                          `/bible/${bible.abbreviation}/${nextVerse.code.split('.')[0]}` +
-                          `/${nextVerse.code.split('.')[1]}/${nextVerse.number}`
-                        }
-                      >
-                        <ChevronRight size={20} class='shrink-0' />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{nextVerse.name}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
+                  {(nextVerse) => {
+                    preload(nextVerseRoute);
+                    return (
+                      <Tooltip placement='left'>
+                        <TooltipTrigger
+                          as={A}
+                          class={cn(
+                            buttonVariants(),
+                            '-translate-y-1/2 fixed top-1/2 right-0 flex size-8 items-center justify-center rounded-full p-0 md:right-2 md:size-10 lg:right-4 lg:size-12',
+                            isRouting() && 'pointer-events-none opacity-50',
+                          )}
+                          href={nextVerseRoute}
+                        >
+                          <ChevronRight size={20} class='shrink-0' />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{nextVerse.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  }}
                 </Show>
               </div>
             </BibleReaderProvider>
