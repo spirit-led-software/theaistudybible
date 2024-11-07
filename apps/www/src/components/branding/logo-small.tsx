@@ -1,8 +1,22 @@
-import { useColorModeValue } from '@kobalte/core';
-import type { JSX } from 'solid-js';
+import { cn } from '@/www/lib/utils';
+import { type JSX, splitProps } from 'solid-js';
 
-export function LogoSmall(props: Omit<JSX.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt'>) {
-  const src = useColorModeValue('/logos/small-light.svg', '/logos/small-dark.svg');
-
-  return <img {...props} src={src()} alt='The AI Study Bible Small Logo' />;
-}
+export const LogoSmall = (props: Omit<JSX.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'alt'>) => {
+  const [local, rest] = splitProps(props, ['class']);
+  return (
+    <>
+      <img
+        {...rest}
+        class={cn(local.class, 'dark:hidden')}
+        src='/logos/small-light.svg'
+        alt='The AI Study Bible Small Logo'
+      />
+      <img
+        {...rest}
+        class={cn(local.class, 'hidden dark:block')}
+        src='/logos/small-dark.svg'
+        alt='The AI Study Bible Small Logo'
+      />
+    </>
+  );
+};

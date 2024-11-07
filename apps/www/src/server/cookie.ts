@@ -5,5 +5,5 @@ import { getCookie } from 'vinxi/http';
 
 export const getColorModeCookie = () => {
   const colorMode = getCookie(COLOR_MODE_STORAGE_KEY);
-  return { cookie: colorMode ? `${COLOR_MODE_STORAGE_KEY}=${colorMode}` : undefined };
+  return { cookie: colorMode ? `${COLOR_MODE_STORAGE_KEY}=${colorMode}` : '' };
 };

@@ -1,11 +1,5 @@
 // @refresh reload
-import {
-  COLOR_MODE_STORAGE_KEY,
-  ColorModeProvider,
-  ColorModeScript,
-  createCookieStorageManager,
-  useColorModeValue,
-} from '@kobalte/core';
+import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import * as Sentry from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { useBeforeLeave, useLocation } from '@solidjs/router';
@@ -62,9 +56,8 @@ export default function App() {
     },
   });
 
-  const storageManager = createCookieStorageManager(
-    COLOR_MODE_STORAGE_KEY,
-    isServer ? getColorModeCookie().cookie : undefined,
+  const storageManager = cookieStorageManagerSSR(
+    isServer ? getColorModeCookie().cookie : document.cookie,
   );
 
   return (
@@ -87,9 +80,9 @@ export default function App() {
 
           return (
             <MetaProvider>
+              <DefaultMetaTags />
               <ColorModeScript storageType={storageManager.type} />
               <ColorModeProvider storageManager={storageManager}>
-                <DefaultMetaTags />
                 <AuthProvider>
                   <BibleProvider>
                     <ChatProvider>
@@ -147,7 +140,6 @@ export default function App() {
 }
 
 const DefaultMetaTags = () => {
-  const themeColor = useColorModeValue('#FFFFFF', '#030527');
   const title = 'The AI Study Bible - Intelligent Bible Study Assistant';
   const description =
     'Study the Bible with AI-powered insights, verse explanations, and personalized devotionals. Access multiple translations, create highlights, notes, and bookmarks.';
@@ -176,7 +168,7 @@ const DefaultMetaTags = () => {
 
       {/* Additional meta tags */}
       <Meta name='application-name' content='The AI Study Bible' />
-      <Meta name='theme-color' content={themeColor()} />
+      <Meta name='theme-color' content='#030527' />
       <Meta name='robots' content='index, follow' />
     </>
   );
