@@ -31,12 +31,9 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
 
   const location = useLocation();
   createEffect(
-    on(
-      () => location.pathname,
-      () => {
-        posthogClient()?.capture('$pageview');
-      },
-    ),
+    on([posthogClient, () => location.pathname], ([posthogClient]) => {
+      posthogClient?.capture('$pageview');
+    }),
   );
 
   useBeforeLeave(() => {
