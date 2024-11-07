@@ -316,14 +316,6 @@ export default createHandler(() => (
             media='screen and (prefers-color-scheme: dark) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)'
             href='/pwa/apple-splash/landscape-dark-1136x640.png'
           />
-          {/* AdMaven */}
-          {import.meta.env.PUBLIC_STAGE === 'production' && (
-            <>
-              <meta name='admaven-placement' content='Bqdr6rHCH' />
-              <script data-cfasync='false' src='//dcbbwymp1bhlf.cloudfront.net/?wbbcd=1116348' />
-              <script data-cfasync='false' src='//dcbbwymp1bhlf.cloudfront.net/?wbbcd=1116357' />
-            </>
-          )}
           {assets}
         </head>
         <body>
