@@ -30,7 +30,7 @@ export default function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 15,
         experimental_prefetchInRender: true,
         // This is just the default with added Sentry capture
         // this seems to be the only way to capture errors in solid-query
