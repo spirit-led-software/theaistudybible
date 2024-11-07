@@ -19,8 +19,8 @@ export function NavigationHeader() {
       </div>
       <div class='flex w-1/3 justify-center sm:justify-start'>
         <A href='/'>
-          <LogoSmall width={128} height={64} class='sm:hidden' />
-          <Logo width={256} height={64} class='hidden sm:block' />
+          <LogoSmall width={128} height={64} lightClass='sm:hidden dark:hidden' darkClass='dark:sm:hidden'/>
+          <Logo width={256} height={64} lightClass='hidden sm:block dark:hidden' darkClass='hidden dark:sm:block' />
         </A>
       </div>
       <div class='hidden w-1/3 justify-center sm:flex'>
