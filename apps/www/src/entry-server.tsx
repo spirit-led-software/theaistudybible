@@ -318,7 +318,11 @@ export default createHandler(() => (
           />
           {/* AdMaven */}
           {import.meta.env.PUBLIC_STAGE === 'production' && (
-            <meta name='admaven-placement' content='Bqdr6rHCH' />
+            <>
+              <meta name='admaven-placement' content='Bqdr6rHCH' />
+              <script data-cfasync='false' src='//dcbbwymp1bhlf.cloudfront.net/?wbbcd=1116348' />
+              <script data-cfasync='false' src='//dcbbwymp1bhlf.cloudfront.net/?wbbcd=1116357' />
+            </>
           )}
           {assets}
         </head>
