@@ -95,7 +95,10 @@ export const ChatWindow = (props: ChatWindowProps) => {
   return (
     <>
       <MetaTags />
-      <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
+      <div
+        class='relative flex h-full w-full flex-1 flex-col overflow-hidden'
+        aria-label='Chat window'
+      >
         <ChatMenu />
         <Show when={!isAtBottom()}>
           <Button
@@ -103,11 +106,18 @@ export const ChatWindow = (props: ChatWindowProps) => {
             size='icon'
             class='-translate-x-1/2 absolute bottom-20 left-1/2 z-40 rounded-full bg-background shadow-lg'
             onClick={scrollToBottomSmooth}
+            aria-label='Scroll to bottom of chat'
           >
             <ChevronDown />
           </Button>
         </Show>
-        <div ref={setScrollRef} class='flex h-full w-full flex-1 flex-col overflow-y-auto'>
+        <div
+          ref={setScrollRef}
+          class='flex h-full w-full flex-1 flex-col overflow-y-auto'
+          role='log'
+          aria-live='polite'
+          aria-label='Chat messages'
+        >
           <div class='flex w-full items-start justify-center'>
             <Show when={messagesQuery.status === 'success' && Boolean(messagesQuery.hasNextPage)}>
               <div class='flex flex-col items-center justify-center'>
@@ -117,6 +127,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                   class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
                   disabled={Boolean(messagesQuery.isFetchingNextPage)}
                   onClick={() => messagesQuery.fetchNextPage()}
+                  aria-label='Load previous messages'
                 >
                   <Show when={Boolean(messagesQuery.isFetchingNextPage)} fallback={<ChevronUp />}>
                     <Spinner size='sm' />
@@ -134,7 +145,10 @@ export const ChatWindow = (props: ChatWindowProps) => {
                   followUpSuggestionsQuery.data?.length
                 }
               >
-                <div class='flex w-full max-w-2xl flex-col gap-2 pb-4'>
+                <section
+                  class='flex w-full max-w-2xl flex-col gap-2 pb-4'
+                  aria-label='Follow-up suggestions'
+                >
                   <H6 class='text-center'>Follow-up Questions</H6>
                   <Carousel class='mx-16 overflow-x-visible'>
                     <CarouselContent>
@@ -144,6 +158,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                             <Button
                               class='mx-2 h-full w-full text-wrap rounded-full'
                               onClick={() => append({ role: 'user', content: suggestion })}
+                              aria-label={`Ask follow-up question: ${suggestion}`}
                             >
                               {suggestion}
                             </Button>
@@ -154,24 +169,22 @@ export const ChatWindow = (props: ChatWindowProps) => {
                     <CarouselPrevious />
                     <CarouselNext />
                   </Carousel>
-                </div>
+                </section>
               </Show>
             </div>
-            <div ref={setVisibilityRef} class='h-[2px] w-full shrink-0' />
+            <div ref={setVisibilityRef} class='h-px w-full shrink-0' />
             <For
               each={messagesReversed}
               fallback={<EmptyWindow append={append} additionalContext={props.additionalContext} />}
             >
               {(message, idx) => (
-                <div data-index={idx()} class='flex w-full max-w-2xl flex-col'>
-                  <Message
-                    previousMessage={messagesReversed[idx() + 1]}
-                    message={message}
-                    nextMessage={messagesReversed[idx() - 1]}
-                    addToolResult={addToolResult}
-                    isLoading={isLoading}
-                  />
-                </div>
+                <Message
+                  previousMessage={messagesReversed[idx() + 1]}
+                  message={message}
+                  nextMessage={messagesReversed[idx() - 1]}
+                  addToolResult={addToolResult}
+                  isLoading={isLoading}
+                />
               )}
             </For>
           </div>
@@ -186,6 +199,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             }
             handleSubmit(e);
           }}
+          aria-label='Message input form'
         >
           <div class='flex h-fit w-full max-w-2xl items-center gap-1 rounded-full border px-1 py-2'>
             <SelectModelButton />
@@ -197,6 +211,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 minlength={1}
                 autoResize
                 autoCapitalize='sentences'
+                aria-label='Message input'
               />
             </TextField>
             <Switch
@@ -207,13 +222,14 @@ export const ChatWindow = (props: ChatWindowProps) => {
                   variant='outline'
                   class='rounded-full'
                   disabled={isLoading()}
+                  aria-label='Send message'
                 >
                   <Send size={20} />
                 </Button>
               }
             >
               <Match when={isLoading()} keyed>
-                <Spinner size='sm' />
+                <Spinner size='sm' aria-label='Sending message' />
               </Match>
             </Switch>
           </div>
@@ -227,19 +243,19 @@ const MetaTags = () => {
   const [chatStore] = useChatStore();
   const chatName = () => chatStore.chat?.name ?? 'New Chat';
   const title = () => `${chatName()} | The AI Study Bible - AI Bible Study Chat Assistant`;
-  const description = () =>
+  const description =
     'Engage in meaningful conversations about Scripture with our AI-powered Bible study assistant. Get instant insights, answers, and deeper understanding of biblical passages.';
 
   return (
     <>
       <Title>{title()}</Title>
-      <Meta name='description' content={description()} />
+      <Meta name='description' content={description} />
       <Meta property='og:title' content={title()} />
-      <Meta property='og:description' content={description()} />
+      <Meta property='og:description' content={description} />
       <Meta property='og:type' content='website' />
       <Meta name='twitter:card' content='summary' />
       <Meta name='twitter:title' content={title()} />
-      <Meta name='twitter:description' content={description()} />
+      <Meta name='twitter:description' content={description} />
     </>
   );
 };

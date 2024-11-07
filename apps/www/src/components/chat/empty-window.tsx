@@ -1,5 +1,6 @@
 import type { useChat } from '@/www/hooks/use-chat';
 import { Book, Globe, Heart, Image, Lightbulb, Wrench } from 'lucide-solid';
+import { For } from 'solid-js';
 import { Button } from '../ui/button';
 import { GradientH3 } from '../ui/typography';
 
@@ -52,20 +53,26 @@ export const EmptyWindow = (props: EmptyWindowProps) => {
   ];
 
   return (
-    <div class='flex h-full w-full flex-col items-center justify-center p-4'>
+    <section
+      class='flex h-full w-full flex-col items-center justify-center p-4'
+      aria-label='Chat suggestions'
+    >
       <GradientH3 class='mb-6'>Start a conversation</GradientH3>
       <div class='grid w-full max-w-sm grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2 lg:max-w-2xl lg:grid-cols-3'>
-        {(props.additionalContext ? additionalContextQuestions : questions).map((question) => (
-          <Button
-            variant='outline'
-            class='h-auto w-full py-3 text-left'
-            onClick={() => props.append({ role: 'user', content: question.query })}
-          >
-            <question.icon class='mr-3 inline-block size-5 shrink-0 sm:size-6' />
-            <span class='text-sm sm:text-base'>{question.text}</span>
-          </Button>
-        ))}
+        <For each={props.additionalContext ? additionalContextQuestions : questions}>
+          {({ text, query, icon: Icon }) => (
+            <Button
+              variant='outline'
+              class='h-auto w-full py-3 text-left'
+              onClick={() => props.append({ role: 'user', content: query })}
+              aria-label={`Ask: ${text}`}
+            >
+              <Icon class='mr-3 inline-block size-5 shrink-0 sm:size-6' aria-hidden='true' />
+              <span class='text-sm sm:text-base'>{text}</span>
+            </Button>
+          )}
+        </For>
       </div>
-    </div>
+    </section>
   );
 };

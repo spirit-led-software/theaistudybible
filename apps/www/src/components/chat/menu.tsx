@@ -15,10 +15,16 @@ export const ChatMenu = () => {
   const chatName = createMemo(() => chatStore.chat?.name ?? 'New Chat');
 
   return (
-    <div class='flex w-full justify-center border-b pt-2 shadow-sm'>
+    <div
+      class='flex w-full justify-center border-b pt-2 shadow-sm'
+      role='banner'
+      aria-label='Chat header'
+    >
       <div class='flex w-full max-w-2xl items-center justify-between px-3 py-1'>
-        <H6 class='truncate'>{chatName()}</H6>
-        <div class='flex justify-end'>
+        <H6 class='truncate' aria-label='Chat name'>
+          {chatName()}
+        </H6>
+        <div class='flex justify-end' role='toolbar' aria-label='Chat actions'>
           <Tooltip>
             <TooltipTrigger
               as={Button}
@@ -30,6 +36,7 @@ export const ChatMenu = () => {
                   navigate('/chat');
                 }
               }}
+              aria-label='Start new chat'
             >
               <PenBox />
             </TooltipTrigger>

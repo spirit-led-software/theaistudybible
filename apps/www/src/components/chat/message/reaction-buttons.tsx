@@ -99,11 +99,23 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
         query={reactionQuery}
         loadingFallback={
           <>
-            <Button size='icon' variant='ghost' class='h-fit w-fit p-1' disabled>
-              <ThumbsUp size={15} />
+            <Button
+              size='icon'
+              variant='ghost'
+              class='h-fit w-fit p-1'
+              disabled
+              aria-label='Like message'
+            >
+              <ThumbsUp size={15} aria-hidden='true' />
             </Button>
-            <Button size='icon' variant='ghost' class='h-fit w-fit p-1' disabled>
-              <ThumbsDown size={15} />
+            <Button
+              size='icon'
+              variant='ghost'
+              class='h-fit w-fit p-1'
+              disabled
+              aria-label='Dislike message'
+            >
+              <ThumbsDown size={15} aria-hidden='true' />
             </Button>
           </>
         }
@@ -122,6 +134,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
                       reaction: 'LIKE',
                     })
                   }
+                  aria-label='Like message'
                 >
                   <ThumbsUp size={15} />
                 </Button>
@@ -130,6 +143,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
                   variant='ghost'
                   class='h-fit w-fit p-1'
                   onClick={() => setDislikeDialogOpen(true)}
+                  aria-label='Dislike message'
                 >
                   <ThumbsDown size={15} />
                 </Button>
@@ -152,6 +166,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
                       });
                     }
                   }}
+                  aria-label='Like message'
                 >
                   <ThumbsUp
                     size={15}
@@ -169,6 +184,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
                       setDislikeDialogOpen(true);
                     }
                   }}
+                  aria-label='Dislike message'
                 >
                   <ThumbsDown
                     size={15}
@@ -180,7 +196,11 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
           </Show>
         )}
       </QueryBoundary>
-      <Dialog open={dislikeDialogOpen()} onOpenChange={setDislikeDialogOpen}>
+      <Dialog
+        open={dislikeDialogOpen()}
+        onOpenChange={setDislikeDialogOpen}
+        aria-label='Dislike feedback form'
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>What went wrong?</DialogTitle>

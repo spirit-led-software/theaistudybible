@@ -25,11 +25,12 @@ export type MessageProps = {
 
 export const Message = (props: MessageProps) => {
   return (
-    <div
+    <article
       class={cn(
-        'flex w-full space-x-4 px-3 py-4',
+        'flex w-full max-w-2xl flex-col space-x-4 px-3 py-4',
         props.previousMessage?.role === props.message.role ? 'border-t-0' : 'border-t',
       )}
+      aria-label={`${props.message.role === 'assistant' ? 'AI' : 'User'} message`}
     >
       <div class='mt-2 flex h-full w-10 shrink-0 items-start'>
         <Show when={props.previousMessage?.role !== props.message.role}>
@@ -37,7 +38,7 @@ export const Message = (props: MessageProps) => {
             <Match when={props.message.role === 'user'}>
               <Tooltip>
                 <TooltipTrigger as='div'>
-                  <UserAvatar />
+                  <UserAvatar aria-label='User avatar' />
                 </TooltipTrigger>
                 <TooltipContent>Me</TooltipContent>
               </Tooltip>
@@ -45,8 +46,11 @@ export const Message = (props: MessageProps) => {
             <Match when={props.message.role === 'assistant'}>
               <Tooltip>
                 <TooltipTrigger as='div'>
-                  <div class='flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2'>
-                    <Icon width={300} height={300} class='flex-shrink-0' />
+                  <div
+                    class='flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2'
+                    aria-label='AI assistant avatar'
+                  >
+                    <Icon width={300} height={300} class='flex-shrink-0' aria-hidden='true' />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>The AI Study Bible</TooltipContent>
@@ -71,7 +75,7 @@ export const Message = (props: MessageProps) => {
             />
           )}
         </Show>
-        <div class='flex items-center gap-1 py-2'>
+        <div class='flex items-center gap-1 py-2' role='toolbar' aria-label='Message actions'>
           <Show
             when={
               props.message.role === 'assistant' && props.message.role !== props.nextMessage?.role
@@ -123,13 +127,14 @@ export const Message = (props: MessageProps) => {
                 ]);
                 toast.success('Text copied');
               }}
+              aria-label='Copy message'
             >
-              <Copy size={15} />
+              <Copy size={15} aria-hidden='true' />
             </Button>
             <MessageReactionButtons messageId={props.message.id} />
           </Show>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
