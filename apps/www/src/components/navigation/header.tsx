@@ -29,7 +29,7 @@ export function NavigationHeader() {
             width={256}
             height={64}
             lightClass='hidden sm:block dark:hidden'
-            darkClass='hidden dark:sm:block'
+            darkClass='hidden dark:hidden dark:sm:block'
           />
         </A>
       </div>
