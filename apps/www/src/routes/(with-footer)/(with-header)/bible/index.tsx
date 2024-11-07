@@ -5,6 +5,7 @@ import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { Navigate } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
+import { Show } from 'solid-js';
 
 export const route: RouteDefinition = {
   preload: () => {
@@ -15,28 +16,32 @@ export const route: RouteDefinition = {
 
 export default function BiblePage() {
   const [bibleStore] = useBibleStore();
-  if (bibleStore.bible && bibleStore.book && bibleStore.chapter) {
-    if (bibleStore.verse) {
-      return (
-        <Navigate
-          href={`/bible/${bibleStore.bible.abbreviation}/${bibleStore.book.code}/${bibleStore.chapter.number}/${bibleStore.verse.number}`}
-        />
-      );
-    }
-    return (
-      <Navigate
-        href={`/bible/${bibleStore.bible.abbreviation}/${bibleStore.book.code}/${bibleStore.chapter.number}`}
-      />
-    );
-  }
 
   return (
-    <>
-      <MetaTags />
-      <div class='flex w-full flex-col p-5 text-center'>
-        <LargeTranslationPicker />
-      </div>
-    </>
+    <Show
+      when={bibleStore.bible && bibleStore.book && bibleStore.chapter}
+      fallback={
+        <>
+          <MetaTags />
+          <div class='flex w-full flex-col p-5 text-center'>
+            <LargeTranslationPicker />
+          </div>
+        </>
+      }
+    >
+      <Show
+        when={bibleStore.verse}
+        fallback={
+          <Navigate
+            href={`/bible/${bibleStore.bible!.abbreviation}/${bibleStore.book!.code}/${bibleStore.chapter!.number}`}
+          />
+        }
+      >
+        <Navigate
+          href={`/bible/${bibleStore.bible!.abbreviation}/${bibleStore.book!.code}/${bibleStore.chapter!.number}/${bibleStore.verse!.number}`}
+        />
+      </Show>
+    </Show>
   );
 }
 

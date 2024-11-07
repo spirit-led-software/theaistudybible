@@ -209,12 +209,12 @@ export default function VerseReader(props: VerseReaderProps) {
           useSwipe(containerRef, {
             onSwipeLeft: () => {
               if (nextVerse && !isRouting()) {
-                preload(nextVerseRoute);
+                navigate(nextVerseRoute);
               }
             },
             onSwipeRight: () => {
               if (previousVerse && !isRouting()) {
-                preload(previousVerseRoute);
+                navigate(previousVerseRoute);
               }
             },
           });

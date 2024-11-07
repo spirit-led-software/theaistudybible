@@ -13,16 +13,9 @@ export const route: RouteDefinition = {
 
     const qc = useQueryClient();
     Promise.all([
-      qc.prefetchQuery(
-        getVerseReaderQueryOptions({
-          bibleAbbr,
-          bookCode,
-          chapterNum,
-          verseNum,
-        }),
-      ),
       qc.prefetchQuery(bookPickerQueryOptions(bibleAbbr)),
       qc.prefetchQuery(smallTranslationPickerQueryOptions()),
+      qc.prefetchQuery(getVerseReaderQueryOptions({ bibleAbbr, bookCode, chapterNum, verseNum })),
     ]);
   },
 };

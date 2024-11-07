@@ -45,14 +45,8 @@ const deleteBookmarkAction = action(async (chapterId: string) => {
   return { success: true };
 });
 
-export const getChapterBookmarkQueryOptions = ({
-  userId,
-  chapterId,
-}: {
-  userId?: string | null;
-  chapterId: string;
-}) => ({
-  queryKey: ['bookmark', { chapterId, userId }],
+export const getChapterBookmarkQueryOptions = ({ chapterId }: { chapterId: string }) => ({
+  queryKey: ['bookmark', { chapterId }],
   queryFn: () => getBookmark(chapterId),
 });
 
@@ -60,12 +54,11 @@ export const ChapterBookmarkButton = () => {
   const addBookmark = useAction(addBookmarkAction);
   const deleteBookmark = useAction(deleteBookmarkAction);
 
-  const { isSignedIn, user } = useAuth();
+  const { isSignedIn } = useAuth();
   const [brStore] = useBibleReaderStore();
 
   const query = createQuery(() =>
     getChapterBookmarkQueryOptions({
-      userId: user()?.id,
       chapterId: brStore.chapter.id,
     }),
   );

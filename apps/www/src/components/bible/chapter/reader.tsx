@@ -155,12 +155,12 @@ export default function ChapterReader(props: ChapterReaderProps) {
           useSwipe(containerRef, {
             onSwipeLeft: () => {
               if (nextChapter && !isRouting()) {
-                preload(nextChapterRoute);
+                navigate(nextChapterRoute);
               }
             },
             onSwipeRight: () => {
               if (previousChapter && !isRouting()) {
-                preload(previousChapterRoute);
+                navigate(previousChapterRoute);
               }
             },
           });
