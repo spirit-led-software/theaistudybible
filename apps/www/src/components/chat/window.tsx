@@ -153,7 +153,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               }
             >
               <section
-                class='mb-4 flex w-full max-w-2xl flex-col gap-2'
+                class='flex w-full max-w-2xl flex-col gap-2'
                 aria-label='Follow-up suggestions'
               >
                 <H6 class='text-center'>Follow-up Questions</H6>
@@ -178,7 +178,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 </Carousel>
               </section>
             </Show>
-            <div ref={setVisibilityRef} class='h-1 w-full shrink-0' />
+            <div ref={setVisibilityRef} class='h-5 w-full shrink-0' />
           </div>
         </div>
         <form
