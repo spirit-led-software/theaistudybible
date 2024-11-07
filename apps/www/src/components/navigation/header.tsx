@@ -33,7 +33,7 @@ export function NavigationHeader() {
           />
         </A>
       </div>
-      <div class='hidden items-center justify-center sm:flex'>
+      <div class='hidden items-center justify-center sm:flex sm:flex-grow'>
         <Menu orientation='horizontal' />
       </div>
       <div class='flex items-center justify-end gap-2'>

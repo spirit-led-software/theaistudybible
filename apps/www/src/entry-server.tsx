@@ -316,16 +316,9 @@ export default createHandler(() => (
             media='screen and (prefers-color-scheme: dark) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)'
             href='/pwa/apple-splash/landscape-dark-1136x640.png'
           />
-          {/* Google Ads */}
+          {/* AdMaven */}
           {import.meta.env.PUBLIC_STAGE === 'production' && (
-            <>
-              <script
-                async
-                src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7748872527931209'
-                crossorigin='anonymous'
-              />
-              <meta name='google-adsense-account' content='ca-pub-7748872527931209' />
-            </>
+            <meta name='admaven-placement' content='Bqdr6rHCH' />
           )}
           {assets}
         </head>

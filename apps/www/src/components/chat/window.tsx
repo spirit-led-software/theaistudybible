@@ -73,8 +73,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
     }),
   );
 
-  const [suggestionsAnimateRef] = createAutoAnimate();
-
+  const [setAnimateRef] = createAutoAnimate();
   const { isAtBottom, scrollToBottomSmooth, setScrollRef, setMessagesRef, setVisibilityRef } =
     createScrollAnchor();
 
@@ -136,57 +135,62 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </div>
             </Show>
           </div>
-          <div ref={setMessagesRef} class='flex flex-1 flex-col-reverse items-center justify-start'>
-            <div ref={suggestionsAnimateRef}>
-              <Show
-                when={
-                  !isLoading() &&
-                  !followUpSuggestionsQuery.isFetching &&
-                  followUpSuggestionsQuery.data?.length
+          <div ref={setAnimateRef} class='flex flex-1 flex-col items-center justify-start'>
+            <div
+              ref={setMessagesRef}
+              class='flex flex-1 flex-col-reverse items-center justify-start'
+            >
+              <div ref={setVisibilityRef} class='h-px w-full shrink-0' />
+              <For
+                each={messagesReversed}
+                fallback={
+                  <EmptyWindow append={append} additionalContext={props.additionalContext} />
                 }
               >
-                <section
-                  class='flex w-full max-w-2xl flex-col gap-2 pb-4'
-                  aria-label='Follow-up suggestions'
-                >
-                  <H6 class='text-center'>Follow-up Questions</H6>
-                  <Carousel class='mx-16 overflow-x-visible'>
-                    <CarouselContent>
-                      <For each={followUpSuggestionsQuery.data}>
-                        {(suggestion, idx) => (
-                          <CarouselItem data-index={idx()} class='flex justify-center'>
-                            <Button
-                              class='mx-2 h-full w-full text-wrap rounded-full'
-                              onClick={() => append({ role: 'user', content: suggestion })}
-                              aria-label={`Ask follow-up question: ${suggestion}`}
-                            >
-                              {suggestion}
-                            </Button>
-                          </CarouselItem>
-                        )}
-                      </For>
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                  </Carousel>
-                </section>
-              </Show>
+                {(message, idx) => (
+                  <Message
+                    previousMessage={messagesReversed[idx() + 1]}
+                    message={message}
+                    nextMessage={messagesReversed[idx() - 1]}
+                    addToolResult={addToolResult}
+                    isLoading={isLoading}
+                  />
+                )}
+              </For>
             </div>
-            <div ref={setVisibilityRef} class='h-px w-full shrink-0' />
-            <For
-              each={messagesReversed}
-              fallback={<EmptyWindow append={append} additionalContext={props.additionalContext} />}
+            <Show
+              when={
+                !isLoading() &&
+                !followUpSuggestionsQuery.isFetching &&
+                (followUpSuggestionsQuery.data?.length ?? 0) > 0
+              }
             >
-              {(message, idx) => (
-                <Message
-                  previousMessage={messagesReversed[idx() + 1]}
-                  message={message}
-                  nextMessage={messagesReversed[idx() - 1]}
-                  addToolResult={addToolResult}
-                  isLoading={isLoading}
-                />
-              )}
-            </For>
+              <section
+                class='mb-6 flex w-full max-w-2xl flex-col gap-2'
+                aria-label='Follow-up suggestions'
+              >
+                <H6 class='text-center'>Follow-up Questions</H6>
+                <Carousel class='mx-16 overflow-x-visible'>
+                  <CarouselContent>
+                    <For each={followUpSuggestionsQuery.data}>
+                      {(suggestion, idx) => (
+                        <CarouselItem data-index={idx()} class='flex justify-center'>
+                          <Button
+                            class='mx-2 h-full w-full text-wrap rounded-full'
+                            onClick={() => append({ role: 'user', content: suggestion })}
+                            aria-label={`Ask follow-up question: ${suggestion}`}
+                          >
+                            {suggestion}
+                          </Button>
+                        </CarouselItem>
+                      )}
+                    </For>
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
+              </section>
+            </Show>
           </div>
         </div>
         <form

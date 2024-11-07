@@ -1,4 +1,4 @@
-FROM oven/bun:1-slim AS base
+FROM oven/bun:1-alpine AS base
 
 ########################################################
 # Install
@@ -7,10 +7,8 @@ FROM base AS install
 
 WORKDIR /install
 
-RUN apt update \
-&& apt install -y unzip \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt clean
+RUN apk update \
+&& apk add --no-cache unzip
 
 COPY --link ./package.json ./package.json
 COPY --link ./apps/functions/package.json ./apps/functions/package.json
@@ -62,10 +60,8 @@ ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
 
 WORKDIR /build
 
-RUN apt update \
-&& apt install -y git \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt clean
+RUN apk update \
+&& apk add --no-cache git
 
 COPY --from=install /install/node_modules ./node_modules
 
@@ -97,10 +93,8 @@ ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
 
 WORKDIR /app
 
-RUN apt update \
-&& apt install -y curl \
-&& rm -rf /var/lib/apt/lists/* \
-&& apt clean
+RUN apk update \
+&& apk add --no-cache curl
 
 COPY --from=build /build/apps/www/.output .
 
@@ -113,5 +107,5 @@ RUN cd server \
 ENTRYPOINT [ "bun", "run", "--smol", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
 EXPOSE ${PORT}
 
-HEALTHCHECK --interval=30s --timeout=15s --retries=5 --start-period=30s \
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
   CMD curl -f http://localhost:${PORT}/health || exit 1
