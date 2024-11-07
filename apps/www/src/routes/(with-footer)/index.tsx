@@ -17,8 +17,8 @@ export default function HomePage() {
           {/* Sticky Header */}
           <header class='sticky top-0 z-50 bg-background/80 backdrop-blur-sm'>
             <div class='container flex h-20 items-center justify-between px-4 py-2 sm:py-4'>
-              <LogoSmall width={128} height={64} class='block sm:hidden' />
-              <Logo width={256} height={64} class='hidden sm:block' />
+              <LogoSmall width={128} height={64} lightClass='sm:hidden dark:hidden' darkClass='dark:sm:hidden' />
+              <Logo width={256} height={64} lightClass='hidden sm:block dark:hidden' darkClass='hidden dark:sm:block' />
               <Button as={A} href='/bible' size='sm' class='text-xs sm:text-sm'>
                 Get Started
               </Button>
