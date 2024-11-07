@@ -141,6 +141,7 @@ export const getVerseReaderQueryOptions = (props: {
 }) => ({
   queryKey: ['verse-reader', props],
   queryFn: () => getVerseReaderData(props),
+  staleTime: 1000 * 60 * 60, // 1 hour
 });
 
 export type VerseReaderProps = {

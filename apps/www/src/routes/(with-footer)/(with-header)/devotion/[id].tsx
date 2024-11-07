@@ -26,6 +26,7 @@ const getDevotion = GET(async ({ id }: { id: string }) => {
 const getDevotionQueryProps = ({ id }: { id: string }) => ({
   queryKey: ['devotion', { id }],
   queryFn: () => getDevotion({ id }),
+  staleTime: 1000 * 60 * 60, // 1 hour
 });
 
 export const route: RouteDefinition = {

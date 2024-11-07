@@ -63,6 +63,7 @@ const getChapterPickerData = GET(async ({ bibleAbbr, bookCode }: GetChapterPicke
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
   queryKey: ['chapter-picker', props],
   queryFn: () => getChapterPickerData(props),
+  staleTime: 1000 * 60 * 60, // 1 hour
 });
 
 export type ChapterPickerProps = {

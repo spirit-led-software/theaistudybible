@@ -36,6 +36,7 @@ const getBookPickerData = GET(async (bibleId: string) => {
 export const bookPickerQueryOptions = (bibleId: string) => ({
   queryKey: ['book-picker', { bibleId }],
   queryFn: () => getBookPickerData(bibleId),
+  staleTime: 1000 * 60 * 60, // 1 hour
 });
 
 export default function BookPicker() {

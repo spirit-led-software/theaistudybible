@@ -95,6 +95,7 @@ export const chapterReaderQueryOptions = (props: {
 }) => ({
   queryKey: ['chapter-reader', props],
   queryFn: () => getChapterReaderData(props),
+  staleTime: 1000 * 60 * 60, // 1 hour
 });
 
 export type ChapterReaderProps = {
