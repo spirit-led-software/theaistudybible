@@ -1,7 +1,6 @@
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 
 export const createScrollAnchor = () => {
-  const [messagesRef, setMessagesRef] = createSignal<HTMLDivElement>();
   const [scrollRef, setScrollRef] = createSignal<HTMLDivElement>();
   const [visibilityRef, setVisibilityRef] = createSignal<HTMLDivElement>();
 
@@ -11,7 +10,10 @@ export const createScrollAnchor = () => {
   const scrollToBottomInstant = () => {
     const current = scrollRef();
     if (current) {
-      current.scrollTop = current.scrollHeight;
+      current.scrollTo({
+        top: current.scrollHeight,
+        behavior: 'instant',
+      });
     }
   };
 
@@ -41,14 +43,14 @@ export const createScrollAnchor = () => {
           setIsAtBottom(entry.isIntersecting);
           setShouldScrollToBottom(entry.isIntersecting);
         },
-        { root: current, threshold: 1 },
+        { root: current, threshold: 0.95, rootMargin: '10px' },
       );
 
       observer.observe(visibilityCurrent);
 
-      return () => {
+      onCleanup(() => {
         observer.disconnect();
-      };
+      });
     }
   });
 
@@ -59,7 +61,7 @@ export const createScrollAnchor = () => {
       }
     });
 
-    const current = messagesRef();
+    const current = scrollRef();
     if (current) {
       observer.observe(current, {
         childList: true,
@@ -68,12 +70,10 @@ export const createScrollAnchor = () => {
       });
     }
 
-    return () => observer.disconnect();
+    onCleanup(() => observer.disconnect());
   });
 
   return {
-    messagesRef,
-    setMessagesRef,
     scrollRef,
     setScrollRef,
     visibilityRef,

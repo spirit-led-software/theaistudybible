@@ -5,7 +5,6 @@ import { Meta, Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, on } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
@@ -66,16 +65,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
     }),
   );
 
-  const [messagesReversed, setMessagesReversed] = createStore(messages().toReversed());
-  createEffect(
-    on(messages, (messages) => {
-      setMessagesReversed(reconcile(messages.toReversed()));
-    }),
-  );
-
   const [setAnimateRef] = createAutoAnimate();
-  const { isAtBottom, scrollToBottomSmooth, setScrollRef, setMessagesRef, setVisibilityRef } =
-    createScrollAnchor();
+  const { isAtBottom, scrollToBottomSmooth, setScrollRef, setVisibilityRef } = createScrollAnchor();
 
   const [searchParams, setSearchParams] = useSearchParams();
   createEffect(
@@ -117,41 +108,37 @@ export const ChatWindow = (props: ChatWindowProps) => {
           aria-live='polite'
           aria-label='Chat messages'
         >
-          <div class='flex w-full items-start justify-center'>
-            <Show when={messagesQuery.status === 'success' && Boolean(messagesQuery.hasNextPage)}>
-              <div class='flex flex-col items-center justify-center'>
-                <Button
-                  variant='link'
-                  size='icon'
-                  class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
-                  disabled={Boolean(messagesQuery.isFetchingNextPage)}
-                  onClick={() => messagesQuery.fetchNextPage()}
-                  aria-label='Load previous messages'
-                >
-                  <Show when={Boolean(messagesQuery.isFetchingNextPage)} fallback={<ChevronUp />}>
-                    <Spinner size='sm' />
-                  </Show>
-                </Button>
-              </div>
-            </Show>
-          </div>
-          <div ref={setAnimateRef} class='flex flex-1 flex-col items-center justify-start'>
-            <div
-              ref={setMessagesRef}
-              class='flex flex-1 flex-col-reverse items-center justify-start'
-            >
-              <div ref={setVisibilityRef} class='h-px w-full shrink-0' />
+          <div ref={setAnimateRef} class='flex w-full flex-1 flex-col items-center justify-end'>
+            <div class='flex w-full items-start justify-center'>
+              <Show when={messagesQuery.status === 'success' && messagesQuery.hasNextPage}>
+                <div class='flex flex-col items-center justify-center'>
+                  <Button
+                    variant='link'
+                    size='icon'
+                    class='flex h-fit flex-col items-center justify-center py-4 text-foreground'
+                    disabled={messagesQuery.isFetchingNextPage}
+                    onClick={() => messagesQuery.fetchNextPage()}
+                    aria-label='Load previous messages'
+                  >
+                    <Show when={messagesQuery.isFetchingNextPage} fallback={<ChevronUp />}>
+                      <Spinner size='sm' />
+                    </Show>
+                  </Button>
+                </div>
+              </Show>
+            </div>
+            <div class='flex w-full flex-1 flex-col items-center justify-end'>
               <For
-                each={messagesReversed}
+                each={messages()}
                 fallback={
                   <EmptyWindow append={append} additionalContext={props.additionalContext} />
                 }
               >
                 {(message, idx) => (
                   <Message
-                    previousMessage={messagesReversed[idx() + 1]}
+                    previousMessage={messages()[idx() - 1]}
                     message={message}
-                    nextMessage={messagesReversed[idx() - 1]}
+                    nextMessage={messages()[idx() + 1]}
                     addToolResult={addToolResult}
                     isLoading={isLoading}
                   />
@@ -166,7 +153,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               }
             >
               <section
-                class='mb-6 flex w-full max-w-2xl flex-col gap-2'
+                class='mb-4 flex w-full max-w-2xl flex-col gap-2'
                 aria-label='Follow-up suggestions'
               >
                 <H6 class='text-center'>Follow-up Questions</H6>
@@ -191,6 +178,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 </Carousel>
               </section>
             </Show>
+            <div ref={setVisibilityRef} class='h-1 w-full shrink-0' />
           </div>
         </div>
         <form
