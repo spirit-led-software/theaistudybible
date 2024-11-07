@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import tailwindcssSafeArea from 'tailwindcss-safe-area';
 
-export default {
+const config: Config = {
   darkMode: ['variant', ['.dark &', '[data-kb-theme="dark"] &']],
   content: ['./src/**/*.{ts,tsx,js,jsx,mdx,html}'],
   theme: {
@@ -105,6 +105,8 @@ export default {
         'caret-blink': 'caret-blink 1.25s ease-out infinite',
       },
     },
-    plugins: [tailwindcssAnimate, tailwindcssSafeArea],
   },
-} satisfies Config;
+  plugins: [tailwindcssAnimate, tailwindcssSafeArea],
+};
+
+export default config;

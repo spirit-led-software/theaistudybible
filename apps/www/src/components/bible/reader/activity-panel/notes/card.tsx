@@ -9,12 +9,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { H5, P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth } from '@/www/server/auth';
+import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { Plus } from 'lucide-solid';
 import { For, Show, createEffect, createSignal } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { Transition, TransitionGroup } from 'solid-transition-group';
+import {} from 'solid-transition-group';
 import { AddNoteCard } from './add-note-card';
 import { NoteItemCard } from './note-item-card';
 
@@ -99,6 +100,7 @@ export const NotesCard = () => {
     }
   });
 
+  const [setAutoAnimateRef] = createAutoAnimate();
   const [isAddingNote, setIsAddingNote] = createSignal(false);
 
   return (
@@ -114,36 +116,32 @@ export const NotesCard = () => {
           </Tooltip>
         </CardHeader>
         <CardContent class='overflow-y-auto py-4'>
-          <div class='grid grid-cols-1 gap-2'>
-            <Transition name='card-item'>
-              <Show when={isAddingNote()}>
-                <AddNoteCard
-                  onAdd={() => setIsAddingNote(false)}
-                  onCancel={() => setIsAddingNote(false)}
+          <div ref={setAutoAnimateRef} class='grid grid-cols-1 gap-2'>
+            <Show when={isAddingNote()}>
+              <AddNoteCard
+                onAdd={() => setIsAddingNote(false)}
+                onCancel={() => setIsAddingNote(false)}
+              />
+            </Show>
+            <For
+              each={notes}
+              fallback={
+                <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all'>
+                  <H5>No notes</H5>
+                </div>
+              }
+            >
+              {(note, idx) => (
+                <NoteItemCard
+                  data-index={idx()}
+                  note={note}
+                  bible={'verse' in note ? note.verse.bible : note.chapter.bible}
+                  book={'verse' in note ? note.verse.book : note.chapter.book}
+                  chapter={'verse' in note ? note.verse.chapter : note.chapter}
+                  verse={'verse' in note ? note.verse : undefined}
                 />
-              </Show>
-            </Transition>
-            <TransitionGroup name='card-item'>
-              <For
-                each={notes}
-                fallback={
-                  <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all'>
-                    <H5>No notes</H5>
-                  </div>
-                }
-              >
-                {(note, idx) => (
-                  <NoteItemCard
-                    data-index={idx()}
-                    note={note}
-                    bible={'verse' in note ? note.verse.bible : note.chapter.bible}
-                    book={'verse' in note ? note.verse.book : note.chapter.book}
-                    chapter={'verse' in note ? note.verse.chapter : note.chapter}
-                    verse={'verse' in note ? note.verse : undefined}
-                  />
-                )}
-              </For>
-            </TransitionGroup>
+              )}
+            </For>
           </div>
         </CardContent>
         <CardFooter class='flex justify-end gap-2 border-t pt-4'>
