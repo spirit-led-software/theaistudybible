@@ -43,7 +43,7 @@ export const createScrollAnchor = () => {
           setIsAtBottom(entry.isIntersecting);
           setShouldScrollToBottom(entry.isIntersecting);
         },
-        { root: current, threshold: 0.95, rootMargin: '10px' },
+        { root: current, threshold: 1 },
       );
 
       observer.observe(visibilityCurrent);
