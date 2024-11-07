@@ -44,12 +44,7 @@ export default function BookPicker() {
 
   return (
     <Popover>
-      <PopoverTrigger
-        as={Button}
-        variant='outline'
-        role='combobox'
-        class='justify-between text-nowrap'
-      >
+      <PopoverTrigger as={Button} variant='outline' class='justify-between text-nowrap'>
         {brStore.book.shortName} {brStore.chapter.number}
         <ChevronsUpDown class='ml-2 h-4 w-4 shrink-0 opacity-50' />
       </PopoverTrigger>

@@ -82,11 +82,7 @@ export default function ChapterPicker(props: ChapterPickerProps) {
   return (
     <CommandItem value={props.book.shortName} class='aria-selected:bg-background'>
       <Accordion collapsible class='w-full'>
-        <AccordionItem
-          value={props.book.code}
-          onMouseEnter={() => !query.data && query.refetch()}
-          onClick={() => !query.data && query.refetch()}
-        >
+        <AccordionItem value={props.book.code}>
           <AccordionTrigger>{props.book.shortName}</AccordionTrigger>
           <AccordionContent class='grid grid-cols-3 gap-1'>
             <QueryBoundary
