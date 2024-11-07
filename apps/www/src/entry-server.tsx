@@ -3,8 +3,8 @@ import { StartServer, createHandler } from '@solidjs/start/server';
 
 export default createHandler(() => (
   <StartServer
-    document={(props) => (
-      <html>
+    document={({ assets, children, scripts }) => (
+      <html lang='en'>
         <head>
           <meta charset='utf-8' />
           <meta
@@ -327,11 +327,11 @@ export default createHandler(() => (
               <meta name='google-adsense-account' content='ca-pub-7748872527931209' />
             </>
           )}
-          {props.assets}
+          {assets}
         </head>
         <body>
-          <div id='app'>{props.children}</div>
-          {props.scripts}
+          <div id='app'>{children}</div>
+          {scripts}
         </body>
       </html>
     )}

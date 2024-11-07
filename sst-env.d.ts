@@ -22,6 +22,10 @@ declare module "sst" {
       "type": "sst.cloudflare.Worker"
       "url": string
     }
+    "AnalyticsRouter": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "AnalyticsUrl": {
       "type": "asb.asb.Constant"
       "value": string
@@ -98,6 +102,10 @@ declare module "sst" {
       "value": string
     }
     "PostHogAssetHost": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
+    "PostHogAssetsHost": {
       "type": "asb.asb.Constant"
       "value": string
     }

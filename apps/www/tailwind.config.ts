@@ -3,9 +3,8 @@ import tailwindcssAnimate from 'tailwindcss-animate';
 import tailwindcssSafeArea from 'tailwindcss-safe-area';
 
 export default {
-  darkMode: ['class', '[data-kb-theme="dark"]'],
+  darkMode: ['variant', ['.dark &', '[data-kb-theme="dark"] &']],
   content: ['./src/**/*.{ts,tsx,js,jsx,mdx,html}'],
-  plugins: [tailwindcssAnimate, tailwindcssSafeArea],
   theme: {
     container: {
       center: true,
@@ -101,5 +100,6 @@ export default {
         'content-hide': 'content-hide 0.2s ease-out',
       },
     },
+    plugins: [tailwindcssAnimate, tailwindcssSafeArea],
   },
 } satisfies Config;
