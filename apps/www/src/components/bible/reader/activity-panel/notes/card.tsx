@@ -15,7 +15,6 @@ import { createInfiniteQuery } from '@tanstack/solid-query';
 import { Plus } from 'lucide-solid';
 import { For, Show, createEffect, createSignal } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import {} from 'solid-transition-group';
 import { AddNoteCard } from './add-note-card';
 import { NoteItemCard } from './note-item-card';
 

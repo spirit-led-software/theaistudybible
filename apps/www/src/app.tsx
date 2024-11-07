@@ -6,7 +6,6 @@ import './app.css';
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import * as Sentry from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
-import {} from '@solidjs/router';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
