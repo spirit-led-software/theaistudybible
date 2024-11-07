@@ -30,11 +30,11 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
   );
 
   const location = useLocation();
-  createEffect(() => {
-    posthogClient()?.capture('$pageview', {
-      $current_url: `${location.pathname}${location.search}`,
-    });
-  });
+  createEffect(
+    on([posthogClient, () => ({ ...location })], ([posthogClient]) => {
+      posthogClient?.capture('$pageview');
+    }),
+  );
 
   onMount(() => {
     const posthogClient = posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
