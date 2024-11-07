@@ -27,7 +27,7 @@ export const Message = (props: MessageProps) => {
   return (
     <article
       class={cn(
-        'flex w-full max-w-2xl flex-col space-x-4 px-3 py-4',
+        'flex w-full max-w-2xl space-x-4 px-3 py-4',
         props.previousMessage?.role === props.message.role ? 'border-t-0' : 'border-t',
       )}
       aria-label={`${props.message.role === 'assistant' ? 'AI' : 'User'} message`}

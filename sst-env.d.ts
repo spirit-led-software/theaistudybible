@@ -18,10 +18,6 @@ declare module "sst" {
       "type": "asb.asb.Constant"
       "value": string
     }
-    "AnalyticsProxy": {
-      "type": "sst.cloudflare.Worker"
-      "url": string
-    }
     "AnalyticsRouter": {
       "type": "sst.aws.Router"
       "url": string
@@ -98,10 +94,6 @@ declare module "sst" {
       "value": string
     }
     "PostHogApiKey": {
-      "type": "asb.asb.Constant"
-      "value": string
-    }
-    "PostHogAssetHost": {
       "type": "asb.asb.Constant"
       "value": string
     }
