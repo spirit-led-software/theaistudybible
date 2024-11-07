@@ -1,3 +1,5 @@
+import './contents/contents.css';
+
 import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
@@ -14,7 +16,6 @@ import {
   ActivityPanelContent,
 } from './activity-panel';
 import Contents from './contents/contents';
-import './contents/contents.css';
 
 const getHighlights = GET(async (chapterId: string) => {
   'use server';

@@ -13,14 +13,24 @@ import { Menu } from './menu';
 
 export function NavigationHeader() {
   return (
-    <nav class='fixed inset-x-safe top-safe z-50 flex w-full h-20 items-center justify-between border-b border-b-border bg-background/80 py-6 pr-4 pl-2 backdrop-blur-md transition-all duration-300 ease-in-out'>
+    <nav class='fixed inset-x-safe top-safe z-50 flex h-20 w-full items-center justify-between border-b border-b-border bg-background/80 py-6 pr-4 pl-2 backdrop-blur-md transition-all duration-300 ease-in-out'>
       <div class='flex justify-start sm:hidden'>
         <NavigationDrawer />
       </div>
-      <div class='flex flex-grow justify-center sm:justify-start sm:flex-grow-0'>
+      <div class='flex flex-grow justify-center sm:flex-grow-0 sm:justify-start'>
         <A href='/'>
-          <LogoSmall width={128} height={64} lightClass='sm:hidden dark:hidden' darkClass='dark:sm:hidden'/>
-          <Logo width={256} height={64} lightClass='hidden sm:block dark:hidden' darkClass='hidden dark:sm:block' />
+          <LogoSmall
+            width={128}
+            height={64}
+            lightClass='sm:hidden dark:hidden'
+            darkClass='dark:sm:hidden'
+          />
+          <Logo
+            width={256}
+            height={64}
+            lightClass='hidden sm:block dark:hidden'
+            darkClass='hidden dark:sm:block'
+          />
         </A>
       </div>
       <div class='hidden items-center justify-center sm:flex'>

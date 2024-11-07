@@ -17,6 +17,7 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { auth, requireAuth } from '@/www/server/auth';
+import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A, action, useAction } from '@solidjs/router';
@@ -25,7 +26,6 @@ import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/s
 import { and, eq } from 'drizzle-orm';
 import { For, Match, Show, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { TransitionGroup } from 'solid-transition-group';
 
 const getBookmarks = GET(async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
@@ -109,8 +109,9 @@ export default function BookmarksPage() {
 
   const qc = useQueryClient();
 
-  const bookmarksQuery = createInfiniteQuery(() => getBookmarksQueryOptions());
+  const [autoAnimateRef] = createAutoAnimate();
 
+  const bookmarksQuery = createInfiniteQuery(() => getBookmarksQueryOptions());
   const [bookmarks, setBookmarks] = createStore<
     Awaited<ReturnType<typeof getBookmarks>>['bookmarks']
   >([]);
@@ -136,7 +137,7 @@ export default function BookmarksPage() {
           <div class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
             <QueryBoundary query={bookmarksQuery}>
               {() => (
-                <TransitionGroup name='card-item'>
+                <div ref={autoAnimateRef}>
                   <For
                     each={bookmarks}
                     fallback={
@@ -225,7 +226,7 @@ export default function BookmarksPage() {
                       </Match>
                     </Switch>
                   </div>
-                </TransitionGroup>
+                </div>
               )}
             </QueryBoundary>
           </div>

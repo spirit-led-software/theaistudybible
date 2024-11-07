@@ -6,6 +6,8 @@ const isProd = process.env.STAGE === 'production';
 
 const posthog = new PostHog(process.env.POSTHOG_API_KEY, {
   host: process.env.POSTHOG_API_HOST,
+  flushAt: 1,
+  flushInterval: 0,
 });
 const posthogSentry = new PostHogSentryIntegration(posthog);
 globalThis.posthog = posthog;

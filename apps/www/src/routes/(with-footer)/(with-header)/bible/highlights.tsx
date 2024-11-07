@@ -17,6 +17,7 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { auth, requireAuth } from '@/www/server/auth';
+import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A, action, useAction } from '@solidjs/router';
@@ -25,7 +26,6 @@ import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/s
 import { and, eq } from 'drizzle-orm';
 import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { TransitionGroup } from 'solid-transition-group';
 
 const getHighlights = GET(async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
@@ -84,8 +84,9 @@ export default function HighlightsPage() {
 
   const qc = useQueryClient();
 
-  const highlightsQuery = createInfiniteQuery(() => getHighlightsQueryOptions());
+  const [autoAnimateRef] = createAutoAnimate();
 
+  const highlightsQuery = createInfiniteQuery(() => getHighlightsQueryOptions());
   const [highlights, setHighlights] = createStore<
     Awaited<ReturnType<typeof getHighlights>>['highlights']
   >([]);
@@ -111,7 +112,7 @@ export default function HighlightsPage() {
           <div class='mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
             <QueryBoundary query={highlightsQuery}>
               {() => (
-                <TransitionGroup name='card-item'>
+                <div ref={autoAnimateRef}>
                   <For
                     each={highlights}
                     fallback={
@@ -189,7 +190,7 @@ export default function HighlightsPage() {
                       </Match>
                     </Switch>
                   </div>
-                </TransitionGroup>
+                </div>
               )}
             </QueryBoundary>
           </div>

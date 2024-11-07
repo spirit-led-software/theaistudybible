@@ -85,17 +85,3 @@
     @apply px-4;
   }
 }
-
-.card-item-enter-active,
-.card-item-exit-active {
-  @apply transition-all duration-200;
-}
-
-.card-item-enter,
-.card-item-exit-to {
-  @apply scale-0 opacity-0;
-}
-
-.card-item-enter-to {
-  @apply scale-100 opacity-100;
-}

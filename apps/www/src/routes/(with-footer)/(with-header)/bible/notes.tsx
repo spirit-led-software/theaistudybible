@@ -7,6 +7,7 @@ import { Button } from '@/www/components/ui/button';
 import { Spinner } from '@/www/components/ui/spinner';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { auth } from '@/www/server/auth';
+import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -14,7 +15,6 @@ import { GET } from '@solidjs/start';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { For, Match, Switch, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { TransitionGroup } from 'solid-transition-group';
 
 const getNotes = GET(async ({ limit, offset }: { limit: number; offset: number }) => {
   'use server';
@@ -75,8 +75,9 @@ export const route: RouteDefinition = {
 };
 
 export default function NotesPage() {
-  const notesQuery = createInfiniteQuery(() => getNotesQueryOptions());
+  const [autoAnimateRef] = createAutoAnimate();
 
+  const notesQuery = createInfiniteQuery(() => getNotesQueryOptions());
   const [notes, setNotes] = createStore<Awaited<ReturnType<typeof getNotes>>['notes']>([]);
   createEffect(() => {
     if (notesQuery.status === 'success') {
@@ -95,7 +96,7 @@ export default function NotesPage() {
           <div class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
             <QueryBoundary query={notesQuery}>
               {() => (
-                <TransitionGroup name='card-item'>
+                <div ref={autoAnimateRef}>
                   <For
                     each={notes}
                     fallback={
@@ -138,7 +139,7 @@ export default function NotesPage() {
                       </Match>
                     </Switch>
                   </div>
-                </TransitionGroup>
+                </div>
               )}
             </QueryBoundary>
           </div>

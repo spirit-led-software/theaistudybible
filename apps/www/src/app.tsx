@@ -1,4 +1,8 @@
 // @refresh reload
+import '@fontsource/goldman';
+import '@fontsource-variable/inter';
+import './app.css';
+
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import * as Sentry from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
@@ -19,18 +23,15 @@ import { AuthProvider } from './contexts/auth';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
 import { DevotionProvider } from './contexts/devotion';
-import { getColorModeCookie } from './server/cookie';
-
-import '@fontsource/goldman';
-import '@fontsource-variable/inter';
-import './app.css';
 import { PosthogProvider } from './contexts/posthog';
+import { getColorModeCookie } from './server/cookie';
 
 export default function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 1000 * 15,
+        gcTime: 1000 * 60 * 60 * 24, // 24 hours
+        staleTime: 1000 * 5, // Just enough to avoid refetching on the client
         experimental_prefetchInRender: true,
         // This is just the default with added Sentry capture
         // this seems to be the only way to capture errors in solid-query
