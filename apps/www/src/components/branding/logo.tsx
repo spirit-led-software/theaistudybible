@@ -7,13 +7,13 @@ export function Logo(props: Omit<JSX.ImgHTMLAttributes<HTMLImageElement>, 'src' 
     <>
       <img
         {...rest}
-        class={cn(local.class, 'dark:hidden')}
+        class={cn('dark:hidden', local.class)}
         src='/logos/light.svg'
         alt='The AI Study Bible Logo'
       />
       <img
         {...rest}
-        class={cn(local.class, 'hidden dark:block')}
+        class={cn('hidden dark:block', local.class)}
         src='/logos/dark.svg'
         alt='The AI Study Bible Logo'
       />
