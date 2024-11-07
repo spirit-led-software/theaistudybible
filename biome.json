@@ -18,8 +18,7 @@
       "**/bun.lockb",
       "**/migrations",
       "**/sst-env.d.ts",
-      "packages/core/src/utils/bibles/__tests__/MAT.json",
-      "apps/www/public/sw.js"
+      "packages/core/src/utils/bibles/__tests__/MAT.json"
     ]
   },
   "formatter": {
