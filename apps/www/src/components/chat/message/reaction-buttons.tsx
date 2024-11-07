@@ -136,7 +136,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
                   }
                   aria-label='Like message'
                 >
-                  <ThumbsUp size={15} />
+                  <ThumbsUp size={15} aria-hidden='true' />
                 </Button>
                 <Button
                   size='icon'
@@ -145,7 +145,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
                   onClick={() => setDislikeDialogOpen(true)}
                   aria-label='Dislike message'
                 >
-                  <ThumbsDown size={15} />
+                  <ThumbsDown size={15} aria-hidden='true' />
                 </Button>
               </>
             }
@@ -171,6 +171,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
                   <ThumbsUp
                     size={15}
                     fill={reaction.reaction === 'LIKE' ? 'hsl(var(--foreground))' : undefined}
+                    aria-hidden='true'
                   />
                 </Button>
                 <Button
@@ -189,6 +190,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
                   <ThumbsDown
                     size={15}
                     fill={reaction.reaction === 'DISLIKE' ? 'hsl(var(--foreground))' : undefined}
+                    aria-hidden='true'
                   />
                 </Button>
               </>
