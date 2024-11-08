@@ -17,13 +17,6 @@ export const ReloadSwDialog = () => {
 
   const close = () => {
     setNeedRefresh(false);
-    // Remind the user every hour
-    setTimeout(
-      () => {
-        setNeedRefresh(true);
-      },
-      1000 * 60 * 60,
-    );
   };
 
   return (
