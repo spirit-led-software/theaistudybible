@@ -1,4 +1,4 @@
-FROM oven/bun:1-alpine AS base
+FROM oven/bun:1-slim AS base
 
 ########################################################
 # Install
@@ -6,9 +6,6 @@ FROM oven/bun:1-alpine AS base
 FROM base AS install
 
 WORKDIR /install
-
-RUN apk update \
-&& apk add --no-cache unzip
 
 COPY --link ./package.json ./package.json
 COPY --link ./apps/functions/package.json ./apps/functions/package.json
@@ -60,8 +57,10 @@ ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
 
 WORKDIR /build
 
-RUN apk update \
-&& apk add --no-cache git
+RUN apt-get update && \
+    apt-get install -y git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY --from=install /install/node_modules ./node_modules
 
@@ -93,18 +92,20 @@ ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
 
 WORKDIR /app
 
-RUN apk update \
-&& apk add --no-cache curl
+RUN apt-get update && \
+    apt-get install -y curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /build/apps/www/.output .
 
 COPY --link ./apps/www/instrument.mjs ./server/
-RUN cd server \
-&& bun add @sentry/bun posthog-node \
-&& bun install --frozen-lockfile \
-&& bun pm cache rm
+RUN cd server && \
+    bun add @sentry/bun posthog-node && \
+    bun install --frozen-lockfile && \
+    bun pm cache rm
 
-ENTRYPOINT [ "bun", "run", "--smol", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
+ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
 EXPOSE ${PORT}
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \

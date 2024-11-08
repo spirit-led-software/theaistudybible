@@ -12,6 +12,7 @@ import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import { Show, Suspense } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { Logo } from './components/branding/logo';
+import { ReloadSwDialog } from './components/reload-sw-dialog';
 import { SentryErrorBoundary } from './components/sentry/error-boundary';
 import { SentryRouter } from './components/sentry/router';
 import { Button } from './components/ui/button';
@@ -110,6 +111,7 @@ export default function App() {
                             {props.children}
                           </Suspense>
                           <Toaster />
+                          <ReloadSwDialog />
                         </SentryErrorBoundary>
                       </DevotionProvider>
                     </ChatProvider>
