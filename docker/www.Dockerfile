@@ -103,11 +103,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /build/apps/www/.output .
-
 COPY --link ./apps/www/instrument.mjs ./server/
+
 RUN cd server && \
-    bun add @sentry/bun posthog-node && \
-    bun install --frozen-lockfile && \
+    bun add --trust @sentry/bun posthog-node && \
     bun pm cache rm
 
 ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
