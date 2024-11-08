@@ -7,6 +7,11 @@ FROM base AS install
 
 WORKDIR /install
 
+RUN apt-get update && \
+    apt-get install -y unzip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --link ./package.json ./package.json
 COPY --link ./apps/functions/package.json ./apps/functions/package.json
 COPY --link ./apps/workers/package.json ./apps/workers/package.json
