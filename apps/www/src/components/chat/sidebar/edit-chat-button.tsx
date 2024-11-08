@@ -60,7 +60,7 @@ export const EditChatButton = (props: EditChatButtonProps) => {
       void qc.invalidateQueries({
         queryKey: ['chats'],
       });
-      if (chatStore.chat?.id === props.chat.id) {
+      if (chatStore.chatId === props.chat.id) {
         void qc.invalidateQueries({
           queryKey: ['chat', { chatId: props.chat.id }],
         });
