@@ -110,7 +110,7 @@ export const ChatSidebar = () => {
                             as={Button}
                             variant='ghost'
                             onClick={() => {
-                              setChatStore('chat', chat);
+                              setChatStore('chatId', chat.id);
                               if (location.pathname.startsWith('/chat')) {
                                 navigate(`/chat/${chat.id}`);
                               }
