@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@ai-sdk/solid": "^0.0.54",
-    "@ark-ui/solid": "4.2.0",
+    "@ark-ui/solid": "4.4.0",
     "@corvu/drawer": "^0.2.2",
     "@fontsource-variable/inter": "^5.1.0",
     "@fontsource/goldman": "^5.1.0",
@@ -64,7 +64,7 @@
     "cropperjs": "^1.6.2",
     "embla-carousel-solid": "^8.3.1",
     "hono": "^4.6.9",
-    "lucide-solid": "^0.454.0",
+    "lucide-solid": "^0.456.0",
     "posthog-js": "^1.181.0",
     "posthog-node": "^4.2.1",
     "solid-js": "^1.9.3",
