@@ -30,7 +30,10 @@ export const ChatCard = () => {
   return (
     <Card class='flex h-full w-full flex-1 flex-col overflow-hidden'>
       <SignedIn>
-        <ChatWindow chatId={chatStore.chatId || undefined} additionalContext={additionalContext()} />
+        <ChatWindow
+          chatId={chatStore.chatId || undefined}
+          additionalContext={additionalContext()}
+        />
       </SignedIn>
       <SignedOut>
         <CardHeader />

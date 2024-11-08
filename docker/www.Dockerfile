@@ -109,7 +109,7 @@ RUN cd server && \
     bun add --trust @sentry/bun posthog-node && \
     bun pm cache rm
 
-ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
+ENTRYPOINT [ "bun", "run", "--smol", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
 EXPOSE ${PORT}
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
