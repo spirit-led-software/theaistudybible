@@ -41,8 +41,8 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
   const deleteChatMutation = createMutation(() => ({
     mutationFn: () => deleteChat(props.chat.id),
     onSettled: () => {
-      if (chatStore.chat?.id === props.chat.id) {
-        setChatStore('chat', null);
+      if (chatStore.chatId === props.chat.id) {
+        setChatStore('chatId', null);
         if (location.pathname.startsWith('/chat')) {
           navigate('/chat');
         }
@@ -76,8 +76,8 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
           <Button
             variant='destructive'
             onClick={() => {
-              if (chatStore.chat?.id === props.chat.id) {
-                setChatStore('chat', null);
+              if (chatStore.chatId === props.chat.id) {
+                setChatStore('chatId', null);
                 if (location.pathname.startsWith('/chat')) {
                   navigate('/chat');
                 }
