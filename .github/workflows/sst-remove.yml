@@ -42,6 +42,3 @@ jobs:
       - name: Remove
         run: |
           bun run remove
-
-      - name: CI Cleanup
-        uses: ./.github/actions/ci-cleanup

@@ -110,6 +110,3 @@ jobs:
                 body: `Preview URL: ${{ steps.extract_website_url.outputs.website_url }}`,
               });
             }
-
-      - name: CI Cleanup
-        uses: ./.github/actions/ci-cleanup

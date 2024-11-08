@@ -28,6 +28,7 @@ export default $config({
     const { WEBHOOKS_URL } = await import('./infra/webhooks');
     await import('./infra/jobs');
     await import('./infra/www');
+    await import('./infra/fly.io');
     await import('./infra/redirects');
     await import('./infra/dev');
 

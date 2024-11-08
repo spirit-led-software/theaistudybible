@@ -69,6 +69,3 @@ jobs:
       - name: Run E2E tests
         run: |
           bun run test:e2e
-
-      - name: CI Cleanup
-        uses: ./.github/actions/ci-cleanup
