@@ -149,10 +149,9 @@ if (!$dev) {
             bucket: bucket.name,
             key,
             source: new $util.asset.FileAsset(asset),
-            contentType: mime.getType(asset) ?? 'application/octet-stream',
             sourceHash: hash,
+            contentType: mime.getType(asset) ?? 'application/octet-stream',
             cacheControl: `public,max-age=${ttl},s-maxage=${ttl},stale-while-revalidate=${ttl}`,
-            acl: 'public-read',
           });
         }),
     );
@@ -254,7 +253,11 @@ if (!$dev) {
             originSslProtocols: ['TLSv1.2'],
           },
         },
-        { originId: 's3', domainName: bucket.domain, originAccessControlId: bucketAccess.id },
+        {
+          originId: 's3',
+          domainName: bucket.nodes.bucket.bucketRegionalDomainName,
+          originAccessControlId: bucketAccess.id,
+        },
       ],
       defaultCacheBehavior: {
         targetOriginId: 'server',
