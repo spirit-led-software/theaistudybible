@@ -152,6 +152,7 @@ if (!$dev) {
             contentType: mime.getType(asset) ?? 'application/octet-stream',
             sourceHash: hash,
             cacheControl: `public,max-age=${ttl},s-maxage=${ttl},stale-while-revalidate=${ttl}`,
+            acl: 'public-read',
           });
         }),
     );
