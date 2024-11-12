@@ -241,7 +241,6 @@ if (!$dev) {
         withFileTypes: true,
       });
     });
-
     return new sst.aws.Cdn('WebAppCdn', {
       origins: [
         {
@@ -254,11 +253,7 @@ if (!$dev) {
             originSslProtocols: ['TLSv1.2'],
           },
         },
-        {
-          originId: 's3',
-          domainName: bucket.domain,
-          originAccessControlId: bucketAccess.id,
-        },
+        { originId: 's3', domainName: bucket.domain, originAccessControlId: bucketAccess.id },
       ],
       defaultCacheBehavior: {
         targetOriginId: 'server',
