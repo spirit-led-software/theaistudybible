@@ -204,28 +204,32 @@ if (!$dev) {
         }),
       );
 
-    return new dockerbuild.Image('WebAppImage', {
-      tags: [$interpolate`${webAppImageRepository.repositoryUrl}:latest`],
-      registries: [
-        aws.ecr
-          .getAuthorizationTokenOutput({
-            registryId: webAppImageRepository.registryId,
-          })
-          .apply(({ proxyEndpoint, userName, password }) => ({
-            address: proxyEndpoint,
-            username: userName,
-            password,
-          })),
-      ],
-      dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
-      context: { location: process.cwd() },
-      buildArgs,
-      platforms: ['linux/amd64'],
-      push: true,
-      network: 'host',
-      cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
-      cacheTo: [{ local: { dest: '/tmp/.buildx-cache-new', mode: 'max' } }],
-    });
+    return new dockerbuild.Image(
+      'WebAppImage',
+      {
+        tags: [$interpolate`${webAppImageRepository.repositoryUrl}:latest`],
+        registries: [
+          aws.ecr
+            .getAuthorizationTokenOutput({
+              registryId: webAppImageRepository.registryId,
+            })
+            .apply(({ proxyEndpoint, userName, password }) => ({
+              address: proxyEndpoint,
+              username: userName,
+              password,
+            })),
+        ],
+        dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
+        context: { location: process.cwd() },
+        buildArgs,
+        platforms: ['linux/amd64'],
+        push: true,
+        network: 'host',
+        cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
+        cacheTo: [{ local: { dest: '/tmp/.buildx-cache-new', mode: 'max' } }],
+      },
+      { dependsOn: [buildCmd] },
+    );
   }
 
   function buildCdn() {
