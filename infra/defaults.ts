@@ -22,55 +22,40 @@ export const allLinks = [
   email,
 ];
 
+export const defaultNodeJsConfig = {
+  install: ['@libsql/client', '@sentry/aws-serverless', 'posthog-node'],
+  esbuild: {
+    external: ['@sentry/aws-serverless', 'posthog-node'],
+  },
+};
+
+export const defaultCopyFilesConfig = [
+  { from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' },
+];
+
+export const defaultEnvironmentConfig = $util
+  .all([
+    constants.POSTHOG_API_KEY.value,
+    constants.POSTHOG_API_HOST.value,
+    webAppSentryKey.dsnPublic,
+  ])
+  .apply(([posthogApiKey, posthogApiHost, sentryDsnPublic]) => ({
+    STAGE: $app.stage,
+    NODE_OPTIONS: '--import instrument.mjs',
+    POSTHOG_API_KEY: posthogApiKey,
+    POSTHOG_API_HOST: posthogApiHost,
+    SENTRY_DSN: sentryDsnPublic,
+    SENTRY_TRACES_SAMPLE_RATE: ($dev ? 0 : constants.isProd ? 1.0 : 0.5).toString(),
+  }));
+
 /**
  * Define defaults for all SST functions
  */
 $transform(sst.aws.Function, (args) => {
   args.runtime ??= 'nodejs20.x';
   args.memory ??= '512 MB';
-  // biome-ignore lint/suspicious/noExplicitAny: Don't care about the type
-  args.link = $output(args.link).apply((links: sst.Linkable<any>[] = []) =>
-    Array.from(new Set([...links, ...allLinks])),
-  );
-  args.nodejs = $output(args.nodejs).apply((nodejs) => ({
-    ...nodejs,
-    install: Array.from(
-      new Set([
-        ...(nodejs?.install || []),
-        '@libsql/client',
-        '@sentry/aws-serverless',
-        'posthog-node',
-      ]),
-    ),
-    esbuild: {
-      ...nodejs?.esbuild,
-      external: Array.from(
-        new Set([...(nodejs?.esbuild?.external || []), '@sentry/aws-serverless', 'posthog-node']),
-      ),
-    },
-  }));
-  args.copyFiles = $output(args.copyFiles).apply((copyFiles) =>
-    Array.from(
-      new Set([
-        ...(copyFiles || []),
-        { from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' },
-      ]),
-    ),
-  );
-  args.environment = $util
-    .all([
-      args.environment,
-      constants.POSTHOG_API_KEY.value,
-      constants.POSTHOG_API_HOST.value,
-      webAppSentryKey.dsnPublic,
-    ])
-    .apply(([environment, posthogApiKey, posthogApiHost, sentryDsnPublic]) => ({
-      ...environment,
-      STAGE: $app.stage,
-      NODE_OPTIONS: '--import instrument.mjs',
-      POSTHOG_API_KEY: posthogApiKey,
-      POSTHOG_API_HOST: posthogApiHost,
-      SENTRY_DSN: sentryDsnPublic,
-      SENTRY_TRACES_SAMPLE_RATE: ($dev ? 0 : constants.isProd ? 1.0 : 0.5).toString(),
-    }));
+  args.link ??= allLinks;
+  args.nodejs ??= defaultNodeJsConfig;
+  args.copyFiles ??= defaultCopyFilesConfig;
+  args.environment ??= defaultEnvironmentConfig;
 });

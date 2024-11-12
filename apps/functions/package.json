@@ -8,7 +8,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@sentry/aws-serverless": "^8.37.1",
+    "@sentry/aws-serverless": "^8.38.0",
     "posthog-node": "^4.2.1",
     "@theaistudybible/tsconfig": "workspace:*"
   },
@@ -17,6 +17,6 @@
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
     "hono": "^4.6.9",
-    "svix": "^1.39.0"
+    "svix": "^1.40.0"
   }
 }

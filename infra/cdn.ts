@@ -25,8 +25,5 @@ export const cdn = new sst.aws.Router('Cdn', {
       },
     },
   },
-  domain: {
-    name: $interpolate`cdn.${DOMAIN.value}`,
-    dns: sst.cloudflare.dns(),
-  },
+  domain: { name: $interpolate`cdn.${DOMAIN.value}`, dns: sst.aws.dns() },
 });

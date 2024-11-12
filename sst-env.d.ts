@@ -145,13 +145,45 @@ declare module "sst" {
       "restUrl": string
       "type": "upstash.index/vectorIndex.VectorIndex"
     }
+    "WebAppBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppServerFn-ap-southeast-1": {
+      "name": string
+      "type": "sst.aws.Function"
+      "url": string
+    }
+    "WebAppServerFn-us-east-1": {
+      "name": string
+      "type": "sst.aws.Function"
+      "url": string
+    }
+    "WebAppServerFnRouter-ap-southeast-1": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
+    "WebAppServerFnRouter-us-east-1": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
       "value": string
     }
+    "WebAppVpc-ap-southeast-1": {
+      "type": "sst.aws.Vpc"
+    }
+    "WebAppVpc-us-east-1": {
+      "type": "sst.aws.Vpc"
+    }
     "WebhooksApiFunction": {
       "name": string
       "type": "sst.aws.Function"
+      "url": string
+    }
+    "WebhooksApiRouter": {
+      "type": "sst.aws.Router"
       "url": string
     }
     "WebhooksDomain": {

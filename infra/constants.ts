@@ -15,8 +15,7 @@ export const WEBAPP_URL = new Constant(
   $dev ? 'http://localhost:3000' : $interpolate`https://${DOMAIN.value}`,
 );
 
-export const CLOUDFLARE_ZONE = cloudflare.getZoneOutput({ name: BASE_DOMAIN });
-export const CLOUDFLARE_IP_RANGES = cloudflare.getIpRangesOutput();
+export const AWS_HOSTED_ZONE = aws.route53.getZoneOutput({ name: BASE_DOMAIN });
 
 export const STRIPE_PUBLISHABLE_KEY = new Constant(
   'StripePublishableKey',

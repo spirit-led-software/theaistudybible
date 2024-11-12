@@ -4,13 +4,13 @@ export default $config({
     removal: 'remove',
     home: 'aws',
     providers: {
-      '@ediri/pulumi-fly': true,
       '@pulumiverse/sentry': true,
       '@upstash/pulumi': true,
       'docker-build': true,
       'pulumi-stripe': true,
       aws: { region: 'us-east-1' },
       cloudflare: true,
+      command: true,
       turso: { organization: 'ian-pascoe' },
     },
   }),
@@ -28,8 +28,6 @@ export default $config({
     const { WEBHOOKS_URL } = await import('./infra/webhooks');
     await import('./infra/jobs');
     await import('./infra/www');
-    await import('./infra/fly.io');
-    await import('./infra/redirects');
     await import('./infra/dev');
 
     return {
