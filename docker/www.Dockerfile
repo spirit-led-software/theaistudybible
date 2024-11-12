@@ -1,6 +1,20 @@
 FROM oven/bun:1-slim AS base
 
 ########################################################
+# Install
+########################################################
+FROM base AS install
+
+WORKDIR /app
+
+COPY --link ./apps/www/.output/server .
+
+RUN bun install --frozen-lockfile && \
+    bun add --trust @sentry/cli @sentry/bun posthog-node && \
+    bun pm trust --all && \
+    bun pm cache rm
+
+########################################################
 # Release
 ########################################################
 FROM base AS release
@@ -15,13 +29,8 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --link ./apps/www/.output/server .
+COPY --from=install /app .
 COPY --link ./apps/www/instrument.mjs ./
-
-RUN bun install --frozen-lockfile && \
-    bun add --trust @sentry/bun posthog-node && \
-    bun pm trust --all && \
-    bun pm cache rm
 
 ENTRYPOINT [ "bun", "run", "--smol", "--preload", "./instrument.mjs", "./index.mjs" ]
 EXPOSE ${PORT}

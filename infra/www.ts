@@ -143,7 +143,7 @@ if (!$dev) {
           );
           const fileContent = fs.readFileSync(asset);
           const hash = Buffer.from(sha256(new Uint8Array(fileContent))).toString('hex');
-          return new aws.s3.BucketObjectv2(`WebAppAssets-${sanitizedKey}`, {
+          return new aws.s3.BucketObject(`WebAppAssets-${sanitizedKey}`, {
             bucket: bucket.name,
             key,
             source: new $util.asset.FileAsset(asset),
