@@ -16,9 +16,6 @@ node_modules
 # Migrations
 /migrations
 
-# Turbo
-.turbo
-
 # SolidStart Build Output
 .output
 .vinxi
