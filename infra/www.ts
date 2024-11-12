@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { sha256 } from '@noble/hashes/sha256';
-import mime from 'mime';
 import { ANALYTICS_URL } from './analytics';
 import { cdn } from './cdn';
 import {
@@ -12,6 +11,7 @@ import {
   WEBAPP_URL,
 } from './constants';
 import { allLinks } from './defaults';
+import { getContentType } from './helpers/content-type';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 
@@ -130,15 +130,13 @@ if (!$dev) {
   }
 
   function uploadAssets() {
+    const assetsRoot = path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public');
     const ttl = 86400;
     return buildCmd.stdout.apply(() =>
-      getAllAssets(path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public'))
+      getAllAssets(assetsRoot)
         .filter((asset) => !asset.endsWith('.map')) // Ignore source maps
         .map((asset) => {
-          const key = asset.replace(
-            path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public'),
-            '',
-          );
+          const key = asset.replace(assetsRoot, '');
           const sanitizedKey = key.replace(
             /[\\\/\.\-\+\(\)\[\]\{\}\!\@\#\$\%\^\&\*\=\;\:\'\"\,\<\>\?\`\~]/g,
             '_',
@@ -150,7 +148,7 @@ if (!$dev) {
             key,
             source: new $util.asset.FileAsset(asset),
             sourceHash: hash,
-            contentType: mime.getType(asset) ?? 'application/octet-stream',
+            contentType: getContentType(asset, 'UTF-8'),
             cacheControl: `public,max-age=${ttl},s-maxage=${ttl},stale-while-revalidate=${ttl}`,
           });
         }),
@@ -249,7 +247,7 @@ if (!$dev) {
           customOriginConfig: {
             httpPort: 80,
             httpsPort: 443,
-            originProtocolPolicy: 'match-viewer',
+            originProtocolPolicy: 'https-only',
             originSslProtocols: ['TLSv1.2'],
           },
         },

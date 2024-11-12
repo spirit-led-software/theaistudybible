@@ -149,22 +149,14 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
-    "WebAppServerFn-ap-southeast-1": {
-      "name": string
-      "type": "sst.aws.Function"
+    "WebAppService-ap-southeast-1": {
+      "service": string
+      "type": "sst.aws.Service"
       "url": string
     }
-    "WebAppServerFn-us-east-1": {
-      "name": string
-      "type": "sst.aws.Function"
-      "url": string
-    }
-    "WebAppServerFnRouter-ap-southeast-1": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
-    "WebAppServerFnRouter-us-east-1": {
-      "type": "sst.aws.Router"
+    "WebAppService-us-east-1": {
+      "service": string
+      "type": "sst.aws.Service"
       "url": string
     }
     "WebAppUrl": {
