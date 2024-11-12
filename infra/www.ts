@@ -71,35 +71,8 @@ if (!$dev) {
   });
 
   const bucket = new sst.aws.Bucket('WebAppBucket', { access: 'cloudfront' });
-  buildCmd.stdout.apply(() =>
-    getAllAssets(path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public'))
-      .filter((asset) => !asset.endsWith('.map')) // Ignore source maps
-      .map((asset) => {
-        const key = asset.replace(
-          path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public'),
-          '',
-        );
-        const sanitizedKey = key.replace(
-          /[\\\/\.\-\+\(\)\[\]\{\}\!\@\#\$\%\^\&\*\=\;\:\'\"\,\<\>\?\`\~]/g,
-          '_',
-        );
-        const fileContent = fs.readFileSync(asset);
-        const hash = Buffer.from(sha256(new Uint8Array(fileContent))).toString('hex');
-        return new aws.s3.BucketObjectv2(`WebAppAssets-${sanitizedKey}`, {
-          bucket: bucket.name,
-          key,
-          source: new $util.asset.FileAsset(asset),
-          contentType: mime.getType(asset) ?? 'application/octet-stream',
-          sourceHash: hash,
-          cacheControl: 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400',
-        });
-      }),
-  );
+  uploadAssets();
 
-  const webAppImageRepository = new aws.ecr.Repository('WebAppImageRepository', {
-    name: `${$app.name}-${$app.stage}-www`,
-    forceDelete: true,
-  });
   const webAppImage = buildWebAppImage();
 
   const serverDomain = $interpolate`server.${DOMAIN.value}`;
@@ -109,7 +82,7 @@ if (!$dev) {
     const vpc = new sst.aws.Vpc(`WebAppVpc-${region}`, {}, { provider });
     const cluster = new sst.aws.Cluster(`WebAppCluster-${region}`, { vpc }, { provider });
     cluster.addService(`WebAppService-${region}`, {
-      containers: [{ name: 'www', image: webAppImage.ref }],
+      image: webAppImage.ref,
       link: allLinks,
       environment: env,
       loadBalancer: {
@@ -143,94 +116,7 @@ if (!$dev) {
     });
   }
 
-  const access = new aws.cloudfront.OriginAccessControl('WebAppBucketAccess', {
-    originAccessControlOriginType: 's3',
-    signingBehavior: 'always',
-    signingProtocol: 'sigv4',
-  });
-  const staticAssets = buildCmd.stdout.apply(() => {
-    return fs.readdirSync(path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public'), {
-      withFileTypes: true,
-    });
-  });
-
-  webAppCdn = new sst.aws.Cdn('WebAppCdn', {
-    origins: [
-      {
-        originId: 'server',
-        domainName: serverDomain,
-        customOriginConfig: {
-          httpPort: 80,
-          httpsPort: 443,
-          originProtocolPolicy: 'match-viewer',
-          originSslProtocols: ['TLSv1.2'],
-        },
-      },
-      {
-        originId: 's3',
-        domainName: bucket.domain,
-        originAccessControlId: access.id,
-      },
-    ],
-    defaultCacheBehavior: {
-      targetOriginId: 'server',
-      viewerProtocolPolicy: 'redirect-to-https',
-      allowedMethods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'],
-      cachedMethods: ['GET', 'HEAD'],
-      compress: true,
-      cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnDefaultCachePolicy', {
-        maxTtl: 60 * 60 * 24 * 365,
-        minTtl: 0,
-        defaultTtl: 0,
-        parametersInCacheKeyAndForwardedToOrigin: {
-          cookiesConfig: { cookieBehavior: 'none' },
-          headersConfig: { headerBehavior: 'none' },
-          queryStringsConfig: { queryStringBehavior: 'all' },
-          enableAcceptEncodingBrotli: true,
-          enableAcceptEncodingGzip: true,
-        },
-      }).id,
-    },
-    orderedCacheBehaviors: staticAssets.apply((assets) => [
-      {
-        pathPattern: '_server/',
-        targetOriginId: 'server',
-        viewerProtocolPolicy: 'redirect-to-https',
-        allowedMethods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'],
-        cachedMethods: ['GET', 'HEAD'],
-        compress: true,
-        cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnServerCachePolicy', {
-          maxTtl: 60 * 60 * 24 * 365,
-          minTtl: 0,
-          defaultTtl: 0,
-          parametersInCacheKeyAndForwardedToOrigin: {
-            cookiesConfig: { cookieBehavior: 'none' },
-            headersConfig: { headerBehavior: 'none' },
-            queryStringsConfig: { queryStringBehavior: 'all' },
-            enableAcceptEncodingBrotli: true,
-            enableAcceptEncodingGzip: true,
-          },
-        }).id,
-        // CloudFront's Managed-AllViewerExceptHostHeader policy
-        originRequestPolicyId: 'b689b0a8-53d0-40ab-baf2-68738e2966ac',
-      },
-      ...assets.map(
-        (asset) =>
-          ({
-            pathPattern: asset.isDirectory() ? `${asset.name}/*` : asset.name,
-            targetOriginId: 's3',
-            viewerProtocolPolicy: 'redirect-to-https',
-            allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
-            cachedMethods: ['GET', 'HEAD'],
-            compress: true,
-            // CloudFront's managed CachingOptimized policy
-            cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
-          }) satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
-      ),
-    ]),
-    invalidation: { paths: ['/*'], wait: true },
-    domain: { name: DOMAIN.value, dns: sst.aws.dns() },
-  });
+  webAppCdn = buildCdn();
 
   function getAllAssets(dir: string): string[] {
     const assets: string[] = [];
@@ -245,7 +131,40 @@ if (!$dev) {
     return assets;
   }
 
+  function uploadAssets() {
+    const ttl = 86400;
+    return buildCmd.stdout.apply(() =>
+      getAllAssets(path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public'))
+        .filter((asset) => !asset.endsWith('.map')) // Ignore source maps
+        .map((asset) => {
+          const key = asset.replace(
+            path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public'),
+            '',
+          );
+          const sanitizedKey = key.replace(
+            /[\\\/\.\-\+\(\)\[\]\{\}\!\@\#\$\%\^\&\*\=\;\:\'\"\,\<\>\?\`\~]/g,
+            '_',
+          );
+          const fileContent = fs.readFileSync(asset);
+          const hash = Buffer.from(sha256(new Uint8Array(fileContent))).toString('hex');
+          return new aws.s3.BucketObjectv2(`WebAppAssets-${sanitizedKey}`, {
+            bucket: bucket.name,
+            key,
+            source: new $util.asset.FileAsset(asset),
+            contentType: mime.getType(asset) ?? 'application/octet-stream',
+            sourceHash: hash,
+            cacheControl: `public,max-age=${ttl},s-maxage=${ttl},stale-while-revalidate=${ttl}`,
+          });
+        }),
+    );
+  }
+
   function buildWebAppImage() {
+    const webAppImageRepository = new aws.ecr.Repository('WebAppImageRepository', {
+      name: `${$app.name}-${$app.stage}-www`,
+      forceDelete: true,
+    });
+
     const buildArgs = $util
       .all([
         WEBAPP_URL.value,
@@ -310,6 +229,97 @@ if (!$dev) {
       network: 'host',
       cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
       cacheTo: [{ local: { dest: '/tmp/.buildx-cache-new', mode: 'max' } }],
+    });
+  }
+
+  function buildCdn() {
+    const bucketAccess = new aws.cloudfront.OriginAccessControl('WebAppBucketAccess', {
+      originAccessControlOriginType: 's3',
+      signingBehavior: 'always',
+      signingProtocol: 'sigv4',
+    });
+    const staticAssets = buildCmd.stdout.apply(() => {
+      return fs.readdirSync(path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public'), {
+        withFileTypes: true,
+      });
+    });
+
+    return new sst.aws.Cdn('WebAppCdn', {
+      origins: [
+        {
+          originId: 'server',
+          domainName: serverDomain,
+          customOriginConfig: {
+            httpPort: 80,
+            httpsPort: 443,
+            originProtocolPolicy: 'match-viewer',
+            originSslProtocols: ['TLSv1.2'],
+          },
+        },
+        {
+          originId: 's3',
+          domainName: bucket.domain,
+          originAccessControlId: bucketAccess.id,
+        },
+      ],
+      defaultCacheBehavior: {
+        targetOriginId: 'server',
+        viewerProtocolPolicy: 'redirect-to-https',
+        allowedMethods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'],
+        cachedMethods: ['GET', 'HEAD'],
+        compress: true,
+        cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnDefaultCachePolicy', {
+          maxTtl: 60 * 60 * 24 * 365,
+          minTtl: 0,
+          defaultTtl: 0,
+          parametersInCacheKeyAndForwardedToOrigin: {
+            cookiesConfig: { cookieBehavior: 'none' },
+            headersConfig: { headerBehavior: 'none' },
+            queryStringsConfig: { queryStringBehavior: 'all' },
+            enableAcceptEncodingBrotli: true,
+            enableAcceptEncodingGzip: true,
+          },
+        }).id,
+      },
+      orderedCacheBehaviors: staticAssets.apply((assets) => [
+        {
+          pathPattern: '_server/',
+          targetOriginId: 'server',
+          viewerProtocolPolicy: 'redirect-to-https',
+          allowedMethods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'],
+          cachedMethods: ['GET', 'HEAD'],
+          compress: true,
+          cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnServerCachePolicy', {
+            maxTtl: 60 * 60 * 24 * 365,
+            minTtl: 0,
+            defaultTtl: 0,
+            parametersInCacheKeyAndForwardedToOrigin: {
+              cookiesConfig: { cookieBehavior: 'none' },
+              headersConfig: { headerBehavior: 'none' },
+              queryStringsConfig: { queryStringBehavior: 'all' },
+              enableAcceptEncodingBrotli: true,
+              enableAcceptEncodingGzip: true,
+            },
+          }).id,
+          // CloudFront's Managed-AllViewerExceptHostHeader policy
+          originRequestPolicyId: 'b689b0a8-53d0-40ab-baf2-68738e2966ac',
+        },
+        ...assets.map(
+          (asset) =>
+            ({
+              pathPattern: asset.isDirectory() ? `${asset.name}/*` : asset.name,
+              targetOriginId: 's3',
+              viewerProtocolPolicy: 'redirect-to-https',
+              allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
+              cachedMethods: ['GET', 'HEAD'],
+              compress: true,
+              // CloudFront's managed CachingOptimized policy
+              cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
+            }) satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
+        ),
+      ]),
+      invalidation: { paths: ['/*'], wait: true },
+      domain: { name: DOMAIN.value, dns: sst.aws.dns() },
     });
   }
 }
