@@ -63,7 +63,7 @@ const env = $util
 export let webAppCdn: sst.aws.Cdn | undefined;
 if (!$dev) {
   const buildCmd = new command.local.Command('Build', {
-    dir: path.resolve($cli.paths.root, 'apps', 'www'),
+    dir: $cli.paths.root,
     create: 'bun run build',
     update: 'bun run build',
     environment: env,
@@ -95,10 +95,8 @@ if (!$dev) {
           dns: sst.aws.dns({
             transform: {
               record: (args) => {
-                if (args.name === serverDomain) {
-                  args.setIdentifier = region;
-                  args.latencyRoutingPolicies = [{ region }];
-                }
+                args.setIdentifier = region;
+                args.latencyRoutingPolicies = [{ region }];
               },
             },
           }),
