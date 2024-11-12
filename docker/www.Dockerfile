@@ -10,8 +10,7 @@ WORKDIR /app
 COPY --link ./apps/www/.output/server .
 
 RUN bun install --frozen-lockfile && \
-    bun add --trust @sentry/cli @sentry/bun posthog-node && \
-    bun pm trust --all && \
+    bun add --trust @sentry/bun posthog-node && \
     bun pm cache rm
 
 ########################################################

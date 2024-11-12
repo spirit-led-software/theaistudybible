@@ -20,8 +20,8 @@ const stripeWebhookEndpoint = new stripe.WebhookEndpoint('StripeWebhookEndpoint'
 
 const webhooksApiFn = new sst.aws.Function('WebhooksApiFunction', {
   handler: 'apps/functions/src/webhooks/index.handler',
-  url: true,
   link: [stripeWebhookEndpoint],
+  url: true,
 });
 
 export const webhookApiRouter = new sst.aws.Router('WebhooksApiRouter', {
