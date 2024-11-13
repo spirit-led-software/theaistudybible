@@ -126,5 +126,5 @@ COPY --link ./apps/www/instrument.mjs ./
 RUN bun add --trust @sentry/bun posthog-node && \
     bun pm cache rm
 
-ENTRYPOINT [ "bun", "run", "--preload", "./instrument.mjs", "./index.mjs" ]
+ENTRYPOINT [ "bun", "--smol", "--preload", "./instrument.mjs", "run", "./index.mjs" ]
 EXPOSE ${PORT}
