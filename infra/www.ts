@@ -1,6 +1,5 @@
-import fs from 'node:fs';
 import path from 'node:path';
-import { sha256 } from '@noble/hashes/sha256';
+import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { ANALYTICS_URL } from './analytics';
 import { cdn } from './cdn';
 import {
@@ -11,7 +10,6 @@ import {
   WEBAPP_URL,
 } from './constants';
 import { allLinks } from './defaults';
-import { getContentType } from './helpers/content-type';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 
@@ -62,16 +60,7 @@ const env = $util
 
 export let webAppCdn: sst.aws.Cdn | undefined;
 if (!$dev) {
-  const buildCmd = new command.local.Command('Build', {
-    dir: $cli.paths.root,
-    create: 'bun run build',
-    update: 'bun run build',
-    environment: env,
-    triggers: [Date.now()],
-  });
-
   const bucket = new sst.aws.Bucket('WebAppBucket', { access: 'cloudfront' });
-  uploadAssets();
 
   const webAppImage = buildWebAppImage();
 
@@ -116,46 +105,8 @@ if (!$dev) {
 
   webAppCdn = buildCdn();
 
-  function getAllAssets(dir: string): string[] {
-    const assets: string[] = [];
-    const files = fs.readdirSync(dir, { withFileTypes: true });
-    for (const file of files) {
-      if (file.isDirectory()) {
-        assets.push(...getAllAssets(path.join(dir, file.name)));
-      } else {
-        assets.push(path.join(dir, file.name));
-      }
-    }
-    return assets;
-  }
-
-  function uploadAssets() {
-    const assetsRoot = path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public');
-    const ttl = 86400;
-    return buildCmd.stdout.apply(() =>
-      getAllAssets(assetsRoot)
-        .filter((asset) => !asset.endsWith('.map')) // Ignore source maps
-        .map((asset) => {
-          const key = asset.replace(assetsRoot, '');
-          const sanitizedKey = key.replace(
-            /[\\\/\.\-\+\(\)\[\]\{\}\!\@\#\$\%\^\&\*\=\;\:\'\"\,\<\>\?\`\~]/g,
-            '_',
-          );
-          const fileContent = fs.readFileSync(asset);
-          const hash = Buffer.from(sha256(new Uint8Array(fileContent))).toString('hex');
-          return new aws.s3.BucketObject(`WebAppAssets-${sanitizedKey}`, {
-            bucket: bucket.name,
-            key,
-            source: new $util.asset.FileAsset(asset),
-            sourceHash: hash,
-            contentType: getContentType(asset, 'UTF-8'),
-            cacheControl: `public,max-age=${ttl},s-maxage=${ttl},stale-while-revalidate=${ttl}`,
-          });
-        }),
-    );
-  }
-
   function buildWebAppImage() {
+    const awsProvider = $app.providers!.aws as aws.Provider;
     const webAppImageRepository = new aws.ecr.Repository('WebAppImageRepository', {
       name: `${$app.name}-${$app.stage}-www`,
       forceDelete: true,
@@ -163,6 +114,12 @@ if (!$dev) {
 
     const buildArgs = $util
       .all([
+        awsProvider.accessKey.apply((key) => $util.secret(key ?? process.env.AWS_ACCESS_KEY_ID!)),
+        awsProvider.secretKey.apply((key) =>
+          $util.secret(key ?? process.env.AWS_SECRET_ACCESS_KEY!),
+        ),
+        bucket.nodes.bucket.region,
+        bucket.name,
         WEBAPP_URL.value,
         cdn.url,
         STRIPE_PUBLISHABLE_KEY.value,
@@ -177,6 +134,10 @@ if (!$dev) {
       ])
       .apply(
         ([
+          awsAccessKeyId,
+          awsSecretAccessKey,
+          awsRegion,
+          assetsBucket,
           webappUrl,
           cdnUrl,
           stripePublishableKey,
@@ -189,6 +150,10 @@ if (!$dev) {
           sentryProjectName,
           sentryAuthToken,
         ]) => ({
+          aws_access_key_id: awsAccessKeyId,
+          aws_secret_access_key: awsSecretAccessKey,
+          aws_region: awsRegion,
+          assets_bucket: assetsBucket,
           stage: $app.stage,
           webapp_url: webappUrl,
           cdn_url: cdnUrl,
@@ -204,32 +169,28 @@ if (!$dev) {
         }),
       );
 
-    return new dockerbuild.Image(
-      'WebAppImage',
-      {
-        tags: [$interpolate`${webAppImageRepository.repositoryUrl}:latest`],
-        registries: [
-          aws.ecr
-            .getAuthorizationTokenOutput({
-              registryId: webAppImageRepository.registryId,
-            })
-            .apply(({ proxyEndpoint, userName, password }) => ({
-              address: proxyEndpoint,
-              username: userName,
-              password,
-            })),
-        ],
-        dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
-        context: { location: process.cwd() },
-        buildArgs,
-        platforms: ['linux/amd64'],
-        push: true,
-        network: 'host',
-        cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
-        cacheTo: [{ local: { dest: '/tmp/.buildx-cache-new', mode: 'max' } }],
-      },
-      { dependsOn: [buildCmd] },
-    );
+    return new dockerbuild.Image('WebAppImage', {
+      tags: [$interpolate`${webAppImageRepository.repositoryUrl}:latest`],
+      registries: [
+        aws.ecr
+          .getAuthorizationTokenOutput({
+            registryId: webAppImageRepository.registryId,
+          })
+          .apply(({ proxyEndpoint, userName, password }) => ({
+            address: proxyEndpoint,
+            username: userName,
+            password,
+          })),
+      ],
+      dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
+      context: { location: process.cwd() },
+      buildArgs,
+      platforms: ['linux/amd64'],
+      push: true,
+      network: 'host',
+      cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
+      cacheTo: [{ local: { dest: '/tmp/.buildx-cache-new', mode: 'max' } }],
+    });
   }
 
   function buildCdn() {
@@ -238,11 +199,25 @@ if (!$dev) {
       signingBehavior: 'always',
       signingProtocol: 'sigv4',
     });
-    const staticAssets = buildCmd.stdout.apply(() => {
-      return fs.readdirSync(path.resolve($cli.paths.root, 'apps', 'www', '.output', 'public'), {
-        withFileTypes: true,
+    const staticAssets = $util
+      .all([bucket.name, bucket.nodes.bucket.region, webAppImage.ref])
+      .apply(async ([bucketName, bucketRegion]) => {
+        const s3 = new S3Client({ region: bucketRegion });
+        const { Contents } = await s3.send(new ListObjectsV2Command({ Bucket: bucketName }));
+        // Get top-level assets and directories
+        return (
+          Contents?.reduce<string[]>((acc, obj) => {
+            const key = obj?.Key;
+            if (!key) return acc;
+
+            const isTopLevelFile = !key.includes('/');
+            const isDirectory = key.endsWith('/');
+            if (isTopLevelFile || isDirectory) acc.push(key);
+
+            return acc;
+          }, []) ?? []
+        );
       });
-    });
     return new sst.aws.Cdn('WebAppCdn', {
       origins: [
         {
@@ -306,7 +281,7 @@ if (!$dev) {
         ...assets.map(
           (asset) =>
             ({
-              pathPattern: asset.isDirectory() ? `${asset.name}/*` : asset.name,
+              pathPattern: asset.endsWith('/') ? `${asset}*` : asset,
               targetOriginId: 's3',
               viewerProtocolPolicy: 'redirect-to-https',
               allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
