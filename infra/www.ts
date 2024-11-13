@@ -295,10 +295,10 @@ if (!$dev) {
             enableAcceptEncodingGzip: true,
           },
         }).id,
-        lambdaFunctionAssociations: [
+        functionAssociations: [
           {
             eventType: 'viewer-request',
-            lambdaArn: new aws.cloudfront.Function('WebAppCdnDefaultCfFn', {
+            functionArn: new aws.cloudfront.Function('WebAppCdnDefaultCfFn', {
               runtime: 'cloudfront-js-2.0',
               code: `async function handler(event) { event.request.headers["x-forwarded-host"] = event.request.headers.host; return event.request; }`,
             }).arn,
@@ -329,10 +329,10 @@ if (!$dev) {
               }).id,
               // CloudFront's Managed-AllViewerExceptHostHeader policy
               originRequestPolicyId: 'b689b0a8-53d0-40ab-baf2-68738e2966ac',
-              lambdaFunctionAssociations: [
+              functionAssociations: [
                 {
                   eventType: 'viewer-request',
-                  lambdaArn: new aws.cloudfront.Function('WebAppCdnServerCfFn', {
+                  functionArn: new aws.cloudfront.Function('WebAppCdnServerCfFn', {
                     runtime: 'cloudfront-js-2.0',
                     code: `async function handler(event) { event.request.headers["x-forwarded-host"] = event.request.headers.host; return event.request; }`,
                   }).arn,
