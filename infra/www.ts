@@ -106,7 +106,7 @@ if (!$dev) {
   webAppCdn = buildCdn();
 
   function buildWebAppImage() {
-    const awsProvider = $app.providers!.aws as aws.Provider;
+    const awsProvider = new aws.Provider('AwsProvider', { region: 'us-east-1' });
     const webAppImageRepository = new aws.ecr.Repository('WebAppImageRepository', {
       name: `${$app.name}-${$app.stage}-www`,
       forceDelete: true,
