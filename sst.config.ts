@@ -17,7 +17,6 @@ export default $config({
   run: async () => {
     await import('./infra/monitoring');
     await import('./infra/analytics');
-    await import('./infra/defaults');
     const { WEBAPP_URL } = await import('./infra/constants');
     await import('./infra/secrets');
     await import('./infra/storage');

@@ -9,7 +9,7 @@ import {
   STRIPE_PUBLISHABLE_KEY,
   WEBAPP_URL,
 } from './constants';
-import { allLinks } from './defaults';
+import * as defaults from './defaults';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 
@@ -70,7 +70,7 @@ if (!$dev) {
     const cluster = new sst.aws.Cluster(`WebAppCluster-${region}`, { vpc }, { provider });
     cluster.addService(`WebAppService-${region}`, {
       image: webAppImage.ref,
-      link: allLinks,
+      link: defaults.link,
       environment: env,
       permissions: [{ actions: ['cloudfront:CreateInvalidation'], resources: ['*'] }],
       loadBalancer: {

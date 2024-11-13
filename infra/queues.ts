@@ -1,5 +1,16 @@
+import * as defaults from './defaults';
+
 export const deadLetterQueue = new sst.aws.Queue('DeadLetterQueue');
-deadLetterQueue.subscribe('apps/functions/src/queues/subscribers/dead-letter.handler');
+deadLetterQueue.subscribe({
+  handler: 'apps/functions/src/queues/subscribers/dead-letter.handler',
+  copyFiles: defaults.copyFiles,
+  runtime: defaults.runtime,
+  nodejs: { install: defaults.install, esbuild: { external: defaults.external } },
+  link: defaults.link,
+  environment: defaults.environment,
+  memory: defaults.memory,
+  timeout: defaults.timeout,
+});
 
 export const indexBibleQueue = new sst.aws.Queue('IndexBibleQueue', {
   visibilityTimeout: '15 minutes',
@@ -8,7 +19,14 @@ export const indexBibleQueue = new sst.aws.Queue('IndexBibleQueue', {
 indexBibleQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/bibles/index-bible.handler',
-    nodejs: { install: ['jsdom'] },
+    copyFiles: defaults.copyFiles,
+    runtime: defaults.runtime,
+    nodejs: {
+      install: [...defaults.install, 'jsdom'],
+      esbuild: { external: [...defaults.external, 'jsdom'] },
+    },
+    link: defaults.link,
+    environment: defaults.environment,
     memory: '2 GB',
     timeout: '15 minutes',
   },
@@ -25,6 +43,11 @@ export const indexBibleChapterQueue = new sst.aws.Queue('IndexBibleChapterQueue'
 indexBibleChapterQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/bibles/index-chapter/index.handler',
+    copyFiles: defaults.copyFiles,
+    runtime: defaults.runtime,
+    nodejs: { install: defaults.install, esbuild: { external: defaults.external } },
+    link: defaults.link,
+    environment: defaults.environment,
     memory: '2 GB',
     timeout: '15 minutes',
   },
@@ -37,13 +60,33 @@ indexBibleChapterQueue.subscribe(
 export const profileImagesQueue = new sst.aws.Queue('ProfileImagesQueue', {
   dlq: { queue: deadLetterQueue.arn, retry: 3 },
 });
-profileImagesQueue.subscribe('apps/functions/src/queues/subscribers/profile-images.handler', {
-  batch: { partialResponses: true },
-});
+profileImagesQueue.subscribe(
+  {
+    handler: 'apps/functions/src/queues/subscribers/profile-images.handler',
+    copyFiles: defaults.copyFiles,
+    runtime: defaults.runtime,
+    nodejs: { install: defaults.install, esbuild: { external: defaults.external } },
+    link: defaults.link,
+    environment: defaults.environment,
+    memory: '2 GB',
+    timeout: defaults.timeout,
+  },
+  { batch: { partialResponses: true } },
+);
 
 export const emailQueue = new sst.aws.Queue('EmailQueue', {
   dlq: { queue: deadLetterQueue.arn, retry: 3 },
 });
-emailQueue.subscribe('apps/functions/src/queues/subscribers/email/index.handler', {
-  batch: { partialResponses: true },
-});
+emailQueue.subscribe(
+  {
+    handler: 'apps/functions/src/queues/subscribers/email/index.handler',
+    copyFiles: defaults.copyFiles,
+    runtime: defaults.runtime,
+    nodejs: { install: defaults.install, esbuild: { external: defaults.external } },
+    link: defaults.link,
+    environment: defaults.environment,
+    memory: '2 GB',
+    timeout: defaults.timeout,
+  },
+  { batch: { partialResponses: true } },
+);
