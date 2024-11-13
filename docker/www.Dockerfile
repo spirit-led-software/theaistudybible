@@ -97,8 +97,10 @@ RUN rm -rf ./apps/www/.output/**/*.map && \
 ########################################################
 FROM base AS release
 
+ARG port 8080
+
 ENV NODE_ENV production
-ENV PORT 8080
+ENV PORT ${port}
 
 ENV PUBLIC_STAGE ${stage}
 ENV PUBLIC_WEBAPP_URL ${webapp_url}
@@ -130,6 +132,3 @@ RUN bun add --trust @sentry/bun posthog-node && \
 
 ENTRYPOINT [ "bun", "run", "--preload", "./instrument.mjs", "./index.mjs" ]
 EXPOSE ${PORT}
-
-HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
-  CMD curl -f http://localhost:${PORT}/health || exit 1

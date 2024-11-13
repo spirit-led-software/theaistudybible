@@ -1,17 +1,12 @@
 import { sentrySolidStartVite } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
-import { formatDate } from 'date-fns';
 import solidDevTools from 'solid-devtools/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   middleware: './src/middleware.ts',
-  server: {
-    preset: 'bun',
-    // @ts-expect-error - this is a valid date string
-    compatibilityDate: formatDate(new Date(), 'yyyy-MM-dd'),
-  },
+  server: { preset: 'bun', serveStatic: false },
   vite: {
     envPrefix: 'PUBLIC_',
     plugins: [
