@@ -104,11 +104,8 @@ if (!$dev) {
   webAppCdn = buildCdn();
 
   function buildWebAppImage() {
-    const buildIamUser = new aws.iam.User('BuildIamUser', {
-      name: `${$app.name}-${$app.stage}-build-user`,
-    });
+    const buildIamUser = new aws.iam.User('BuildIamUser');
     const buildIamPolicy = new aws.iam.Policy('BuildIamPolicy', {
-      name: `${$app.name}-${$app.stage}-build-policy`,
       policy: {
         Statement: [
           {
