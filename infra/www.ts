@@ -71,7 +71,7 @@ if (!$dev) {
   const bucket = new sst.aws.Bucket(
     `WebAppBucket-${Date.now()}`,
     { access: 'cloudfront' },
-    { retainOnDelete: true },
+    { retainOnDelete: false },
   );
 
   const webAppImage = buildWebAppImage();
