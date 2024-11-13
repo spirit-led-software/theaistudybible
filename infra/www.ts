@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { ListObjectsV2Command, type ListObjectsV2CommandInput, S3Client } from '@aws-sdk/client-s3';
+import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { ANALYTICS_URL } from './analytics';
 import {
   DOMAIN,
@@ -196,7 +196,10 @@ if (!$dev) {
       );
 
     return new dockerbuild.Image('WebAppImage', {
-      tags: [$interpolate`${webAppImageRepository.repositoryUrl}:latest`],
+      tags: [
+        $interpolate`${webAppImageRepository.repositoryUrl}:${Date.now()}`,
+        $interpolate`${webAppImageRepository.repositoryUrl}:latest`,
+      ],
       registries: [
         aws.ecr
           .getAuthorizationTokenOutput({
@@ -225,21 +228,19 @@ if (!$dev) {
       .apply(async ([bucketName, bucketRegion]) => {
         const assets: string[] = [];
         const client = new S3Client({ region: bucketRegion });
-        const input: ListObjectsV2CommandInput = {
-          Bucket: bucketName,
-          Delimiter: '/',
-        };
 
         let isTruncated = true;
         let continuationToken: string | undefined;
 
         // Handle pagination
         while (isTruncated) {
-          if (continuationToken) {
-            input.ContinuationToken = continuationToken;
-          }
-          const command = new ListObjectsV2Command(input);
-          const response = await client.send(command);
+          const response = await client.send(
+            new ListObjectsV2Command({
+              Bucket: bucketName,
+              Delimiter: '/',
+              ContinuationToken: continuationToken,
+            }),
+          );
           // Process directories (CommonPrefixes)
           for (const prefix of response.CommonPrefixes ?? []) {
             if (prefix.Prefix) {
@@ -248,12 +249,8 @@ if (!$dev) {
           }
           // Process files
           for (const obj of response.Contents ?? []) {
-            if (obj.Key) {
-              const key = obj.Key;
-              // Root-level files only
-              if (!key.includes('/')) {
-                assets.push(key);
-              }
+            if (obj.Key && !obj.Key.includes('/')) {
+              assets.push(obj.Key);
             }
           }
           isTruncated = response.IsTruncated ?? false;
