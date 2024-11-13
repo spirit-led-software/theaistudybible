@@ -9,7 +9,7 @@ import {
   STRIPE_PUBLISHABLE_KEY,
   WEBAPP_URL,
 } from './constants';
-import { allLinks } from './helpers/link';
+import * as defaults from './defaults';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 
@@ -71,7 +71,7 @@ if (!$dev) {
     cluster.addService(`WebAppService-${region}`, {
       image: webAppImage.ref,
       environment: env,
-      link: allLinks,
+      link: defaults.link,
       permissions: [{ actions: ['cloudfront:CreateInvalidation'], resources: ['*'] }],
       loadBalancer: {
         ports: [

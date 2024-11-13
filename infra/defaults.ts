@@ -1,19 +1,30 @@
+import { ANALYTICS_URL } from './analytics';
+import { cdn } from './cdn';
 import * as constants from './constants';
+import * as databases from './database';
+import { email } from './email';
 import { webAppSentryKey } from './monitoring';
+import * as queues from './queues';
+import { Constant } from './resources';
+import * as secrets from './secrets';
+import * as storage from './storage';
+import { WEBHOOKS_URL } from './webhooks';
 
-export const copyFiles = [{ from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' }];
+export const copyFiles = $output([{ from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' }]);
 
-export const runtime = 'nodejs20.x';
+export const runtime = $output('nodejs20.x' as const);
 
-export const install = ['@libsql/client', '@sentry/aws-serverless', 'posthog-node'];
+export const install = $output(['@libsql/client', '@sentry/aws-serverless', 'posthog-node']);
 
-export const external = ['@libsql/client', '@sentry/aws-serverless', 'posthog-node'];
+export const external = $output(['@libsql/client', '@sentry/aws-serverless', 'posthog-node']);
 
-export const nodejs = { install, external };
+export const esbuild = $output({ external });
 
-export const memory = '512 MB';
+export const nodejs = $output({ install, esbuild });
 
-export const timeout = '2 minutes';
+export const memory = $output('512 MB' as const);
+
+export const timeout = $output('2 minutes' as const);
 
 export const environment = $util
   .all([
@@ -29,3 +40,15 @@ export const environment = $util
     SENTRY_DSN: sentryDsnPublic,
     SENTRY_TRACES_SAMPLE_RATE: ($dev ? 0 : constants.isProd ? 1.0 : 0.5).toString(),
   }));
+
+export const link = $output([
+  ...Object.values(constants).filter((l) => l instanceof Constant),
+  ANALYTICS_URL,
+  WEBHOOKS_URL,
+  ...Object.values(secrets),
+  ...Object.values(storage),
+  cdn,
+  ...Object.values(databases),
+  ...Object.values(queues),
+  email,
+]);

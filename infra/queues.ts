@@ -1,5 +1,4 @@
 import * as defaults from './defaults';
-import { allLinks } from './helpers/link';
 
 export const deadLetterQueue = new sst.aws.Queue('DeadLetterQueue');
 deadLetterQueue.subscribe({
@@ -10,7 +9,7 @@ deadLetterQueue.subscribe({
   memory: defaults.memory,
   timeout: defaults.timeout,
   environment: defaults.environment,
-  link: allLinks,
+  link: defaults.link,
 });
 
 export const indexBibleQueue = new sst.aws.Queue('IndexBibleQueue', {
@@ -23,13 +22,13 @@ indexBibleQueue.subscribe(
     copyFiles: defaults.copyFiles,
     runtime: defaults.runtime,
     nodejs: {
-      install: [...defaults.install, 'jsdom'],
-      esbuild: { external: [...defaults.external, 'jsdom'] },
+      install: defaults.install.apply((install) => [...install, 'jsdom']),
+      esbuild: defaults.esbuild.apply((esbuild) => ({ external: [...esbuild.external, 'jsdom'] })),
     },
     memory: '2 GB',
     timeout: '15 minutes',
     environment: defaults.environment,
-    link: allLinks,
+    link: defaults.link,
   },
   {
     batch: { partialResponses: true },
@@ -50,7 +49,7 @@ indexBibleChapterQueue.subscribe(
     memory: '2 GB',
     timeout: '15 minutes',
     environment: defaults.environment,
-    link: allLinks,
+    link: defaults.link,
   },
   {
     batch: { partialResponses: true },
@@ -70,7 +69,7 @@ profileImagesQueue.subscribe(
     memory: '2 GB',
     timeout: defaults.timeout,
     environment: defaults.environment,
-    link: allLinks,
+    link: defaults.link,
   },
   { batch: { partialResponses: true } },
 );
@@ -87,7 +86,7 @@ emailQueue.subscribe(
     memory: '2 GB',
     timeout: defaults.timeout,
     environment: defaults.environment,
-    link: allLinks,
+    link: defaults.link,
   },
   { batch: { partialResponses: true } },
 );
