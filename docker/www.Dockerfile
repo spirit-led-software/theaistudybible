@@ -82,12 +82,11 @@ COPY --from=install /install/node_modules ./node_modules
 COPY --link . .
 RUN bun run build
 
-# Remove the source map files from the output directory, then sync the assets to S3
-RUN find /build/apps/www/.output/public -name '*.map' -type f -delete && \
-    aws s3 sync /build/apps/www/.output/public s3://${assets_bucket} \
-        --metadata-directive 'REPLACE' \
-        --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400' \
-        --delete
+RUN aws s3 sync /build/apps/www/.output/public s3://${assets_bucket} \
+    --exclude '*.map' \
+    --metadata-directive 'REPLACE' \
+    --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400' \
+    --delete
 
 ########################################################
 # Release

@@ -6,7 +6,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   middleware: './src/middleware.ts',
-  server: { preset: 'bun', serveStatic: false },
+  server: { preset: 'bun', serveStatic: false, compatibilityDate: '2024-11-13' },
   vite: {
     envPrefix: 'PUBLIC_',
     plugins: [

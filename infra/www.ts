@@ -68,17 +68,23 @@ export const webAppDev = new sst.x.DevCommand('WebAppDev', {
 
 export let webAppCdn: sst.aws.Cdn | undefined;
 if (!$dev) {
-  const bucket = new sst.aws.Bucket('WebAppBucket', { access: 'cloudfront' });
+  const bucket = new sst.aws.Bucket(
+    `WebAppBucket-${Date.now()}`,
+    { access: 'cloudfront' },
+    { retainOnDelete: true },
+  );
 
   const webAppImage = buildWebAppImage();
 
   const serverDomain = $interpolate`server.${DOMAIN.value}`;
+
+  const servers: ReturnType<sst.aws.Cluster['addService']>[] = [];
   for (const region of regions) {
     const provider = new aws.Provider(`AwsProvider-${region}`, { region });
 
     const vpc = new sst.aws.Vpc(`WebAppVpc-${region}`, {}, { provider });
     const cluster = new sst.aws.Cluster(`WebAppCluster-${region}`, { vpc }, { provider });
-    cluster.addService(`WebAppService-${region}`, {
+    const service = cluster.addService(`WebAppService-${region}`, {
       image: webAppImage.ref,
       environment: env,
       link: defaults.link,
@@ -116,6 +122,7 @@ if (!$dev) {
         },
       },
     });
+    servers.push(service);
   }
 
   webAppCdn = buildCdn();
@@ -141,10 +148,12 @@ if (!$dev) {
     const accessKey = new aws.iam.AccessKey('BuildIamAccessKey', {
       user: buildIamUser.name,
     });
+
     const webAppImageRepository = new aws.ecr.Repository('WebAppImageRepository', {
       name: `${$app.name}-${$app.stage}-www`,
       forceDelete: true,
     });
+
     const buildArgs = $util
       .all([
         accessKey.id,
@@ -271,6 +280,7 @@ if (!$dev) {
       signingBehavior: 'always',
       signingProtocol: 'sigv4',
     });
+
     const staticAssets = getStaticAssets();
 
     const serverOriginBehavior: Omit<
@@ -311,38 +321,42 @@ if (!$dev) {
       cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
     };
 
-    return new sst.aws.Cdn('WebAppCdn', {
-      origins: [
-        {
-          originId: 'server',
-          domainName: serverDomain,
-          customOriginConfig: {
-            httpPort: 80,
-            httpsPort: 443,
-            originProtocolPolicy: 'https-only',
-            originSslProtocols: ['TLSv1.2'],
-            originReadTimeout: 60,
+    return new sst.aws.Cdn(
+      'WebAppCdn',
+      {
+        origins: [
+          {
+            originId: 'server',
+            domainName: serverDomain,
+            customOriginConfig: {
+              httpPort: 80,
+              httpsPort: 443,
+              originProtocolPolicy: 'https-only',
+              originSslProtocols: ['TLSv1.2'],
+              originReadTimeout: 60,
+            },
           },
-        },
-        {
-          originId: 's3',
-          domainName: bucket.nodes.bucket.bucketRegionalDomainName,
-          originAccessControlId: bucketAccess.id,
-        },
-      ],
-      defaultCacheBehavior: serverOriginBehavior,
-      orderedCacheBehaviors: staticAssets.apply((assets) => [
-        {
-          pathPattern: '_server/',
-          ...serverOriginBehavior,
-        },
-        ...assets.map((asset) => ({
-          pathPattern: asset.endsWith('/') ? `${asset}*` : asset,
-          ...assetsCacheBehavior,
-        })),
-      ]),
-      invalidation: { paths: ['/*'], wait: true },
-      domain: { name: DOMAIN.value, dns: sst.aws.dns() },
-    });
+          {
+            originId: 's3',
+            domainName: bucket.nodes.bucket.bucketRegionalDomainName,
+            originAccessControlId: bucketAccess.id,
+          },
+        ],
+        defaultCacheBehavior: serverOriginBehavior,
+        orderedCacheBehaviors: staticAssets.apply((assets) => [
+          {
+            pathPattern: '_server/',
+            ...serverOriginBehavior,
+          },
+          ...assets.map((asset) => ({
+            pathPattern: asset.endsWith('/') ? `${asset}*` : asset,
+            ...assetsCacheBehavior,
+          })),
+        ]),
+        invalidation: { paths: ['/*'], wait: true },
+        domain: { name: DOMAIN.value, dns: sst.aws.dns() },
+      },
+      { dependsOn: servers },
+    );
   }
 }
