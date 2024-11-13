@@ -9,8 +9,6 @@ export default $config({
       'docker-build': true,
       'pulumi-stripe': true,
       aws: { region: 'us-east-1' },
-      cloudflare: true,
-      command: true,
       turso: { organization: 'ian-pascoe' },
     },
   }),
