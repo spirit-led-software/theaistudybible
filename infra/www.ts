@@ -289,8 +289,8 @@ if (!$dev) {
         compress: true,
         // CloudFront's Managed-AllViewer policy
         originRequestPolicyId: '33f36d7e-f396-46d9-90e0-52428a34d9dc',
-        // CloudFront's SecurityHeadersPolicy policy
-        responseHeadersPolicyId: '67f7725c-6f97-4210-82d7-5512b31e9d03',
+        // CloudFront's CORS-with-preflight-and-SecurityHeadersPolicy policy
+        responseHeadersPolicyId: 'eaab4381-ed33-4a86-88ca-d9558dc6cd63',
         cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnDefaultCachePolicy', {
           maxTtl: 60 * 60 * 24 * 365,
           minTtl: 0,
@@ -337,8 +337,8 @@ if (!$dev) {
               }).id,
               // CloudFront's Managed-AllViewer policy
               originRequestPolicyId: '33f36d7e-f396-46d9-90e0-52428a34d9dc',
-              // CloudFront's SecurityHeadersPolicy policy
-              responseHeadersPolicyId: '67f7725c-6f97-4210-82d7-5512b31e9d03',
+              // CloudFront's CORS-with-preflight-and-SecurityHeadersPolicy policy
+              responseHeadersPolicyId: 'eaab4381-ed33-4a86-88ca-d9558dc6cd63',
               functionAssociations: [
                 {
                   eventType: 'viewer-request',
@@ -362,8 +362,8 @@ if (!$dev) {
                   cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
                   // CloudFront's CORS-S3Origin policy
                   originRequestPolicyId: '88a5eaf4-2fd4-4709-b370-b4c650ea3fcf',
-                  // CloudFront's SecurityHeadersPolicy policy
-                  responseHeadersPolicyId: '67f7725c-6f97-4210-82d7-5512b31e9d03',
+                  // CloudFront's CORS-with-preflight-and-SecurityHeadersPolicy policy
+                  responseHeadersPolicyId: 'eaab4381-ed33-4a86-88ca-d9558dc6cd63',
                 }) satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
             ),
           ] satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior[],
