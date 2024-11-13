@@ -211,7 +211,8 @@ if (!$dev) {
             if (!key) return acc;
 
             const isTopLevelFile = !key.includes('/');
-            const isDirectory = key.endsWith('/');
+            const isDirectory =
+              key.endsWith('/') && !key.substring(0, key.length - 1).includes('/');
             if (isTopLevelFile || isDirectory) acc.push(key);
 
             return acc;
