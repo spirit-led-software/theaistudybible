@@ -1,15 +1,16 @@
 import * as defaults from './defaults';
+import { allLinks } from './helpers/link';
 
 export const deadLetterQueue = new sst.aws.Queue('DeadLetterQueue');
 deadLetterQueue.subscribe({
   handler: 'apps/functions/src/queues/subscribers/dead-letter.handler',
   copyFiles: defaults.copyFiles,
   runtime: defaults.runtime,
-  nodejs: { install: defaults.install, esbuild: { external: defaults.external } },
-  link: defaults.link,
-  environment: defaults.environment,
+  nodejs: defaults.nodejs,
   memory: defaults.memory,
   timeout: defaults.timeout,
+  environment: defaults.environment,
+  link: allLinks,
 });
 
 export const indexBibleQueue = new sst.aws.Queue('IndexBibleQueue', {
@@ -25,10 +26,10 @@ indexBibleQueue.subscribe(
       install: [...defaults.install, 'jsdom'],
       esbuild: { external: [...defaults.external, 'jsdom'] },
     },
-    link: defaults.link,
-    environment: defaults.environment,
     memory: '2 GB',
     timeout: '15 minutes',
+    environment: defaults.environment,
+    link: allLinks,
   },
   {
     batch: { partialResponses: true },
@@ -45,11 +46,11 @@ indexBibleChapterQueue.subscribe(
     handler: 'apps/functions/src/queues/subscribers/bibles/index-chapter/index.handler',
     copyFiles: defaults.copyFiles,
     runtime: defaults.runtime,
-    nodejs: { install: defaults.install, esbuild: { external: defaults.external } },
-    link: defaults.link,
-    environment: defaults.environment,
+    nodejs: defaults.nodejs,
     memory: '2 GB',
     timeout: '15 minutes',
+    environment: defaults.environment,
+    link: allLinks,
   },
   {
     batch: { partialResponses: true },
@@ -65,11 +66,11 @@ profileImagesQueue.subscribe(
     handler: 'apps/functions/src/queues/subscribers/profile-images.handler',
     copyFiles: defaults.copyFiles,
     runtime: defaults.runtime,
-    nodejs: { install: defaults.install, esbuild: { external: defaults.external } },
-    link: defaults.link,
-    environment: defaults.environment,
+    nodejs: defaults.nodejs,
     memory: '2 GB',
     timeout: defaults.timeout,
+    environment: defaults.environment,
+    link: allLinks,
   },
   { batch: { partialResponses: true } },
 );
@@ -82,11 +83,11 @@ emailQueue.subscribe(
     handler: 'apps/functions/src/queues/subscribers/email/index.handler',
     copyFiles: defaults.copyFiles,
     runtime: defaults.runtime,
-    nodejs: { install: defaults.install, esbuild: { external: defaults.external } },
-    link: defaults.link,
-    environment: defaults.environment,
+    nodejs: defaults.nodejs,
     memory: '2 GB',
     timeout: defaults.timeout,
+    environment: defaults.environment,
+    link: allLinks,
   },
   { batch: { partialResponses: true } },
 );

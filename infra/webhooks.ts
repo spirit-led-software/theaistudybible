@@ -1,5 +1,6 @@
 import { DOMAIN } from './constants';
 import * as defaults from './defaults';
+import { allLinks } from './helpers/link';
 import { Constant } from './resources';
 
 export const WEBHOOKS_DOMAIN = new Constant(
@@ -23,12 +24,12 @@ const webhooksApiFn = new sst.aws.Function('WebhooksApiFunction', {
   handler: 'apps/functions/src/webhooks/index.handler',
   copyFiles: defaults.copyFiles,
   runtime: defaults.runtime,
-  nodejs: { install: defaults.install, esbuild: { external: defaults.external } },
-  link: [...defaults.link, stripeWebhookEndpoint],
-  environment: defaults.environment,
+  nodejs: defaults.nodejs,
   memory: defaults.memory,
   timeout: defaults.timeout,
   url: true,
+  environment: defaults.environment,
+  link: [...allLinks, stripeWebhookEndpoint],
 });
 
 export const webhookApiRouter = new sst.aws.Router('WebhooksApiRouter', {

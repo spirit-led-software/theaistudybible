@@ -15,11 +15,11 @@ export default $config({
     },
   }),
   run: async () => {
-    await import('./infra/defaults');
     await import('./infra/monitoring');
     await import('./infra/analytics');
     const { WEBAPP_URL } = await import('./infra/constants');
     await import('./infra/secrets');
+    await import('./infra/defaults');
     await import('./infra/storage');
     await import('./infra/cdn');
     await import('./infra/database');

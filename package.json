@@ -46,7 +46,7 @@
     "turbo": "^2.2.3",
     "typescript": "^5.6.3",
     "vite-tsconfig-paths": "^5.1.2",
-    "vitest": "^2.1.4"
+    "vitest": "^2.1.5"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.689.0",
