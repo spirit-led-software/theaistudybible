@@ -100,9 +100,9 @@ if (!$dev) {
           }),
         },
       },
-      scaling: { min: 1, max: 4, cpuUtilization: 95, memoryUtilization: 95 },
-      cpu: '0.25 vCPU',
-      memory: '0.5 GB',
+      scaling: { min: 1, max: 2, cpuUtilization: 90, memoryUtilization: 90 },
+      cpu: '0.5 vCPU',
+      memory: '1 GB',
     });
   }
 
