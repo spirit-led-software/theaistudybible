@@ -1,7 +1,7 @@
 export default $config({
-  app: () => ({
+  app: (input) => ({
     name: 'theaistudybible',
-    removal: 'remove',
+    removal: input.stage === 'production' ? 'retain' : 'remove',
     home: 'aws',
     providers: {
       '@pulumiverse/sentry': true,
