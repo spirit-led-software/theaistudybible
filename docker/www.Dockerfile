@@ -83,10 +83,11 @@ COPY --link . .
 RUN bun run build
 
 # Remove the source map files from the output directory, then sync the assets to S3
-RUN rm -rf ./apps/www/.output/**/*.map && \
-    aws s3 sync ./apps/www/.output/public s3://${assets_bucket} \
+RUN find /build/apps/www/.output/public -name '*.map' -type f -delete && \
+    aws s3 sync /build/apps/www/.output/public s3://${assets_bucket} \
         --metadata-directive 'REPLACE' \
-        --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400'
+        --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400' \
+        --delete
 
 ########################################################
 # Release
