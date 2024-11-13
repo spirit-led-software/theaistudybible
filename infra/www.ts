@@ -72,6 +72,7 @@ if (!$dev) {
       image: webAppImage.ref,
       link: allLinks,
       environment: env,
+      permissions: [{ actions: ['cloudfront:CreateInvalidation'], resources: ['*'] }],
       loadBalancer: {
         ports: [
           { listen: '80/http', forward: '8080/http' },
@@ -294,44 +295,65 @@ if (!$dev) {
             enableAcceptEncodingGzip: true,
           },
         }).id,
+        lambdaFunctionAssociations: [
+          {
+            eventType: 'viewer-request',
+            lambdaArn: new aws.cloudfront.Function('WebAppCdnDefaultCfFn', {
+              runtime: 'cloudfront-js-2.0',
+              code: `async function handler(event) { event.request.headers["x-forwarded-host"] = event.request.headers.host; return event.request; }`,
+            }).arn,
+          },
+        ],
       },
-      orderedCacheBehaviors: staticAssets.apply((assets) => [
-        {
-          pathPattern: '_server/',
-          targetOriginId: 'server',
-          viewerProtocolPolicy: 'redirect-to-https',
-          allowedMethods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'],
-          cachedMethods: ['GET', 'HEAD'],
-          compress: true,
-          cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnServerCachePolicy', {
-            maxTtl: 60 * 60 * 24 * 365,
-            minTtl: 0,
-            defaultTtl: 0,
-            parametersInCacheKeyAndForwardedToOrigin: {
-              cookiesConfig: { cookieBehavior: 'none' },
-              headersConfig: { headerBehavior: 'none' },
-              queryStringsConfig: { queryStringBehavior: 'all' },
-              enableAcceptEncodingBrotli: true,
-              enableAcceptEncodingGzip: true,
-            },
-          }).id,
-          // CloudFront's Managed-AllViewerExceptHostHeader policy
-          originRequestPolicyId: 'b689b0a8-53d0-40ab-baf2-68738e2966ac',
-        },
-        ...assets.map(
-          (asset) =>
-            ({
-              pathPattern: asset.endsWith('/') ? `${asset}*` : asset,
-              targetOriginId: 's3',
+      orderedCacheBehaviors: staticAssets.apply(
+        (assets) =>
+          [
+            {
+              pathPattern: '_server/',
+              targetOriginId: 'server',
               viewerProtocolPolicy: 'redirect-to-https',
-              allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
+              allowedMethods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'],
               cachedMethods: ['GET', 'HEAD'],
               compress: true,
-              // CloudFront's managed CachingOptimized policy
-              cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
-            }) satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
-        ),
-      ]),
+              cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnServerCachePolicy', {
+                maxTtl: 60 * 60 * 24 * 365,
+                minTtl: 0,
+                defaultTtl: 0,
+                parametersInCacheKeyAndForwardedToOrigin: {
+                  cookiesConfig: { cookieBehavior: 'none' },
+                  headersConfig: { headerBehavior: 'none' },
+                  queryStringsConfig: { queryStringBehavior: 'all' },
+                  enableAcceptEncodingBrotli: true,
+                  enableAcceptEncodingGzip: true,
+                },
+              }).id,
+              // CloudFront's Managed-AllViewerExceptHostHeader policy
+              originRequestPolicyId: 'b689b0a8-53d0-40ab-baf2-68738e2966ac',
+              lambdaFunctionAssociations: [
+                {
+                  eventType: 'viewer-request',
+                  lambdaArn: new aws.cloudfront.Function('WebAppCdnServerCfFn', {
+                    runtime: 'cloudfront-js-2.0',
+                    code: `async function handler(event) { event.request.headers["x-forwarded-host"] = event.request.headers.host; return event.request; }`,
+                  }).arn,
+                },
+              ],
+            },
+            ...assets.map(
+              (asset) =>
+                ({
+                  pathPattern: asset.endsWith('/') ? `${asset}*` : asset,
+                  targetOriginId: 's3',
+                  viewerProtocolPolicy: 'redirect-to-https',
+                  allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
+                  cachedMethods: ['GET', 'HEAD'],
+                  compress: true,
+                  // CloudFront's managed CachingOptimized policy
+                  cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
+                }) satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
+            ),
+          ] satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior[],
+      ),
       invalidation: { paths: ['/*'], wait: true },
       domain: { name: DOMAIN.value, dns: sst.aws.dns() },
     });
