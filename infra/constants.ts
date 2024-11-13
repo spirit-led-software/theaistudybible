@@ -4,6 +4,12 @@ export const isProd = $app.stage === 'production';
 
 export const BASE_DOMAIN = 'theaistudybible.com';
 
+sst.Linkable.wrap(Constant, (resource) => ({
+  properties: {
+    value: resource.value,
+  },
+}));
+
 export const DEV = new Constant('Dev', $dev.toString());
 
 export const STAGE = new Constant('Stage', $app.stage);

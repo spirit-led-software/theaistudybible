@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { ListObjectsV2Command, type ListObjectsV2CommandInput, S3Client } from '@aws-sdk/client-s3';
 import { ANALYTICS_URL } from './analytics';
-import { cdn } from './cdn';
 import {
   DOMAIN,
   POSTHOG_API_KEY,
@@ -12,6 +11,7 @@ import {
 import * as defaults from './defaults';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
 import { SENTRY_AUTH_TOKEN } from './secrets';
+import { cdn } from './storage';
 
 const regions = ['us-east-1', 'ap-southeast-1'] as const;
 

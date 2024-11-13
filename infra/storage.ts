@@ -1,3 +1,4 @@
+import { DOMAIN } from './constants';
 import { indexBibleChapterQueue, indexBibleQueue, profileImagesQueue } from './queues';
 
 export const bibleBucket = new sst.aws.Bucket('BibleBucket');
@@ -23,4 +24,31 @@ export const generatedImagesBucket = new sst.aws.Bucket('GeneratedImagesBucket',
 
 export const devotionImagesBucket = new sst.aws.Bucket('DevotionImagesBucket', {
   access: 'cloudfront',
+});
+
+export const cdn = new sst.aws.Router('Cdn', {
+  routes: {
+    '/profile-images/*': {
+      bucket: profileImagesBucket,
+      rewrite: {
+        regex: '^/profile-images/(.*)$',
+        to: '/$1',
+      },
+    },
+    '/generated-images/*': {
+      bucket: generatedImagesBucket,
+      rewrite: {
+        regex: '^/generated-images/(.*)$',
+        to: '/$1',
+      },
+    },
+    '/devotion-images/*': {
+      bucket: devotionImagesBucket,
+      rewrite: {
+        regex: '^/devotion-images/(.*)$',
+        to: '/$1',
+      },
+    },
+  },
+  domain: { name: $interpolate`cdn.${DOMAIN.value}`, dns: sst.aws.dns() },
 });

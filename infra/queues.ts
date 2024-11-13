@@ -1,16 +1,5 @@
 import * as defaults from './defaults';
-
-export const deadLetterQueue = new sst.aws.Queue('DeadLetterQueue');
-deadLetterQueue.subscribe({
-  handler: 'apps/functions/src/queues/subscribers/dead-letter.handler',
-  copyFiles: defaults.copyFiles,
-  runtime: defaults.runtime,
-  nodejs: defaults.nodejs,
-  memory: defaults.memory,
-  timeout: defaults.timeout,
-  environment: defaults.environment,
-  link: defaults.link,
-});
+import { deadLetterQueue } from './dlq';
 
 export const indexBibleQueue = new sst.aws.Queue('IndexBibleQueue', {
   visibilityTimeout: '15 minutes',
@@ -63,23 +52,6 @@ export const profileImagesQueue = new sst.aws.Queue('ProfileImagesQueue', {
 profileImagesQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/profile-images.handler',
-    copyFiles: defaults.copyFiles,
-    runtime: defaults.runtime,
-    nodejs: defaults.nodejs,
-    memory: '2 GB',
-    timeout: defaults.timeout,
-    environment: defaults.environment,
-    link: defaults.link,
-  },
-  { batch: { partialResponses: true } },
-);
-
-export const emailQueue = new sst.aws.Queue('EmailQueue', {
-  dlq: { queue: deadLetterQueue.arn, retry: 3 },
-});
-emailQueue.subscribe(
-  {
-    handler: 'apps/functions/src/queues/subscribers/email/index.handler',
     copyFiles: defaults.copyFiles,
     runtime: defaults.runtime,
     nodejs: defaults.nodejs,

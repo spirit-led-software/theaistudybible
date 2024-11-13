@@ -1,6 +1,6 @@
 // biome-ignore lint/suspicious/noExplicitAny: Don't care
 export function isLinkable(obj: any): obj is sst.Linkable<any> {
-  return 'getSSTLink' in obj;
+  return typeof obj === 'object' && obj !== null && !Array.isArray(obj) && 'getSSTLink' in obj;
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Don't care

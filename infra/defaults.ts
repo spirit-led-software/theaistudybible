@@ -1,14 +1,10 @@
-import { ANALYTICS_URL } from './analytics';
-import { cdn } from './cdn';
 import * as constants from './constants';
 import * as databases from './database';
-import { email } from './email';
+import * as email from './email';
+import { isLinkable } from './helpers/link';
 import { webAppSentryKey } from './monitoring';
-import * as queues from './queues';
-import { Constant } from './resources';
 import * as secrets from './secrets';
 import * as storage from './storage';
-import { WEBHOOKS_URL } from './webhooks';
 
 export const copyFiles = $output([{ from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' }]);
 
@@ -42,13 +38,9 @@ export const environment = $util
   }));
 
 export const link = $output([
-  ...Object.values(constants).filter((l) => l instanceof Constant),
-  ANALYTICS_URL,
-  WEBHOOKS_URL,
+  ...Object.values(constants),
   ...Object.values(secrets),
   ...Object.values(storage),
-  cdn,
   ...Object.values(databases),
-  ...Object.values(queues),
-  email,
-]);
+  ...Object.values(email),
+]).apply((link) => link.filter((l) => isLinkable(l)));
