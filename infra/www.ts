@@ -104,14 +104,17 @@ if (!$dev) {
   webAppCdn = buildCdn();
 
   function buildWebAppImage() {
-    const buildIamUser = new aws.iam.User('BuildIamUser');
+    const buildIamUser = new aws.iam.User('BuildIamUser', {
+      name: `${$app.name}-${$app.stage}-build-user`,
+    });
     const buildIamPolicy = new aws.iam.Policy('BuildIamPolicy', {
+      name: `${$app.name}-${$app.stage}-build-policy`,
       policy: {
         Statement: [
           {
             Effect: 'Allow',
             Action: ['s3:*'],
-            Resource: [bucket.arn],
+            Resource: [bucket.arn, $interpolate`${bucket.arn}/*`],
           },
         ],
         Version: '2012-10-17',
@@ -166,7 +169,7 @@ if (!$dev) {
         ]) => ({
           aws_access_key_id: awsAccessKeyId,
           aws_secret_access_key: awsSecretAccessKey,
-          aws_region: awsRegion,
+          aws_default_region: awsRegion,
           assets_bucket: assetsBucket,
           stage: $app.stage,
           webapp_url: webappUrl,
@@ -196,8 +199,8 @@ if (!$dev) {
             password: $util.secret(password),
           })),
       ],
-      dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
-      context: { location: process.cwd() },
+      dockerfile: { location: path.join($cli.paths.root, 'docker/www.Dockerfile') },
+      context: { location: $cli.paths.root },
       buildArgs,
       platforms: ['linux/amd64'],
       push: true,

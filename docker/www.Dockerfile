@@ -32,7 +32,7 @@ FROM base AS build
 
 ARG aws_access_key_id
 ARG aws_secret_access_key
-ARG aws_region
+ARG aws_default_region
 ARG assets_bucket
 
 ARG stage
@@ -52,7 +52,7 @@ ARG sentry_auth_token
 
 ENV AWS_ACCESS_KEY_ID ${aws_access_key_id}
 ENV AWS_SECRET_ACCESS_KEY ${aws_secret_access_key}
-ENV AWS_DEFAULT_REGION ${aws_region}
+ENV AWS_DEFAULT_REGION ${aws_default_region}
 
 ENV PUBLIC_STAGE ${stage}
 ENV PUBLIC_WEBAPP_URL ${webapp_url}
@@ -86,7 +86,6 @@ COPY --link . .
 RUN bun run build
 
 RUN aws s3 sync ./apps/www/.output/public s3://${assets_bucket} \
-    --region ${aws_region} \
     --cache-control 'public,max-age=86400,s-maxage=86400,stale-while-revalidate=86400'
 
 ########################################################
