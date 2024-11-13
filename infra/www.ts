@@ -103,6 +103,13 @@ if (!$dev) {
       scaling: { min: 1, max: 2, cpuUtilization: 90, memoryUtilization: 90 },
       cpu: '0.5 vCPU',
       memory: '1 GB',
+      health: {
+        command: ['CMD-SHELL', 'curl -f http://localhost:8080/health || exit 1'],
+        interval: '10 seconds',
+        timeout: '5 seconds',
+        retries: 3,
+        startPeriod: '20 seconds',
+      },
     });
   }
 
