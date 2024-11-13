@@ -85,35 +85,12 @@ COPY --from=install /install/node_modules ./node_modules
 COPY --link . .
 RUN bun run build
 
-RUN aws s3 sync \
-    ./apps/www/.output/public \
-    s3://${assets_bucket} \
-    --exclude '*' \
-    --include '*.br' \
-    --content-type 'application/octet-stream' \
-    --content-encoding 'br' \
-    --metadata-directive 'REPLACE' \
-    --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400'
-
-RUN aws s3 sync \
-    ./apps/www/.output/public \
-    s3://${assets_bucket} \
-    --exclude '*' \
-    --include '*.gz' \
-    --content-type 'application/octet-stream' \
-    --content-encoding 'gzip' \
-    --metadata-directive 'REPLACE' \
-    --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400'
-
-RUN aws s3 sync \
-    ./apps/www/.output/public \
-    s3://${assets_bucket} \
-    --exclude '*.br' \
-    --exclude '*.gz' \
-    --exclude '*.js.map' \
-    --include '*' \
-    --metadata-directive 'REPLACE' \
-    --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400'
+# Remove the source map files from the output directory, then sync the assets to S3
+RUN rm -rf ./apps/www/.output/**/*.map && \
+    aws s3 sync ./apps/www/.output/public s3://${assets_bucket} \
+        --metadata-directive 'REPLACE' \
+        --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400' \
+        --delete
 
 ########################################################
 # Release
