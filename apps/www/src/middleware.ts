@@ -6,8 +6,7 @@ import { createMiddleware } from '@solidjs/start/middleware';
 import { add, isAfter } from 'date-fns';
 import { sql } from 'drizzle-orm';
 import { eq } from 'drizzle-orm';
-import { verifyRequestOrigin } from 'lucia';
-import { getCookie, getHeader, setCookie } from 'vinxi/http';
+import { getCookie, setCookie } from 'vinxi/http';
 
 export default createMiddleware({
   onRequest: [
@@ -18,15 +17,6 @@ export default createMiddleware({
     },
     // Auth Middleware
     async ({ nativeEvent, locals }) => {
-      if (nativeEvent.node.req.method !== 'GET') {
-        const originHeader = getHeader(nativeEvent, 'Origin') ?? null;
-        const hostHeader = getHeader(nativeEvent, 'Host') ?? null;
-        if (!originHeader || !hostHeader || !verifyRequestOrigin(originHeader, [hostHeader])) {
-          nativeEvent.node.res.writeHead(403).end();
-          return;
-        }
-      }
-
       const sessionId = getCookie(nativeEvent, lucia.sessionCookieName) ?? null;
       if (!sessionId) {
         locals.session = null;
