@@ -7,9 +7,8 @@ FROM base AS install
 
 WORKDIR /install
 
-RUN apt-get update && \
-    apt-get install -y unzip && \
-    apt-get clean && \
+RUN apt-get -qq update && \
+    apt-get -qq install -y unzip && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --link ./package.json ./package.json
@@ -71,14 +70,12 @@ ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
 
 WORKDIR /build
 
-RUN apt-get update && \
-    apt-get install -y git curl unzip && \
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
+RUN apt-get -qq update && \
+    apt-get -qq install -y git curl unzip && \
+    curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip -q awscliv2.zip && \
     ./aws/install && \
-    rm -rf awscliv2.zip aws && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf awscliv2.zip aws /var/lib/apt/lists/*
 
 COPY --from=install /install/node_modules ./node_modules
 
@@ -119,9 +116,8 @@ ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
 
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y curl && \
-    apt-get clean && \
+RUN apt-get -qq update && \
+    apt-get -qq install -y curl && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /build/apps/www/.output/server .
