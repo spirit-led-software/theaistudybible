@@ -56,6 +56,16 @@ const env = $util
     }),
   );
 
+export const webAppDev = new sst.x.DevCommand('WebAppDev', {
+  dev: {
+    directory: 'apps/www',
+    command: 'bun run dev',
+    autostart: true,
+  },
+  environment: env,
+  link: defaults.link,
+});
+
 export let webAppCdn: sst.aws.Cdn | undefined;
 if (!$dev) {
   const bucket = new sst.aws.Bucket('WebAppBucket', { access: 'cloudfront' });
@@ -93,12 +103,6 @@ if (!$dev) {
       scaling: { min: 1, max: 4, cpuUtilization: 95, memoryUtilization: 95 },
       cpu: '0.25 vCPU',
       memory: '0.5 GB',
-      dev: {
-        directory: path.resolve($cli.paths.root, 'apps', 'www'),
-        command: 'bun run dev',
-        url: $interpolate`https://${DOMAIN.value}`,
-        autostart: true,
-      },
     });
   }
 
@@ -280,9 +284,13 @@ if (!$dev) {
       defaultCacheBehavior: {
         targetOriginId: 'server',
         viewerProtocolPolicy: 'redirect-to-https',
-        allowedMethods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'],
+        allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
         cachedMethods: ['GET', 'HEAD'],
         compress: true,
+        // CloudFront's Managed-AllViewer policy
+        originRequestPolicyId: '33f36d7e-f396-46d9-90e0-52428a34d9dc',
+        // CloudFront's SecurityHeadersPolicy policy
+        responseHeadersPolicyId: '67f7725c-6f97-4210-82d7-5512b31e9d03',
         cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnDefaultCachePolicy', {
           maxTtl: 60 * 60 * 24 * 365,
           minTtl: 0,
@@ -312,7 +320,7 @@ if (!$dev) {
               pathPattern: '_server/',
               targetOriginId: 'server',
               viewerProtocolPolicy: 'redirect-to-https',
-              allowedMethods: ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'],
+              allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
               cachedMethods: ['GET', 'HEAD'],
               compress: true,
               cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnServerCachePolicy', {
@@ -327,8 +335,10 @@ if (!$dev) {
                   enableAcceptEncodingGzip: true,
                 },
               }).id,
-              // CloudFront's Managed-AllViewerExceptHostHeader policy
-              originRequestPolicyId: 'b689b0a8-53d0-40ab-baf2-68738e2966ac',
+              // CloudFront's Managed-AllViewer policy
+              originRequestPolicyId: '33f36d7e-f396-46d9-90e0-52428a34d9dc',
+              // CloudFront's SecurityHeadersPolicy policy
+              responseHeadersPolicyId: '67f7725c-6f97-4210-82d7-5512b31e9d03',
               functionAssociations: [
                 {
                   eventType: 'viewer-request',
@@ -350,6 +360,10 @@ if (!$dev) {
                   compress: true,
                   // CloudFront's managed CachingOptimized policy
                   cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
+                  // CloudFront's CORS-S3Origin policy
+                  originRequestPolicyId: '88a5eaf4-2fd4-4709-b370-b4c650ea3fcf',
+                  // CloudFront's SecurityHeadersPolicy policy
+                  responseHeadersPolicyId: '67f7725c-6f97-4210-82d7-5512b31e9d03',
                 }) satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
             ),
           ] satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior[],
