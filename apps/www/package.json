@@ -23,7 +23,7 @@
     "tailwind-variants": "^0.3.0",
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-safe-area": "^0.6.0",
-    "vite-plugin-pwa": "^0.20.5",
+    "vite-plugin-pwa": "^0.21.0",
     "vinxi": "^0.4.3"
   },
   "dependencies": {
@@ -63,7 +63,7 @@
     "cmdk-solid": "^1.1.0",
     "cropperjs": "^1.6.2",
     "embla-carousel-solid": "^8.3.1",
-    "hono": "^4.6.9",
+    "hono": "^4.6.10",
     "lucide-solid": "^0.456.0",
     "posthog-js": "^1.184.1",
     "posthog-node": "^4.2.1",

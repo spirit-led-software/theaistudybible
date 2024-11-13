@@ -45,7 +45,12 @@ $transform(sst.aws.Function, (args) => {
     esbuild: {
       ...nodejs?.esbuild,
       external: Array.from(
-        new Set([...(nodejs?.esbuild?.external || []), '@sentry/aws-serverless', 'posthog-node']),
+        new Set([
+          ...(nodejs?.esbuild?.external || []),
+          '@libsql/client',
+          '@sentry/aws-serverless',
+          'posthog-node',
+        ]),
       ),
     },
   }));
