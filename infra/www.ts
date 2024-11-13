@@ -263,6 +263,60 @@ if (!$dev) {
       signingProtocol: 'sigv4',
     });
     const staticAssets = getStaticAssets();
+
+    const serverOriginBehavior: Omit<
+      aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
+      'pathPattern'
+    > = {
+      targetOriginId: 'server',
+      viewerProtocolPolicy: 'redirect-to-https',
+      allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
+      cachedMethods: ['GET', 'HEAD'],
+      compress: true,
+      // CloudFront's Managed-AllViewer policy
+      originRequestPolicyId: '33f36d7e-f396-46d9-90e0-52428a34d9dc',
+      // CloudFront's SecurityHeadersPolicy policy
+      responseHeadersPolicyId: '67f7725c-6f97-4210-82d7-5512b31e9d03',
+      cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnDefaultCachePolicy', {
+        maxTtl: 60 * 60 * 24 * 365,
+        minTtl: 0,
+        defaultTtl: 0,
+        parametersInCacheKeyAndForwardedToOrigin: {
+          cookiesConfig: { cookieBehavior: 'none' },
+          headersConfig: { headerBehavior: 'none' },
+          queryStringsConfig: { queryStringBehavior: 'all' },
+          enableAcceptEncodingBrotli: true,
+          enableAcceptEncodingGzip: true,
+        },
+      }).id,
+      functionAssociations: [
+        {
+          eventType: 'viewer-request',
+          functionArn: new aws.cloudfront.Function('WebAppCdnDefaultCfFn', {
+            runtime: 'cloudfront-js-2.0',
+            code: `async function handler(event) { event.request.headers["x-forwarded-host"] = event.request.headers.host; return event.request; }`,
+          }).arn,
+        },
+      ],
+    };
+
+    const assetsCacheBehavior: Omit<
+      aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
+      'pathPattern'
+    > = {
+      targetOriginId: 's3',
+      viewerProtocolPolicy: 'redirect-to-https',
+      allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
+      cachedMethods: ['GET', 'HEAD'],
+      compress: true,
+      // CloudFront's managed CachingOptimized policy
+      cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
+      // CloudFront's CORS-S3Origin policy
+      originRequestPolicyId: '88a5eaf4-2fd4-4709-b370-b4c650ea3fcf',
+      // CloudFront's SecurityHeadersPolicy policy
+      responseHeadersPolicyId: '67f7725c-6f97-4210-82d7-5512b31e9d03',
+    };
+
     return new sst.aws.Cdn('WebAppCdn', {
       origins: [
         {
@@ -281,93 +335,17 @@ if (!$dev) {
           originAccessControlId: bucketAccess.id,
         },
       ],
-      defaultCacheBehavior: {
-        targetOriginId: 'server',
-        viewerProtocolPolicy: 'redirect-to-https',
-        allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
-        cachedMethods: ['GET', 'HEAD'],
-        compress: true,
-        // CloudFront's Managed-AllViewer policy
-        originRequestPolicyId: '33f36d7e-f396-46d9-90e0-52428a34d9dc',
-        // CloudFront's CORS-with-preflight-and-SecurityHeadersPolicy policy
-        responseHeadersPolicyId: 'eaab4381-ed33-4a86-88ca-d9558dc6cd63',
-        cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnDefaultCachePolicy', {
-          maxTtl: 60 * 60 * 24 * 365,
-          minTtl: 0,
-          defaultTtl: 0,
-          parametersInCacheKeyAndForwardedToOrigin: {
-            cookiesConfig: { cookieBehavior: 'none' },
-            headersConfig: { headerBehavior: 'none' },
-            queryStringsConfig: { queryStringBehavior: 'all' },
-            enableAcceptEncodingBrotli: true,
-            enableAcceptEncodingGzip: true,
-          },
-        }).id,
-        functionAssociations: [
-          {
-            eventType: 'viewer-request',
-            functionArn: new aws.cloudfront.Function('WebAppCdnDefaultCfFn', {
-              runtime: 'cloudfront-js-2.0',
-              code: `async function handler(event) { event.request.headers["x-forwarded-host"] = event.request.headers.host; return event.request; }`,
-            }).arn,
-          },
-        ],
-      },
-      orderedCacheBehaviors: staticAssets.apply(
-        (assets) =>
-          [
-            {
-              pathPattern: '_server/',
-              targetOriginId: 'server',
-              viewerProtocolPolicy: 'redirect-to-https',
-              allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
-              cachedMethods: ['GET', 'HEAD'],
-              compress: true,
-              cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnServerCachePolicy', {
-                maxTtl: 60 * 60 * 24 * 365,
-                minTtl: 0,
-                defaultTtl: 0,
-                parametersInCacheKeyAndForwardedToOrigin: {
-                  cookiesConfig: { cookieBehavior: 'none' },
-                  headersConfig: { headerBehavior: 'none' },
-                  queryStringsConfig: { queryStringBehavior: 'all' },
-                  enableAcceptEncodingBrotli: true,
-                  enableAcceptEncodingGzip: true,
-                },
-              }).id,
-              // CloudFront's Managed-AllViewer policy
-              originRequestPolicyId: '33f36d7e-f396-46d9-90e0-52428a34d9dc',
-              // CloudFront's CORS-with-preflight-and-SecurityHeadersPolicy policy
-              responseHeadersPolicyId: 'eaab4381-ed33-4a86-88ca-d9558dc6cd63',
-              functionAssociations: [
-                {
-                  eventType: 'viewer-request',
-                  functionArn: new aws.cloudfront.Function('WebAppCdnServerCfFn', {
-                    runtime: 'cloudfront-js-2.0',
-                    code: `async function handler(event) { event.request.headers["x-forwarded-host"] = event.request.headers.host; return event.request; }`,
-                  }).arn,
-                },
-              ],
-            },
-            ...assets.map(
-              (asset) =>
-                ({
-                  pathPattern: asset.endsWith('/') ? `${asset}*` : asset,
-                  targetOriginId: 's3',
-                  viewerProtocolPolicy: 'redirect-to-https',
-                  allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
-                  cachedMethods: ['GET', 'HEAD'],
-                  compress: true,
-                  // CloudFront's managed CachingOptimized policy
-                  cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
-                  // CloudFront's CORS-S3Origin policy
-                  originRequestPolicyId: '88a5eaf4-2fd4-4709-b370-b4c650ea3fcf',
-                  // CloudFront's CORS-with-preflight-and-SecurityHeadersPolicy policy
-                  responseHeadersPolicyId: 'eaab4381-ed33-4a86-88ca-d9558dc6cd63',
-                }) satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
-            ),
-          ] satisfies aws.types.input.cloudfront.DistributionOrderedCacheBehavior[],
-      ),
+      defaultCacheBehavior: serverOriginBehavior,
+      orderedCacheBehaviors: staticAssets.apply((assets) => [
+        {
+          pathPattern: '_server/',
+          ...serverOriginBehavior,
+        },
+        ...assets.map((asset) => ({
+          pathPattern: asset.endsWith('/') ? `${asset}*` : asset,
+          ...assetsCacheBehavior,
+        })),
+      ]),
       invalidation: { paths: ['/*'], wait: true },
       domain: { name: DOMAIN.value, dns: sst.aws.dns() },
     });
