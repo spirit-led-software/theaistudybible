@@ -15,27 +15,21 @@ export default $config({
     },
   }),
   run: async () => {
+    await import('./infra/defaults');
     await import('./infra/monitoring');
     await import('./infra/analytics');
     const { WEBAPP_URL } = await import('./infra/constants');
     await import('./infra/secrets');
     await import('./infra/storage');
-    const { cdn } = await import('./infra/cdn');
-    const { database, upstashVectorIndex, upstashRedis } = await import('./infra/database');
+    await import('./infra/cdn');
+    await import('./infra/database');
     await import('./infra/email');
     await import('./infra/queues');
-    const { WEBHOOKS_URL } = await import('./infra/webhooks');
+    await import('./infra/webhooks');
     await import('./infra/jobs');
     await import('./infra/www');
     await import('./infra/dev');
 
-    return {
-      'CDN URL': cdn.url,
-      'Database URL': database.properties.url,
-      'Redis Endpoint': upstashRedis.endpoint,
-      'Vector Store Endpoint': upstashVectorIndex.endpoint,
-      'Web App URL': WEBAPP_URL.value,
-      'Webhooks API URL': WEBHOOKS_URL.value,
-    };
+    return { 'Web App URL': WEBAPP_URL.value };
   },
 });
