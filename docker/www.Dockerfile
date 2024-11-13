@@ -94,10 +94,8 @@ RUN find /build/apps/www/.output/public -name '*.map' -type f -delete && \
 ########################################################
 FROM base AS release
 
-ARG port 8080
-
 ENV NODE_ENV production
-ENV PORT ${port}
+ENV PORT 8080
 
 ENV PUBLIC_STAGE ${stage}
 ENV PUBLIC_WEBAPP_URL ${webapp_url}

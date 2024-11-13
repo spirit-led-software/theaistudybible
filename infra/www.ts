@@ -110,6 +110,11 @@ if (!$dev) {
         retries: 3,
         startPeriod: '20 seconds',
       },
+      transform: {
+        service: (args) => {
+          args.waitForSteadyState = true;
+        },
+      },
     });
   }
 
