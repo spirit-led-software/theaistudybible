@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
+import { ListObjectsV2Command, type ListObjectsV2CommandInput, S3Client } from '@aws-sdk/client-s3';
 import { ANALYTICS_URL } from './analytics';
 import { cdn } from './cdn';
 import {
@@ -41,7 +41,6 @@ const env = $util
       sentryOrg,
       sentryProjectId,
       sentryProjectName,
-      sentryAuthToken,
     ]) => ({
       PUBLIC_STAGE: $app.stage,
       PUBLIC_WEBAPP_URL: webAppUrl,
@@ -54,7 +53,6 @@ const env = $util
       PUBLIC_SENTRY_ORG: sentryOrg,
       PUBLIC_SENTRY_PROJECT_ID: sentryProjectId,
       PUBLIC_SENTRY_PROJECT_NAME: sentryProjectName,
-      SENTRY_AUTH_TOKEN: sentryAuthToken,
     }),
   );
 
@@ -106,18 +104,34 @@ if (!$dev) {
   webAppCdn = buildCdn();
 
   function buildWebAppImage() {
-    const awsProvider = new aws.Provider('AwsProvider', { region: 'us-east-1' });
+    const buildIamUser = new aws.iam.User('BuildIamUser');
+    const buildIamPolicy = new aws.iam.Policy('BuildIamPolicy', {
+      policy: {
+        Statement: [
+          {
+            Effect: 'Allow',
+            Action: ['s3:*'],
+            Resource: [bucket.arn],
+          },
+        ],
+        Version: '2012-10-17',
+      },
+    });
+    new aws.iam.UserPolicyAttachment('BuildIamUserPolicyAttachment', {
+      user: buildIamUser.name,
+      policyArn: buildIamPolicy.arn,
+    });
+    const accessKey = new aws.iam.AccessKey('BuildIamAccessKey', {
+      user: buildIamUser.name,
+    });
     const webAppImageRepository = new aws.ecr.Repository('WebAppImageRepository', {
       name: `${$app.name}-${$app.stage}-www`,
       forceDelete: true,
     });
-
     const buildArgs = $util
       .all([
-        awsProvider.accessKey.apply((key) => $util.secret(key ?? process.env.AWS_ACCESS_KEY_ID!)),
-        awsProvider.secretKey.apply((key) =>
-          $util.secret(key ?? process.env.AWS_SECRET_ACCESS_KEY!),
-        ),
+        accessKey.id,
+        $util.secret(accessKey.secret),
         bucket.nodes.bucket.region,
         bucket.name,
         WEBAPP_URL.value,
@@ -130,7 +144,7 @@ if (!$dev) {
         webAppSentryProject.organization,
         webAppSentryProject.projectId.apply((id) => id.toString()),
         webAppSentryProject.name,
-        SENTRY_AUTH_TOKEN.value,
+        $util.secret(SENTRY_AUTH_TOKEN.value),
       ])
       .apply(
         ([
@@ -179,7 +193,7 @@ if (!$dev) {
           .apply(({ proxyEndpoint, userName, password }) => ({
             address: proxyEndpoint,
             username: userName,
-            password,
+            password: $util.secret(password),
           })),
       ],
       dockerfile: { location: path.join(process.cwd(), 'docker/www.Dockerfile') },
@@ -193,32 +207,57 @@ if (!$dev) {
     });
   }
 
+  function getStaticAssets() {
+    return $util
+      .all([bucket.name, bucket.nodes.bucket.region, webAppImage.ref])
+      .apply(async ([bucketName, bucketRegion]) => {
+        const assets: string[] = [];
+        const client = new S3Client({ region: bucketRegion });
+        const input: ListObjectsV2CommandInput = {
+          Bucket: bucketName,
+          Delimiter: '/',
+        };
+
+        let isTruncated = true;
+        let continuationToken: string | undefined;
+
+        // Handle pagination
+        while (isTruncated) {
+          if (continuationToken) {
+            input.ContinuationToken = continuationToken;
+          }
+          const command = new ListObjectsV2Command(input);
+          const response = await client.send(command);
+          // Process directories (CommonPrefixes)
+          for (const prefix of response.CommonPrefixes ?? []) {
+            if (prefix.Prefix) {
+              assets.push(prefix.Prefix);
+            }
+          }
+          // Process files
+          for (const obj of response.Contents ?? []) {
+            if (obj.Key) {
+              const key = obj.Key;
+              // Root-level files only
+              if (!key.includes('/')) {
+                assets.push(key);
+              }
+            }
+          }
+          isTruncated = response.IsTruncated ?? false;
+          continuationToken = response.NextContinuationToken;
+        }
+        return assets;
+      });
+  }
+
   function buildCdn() {
     const bucketAccess = new aws.cloudfront.OriginAccessControl('WebAppBucketAccess', {
       originAccessControlOriginType: 's3',
       signingBehavior: 'always',
       signingProtocol: 'sigv4',
     });
-    const staticAssets = $util
-      .all([bucket.name, bucket.nodes.bucket.region, webAppImage.ref])
-      .apply(async ([bucketName, bucketRegion]) => {
-        const s3 = new S3Client({ region: bucketRegion });
-        const { Contents } = await s3.send(new ListObjectsV2Command({ Bucket: bucketName }));
-        // Get top-level assets and directories
-        return (
-          Contents?.reduce<string[]>((acc, obj) => {
-            const key = obj?.Key;
-            if (!key) return acc;
-
-            const isTopLevelFile = !key.includes('/');
-            const isDirectory =
-              key.endsWith('/') && !key.substring(0, key.length - 1).includes('/');
-            if (isTopLevelFile || isDirectory) acc.push(key);
-
-            return acc;
-          }, []) ?? []
-        );
-      });
+    const staticAssets = getStaticAssets();
     return new sst.aws.Cdn('WebAppCdn', {
       origins: [
         {
