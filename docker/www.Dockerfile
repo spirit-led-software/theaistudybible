@@ -86,8 +86,7 @@ RUN bun run build
 RUN rm -rf ./apps/www/.output/**/*.map && \
     aws s3 sync ./apps/www/.output/public s3://${assets_bucket} \
         --metadata-directive 'REPLACE' \
-        --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400' \
-        --delete
+        --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400'
 
 ########################################################
 # Release
@@ -128,3 +127,6 @@ RUN bun add --trust @sentry/bun posthog-node && \
 
 ENTRYPOINT [ "bun", "--smol", "--preload", "./instrument.mjs", "run", "./index.mjs" ]
 EXPOSE ${PORT}
+
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
+  CMD curl -f http://localhost:${PORT}/health || exit 1
