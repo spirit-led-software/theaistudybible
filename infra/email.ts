@@ -1,4 +1,5 @@
-import { BASE_DOMAIN, DOMAIN, isProd } from './constants';
+import { DOMAIN } from './constants';
+import { BASE_DOMAIN, isProd } from './utils/constants';
 
 export const email = isProd
   ? new sst.aws.Email('Email', { sender: DOMAIN.value, dns: sst.aws.dns() })
