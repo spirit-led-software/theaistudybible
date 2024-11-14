@@ -288,8 +288,6 @@ if (!$dev) {
       signingProtocol: 'sigv4',
     });
 
-    const staticAssets = getStaticAssets();
-
     const serverOriginBehavior: Omit<
       aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
       'pathPattern'
@@ -350,7 +348,7 @@ if (!$dev) {
           },
         ],
         defaultCacheBehavior: serverOriginBehavior,
-        orderedCacheBehaviors: staticAssets.apply((assets) => [
+        orderedCacheBehaviors: getStaticAssets().apply((assets) => [
           {
             pathPattern: '_server/',
             ...serverOriginBehavior,
@@ -360,6 +358,7 @@ if (!$dev) {
             ...assetsCacheBehavior,
           })),
         ]),
+        wait: true,
         invalidation: { paths: ['/*'], wait: true },
         domain: { name: DOMAIN.value, dns: sst.aws.dns({ override: true }) },
       },
