@@ -90,12 +90,9 @@ const getChatSuggestions = GET(async (chatId: string) => {
     userId: user.id,
     maxTokens: modelInfo.contextSize,
   });
-  if (messages.length === 0) {
-    return [];
-  }
-
-  // If the last message is a tool call, don't suggest follow ups
+  // If there are no messages or the last message is a tool (partial-)call, don't suggest follow ups
   if (
+    messages.length === 0 ||
     messages
       .at(-1)
       ?.toolInvocations?.some((ti) => ti.state === 'call' || ti.state === 'partial-call')
