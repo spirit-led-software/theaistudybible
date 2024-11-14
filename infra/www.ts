@@ -292,7 +292,7 @@ if (!$dev) {
       aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
       'pathPattern'
     > = {
-      targetOriginId: 'server',
+      targetOriginId: 'serverOrigin',
       viewerProtocolPolicy: 'redirect-to-https',
       allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
       cachedMethods: ['GET', 'HEAD'],
@@ -317,7 +317,7 @@ if (!$dev) {
       aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
       'pathPattern'
     > = {
-      targetOriginId: 's3',
+      targetOriginId: 's3Origin',
       viewerProtocolPolicy: 'redirect-to-https',
       allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
       cachedMethods: ['GET', 'HEAD'],
@@ -331,7 +331,7 @@ if (!$dev) {
       {
         origins: [
           {
-            originId: 'server',
+            originId: 'serverOrigin',
             domainName: serverDomain,
             customOriginConfig: {
               httpPort: 80,
@@ -342,7 +342,7 @@ if (!$dev) {
             },
           },
           {
-            originId: 's3',
+            originId: 's3Origin',
             domainName: bucket.nodes.bucket.bucketRegionalDomainName,
             originAccessControlId: bucketAccess.id,
           },
