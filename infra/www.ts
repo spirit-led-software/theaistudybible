@@ -367,8 +367,8 @@ if (!$dev) {
             ...assetsCacheBehavior,
           })),
         ]),
-        wait: true,
-        invalidation: { paths: ['/*'], wait: true },
+        wait: !$dev,
+        invalidation: { paths: ['/*'], wait: !$dev },
         domain: {
           name: DOMAIN.value,
           redirects: DOMAIN.value.apply((domain) => [`www.${domain}`]),
