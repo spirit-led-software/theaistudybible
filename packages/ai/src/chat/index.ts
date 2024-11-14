@@ -128,8 +128,8 @@ ${options.additionalContext}
           })
           .returning();
 
-        options.streamData.append({
-          lastResponseId: response.id,
+        options.streamData.appendMessageAnnotation({
+          dbId: response.id,
         });
 
         if (step.toolResults?.length) {

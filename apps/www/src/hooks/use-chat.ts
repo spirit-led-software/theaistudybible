@@ -10,7 +10,7 @@ import * as Sentry from '@sentry/solidstart';
 import { createWritableMemo } from '@solid-primitives/memo';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/solid-query';
-import { convertToCoreMessages, generateObject } from 'ai';
+import { generateObject } from 'ai';
 import { isNull } from 'drizzle-orm';
 import type { Accessor } from 'solid-js';
 import { createEffect, mergeProps, on, untrack } from 'solid-js';
@@ -90,6 +90,19 @@ const getChatSuggestions = GET(async (chatId: string) => {
     userId: user.id,
     maxTokens: modelInfo.contextSize,
   });
+  if (messages.length === 0) {
+    return [];
+  }
+
+  // If the last message is a tool call, don't suggest follow ups
+  if (
+    messages
+      .at(-1)
+      ?.toolInvocations?.some((ti) => ti.state === 'call' || ti.state === 'partial-call')
+  ) {
+    return [];
+  }
+
   const { object } = await generateObject({
     model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
     schema: z.object({
@@ -106,8 +119,8 @@ const getChatSuggestions = GET(async (chatId: string) => {
     system: `You must generate a list of follow up questions that the user may ask a chatbot that is an expert on Christian faith and theology, given the messages provided. 
 
 These questions must drive the conversation forward and be thought-provoking.`,
-    // @ts-expect-error - convertToCoreMessages is not typed
-    messages: convertToCoreMessages(messages),
+    // @ts-expect-error - messages are incorrectly typed
+    messages,
   });
   return object.suggestions;
 });
@@ -188,16 +201,6 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
     on(useChatResult.data, (data) => {
       const lastData = data?.at(-1);
       if (lastData && typeof lastData === 'object') {
-        if ('lastResponseId' in lastData) {
-          useChatResult.setMessages((prev) => [
-            ...prev.slice(0, -1),
-            {
-              ...prev.at(-1)!,
-              id: lastData.lastResponseId as string,
-            },
-          ]);
-        }
-
         if ('status' in lastData) {
           if (lastData.status === 'complete') {
             chatQuery.refetch();

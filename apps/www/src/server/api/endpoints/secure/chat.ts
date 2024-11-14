@@ -7,7 +7,12 @@ import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/cr
 import { MessageSchema } from '@/schemas/chats';
 import type { Chat } from '@/schemas/chats/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
-import { getDefaultModelId, getValidMessages, validateModelId } from '@/www/server/api/utils/chat';
+import {
+  getDefaultModelId,
+  getMessageId,
+  getValidMessages,
+  validateModelId,
+} from '@/www/server/api/utils/chat';
 import { zValidator } from '@hono/zod-validator';
 import { StreamData } from 'ai';
 import { eq } from 'drizzle-orm';
@@ -66,6 +71,8 @@ const app = new Hono<{
         additionalContext,
       } = c.req.valid('json');
 
+      console.log('Provided messages:', JSON.stringify(providedMessages, null, 2));
+
       console.time('validateModelId');
       if (providedModelId) {
         const modelIdValidationResponse = validateModelId({
@@ -105,24 +112,19 @@ const app = new Hono<{
       }
 
       console.time('getChat');
-      let chat: Chat;
+      let chat: Chat | undefined;
       if (chatId) {
-        chat = await db.query.chats
-          .findFirst({
-            where: (chats, { eq }) => eq(chats.id, chatId),
-          })
-          .then(async (foundChat) => {
-            if (!foundChat || foundChat.userId !== c.var.user!.id) {
-              const [newChat] = await db
-                .insert(chats)
-                .values({
-                  userId: c.var.user!.id,
-                })
-                .returning();
-              return newChat;
-            }
-            return foundChat;
-          });
+        chat = await db.query.chats.findFirst({
+          where: (chats, { eq }) => eq(chats.id, chatId),
+        });
+        if (!chat || chat.userId !== c.var.user!.id) {
+          [chat] = await db
+            .insert(chats)
+            .values({
+              userId: c.var.user!.id,
+            })
+            .returning();
+        }
       } else {
         [chat] = await db
           .insert(chats)
@@ -144,33 +146,29 @@ const app = new Hono<{
       }
 
       console.time('saveMessage');
-      await db.query.messages
-        .findFirst({
-          where: (messages, { eq }) => eq(messages.id, lastMessage.id),
-        })
-        .then(async (message) => {
-          if (message) {
-            return await db
-              .update(messagesTable)
-              .set({
-                ...lastMessage,
-                createdAt: lastMessage.createdAt ? new Date(lastMessage.createdAt) : undefined,
-                updatedAt: new Date(),
-              })
-              .where(eq(messagesTable.id, message.id))
-              .returning();
-          }
-          return await db
-            .insert(messagesTable)
-            .values({
-              ...lastMessage,
-              createdAt: lastMessage.createdAt ? new Date(lastMessage.createdAt) : undefined,
-              updatedAt: new Date(),
-              chatId: chat.id,
-              userId: c.var.user!.id,
-            })
-            .returning();
+      const lastMessageId = getMessageId(lastMessage);
+      const existingMessage = await db.query.messages.findFirst({
+        where: (messages, { and, eq }) =>
+          and(eq(messages.chatId, chat.id), eq(messages.id, lastMessageId)),
+      });
+      if (existingMessage) {
+        await db
+          .update(messagesTable)
+          .set({
+            ...lastMessage,
+            createdAt: lastMessage.createdAt ? new Date(lastMessage.createdAt) : undefined,
+            updatedAt: new Date(),
+          })
+          .where(eq(messagesTable.id, existingMessage.id));
+      } else {
+        await db.insert(messagesTable).values({
+          ...lastMessage,
+          createdAt: lastMessage.createdAt ? new Date(lastMessage.createdAt) : undefined,
+          updatedAt: new Date(),
+          chatId: chat.id,
+          userId: c.var.user!.id,
         });
+      }
       console.timeEnd('saveMessage');
 
       let additionalContextTokens = 0;
@@ -186,6 +184,8 @@ const app = new Hono<{
         mustStartWithUserMessage: modelInfo.provider === 'anthropic',
       });
       console.timeEnd('getValidMessages');
+
+      console.log('Valid messages:', JSON.stringify(messages, null, 2));
 
       const lastUserMessage = messages.find((m) => m.role === 'user')!;
 

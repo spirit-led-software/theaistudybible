@@ -1,8 +1,15 @@
 import { DOMAIN, POSTHOG_API_HOST, POSTHOG_ASSETS_HOST } from './constants';
+import { isProd } from './utils/constants';
 
-const ANALYTICS_DOMAIN = $interpolate`hog.${DOMAIN.value}`;
+const analyticsApiRouter = isProd
+  ? new sst.aws.Router('AnalyticsApiRouter', {
+      routes: { '/*': POSTHOG_API_HOST.value, '/static/*': POSTHOG_ASSETS_HOST.value },
+      domain: { name: $interpolate`piggy.${DOMAIN.value}`, dns: sst.aws.dns({ override: true }) },
+    })
+  : undefined;
 
-export const analyticsApi = new sst.aws.Router('AnalyticsApi', {
-  routes: { '/*': POSTHOG_API_HOST.value, '/static/*': POSTHOG_ASSETS_HOST.value },
-  domain: { name: ANALYTICS_DOMAIN, dns: sst.aws.dns({ override: true }) },
+export const analyticsApi = new sst.Linkable('AnalyticsApi', {
+  properties: {
+    url: analyticsApiRouter?.url ?? POSTHOG_API_HOST.value,
+  },
 });
