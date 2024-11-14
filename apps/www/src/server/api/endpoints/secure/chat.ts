@@ -71,8 +71,6 @@ const app = new Hono<{
         additionalContext,
       } = c.req.valid('json');
 
-      console.log('Provided messages:', JSON.stringify(providedMessages, null, 2));
-
       console.time('validateModelId');
       if (providedModelId) {
         const modelIdValidationResponse = validateModelId({
@@ -184,8 +182,6 @@ const app = new Hono<{
         mustStartWithUserMessage: modelInfo.provider === 'anthropic',
       });
       console.timeEnd('getValidMessages');
-
-      console.log('Valid messages:', JSON.stringify(messages, null, 2));
 
       const lastUserMessage = messages.find((m) => m.role === 'user')!;
 
