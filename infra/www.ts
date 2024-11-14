@@ -361,6 +361,14 @@ if (!$dev) {
         wait: true,
         invalidation: { paths: ['/*'], wait: true },
         domain: { name: DOMAIN.value, dns: sst.aws.dns({ override: true }) },
+        transform: {
+          distribution: (args) => {
+            args.loggingConfig = {
+              bucket: new sst.aws.Bucket('WebAppCdnLoggingBucket', {}, { retainOnDelete: isProd })
+                .domain,
+            };
+          },
+        },
       },
       { dependsOn: servers },
     );
