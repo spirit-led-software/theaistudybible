@@ -113,16 +113,16 @@ const app = new Hono<{
       let chat = await db.query.chats.findFirst({
         where: (chats, { eq }) => eq(chats.id, chatId),
       });
-      if (chat && chat.userId !== c.var.user!.id) {
-        return c.json(
-          {
-            message: 'You are not authorized to access this chat',
-          },
-          403,
-        );
-      }
-
-      if (!chat) {
+      if (chat) {
+        if (chat.userId !== c.var.user!.id) {
+          return c.json(
+            {
+              message: 'You are not authorized to access this chat',
+            },
+            403,
+          );
+        }
+      } else {
         [chat] = await db
           .insert(chats)
           .values({
