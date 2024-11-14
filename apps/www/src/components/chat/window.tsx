@@ -4,7 +4,7 @@ import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
-import { For, Match, Show, Switch, createEffect, on } from 'solid-js';
+import { For, Match, Show, Switch, createEffect, createMemo, on } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
@@ -83,6 +83,16 @@ export const ChatWindow = (props: ChatWindowProps) => {
     ),
   );
 
+  // Find the index of the last message grouped by role
+  const lastMessageIdx = createMemo(() => {
+    let idx = messages().length - 1;
+    const role = messages()[idx]?.role;
+    while (idx >= 0 && messages()[idx]?.role === role) {
+      idx--;
+    }
+    return idx;
+  });
+
   return (
     <>
       <MetaTags />
@@ -137,7 +147,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               >
                 {(message, idx) => (
                   <>
-                    <Show when={idx() === messages().length - 1}>
+                    <Show when={idx() === lastMessageIdx()}>
                       <div ref={setTopOfLastMessageRef} class='h-px w-full shrink-0' />
                     </Show>
                     <Message
@@ -184,7 +194,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 </Carousel>
               </section>
             </Show>
-            <div ref={setBottomRef} class='h-5 w-full shrink-0' />
+            <div ref={setBottomRef} class='h-10 w-full shrink-0' />
           </div>
         </div>
         <form

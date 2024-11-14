@@ -26,7 +26,7 @@ export const createScrollAnchor = () => {
         ([entry]) => {
           setIsAtBottom(entry.isIntersecting);
         },
-        { root: currentScroll, threshold: 0.85 },
+        { root: currentScroll, threshold: 0.6 },
       );
 
       observer.observe(currentBottom);
@@ -46,7 +46,7 @@ export const createScrollAnchor = () => {
         ([entry]) => {
           setIsTopVisible(entry.isIntersecting);
         },
-        { root: currentScroll, threshold: 1 },
+        { root: currentScroll, threshold: 0.8 },
       );
 
       observer.observe(currentTop);
