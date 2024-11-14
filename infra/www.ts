@@ -342,6 +342,16 @@ if (!$dev) {
       cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
     };
 
+    const loggingBucket = new sst.aws.Bucket(
+      'WebAppCdnLoggingBucket',
+      {},
+      { retainOnDelete: isProd },
+    );
+    new aws.s3.BucketOwnershipControls('WebAppCdnLoggingBucketOwnershipControls', {
+      bucket: loggingBucket.name,
+      rule: { objectOwnership: 'BucketOwnerPreferred' },
+    });
+
     return new sst.aws.Cdn(
       'WebAppCdn',
       {
@@ -362,10 +372,7 @@ if (!$dev) {
         domain: { name: DOMAIN.value, dns: sst.aws.dns({ override: true }) },
         transform: {
           distribution: (args) => {
-            args.loggingConfig = {
-              bucket: new sst.aws.Bucket('WebAppCdnLoggingBucket', {}, { retainOnDelete: isProd })
-                .domain,
-            };
+            args.loggingConfig = { bucket: loggingBucket.domain };
           },
         },
       },
