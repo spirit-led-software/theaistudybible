@@ -1,7 +1,7 @@
 import * as constants from './constants';
 import * as databases from './database';
 import * as email from './email';
-import { isLinkable } from './helpers/link';
+import { Constant } from './resources/constant';
 import { webAppSentryKey } from './monitoring';
 import * as secrets from './secrets';
 import * as storage from './storage';
@@ -38,9 +38,9 @@ export const environment = $util
   }));
 
 export const link = $output([
-  ...Object.values(constants),
+  ...Object.values(constants).filter((c) => (c instanceof Constant)),
   ...Object.values(secrets),
   ...Object.values(storage),
   ...Object.values(databases),
   ...Object.values(email),
-]).apply((link) => link.filter((l) => isLinkable(l)));
+]);
