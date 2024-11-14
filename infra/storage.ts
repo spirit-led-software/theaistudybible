@@ -1,6 +1,6 @@
 import { DOMAIN } from './constants';
 import { indexBibleChapterQueue, indexBibleQueue, profileImagesQueue } from './queues';
-import { Constant } from './resources';
+import { isProd } from './utils/constants';
 
 export const bibleBucket = new sst.aws.Bucket('BibleBucket', {}, { retainOnDelete: false });
 bibleBucket.subscribeQueue(indexBibleQueue.arn, {
@@ -19,7 +19,7 @@ chapterMessageBucket.subscribeQueue(indexBibleChapterQueue.arn, {
 export const profileImagesBucket = new sst.aws.Bucket(
   'ProfileImagesBucket',
   { access: 'cloudfront' },
-  { retainOnDelete: true },
+  { retainOnDelete: isProd },
 );
 profileImagesBucket.subscribeQueue(profileImagesQueue.arn, {
   events: ['s3:ObjectCreated:*'],
@@ -28,16 +28,14 @@ profileImagesBucket.subscribeQueue(profileImagesQueue.arn, {
 export const generatedImagesBucket = new sst.aws.Bucket(
   'GeneratedImagesBucket',
   { access: 'cloudfront' },
-  { retainOnDelete: true },
+  { retainOnDelete: isProd },
 );
 
 export const devotionImagesBucket = new sst.aws.Bucket(
   'DevotionImagesBucket',
   { access: 'cloudfront' },
-  { retainOnDelete: true },
+  { retainOnDelete: isProd },
 );
-
-export const CDN_DOMAIN = new Constant('CdnDomain', $interpolate`cdn.${DOMAIN.value}`);
 
 export const cdn = new sst.aws.Router('Cdn', {
   routes: {
@@ -63,5 +61,5 @@ export const cdn = new sst.aws.Router('Cdn', {
       },
     },
   },
-  domain: { name: CDN_DOMAIN.value, dns: sst.aws.dns({ override: true }) },
+  domain: { name: $interpolate`cdn.${DOMAIN.value}`, dns: sst.aws.dns({ override: true }) },
 });
