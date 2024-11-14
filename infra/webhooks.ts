@@ -1,6 +1,6 @@
 import { DOMAIN } from './constants';
 
-const WEBHOOKS_DOMAIN = $interpolate`webhooks.${DOMAIN.value}`;
+const WEBHOOKS_DOMAIN = $interpolate`wh.${DOMAIN.value}`;
 
 sst.Linkable.wrap(stripe.WebhookEndpoint, (resource) => ({
   properties: { secret: $util.secret(resource.secret) },
