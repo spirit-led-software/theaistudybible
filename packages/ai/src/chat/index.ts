@@ -6,7 +6,7 @@ import {
 } from '@/core/database/schema';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { StreamData } from 'ai';
-import { convertToCoreMessages, generateObject, streamText } from 'ai';
+import { generateObject, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { defaultModel } from '../models';
@@ -76,9 +76,6 @@ export type CreateChatChainOptions = {
 
 export const createChatChain = (options: CreateChatChainOptions) => {
   return async (messages: Pick<Message, 'role' | 'content'>[]) => {
-    // @ts-expect-error - Messages are not typed correctly
-    const coreMessages = convertToCoreMessages(messages);
-
     // biome-ignore lint/style/useConst: The tool needs to be able to update the value
     let hasSavedContext = false;
     const resolvedTools = tools({
@@ -106,7 +103,8 @@ ${options.additionalContext}
 ---`
     : ''
 }`,
-      messages: coreMessages,
+      // @ts-expect-error - Messages are not typed correctly
+      messages,
       tools: resolvedTools,
       maxTokens: options.maxTokens,
       maxSteps: 5,
