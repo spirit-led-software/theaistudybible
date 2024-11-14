@@ -40,7 +40,6 @@ $transform(sst.aws.Function, (args) => {
     },
   }));
   args.memory ??= '512 MB';
-  args.timeout ??= '2 minutes';
   args.environment = $util
     .all([
       constants.POSTHOG_API_KEY.value,
@@ -50,7 +49,7 @@ $transform(sst.aws.Function, (args) => {
     ])
     .apply(([posthogApiKey, posthogApiHost, sentryDsnPublic, argsEnv]) => ({
       STAGE: $app.stage,
-      NODE_OPTIONS: '--import instrument.mjs',
+      NODE_OPTIONS: '--import ./instrument.mjs',
       POSTHOG_API_KEY: posthogApiKey,
       POSTHOG_API_HOST: posthogApiHost,
       SENTRY_DSN: sentryDsnPublic,
