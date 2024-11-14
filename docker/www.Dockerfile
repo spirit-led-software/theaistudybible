@@ -83,10 +83,26 @@ COPY --link . .
 RUN bun run build
 
 RUN aws s3 sync /build/apps/www/.output/public s3://${assets_bucket} \
-    --exclude '*.map' \
-    --metadata-directive 'REPLACE' \
-    --cache-control 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400' \
-    --delete
+        --metadata-directive 'REPLACE' \
+        --cache-control 'public,max-age=31536000,immutable' \
+        --exclude "*" \
+        --include "*.js" \
+        --include "*.css" \
+        --include "*.woff2" \
+        --include "*.jpg" \
+        --include "*.png" \
+        --include "*.svg" \
+        --include "*.webp" && \
+    aws s3 sync /build/apps/www/.output/public s3://${assets_bucket} \
+        --metadata-directive 'REPLACE' \
+        --cache-control 'public,max-age=0,s-maxage=31536000,stale-while-revalidate=86400' \
+        --exclude "*.js" \
+        --exclude "*.css" \
+        --exclude "*.woff2" \
+        --exclude "*.jpg" \
+        --exclude "*.png" \
+        --exclude "*.svg" \
+        --exclude "*.webp"
 
 ########################################################
 # Release

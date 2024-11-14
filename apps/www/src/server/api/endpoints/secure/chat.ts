@@ -39,20 +39,20 @@ const app = new Hono<{
       z.object({
         chatId: z.string().nullish(),
         modelId: z.string().nullish(),
-        messages: MessageSchema.merge(
-          z.object({
-            createdAt: z.string().datetime(),
-            updatedAt: z.string().datetime(),
-          }),
-        )
-          .partial()
-          .required({
-            id: true,
-            content: true,
-            role: true,
-          })
-          .passthrough()
-          .array(),
+        messages: z.array(
+          MessageSchema.merge(
+            z.object({
+              createdAt: z.string().datetime(),
+              updatedAt: z.string().datetime(),
+            }),
+          )
+            .partial()
+            .required({
+              id: true,
+              role: true,
+              content: true,
+            }),
+        ),
         additionalContext: z.string().nullish(),
       }),
     ),
