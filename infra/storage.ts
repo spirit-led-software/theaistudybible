@@ -53,5 +53,5 @@ export const cdn = new sst.aws.Router('Cdn', {
       },
     },
   },
-  domain: { name: CDN_DOMAIN.value, dns: sst.aws.dns() },
+  domain: { name: CDN_DOMAIN.value, dns: sst.aws.dns({ override: true }) },
 });

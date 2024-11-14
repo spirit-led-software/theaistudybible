@@ -18,5 +18,5 @@ const webhooksApiFn = new sst.aws.Function('WebhooksApiFunction', {
 
 export const webhooksApi = new sst.aws.Router('WebhooksApi', {
   routes: { '/*': webhooksApiFn.url },
-  domain: { name: WEBHOOKS_DOMAIN, dns: sst.aws.dns() },
+  domain: { name: WEBHOOKS_DOMAIN, dns: sst.aws.dns({ override: true }) },
 });

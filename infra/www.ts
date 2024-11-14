@@ -97,6 +97,7 @@ if (!$dev) {
         domain: {
           name: serverDomain,
           dns: sst.aws.dns({
+            override: true,
             transform: {
               record: (args) => {
                 args.setIdentifier = region;
@@ -354,7 +355,7 @@ if (!$dev) {
           })),
         ]),
         invalidation: { paths: ['/*'], wait: true },
-        domain: { name: DOMAIN.value, dns: sst.aws.dns() },
+        domain: { name: DOMAIN.value, dns: sst.aws.dns({ override: true }) },
       },
       { dependsOn: servers },
     );
