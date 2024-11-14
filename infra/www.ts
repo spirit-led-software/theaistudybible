@@ -12,8 +12,9 @@ import { allLinks } from './defaults';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
+import { isProd } from './utils/constants';
 
-const regions = ['us-east-1', 'ap-southeast-1'] as const;
+const regions: aws.Region[] = isProd ? ['us-east-1'] : ['us-east-1', 'ap-southeast-1'];
 
 const env = $util
   .all([
@@ -107,9 +108,14 @@ if (!$dev) {
           }),
         },
       },
-      scaling: { min: 1, max: 2, cpuUtilization: 90, memoryUtilization: 90 },
-      cpu: '0.5 vCPU',
-      memory: '1 GB',
+      scaling: {
+        min: 1,
+        max: isProd ? 4 : 1,
+        cpuUtilization: 90,
+        memoryUtilization: 90,
+      },
+      cpu: isProd ? '0.5 vCPU' : '0.25 vCPU',
+      memory: isProd ? '1 GB' : '0.5 GB',
       health: {
         command: ['CMD-SHELL', 'curl -f http://localhost:8080/health || exit 1'],
         interval: '10 seconds',

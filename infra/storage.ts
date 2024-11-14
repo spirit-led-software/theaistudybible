@@ -2,30 +2,40 @@ import { DOMAIN } from './constants';
 import { indexBibleChapterQueue, indexBibleQueue, profileImagesQueue } from './queues';
 import { Constant } from './resources';
 
-export const bibleBucket = new sst.aws.Bucket('BibleBucket');
+export const bibleBucket = new sst.aws.Bucket('BibleBucket', {}, { retainOnDelete: false });
 bibleBucket.subscribeQueue(indexBibleQueue.arn, {
   events: ['s3:ObjectCreated:*'],
 });
 
-export const chapterMessageBucket = new sst.aws.Bucket('ChapterMessageBucket');
+export const chapterMessageBucket = new sst.aws.Bucket(
+  'ChapterMessageBucket',
+  {},
+  { retainOnDelete: false },
+);
 chapterMessageBucket.subscribeQueue(indexBibleChapterQueue.arn, {
   events: ['s3:ObjectCreated:*'],
 });
 
-export const profileImagesBucket = new sst.aws.Bucket('ProfileImagesBucket', {
-  access: 'cloudfront',
-});
+export const profileImagesBucket = new sst.aws.Bucket(
+  'ProfileImagesBucket',
+  { access: 'cloudfront' },
+  { retainOnDelete: true },
+);
 profileImagesBucket.subscribeQueue(profileImagesQueue.arn, {
   events: ['s3:ObjectCreated:*'],
 });
 
-export const generatedImagesBucket = new sst.aws.Bucket('GeneratedImagesBucket', {
-  access: 'cloudfront',
-});
+export const generatedImagesBucket = new sst.aws.Bucket(
+  'GeneratedImagesBucket',
+  { access: 'cloudfront' },
+  { retainOnDelete: true },
+);
 
-export const devotionImagesBucket = new sst.aws.Bucket('DevotionImagesBucket', {
-  access: 'cloudfront',
-});
+export const devotionImagesBucket = new sst.aws.Bucket(
+  'DevotionImagesBucket',
+  { access: 'cloudfront' },
+  { retainOnDelete: true },
+);
 
 export const CDN_DOMAIN = new Constant('CdnDomain', $interpolate`cdn.${DOMAIN.value}`);
 
