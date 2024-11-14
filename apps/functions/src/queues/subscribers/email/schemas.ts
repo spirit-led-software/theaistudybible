@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 export const EmailQueueRecordSchema = z.object({
   subject: z.string(),
-  to: z.string().array(),
-  cc: z.string().array().optional(),
-  bcc: z.string().array().optional(),
+  to: z.string().email().array(),
+  cc: z.string().email().array().optional(),
+  bcc: z.string().email().array().optional(),
   html: z.string(),
 });

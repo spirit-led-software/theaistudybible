@@ -6,14 +6,19 @@ import { createMiddleware } from '@solidjs/start/middleware';
 import { add, isAfter } from 'date-fns';
 import { sql } from 'drizzle-orm';
 import { eq } from 'drizzle-orm';
+import { Resource } from 'sst';
 import { getCookie, setCookie } from 'vinxi/http';
 
 export default createMiddleware({
   onRequest: [
     // Logging Middleware
-    ({ request }) => {
+    async ({ request }) => {
       const url = new URL(request.url);
-      console.log(`Request: ${request.method} ${url.pathname}`);
+      console.log(`<-- ${request.method} ${url.pathname}`);
+      if (Resource.Dev.value === 'true') {
+        const body = await request.clone().text();
+        if (body) console.log(`\t\t${body}`);
+      }
     },
     // Auth Middleware
     async ({ nativeEvent, locals }) => {
@@ -85,9 +90,7 @@ export default createMiddleware({
     // Logging Middleware
     ({ request, response }) => {
       const url = new URL(request.url);
-      console.log(
-        `Response: ${request.method} ${url.pathname} ${response.status} ${response.statusText ?? ''}`,
-      );
+      console.log(`--> ${request.method} ${url.pathname} ${response.status}`);
     },
     // Need to add this for Sentry profiling to work
     ({ response }) => {

@@ -9,20 +9,24 @@ const JSONSchema: z.ZodType<JSONValue> = z.lazy(() =>
   z.union([LiteralSchema, z.array(JSONSchema), z.record(JSONSchema)]),
 );
 
-export const ToolCallSchema = z.object({
-  state: z.enum(['partial-call', 'call']),
-  toolName: z.string().min(1),
-  toolCallId: z.string().min(1),
-  args: z.record(JSONSchema),
-});
+export const ToolCallSchema = z
+  .object({
+    state: z.enum(['partial-call', 'call']),
+    toolName: z.string().min(1),
+    toolCallId: z.string().min(1),
+    args: z.record(JSONSchema),
+  })
+  .passthrough();
 
-export const ToolResultSchema = z.object({
-  state: z.literal('result'),
-  toolName: z.string().min(1),
-  toolCallId: z.string().min(1),
-  args: z.record(JSONSchema),
-  result: JSONSchema,
-});
+export const ToolResultSchema = z
+  .object({
+    state: z.literal('result'),
+    toolName: z.string().min(1),
+    toolCallId: z.string().min(1),
+    args: z.record(JSONSchema),
+    result: JSONSchema,
+  })
+  .passthrough();
 
 export const ToolInvocationSchema: z.ZodType<ToolInvocation> = z.discriminatedUnion('state', [
   ToolCallSchema,

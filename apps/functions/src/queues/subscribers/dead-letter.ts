@@ -42,23 +42,37 @@ const html = (record: SQSEvent['Records'][number]) => `
 export const handler: SQSHandler = Sentry.wrapHandler(async (event) => {
   try {
     console.log('Processing dead-letter event:', JSON.stringify(event, null, 2));
-    const response = await sqs.send(
-      new SendMessageBatchCommand({
-        QueueUrl: Resource.EmailQueue.url,
-        Entries: event.Records.map((record) => ({
-          Id: record.messageId,
-          MessageBody: JSON.stringify({
-            to: ['admin@theaistudybible.com'],
-            subject: 'Dead-letter event',
-            html: html(record),
-          } satisfies EmailQueueRecord),
-        })),
-      }),
-    );
-    if (response.Failed?.length) {
-      throw new Error(
-        `Failed to send message(s) to email queue: ${response.Failed.map((f) => f.Id).join(', ')}`,
+
+    const entries = event.Records.map((record) => ({
+      Id: record.messageId,
+      MessageBody: JSON.stringify({
+        to: ['admin@theaistudybible.com'],
+        subject: 'Dead-letter event',
+        html: html(record),
+      } satisfies EmailQueueRecord),
+    }));
+
+    const batchSize = 5;
+    const errors: Error[] = [];
+    for (let i = 0; i < entries.length; i += batchSize) {
+      const batch = entries.slice(i, i + batchSize);
+      const response = await sqs.send(
+        new SendMessageBatchCommand({
+          QueueUrl: Resource.EmailQueue.url,
+          Entries: batch,
+        }),
       );
+      if (response.Failed?.length) {
+        errors.push(
+          new Error(
+            `Failed to send message(s) to email queue: ${response.Failed.map((f) => f.Id).join(', ')}`,
+          ),
+        );
+      }
+    }
+
+    if (errors.length) {
+      throw new AggregateError(errors);
     }
   } catch (error) {
     console.error('Error processing dead-letter event:', error);

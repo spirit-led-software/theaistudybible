@@ -51,7 +51,8 @@ const app = new Hono<{
               id: true,
               role: true,
               content: true,
-            }),
+            })
+            .passthrough(),
         ),
         additionalContext: z.string().nullish(),
       }),

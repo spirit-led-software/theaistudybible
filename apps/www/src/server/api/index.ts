@@ -1,5 +1,4 @@
 import type { Bindings, Variables } from '@/www/server/api/types';
-import { logger } from 'hono/logger';
 import { Hono } from 'hono/quick';
 import { auth } from '../auth';
 import adminRoutes from './endpoints/admin';
@@ -16,7 +15,6 @@ export const app = new Hono<{
   Variables: Variables;
 }>()
   .basePath('/api')
-  .use('*', logger())
   .use('*', async (c, next) => {
     const { session, user, roles } = auth();
     c.set('session', session);

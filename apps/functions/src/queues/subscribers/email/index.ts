@@ -14,7 +14,7 @@ export const handler: SQSHandler = Sentry.wrapHandler(async (event) => {
       const record = EmailQueueRecordSchema.parse(JSON.parse(r.body));
       const result = await ses.send(
         new SendEmailCommand({
-          Source: Resource.Email.sender,
+          Source: `admin@${Resource.Email.sender}`,
           Destination: {
             ToAddresses: record.to,
             CcAddresses: record.cc,
@@ -30,6 +30,7 @@ export const handler: SQSHandler = Sentry.wrapHandler(async (event) => {
               },
             },
           },
+          ReplyToAddresses: ['info@theaistudybible.com'],
         }),
       );
       if (result.$metadata.httpStatusCode !== 200) {
