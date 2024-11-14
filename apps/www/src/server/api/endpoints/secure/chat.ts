@@ -4,8 +4,8 @@ import { numTokensFromString } from '@/ai/utils';
 import { db } from '@/core/database';
 import { chats, messages as messagesTable } from '@/core/database/schema';
 import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
+import { createId } from '@/core/utils/id';
 import { MessageSchema } from '@/schemas/chats';
-import type { Chat } from '@/schemas/chats/types';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import {
   getDefaultModelId,
@@ -42,8 +42,6 @@ const app = new Hono<{
     zValidator(
       'json',
       z.object({
-        chatId: z.string().nullish(),
-        modelId: z.string().nullish(),
         messages: z.array(
           MessageSchema.merge(
             z.object({
@@ -59,17 +57,19 @@ const app = new Hono<{
             })
             .passthrough(),
         ),
+        chatId: z.string().nullish(),
+        modelId: z.string().nullish(),
         additionalContext: z.string().nullish(),
       }),
     ),
     async (c) => {
       const pendingPromises: Promise<unknown>[] = []; // promises to wait for before closing the stream
-      const {
-        messages: providedMessages,
-        chatId,
-        modelId: providedModelId,
-        additionalContext,
-      } = c.req.valid('json');
+
+      const body = c.req.valid('json');
+      const providedMessages = body.messages;
+      const chatId = body.chatId ?? createId();
+      const providedModelId = body.modelId;
+      const additionalContext = body.additionalContext;
 
       console.time('validateModelId');
       if (providedModelId) {
@@ -110,20 +110,19 @@ const app = new Hono<{
       }
 
       console.time('getChat');
-      let chat: Chat | undefined;
-      if (chatId) {
-        chat = await db.query.chats.findFirst({
-          where: (chats, { eq }) => eq(chats.id, chatId),
-        });
-        if (!chat || chat.userId !== c.var.user!.id) {
-          [chat] = await db
-            .insert(chats)
-            .values({
-              userId: c.var.user!.id,
-            })
-            .returning();
-        }
-      } else {
+      let chat = await db.query.chats.findFirst({
+        where: (chats, { eq }) => eq(chats.id, chatId),
+      });
+      if (chat && chat.userId !== c.var.user!.id) {
+        return c.json(
+          {
+            message: 'You are not authorized to access this chat',
+          },
+          403,
+        );
+      }
+
+      if (!chat) {
         [chat] = await db
           .insert(chats)
           .values({
@@ -146,10 +145,17 @@ const app = new Hono<{
       console.time('saveMessage');
       const lastMessageId = getMessageId(lastMessage);
       const existingMessage = await db.query.messages.findFirst({
-        where: (messages, { and, eq }) =>
-          and(eq(messages.chatId, chat.id), eq(messages.id, lastMessageId)),
+        where: (messages, { eq }) => eq(messages.id, lastMessageId),
       });
       if (existingMessage) {
+        if (existingMessage.userId !== c.var.user!.id || existingMessage.chatId !== chat.id) {
+          return c.json(
+            {
+              message: 'You are not authorized to access this message',
+            },
+            403,
+          );
+        }
         await db
           .update(messagesTable)
           .set({
@@ -183,8 +189,6 @@ const app = new Hono<{
       });
       console.timeEnd('getValidMessages');
 
-      const lastUserMessage = messages.find((m) => m.role === 'user')!;
-
       if (!chat.customName) {
         pendingPromises.push(
           renameChat({
@@ -198,6 +202,8 @@ const app = new Hono<{
           db.update(chats).set({ updatedAt: new Date() }).where(eq(chats.id, chat.id)).execute(),
         );
       }
+
+      const lastUserMessage = messages.find((m) => m.role === 'user')!;
 
       const streamData = new StreamData();
       const streamText = createChatChain({
