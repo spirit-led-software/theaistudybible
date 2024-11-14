@@ -287,12 +287,29 @@ if (!$dev) {
       signingBehavior: 'always',
       signingProtocol: 'sigv4',
     });
+    const s3Origin: aws.types.input.cloudfront.DistributionOrigin = {
+      originId: 's3Origin',
+      domainName: bucket.nodes.bucket.bucketRegionalDomainName,
+      originAccessControlId: bucketAccess.id,
+    };
+
+    const serverOrigin: aws.types.input.cloudfront.DistributionOrigin = {
+      originId: 'serverOrigin',
+      domainName: serverDomain,
+      customOriginConfig: {
+        httpPort: 80,
+        httpsPort: 443,
+        originProtocolPolicy: 'https-only',
+        originSslProtocols: ['TLSv1.2'],
+        originReadTimeout: 60,
+      },
+    };
 
     const serverOriginBehavior: Omit<
       aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
       'pathPattern'
     > = {
-      targetOriginId: 'serverOrigin',
+      targetOriginId: serverOrigin.originId,
       viewerProtocolPolicy: 'redirect-to-https',
       allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
       cachedMethods: ['GET', 'HEAD'],
@@ -312,12 +329,11 @@ if (!$dev) {
         },
       }).id,
     };
-
     const assetsCacheBehavior: Omit<
       aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
       'pathPattern'
     > = {
-      targetOriginId: 's3Origin',
+      targetOriginId: s3Origin.originId,
       viewerProtocolPolicy: 'redirect-to-https',
       allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
       cachedMethods: ['GET', 'HEAD'],
@@ -329,24 +345,7 @@ if (!$dev) {
     return new sst.aws.Cdn(
       'WebAppCdn',
       {
-        origins: [
-          {
-            originId: 'serverOrigin',
-            domainName: serverDomain,
-            customOriginConfig: {
-              httpPort: 80,
-              httpsPort: 443,
-              originProtocolPolicy: 'https-only',
-              originSslProtocols: ['TLSv1.2'],
-              originReadTimeout: 60,
-            },
-          },
-          {
-            originId: 's3Origin',
-            domainName: bucket.nodes.bucket.bucketRegionalDomainName,
-            originAccessControlId: bucketAccess.id,
-          },
-        ],
+        origins: [serverOrigin, s3Origin],
         defaultCacheBehavior: serverOriginBehavior,
         orderedCacheBehaviors: getStaticAssets().apply((assets) => [
           {
