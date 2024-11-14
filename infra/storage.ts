@@ -1,5 +1,6 @@
 import { DOMAIN } from './constants';
 import { indexBibleChapterQueue, indexBibleQueue, profileImagesQueue } from './queues';
+import { Constant } from './resources';
 
 export const bibleBucket = new sst.aws.Bucket('BibleBucket');
 bibleBucket.subscribeQueue(indexBibleQueue.arn, {
@@ -26,6 +27,8 @@ export const devotionImagesBucket = new sst.aws.Bucket('DevotionImagesBucket', {
   access: 'cloudfront',
 });
 
+export const CDN_DOMAIN = new Constant('CdnDomain', $interpolate`cdn.${DOMAIN.value}`);
+
 export const cdn = new sst.aws.Router('Cdn', {
   routes: {
     '/profile-images/*': {
@@ -50,5 +53,5 @@ export const cdn = new sst.aws.Router('Cdn', {
       },
     },
   },
-  domain: { name: $interpolate`cdn.${DOMAIN.value}`, dns: sst.aws.dns() },
+  domain: { name: CDN_DOMAIN.value, dns: sst.aws.dns() },
 });

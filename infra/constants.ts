@@ -1,14 +1,5 @@
 import { Constant } from './resources';
-
-export const isProd = $app.stage === 'production';
-
-export const BASE_DOMAIN = 'theaistudybible.com';
-
-sst.Linkable.wrap(Constant, (resource) => ({
-  properties: {
-    value: resource.value,
-  },
-}));
+import { BASE_DOMAIN, isProd } from './utils/constants';
 
 export const DEV = new Constant('Dev', $dev.toString());
 

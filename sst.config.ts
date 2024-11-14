@@ -13,16 +13,20 @@ export default $config({
     },
   }),
   run: async () => {
+    // Linkable resources
     const { WEBAPP_URL } = await import('./infra/constants');
     await import('./infra/secrets');
     await import('./infra/monitoring');
     await import('./infra/analytics');
     await import('./infra/storage');
     await import('./infra/database');
-    await import('./infra/dlq');
     await import('./infra/email');
-    await import('./infra/defaults');
     await import('./infra/queues');
+
+    // Setup default links, etc
+    await import('./infra/defaults');
+
+    await import('./infra/queue-subscribers');
     await import('./infra/webhooks');
     await import('./infra/jobs');
     await import('./infra/www');

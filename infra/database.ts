@@ -1,38 +1,43 @@
-import { isProd } from './constants';
 import type { FlyRegion } from './types/fly.io';
+import { isProd } from './utils/constants';
 
-let tursoGroup: turso.Group | undefined;
-let tursoDb: turso.Database | undefined;
-if (!$dev) {
-  tursoGroup = isProd
-    ? new turso.Group(
-        'TursoGroup',
-        {
-          name: 'default',
-          primary: 'iad' satisfies FlyRegion,
-          locations: ['iad', 'sin'] satisfies FlyRegion[],
-        },
-        { retainOnDelete: true },
-      )
-    : turso.Group.get('TursoGroup', 'default', {}, { retainOnDelete: true });
+function getTursoDatabase() {
+  if (!$dev) {
+    const tursoGroup = isProd
+      ? new turso.Group(
+          'TursoGroup',
+          {
+            name: 'default',
+            primary: 'iad' satisfies FlyRegion,
+            locations: ['iad', 'sin'] satisfies FlyRegion[],
+          },
+          { retainOnDelete: true },
+        )
+      : turso.Group.get('TursoGroup', 'default', {}, { retainOnDelete: true });
 
-  tursoDb = new turso.Database(
-    'TursoDatabase',
-    {
-      name: `${$app.name}-${$app.stage}`,
-      group: tursoGroup.name,
-    },
-    { retainOnDelete: isProd },
-  );
+    return new turso.Database(
+      'TursoDatabase',
+      {
+        name: `${$app.name}-${$app.stage}`,
+        group: tursoGroup.name,
+      },
+      { retainOnDelete: isProd },
+    );
+  }
+  return undefined;
 }
+
+const tursoDatabase = getTursoDatabase();
 
 export const database = new sst.Linkable('Database', {
   properties: {
-    name: tursoDb?.name ?? 'dev',
-    url: tursoDb
-      ? $interpolate`https://${tursoDb.database.hostname}`
-      : `file://${process.cwd()}/.libsql.db`,
-    token: tursoDb ? turso.getDatabaseTokenOutput({ id: tursoDb.id }).apply(({ jwt }) => jwt) : '',
+    name: tursoDatabase?.name ?? 'dev',
+    url: tursoDatabase
+      ? $interpolate`https://${tursoDatabase.database.hostname}`
+      : `file://${$cli.paths.root}/.libsql.db`,
+    token: tursoDatabase
+      ? turso.getDatabaseTokenOutput({ id: tursoDatabase.id }).apply(({ jwt }) => jwt)
+      : '',
   },
 });
 

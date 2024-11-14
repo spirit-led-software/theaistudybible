@@ -16,3 +16,9 @@ export class Constant extends $util.ComponentResource {
     return $output(this._value);
   }
 }
+
+sst.Linkable.wrap(Constant, (resource) => ({
+  properties: {
+    value: resource.value,
+  },
+}));

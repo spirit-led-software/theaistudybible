@@ -1,14 +1,8 @@
 import { DOMAIN, POSTHOG_API_HOST, POSTHOG_ASSETS_HOST } from './constants';
-import { Constant } from './resources';
 
-export const ANALYTICS_DOMAIN = new Constant(
-  'AnalyticsDomain',
-  $interpolate`piggy.${DOMAIN.value}`,
-);
+const ANALYTICS_DOMAIN = $interpolate`piggy.${DOMAIN.value}`;
 
-export const analyticsRouter = new sst.aws.Router('AnalyticsRouter', {
+export const analyticsApi = new sst.aws.Router('AnalyticsApi', {
   routes: { '/*': POSTHOG_API_HOST.value, '/static/*': POSTHOG_ASSETS_HOST.value },
-  domain: { name: ANALYTICS_DOMAIN.value, dns: sst.aws.dns() },
+  domain: { name: ANALYTICS_DOMAIN, dns: sst.aws.dns() },
 });
-
-export const ANALYTICS_URL = new Constant('AnalyticsUrl', analyticsRouter.url);

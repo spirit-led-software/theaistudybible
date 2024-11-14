@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
-import { ANALYTICS_URL } from './analytics';
+import { analyticsApi } from './analytics';
 import {
   DOMAIN,
   POSTHOG_API_KEY,
@@ -8,7 +8,7 @@ import {
   STRIPE_PUBLISHABLE_KEY,
   WEBAPP_URL,
 } from './constants';
-import * as defaults from './defaults';
+import { allLinks } from './defaults';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
@@ -21,7 +21,7 @@ const env = $util
     cdn.url,
     STRIPE_PUBLISHABLE_KEY.value,
     POSTHOG_UI_HOST.value,
-    ANALYTICS_URL.value,
+    analyticsApi.url,
     POSTHOG_API_KEY.value,
     webAppSentryKey.dsnPublic,
     webAppSentryProject.organization,
@@ -63,7 +63,7 @@ export const webAppDev = new sst.x.DevCommand('WebAppDev', {
     autostart: true,
   },
   environment: env,
-  link: defaults.link,
+  link: allLinks,
 });
 
 export let webAppCdn: sst.aws.Cdn | undefined;
@@ -87,7 +87,7 @@ if (!$dev) {
     const service = cluster.addService(`WebAppService-${region}`, {
       image: webAppImage.ref,
       environment: env,
-      link: defaults.link,
+      link: allLinks,
       permissions: [{ actions: ['cloudfront:CreateInvalidation'], resources: ['*'] }],
       loadBalancer: {
         ports: [
@@ -164,7 +164,7 @@ if (!$dev) {
         cdn.url,
         STRIPE_PUBLISHABLE_KEY.value,
         POSTHOG_UI_HOST.value,
-        ANALYTICS_URL.value,
+        analyticsApi.url,
         POSTHOG_API_KEY.value,
         webAppSentryKey.dsnPublic,
         webAppSentryProject.organization,
