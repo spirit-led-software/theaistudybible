@@ -369,7 +369,11 @@ if (!$dev) {
         ]),
         wait: true,
         invalidation: { paths: ['/*'], wait: true },
-        domain: { name: DOMAIN.value, dns: sst.aws.dns({ override: true }) },
+        domain: {
+          name: DOMAIN.value,
+          redirects: DOMAIN.value.apply((domain) => [`www.${domain}`]),
+          dns: sst.aws.dns({ override: true }),
+        },
         transform: {
           distribution: (args) => {
             args.loggingConfig = { bucket: loggingBucket.domain };
