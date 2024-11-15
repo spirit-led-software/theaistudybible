@@ -9,7 +9,7 @@ export const webAppSentryProject = new sentry.SentryProject('WebAppProject', {
   organization: SENTRY_ORG,
   team: SENTRY_TEAM,
   name: `${$app.name}-${$app.stage}-www`,
-  platform: 'javascript-solidstart',
+  platform: 'javascript',
   resolveAge: 24 * 7, // 1 week in hours
 });
 
