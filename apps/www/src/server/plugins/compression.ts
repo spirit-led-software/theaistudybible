@@ -33,9 +33,10 @@ export default defineNitroPlugin((nitroApp) => {
       event.node.res.removeHeader('Content-Length');
 
       try {
+        const readable = Readable.from(response.body);
+
         if (acceptedEncoding.includes('br')) {
           event.node.res.setHeader('Content-Encoding', 'br');
-          const readable = Readable.from(response.body);
           const brotli = createBrotliCompress();
 
           // Handle compression stream errors
@@ -45,17 +46,10 @@ export default defineNitroPlugin((nitroApp) => {
             readable.destroy();
           });
 
-          // Wait for compression to complete
-          response.body = await new Promise((resolve, reject) => {
-            const chunks: Buffer[] = [];
-            brotli.on('data', (chunk) => chunks.push(chunk));
-            brotli.on('end', () => resolve(Buffer.concat(chunks)));
-            brotli.on('error', reject);
-            readable.pipe(brotli);
-          });
+          // Stream the compressed response
+          response.body = readable.pipe(brotli);
         } else if (acceptedEncoding.includes('gzip')) {
           event.node.res.setHeader('Content-Encoding', 'gzip');
-          const readable = Readable.from(response.body);
           const gzip = createGzip();
 
           // Handle compression stream errors
@@ -65,17 +59,10 @@ export default defineNitroPlugin((nitroApp) => {
             readable.destroy();
           });
 
-          // Wait for compression to complete
-          response.body = await new Promise((resolve, reject) => {
-            const chunks: Buffer[] = [];
-            gzip.on('data', (chunk) => chunks.push(chunk));
-            gzip.on('end', () => resolve(Buffer.concat(chunks)));
-            gzip.on('error', reject);
-            readable.pipe(gzip);
-          });
+          // Stream the compressed response
+          response.body = readable.pipe(gzip);
         }
       } catch (err) {
-        // If compression fails, fall back to uncompressed response
         captureSentryException(err);
         event.node.res.removeHeader('Content-Encoding');
         // Keep original response.body
