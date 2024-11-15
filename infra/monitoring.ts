@@ -5,7 +5,7 @@ if (!SENTRY_ORG || !SENTRY_TEAM) {
   throw new Error('SENTRY_ORG and SENTRY_TEAM must be set');
 }
 
-export const webAppSentryProject = new versesentry.SentryProject('WebAppProject', {
+export const webAppSentryProject = new sentry.SentryProject('WebAppProject', {
   organization: SENTRY_ORG,
   team: SENTRY_TEAM,
   name: `${$app.name}-${$app.stage}-www`,
@@ -13,7 +13,7 @@ export const webAppSentryProject = new versesentry.SentryProject('WebAppProject'
   resolveAge: 24 * 7, // 1 week in hours
 });
 
-export const webAppSentryKey = new versesentry.SentryKey('WebAppSentryDsn', {
+export const webAppSentryKey = new sentry.SentryKey('WebAppSentryDsn', {
   organization: SENTRY_ORG,
   project: webAppSentryProject.name,
 });
