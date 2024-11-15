@@ -14,7 +14,7 @@ import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
 import { isProd } from './utils/constants';
 
-const regions: aws.Region[] = isProd ? ['us-east-1'] : ['us-east-1', 'ap-southeast-1'];
+const regions: aws.Region[] = isProd ? ['us-east-1', 'ap-southeast-1'] : ['us-east-1'];
 
 const env = $util
   .all([

@@ -6,7 +6,12 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   middleware: './src/middleware.ts',
-  server: { preset: 'bun', serveStatic: false, compatibilityDate: '2024-11-15' },
+  server: {
+    preset: 'bun',
+    serveStatic: false,
+    plugins: ['./src/server/plugins/compression.ts'],
+    compatibilityDate: '2024-11-15',
+  },
   vite: {
     envPrefix: 'PUBLIC_',
     plugins: [

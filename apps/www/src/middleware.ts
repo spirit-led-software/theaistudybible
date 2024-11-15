@@ -92,12 +92,6 @@ export default createMiddleware({
       const url = new URL(request.url);
       console.log(`--> ${request.method} ${url.pathname} ${response.status}`);
     },
-    // Need to add this for Sentry profiling to work
-    ({ response }) => {
-      if (response.headers.get('Content-Type')?.includes('text/html')) {
-        response.headers.append('Document-Policy', 'js-profiling');
-      }
-    },
     // Sentry Middleware
     sentryBeforeResponseMiddleware(),
   ],
