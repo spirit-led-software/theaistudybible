@@ -85,9 +85,14 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   // Find the index of the last message grouped by role
   const lastMessageIdx = createMemo(() => {
-    let idx = messages().length - 1;
-    const role = messages()[idx]?.role;
-    while (idx >= 0 && messages()[idx]?.role === role) {
+    const currentMessages = messages();
+    if (currentMessages.length === 0) {
+      return 0;
+    }
+
+    let idx = currentMessages.length - 1;
+    const groupRole = currentMessages[idx]?.role;
+    while (idx >= 0 && currentMessages[idx - 1]?.role === groupRole) {
       idx--;
     }
     return idx;
