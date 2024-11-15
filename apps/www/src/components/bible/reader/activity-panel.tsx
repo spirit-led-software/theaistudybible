@@ -4,38 +4,16 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { H6 } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { Highlighter, MessageCircle, Notebook, Share, X } from 'lucide-solid';
-import {
-  Suspense,
-  Switch,
-  createContext,
-  createMemo,
-  createSignal,
-  lazy,
-  splitProps,
-  useContext,
-} from 'solid-js';
+import { Switch, createContext, createMemo, createSignal, splitProps, useContext } from 'solid-js';
 import type { Accessor, JSXElement, Setter } from 'solid-js';
 import { Match, Show } from 'solid-js';
-import { Center } from '../../ui/center';
-import { Spinner } from '../../ui/spinner';
 import { BookmarkButton } from './activity-panel/bookmark/button';
+import { ChatCard } from './activity-panel/chat/card';
+import { HighlightCard } from './activity-panel/highlight/card';
+import { NotesCard } from './activity-panel/notes/card';
 import { ReferencesButton } from './activity-panel/references/button';
-
-const ChatCard = lazy(async () => ({
-  default: (await import('./activity-panel/chat/card')).ChatCard,
-}));
-const HighlightCard = lazy(async () => ({
-  default: (await import('./activity-panel/highlight/card')).HighlightCard,
-}));
-const NotesCard = lazy(async () => ({
-  default: (await import('./activity-panel/notes/card')).NotesCard,
-}));
-const ReferencesCard = lazy(async () => ({
-  default: (await import('./activity-panel/references/card')).ReferencesCard,
-}));
-const ShareCard = lazy(async () => ({
-  default: (await import('./activity-panel/share/card')).ShareCard,
-}));
+import { ReferencesCard } from './activity-panel/references/card';
+import { ShareCard } from './activity-panel/share/card';
 
 export type ActivityPanelContextValue = {
   value: Accessor<string | undefined>;
@@ -170,31 +148,23 @@ export const ActivityPanelContent = () => {
               <DrawerTitle class='text-center'>{brStore.selectedTitle}</DrawerTitle>
             </DrawerHeader>
           </Show>
-          <Suspense
-            fallback={
-              <Center>
-                <Spinner />
-              </Center>
-            }
-          >
-            <Switch>
-              <Match when={value() === 'share'}>
-                <ShareCard />
-              </Match>
-              <Match when={value() === 'highlight'}>
-                <HighlightCard />
-              </Match>
-              <Match when={value() === 'notes'}>
-                <NotesCard />
-              </Match>
-              <Match when={value() === 'references'}>
-                <ReferencesCard />
-              </Match>
-              <Match when={value() === 'chat'}>
-                <ChatCard />
-              </Match>
-            </Switch>
-          </Suspense>
+          <Switch>
+            <Match when={value() === 'share'}>
+              <ShareCard />
+            </Match>
+            <Match when={value() === 'highlight'}>
+              <HighlightCard />
+            </Match>
+            <Match when={value() === 'notes'}>
+              <NotesCard />
+            </Match>
+            <Match when={value() === 'references'}>
+              <ReferencesCard />
+            </Match>
+            <Match when={value() === 'chat'}>
+              <ChatCard />
+            </Match>
+          </Switch>
         </div>
       </DrawerContent>
     </Drawer>
