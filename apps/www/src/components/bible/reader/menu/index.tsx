@@ -1,9 +1,9 @@
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { Match, Switch } from 'solid-js';
-import { ChapterBookmarkButton } from './reader/menu/bookmark-button/chapter';
-import { VerseBookmarkButton } from './reader/menu/bookmark-button/verse';
-import { BookPicker } from './reader/menu/chapter-picker/book';
-import { SmallTranslationPicker } from './reader/menu/translation-picker/small';
+import { ChapterBookmarkButton } from './bookmark-button/chapter';
+import { VerseBookmarkButton } from './bookmark-button/verse';
+import { BookPicker } from './chapter-picker/book';
+import { SmallTranslationPicker } from './translation-picker/small';
 
 export const BibleReaderMenu = () => {
   const [brStore] = useBibleReaderStore();

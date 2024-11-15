@@ -1,4 +1,4 @@
-import { withSentryErrorBoundary } from '@sentry/solidstart';
+import * as Sentry from '@sentry/solidstart';
 import { ErrorBoundary } from 'solid-js';
 
-export const SentryErrorBoundary = withSentryErrorBoundary(ErrorBoundary);
+export const SentryErrorBoundary = Sentry.withSentryErrorBoundary(ErrorBoundary);

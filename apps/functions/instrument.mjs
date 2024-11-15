@@ -1,13 +1,5 @@
 // @ts-check
-import {
-  NodeClient,
-  addEventProcessor,
-  defaultStackParser,
-  getCurrentHub,
-  getCurrentScope,
-  getDefaultIntegrations,
-  makeNodeTransport,
-} from '@sentry/aws-serverless';
+import * as Sentry from '@sentry/aws-serverless';
 import { PostHog, PostHogSentryIntegration } from 'posthog-node';
 
 const isProd = process.env.STAGE === 'production';
@@ -23,24 +15,19 @@ if (!isProd) {
   posthog.optOut();
 }
 
-const client = new NodeClient({
+Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  stackParser: defaultStackParser,
-  transport: makeNodeTransport,
   integrations: [
-    ...getDefaultIntegrations({}),
     {
       ...posthogSentry,
-      setupOnce: () => posthogSentry.setupOnce(addEventProcessor, getCurrentHub),
+      setupOnce: () => posthogSentry.setupOnce(Sentry.addEventProcessor, Sentry.getCurrentScope),
     },
   ],
   tracesSampleRate: Number.parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE),
   clientReportFlushInterval: 0,
 });
-getCurrentScope().setClient(client);
-client.init();
 
 process.on('beforeExit', async () => {
   await posthog.shutdown();
-  await client.close();
+  await Sentry.close();
 });

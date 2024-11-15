@@ -1,6 +1,6 @@
 import { bookPickerQueryOptions } from '@/www/components/bible/reader/menu/chapter-picker/book';
 import { smallTranslationPickerQueryOptions } from '@/www/components/bible/reader/menu/translation-picker/small';
-import VerseReader, { getVerseReaderQueryOptions } from '@/www/components/bible/verse/reader';
+import { VerseReader, getVerseReaderQueryOptions } from '@/www/components/bible/verse/reader';
 import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';

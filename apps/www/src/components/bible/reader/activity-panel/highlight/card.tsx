@@ -16,7 +16,6 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { Match, Switch, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { ColorItem } from './color-item';
-import { HighlightColorPicker } from './color-picker';
 
 const updateHighlightsAction = action(
   async ({ color, verseIds }: { color: string; verseIds: string[] }) => {
@@ -81,7 +80,6 @@ export const HighlightCard = () => {
   }));
 
   const [tgValue, setTgValue] = createSignal<string | null>(null);
-  const [customColor, setCustomColor] = createSignal<string>();
 
   return (
     <Card>
@@ -98,7 +96,7 @@ export const HighlightCard = () => {
             <ColorItem title='Orange' hex='#FFA500' />
             <ColorItem title='Purple' hex='#DDA0DD' />
             <ColorItem title='Red' hex='#FF6347' />
-            <HighlightColorPicker setColor={setCustomColor} />
+            <ColorItem title='Cyan' hex='#00FFFF' />
           </ToggleGroup>
         </CardContent>
         <CardFooter class='flex justify-end gap-2'>
@@ -125,7 +123,7 @@ export const HighlightCard = () => {
             onClick={() =>
               addHighlightsMutation.mutate({
                 verseIds: brStore.selectedVerseInfos.map((v) => v.id),
-                color: tgValue() === 'custom' ? customColor() : tgValue() || undefined,
+                color: tgValue() || undefined,
               })
             }
           >

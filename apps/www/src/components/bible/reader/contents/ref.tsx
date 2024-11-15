@@ -14,7 +14,7 @@ export type RefContentProps = {
   class?: string;
 };
 
-export default function RefContent(props: RefContentProps) {
+export function RefContent(props: RefContentProps) {
   const [brStore] = useBibleReaderStore();
 
   const link = createMemo(() => {

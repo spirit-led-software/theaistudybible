@@ -1,13 +1,5 @@
 // @ts-check
-import {
-  BunClient,
-  addEventProcessor,
-  defaultStackParser,
-  getCurrentHub,
-  getCurrentScope,
-  getDefaultIntegrations,
-  makeFetchTransport,
-} from '@sentry/bun';
+import * as Sentry from '@sentry/solidstart';
 import { PostHog, PostHogSentryIntegration } from 'posthog-node';
 
 const isProd = process.env.PUBLIC_STAGE === 'production';
@@ -22,27 +14,20 @@ if (!isProd) {
   posthog.optOut();
 }
 
-const client = new BunClient({
+Sentry.init({
   dsn: process.env.PUBLIC_SENTRY_DSN,
-  stackParser: defaultStackParser,
-  transport: makeFetchTransport,
   integrations: [
-    // TODO: Issue with standard instrumentation:
-    // https://github.com/getsentry/sentry-javascript/issues/12891
-    // https://github.com/oven-sh/bun/issues/13165
-    ...getDefaultIntegrations({}).filter((i) => i.name !== 'Http'),
     {
       ...posthogSentry,
-      setupOnce: () => posthogSentry.setupOnce(addEventProcessor, getCurrentHub),
+      setupOnce: () => posthogSentry.setupOnce(Sentry.addEventProcessor, Sentry.getCurrentScope),
     },
   ],
   tracesSampleRate: isDev ? 0 : isProd ? 1.0 : 0.5,
   environment: process.env.PUBLIC_STAGE,
+  registerEsmLoaderHooks: { onlyIncludeInstrumentedModules: true },
 });
-getCurrentScope().setClient(client);
-client.init();
 
 process.on('beforeExit', async () => {
   await posthog.shutdown();
-  await client.close();
+  await Sentry.close();
 });

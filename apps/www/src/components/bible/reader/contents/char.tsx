@@ -2,10 +2,9 @@ import type { VerseNote } from '@/schemas/bibles';
 import type { CharContent as CharContentType } from '@/schemas/bibles/contents';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { cn } from '@/www/lib/utils';
-import { A } from '@solidjs/router';
-('@/www/types/bible');
 import type { HighlightInfo } from '@/www/types/bible';
-import Contents from '../contents';
+import { A } from '@solidjs/router';
+import { Contents } from './index';
 
 export type CharContentProps = {
   content: CharContentType;
@@ -17,7 +16,7 @@ export type CharContentProps = {
   props: any;
 };
 
-export default function CharContent(props: CharContentProps) {
+export function CharContent(props: CharContentProps) {
   const CharContent = (
     <span
       id={props.content.id}

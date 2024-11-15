@@ -1,4 +1,4 @@
-import { addIntegration as addSentryIntegration } from '@sentry/solidstart';
+import * as Sentry from '@sentry/solidstart';
 import { useBeforeLeave, useLocation } from '@solidjs/router';
 import posthog, { type PostHog } from 'posthog-js';
 import {
@@ -19,7 +19,7 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
   createEffect(
     on(posthogClient, (posthogClient) => {
       if (posthogClient) {
-        addSentryIntegration(
+        Sentry.addIntegration(
           posthogClient.sentryIntegration({
             organization: import.meta.env.PUBLIC_SENTRY_ORG,
             projectId: Number.parseInt(import.meta.env.PUBLIC_SENTRY_PROJECT_ID),

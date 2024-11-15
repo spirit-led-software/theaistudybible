@@ -12,10 +12,10 @@ import {
   ActivityPanelAlwaysOpenButtons,
   ActivityPanelButtons,
   ActivityPanelContent,
-} from './reader/activity-panel';
-import Contents from './reader/contents';
+} from './activity-panel';
+import { Contents } from './contents';
 
-import './reader/contents.css';
+import './contents/contents.css';
 
 const getHighlights = GET(async (chapterId: string) => {
   'use server';

@@ -1,4 +1,4 @@
-import ChapterReader, { chapterReaderQueryOptions } from '@/www/components/bible/chapter/reader';
+import { ChapterReader, chapterReaderQueryOptions } from '@/www/components/bible/chapter/reader';
 import { bookPickerQueryOptions } from '@/www/components/bible/reader/menu/chapter-picker/book';
 import { smallTranslationPickerQueryOptions } from '@/www/components/bible/reader/menu/translation-picker/small';
 import type { RouteDefinition } from '@solidjs/router';

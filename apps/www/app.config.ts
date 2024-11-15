@@ -6,7 +6,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   middleware: './src/middleware.ts',
-  server: { preset: 'bun', serveStatic: false, compatibilityDate: '2024-11-13' },
+  server: { preset: 'bun', serveStatic: false, compatibilityDate: '2024-11-15' },
   vite: {
     envPrefix: 'PUBLIC_',
     plugins: [
@@ -51,13 +51,6 @@ export default defineConfig({
         org: process.env.PUBLIC_SENTRY_ORG,
         project: process.env.PUBLIC_SENTRY_PROJECT_NAME,
         authToken: process.env.SENTRY_AUTH_TOKEN,
-        bundleSizeOptimizations: {
-          excludeDebugStatements: true,
-          // TODO: Remove if we want replay
-          excludeReplayIframe: true,
-          excludeReplayShadowDom: true,
-          excludeReplayWorker: true,
-        },
       }),
     ],
   },

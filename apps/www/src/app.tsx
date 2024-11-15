@@ -1,5 +1,6 @@
+// @refresh reload
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
-import { captureException as captureSentryException } from '@sentry/solidstart';
+import * as Sentry from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
@@ -35,7 +36,7 @@ export default function App() {
         // this seems to be the only way to capture errors in solid-query
         // https://tanstack.com/query/latest/docs/framework/react/guides/suspense#throwonerror-default
         throwOnError: (error, query) => {
-          captureSentryException(error, {
+          Sentry.captureException(error, {
             data: {
               queryKey: query.queryKey,
               queryHash: query.queryHash,
@@ -49,7 +50,7 @@ export default function App() {
       },
       mutations: {
         throwOnError: (error) => {
-          captureSentryException(error);
+          Sentry.captureException(error);
           return true;
         },
       },

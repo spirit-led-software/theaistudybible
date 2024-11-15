@@ -68,7 +68,7 @@ export default function HomePage() {
           {/* Feature Section */}
           <div class='bg-gradient-to-b from-background to-primary/5 py-16 sm:py-20 md:py-24'>
             <div class='container mx-auto px-4'>
-              <H2 class='mb-8 text-center font-bold text-4xl sm:mb-12 sm:text-5xl'>
+              <H2 class='mb-8 text-center text-4xl sm:mb-12 sm:text-5xl'>
                 Discover the Power of AI-Assisted Bible Study
               </H2>
               <div class='grid gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12'>

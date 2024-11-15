@@ -2,12 +2,12 @@ import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { s3 } from '@/core/storage';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { wrapHandler } from '@sentry/aws-serverless';
+import * as Sentry from '@sentry/aws-serverless';
 import type { S3EventRecord, SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
 import { eq } from 'drizzle-orm';
 import { Resource } from 'sst';
 
-export const handler: SQSHandler = wrapHandler(async (event) => {
+export const handler: SQSHandler = Sentry.wrapHandler(async (event) => {
   console.log('Processing profile images event:', JSON.stringify(event, null, 2));
 
   const batchItemFailures: SQSBatchItemFailure[] = [];

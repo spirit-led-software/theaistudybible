@@ -13,8 +13,8 @@ import { Show } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
-import { BibleReaderMenu } from '../menu';
 import { ReaderContent } from '../reader';
+import { BibleReaderMenu } from '../reader/menu';
 
 const getChapterReaderData = GET(
   async (props: {
@@ -104,7 +104,7 @@ export type ChapterReaderProps = {
   chapterNum: number;
 };
 
-export default function ChapterReader(props: ChapterReaderProps) {
+export function ChapterReader(props: ChapterReaderProps) {
   const navigate = useNavigate();
   const isRouting = useIsRouting();
   const preload = usePreloadRoute();

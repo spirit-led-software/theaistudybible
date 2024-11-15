@@ -1,6 +1,6 @@
 import { sqs } from '@/core/queues';
 import { SendMessageBatchCommand } from '@aws-sdk/client-sqs';
-import { wrapHandler } from '@sentry/aws-serverless';
+import * as Sentry from '@sentry/aws-serverless';
 import type { SQSEvent, SQSHandler } from 'aws-lambda';
 import { Resource } from 'sst';
 import type { EmailQueueRecord } from './email/types';
@@ -39,7 +39,7 @@ const html = (record: SQSEvent['Records'][number]) => `
   </body>
 </html>`;
 
-export const handler: SQSHandler = wrapHandler(async (event) => {
+export const handler: SQSHandler = Sentry.wrapHandler(async (event) => {
   try {
     console.log('Processing dead-letter event:', JSON.stringify(event, null, 2));
 

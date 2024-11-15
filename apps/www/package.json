@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "@ai-sdk/solid": "^0.0.54",
-    "@ark-ui/solid": "4.5.0",
     "@corvu/drawer": "^0.2.2",
     "@fontsource-variable/inter": "^5.1.0",
     "@fontsource/goldman": "^5.1.0",
@@ -53,8 +52,8 @@
     "@solidjs/router": "^0.15.1",
     "@solidjs/start": "^1.0.10",
     "@stripe/stripe-js": "^4.10.0",
-    "@tanstack/solid-query": "^5.59.20",
-    "@tanstack/solid-query-devtools": "^5.59.20",
+    "@tanstack/solid-query": "^5.60.4",
+    "@tanstack/solid-query-devtools": "^5.60.4",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",

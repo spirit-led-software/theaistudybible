@@ -14,7 +14,7 @@ export type TextContentProps = {
   class?: string;
 };
 
-export default function TextContent(props: TextContentProps) {
+export function TextContent(props: TextContentProps) {
   const [brStore, setBrStore] = useBibleReaderStore();
   const highlightColor = createMemo(
     () => props.highlights?.find(({ verseId }) => verseId === props.content.verseId)?.color,

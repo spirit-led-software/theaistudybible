@@ -13,8 +13,8 @@ import { Show } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
-import { BibleReaderMenu } from '../menu';
 import { ReaderContent } from '../reader';
+import { BibleReaderMenu } from '../reader/menu';
 
 const getVerseReaderData = GET(
   async (props: {
@@ -151,7 +151,7 @@ export type VerseReaderProps = {
   verseNum: number;
 };
 
-export default function VerseReader(props: VerseReaderProps) {
+export function VerseReader(props: VerseReaderProps) {
   const navigate = useNavigate();
   const isRouting = useIsRouting();
   const preload = usePreloadRoute();

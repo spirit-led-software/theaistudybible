@@ -3,11 +3,11 @@ import type { Content } from '@/schemas/bibles/contents';
 import { cn } from '@/www/lib/utils';
 import type { HighlightInfo } from '@/www/types/bible';
 import { For, Match, Switch } from 'solid-js';
-import CharContent from './contents/char';
-import NoteContent from './contents/note';
-import RefContent from './contents/ref';
-import TextContent from './contents/text';
-import { VerseContent } from './contents/verse';
+import { CharContent } from './char';
+import { NoteContent } from './note';
+import { RefContent } from './ref';
+import { TextContent } from './text';
+import { VerseContent } from './verse';
 
 export type ContentsProps = {
   contents: Content[];
@@ -16,7 +16,7 @@ export type ContentsProps = {
   class?: string;
 };
 
-export default function Contents(props: ContentsProps) {
+export function Contents(props: ContentsProps) {
   return (
     <For each={props.contents}>
       {(content) => {

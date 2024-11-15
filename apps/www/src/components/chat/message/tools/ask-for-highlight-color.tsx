@@ -1,6 +1,5 @@
 import { toCapitalizedCase } from '@/core/utils/string';
 import { ColorItem } from '@/www/components/bible/reader/activity-panel/highlight/color-item';
-import { HighlightColorPicker } from '@/www/components/bible/reader/activity-panel/highlight/color-picker';
 import { Button } from '@/www/components/ui/button';
 import { ToggleGroup } from '@/www/components/ui/toggle-group';
 import { H5 } from '@/www/components/ui/typography';
@@ -16,7 +15,6 @@ export type AskForHighlightColorToolProps = {
 
 export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) => {
   const [tgValue, setTgValue] = createSignal<string | undefined>();
-  const [customColor, setCustomColor] = createSignal<string>();
 
   return (
     <div class='flex w-full flex-col'>
@@ -42,7 +40,7 @@ export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) =
               <ColorItem title='Orange' hex='#FFA500' />
               <ColorItem title='Purple' hex='#DDA0DD' />
               <ColorItem title='Red' hex='#FF6347' />
-              <HighlightColorPicker setColor={setCustomColor} />
+              <ColorItem title='Cyan' hex='#00FFFF' />
             </ToggleGroup>
             <div class='flex justify-end space-x-2'>
               <Button
@@ -64,7 +62,7 @@ export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) =
                     toolCallId: props.toolInvocation.toolCallId,
                     result: {
                       status: 'confirmed',
-                      color: tgValue() || customColor(),
+                      color: tgValue() || undefined,
                     },
                   })
                 }
