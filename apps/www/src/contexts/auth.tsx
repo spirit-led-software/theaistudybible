@@ -1,6 +1,6 @@
 import type { Role } from '@/schemas/roles';
 import { auth } from '@/www/server/auth';
-import * as Sentry from '@sentry/solidstart';
+import { setUser as setSentryUser } from '@sentry/solidstart';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import type { Session, User } from 'lucia';
@@ -89,7 +89,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const currentUser = user();
     if (currentUser) {
       posthog()?.identify(currentUser.id, { email: currentUser.email });
-      Sentry.setUser({ id: currentUser.id, email: currentUser.email });
+      setSentryUser({ id: currentUser.id, email: currentUser.email });
     }
   });
 

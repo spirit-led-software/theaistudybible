@@ -43,6 +43,7 @@ const env = $util
       sentryProjectId,
       sentryProjectName,
     ]) => ({
+      PUBLIC_DEV: $dev.toString(),
       PUBLIC_STAGE: $app.stage,
       PUBLIC_WEBAPP_URL: webAppUrl,
       PUBLIC_CDN_URL: cdnUrl,

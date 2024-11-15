@@ -1,6 +1,5 @@
-import * as Sentry from '@sentry/solidstart';
 import { useBeforeLeave, useLocation } from '@solidjs/router';
-import posthog, { type PostHog } from 'posthog-js';
+import type { PostHog } from 'posthog-js';
 import {
   type Accessor,
   type JSX,
@@ -17,9 +16,10 @@ const PosthogContext = createContext<Accessor<PostHog | undefined> | null>(null)
 export const PosthogProvider = (props: { children: JSX.Element }) => {
   const [posthogClient, setPosthogClient] = createSignal<PostHog>();
   createEffect(
-    on(posthogClient, (posthogClient) => {
+    on(posthogClient, async (posthogClient) => {
       if (posthogClient) {
-        Sentry.addIntegration(
+        const { addIntegration } = await import('@sentry/solidstart');
+        addIntegration(
           posthogClient.sentryIntegration({
             organization: import.meta.env.PUBLIC_SENTRY_ORG,
             projectId: Number.parseInt(import.meta.env.PUBLIC_SENTRY_PROJECT_ID),
@@ -40,21 +40,19 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
     posthogClient()?.capture('$pageleave');
   });
 
-  onMount(() => {
-    const posthogClient = posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
-      api_host: import.meta.env.PUBLIC_POSTHOG_API_HOST,
-      ui_host: import.meta.env.PUBLIC_POSTHOG_UI_HOST,
-      person_profiles: 'identified_only',
-      capture_pageview: false,
-      capture_pageleave: true,
-      loaded: () => {
-        if (import.meta.env.PUBLIC_STAGE !== 'production') {
-          posthog.opt_out_capturing();
-          posthog.set_config({ disable_session_recording: true });
-        }
-      },
-    });
-    setPosthogClient(posthogClient);
+  onMount(async () => {
+    const isDev = import.meta.env.PUBLIC_DEV === 'true';
+    if (!isDev) {
+      const { default: posthog } = await import('posthog-js');
+      const posthogClient = posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
+        api_host: import.meta.env.PUBLIC_POSTHOG_API_HOST,
+        ui_host: import.meta.env.PUBLIC_POSTHOG_UI_HOST,
+        person_profiles: 'identified_only',
+        capture_pageview: false,
+        capture_pageleave: true,
+      });
+      setPosthogClient(posthogClient);
+    }
   });
 
   return <PosthogContext.Provider value={posthogClient}>{props.children}</PosthogContext.Provider>;

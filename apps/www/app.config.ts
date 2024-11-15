@@ -51,6 +51,13 @@ export default defineConfig({
         org: process.env.PUBLIC_SENTRY_ORG,
         project: process.env.PUBLIC_SENTRY_PROJECT_NAME,
         authToken: process.env.SENTRY_AUTH_TOKEN,
+        bundleSizeOptimizations: {
+          excludeDebugStatements: true,
+          // TODO: Remove these if we want replay
+          excludeReplayIframe: true,
+          excludeReplayShadowDom: true,
+          excludeReplayWorker: true,
+        },
       }),
     ],
   },
