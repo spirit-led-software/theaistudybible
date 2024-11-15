@@ -5,7 +5,7 @@ import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
 ('@/www/types/bible');
 import type { HighlightInfo } from '@/www/types/bible';
-import Contents from './contents';
+import Contents from '../contents';
 
 export type CharContentProps = {
   content: CharContentType;
