@@ -5,7 +5,7 @@ import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { TextSearch } from 'lucide-solid';
-import { useActivityPanel } from '../activity-panel';
+import { useActivityPanel } from '../../activity-panel';
 
 const getHasReferences = GET(async (chapterId: string) => {
   'use server';

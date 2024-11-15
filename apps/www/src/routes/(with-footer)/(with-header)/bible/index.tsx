@@ -1,4 +1,4 @@
-import { LargeTranslationPicker } from '@/www/components/bible/reader/menu/translation-picker';
+import { LargeTranslationPicker } from '@/www/components/bible/reader/menu/translation-picker/large';
 import { largeTranslationPickerQueryOptions } from '@/www/components/bible/reader/menu/translation-picker/large';
 import { useBibleStore } from '@/www/contexts/bible';
 import { Meta, Title } from '@solidjs/meta';

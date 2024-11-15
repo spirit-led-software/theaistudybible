@@ -8,7 +8,7 @@ import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronsUpDown } from 'lucide-solid';
 import { For } from 'solid-js';
-import ChapterPicker from './chapter';
+import { ChapterPicker } from './chapter';
 
 const getBookPickerData = GET(async (bibleId: string) => {
   'use server';
@@ -39,7 +39,7 @@ export const bookPickerQueryOptions = (bibleId: string) => ({
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 
-export default function BookPicker() {
+export function BookPicker() {
   const [brStore] = useBibleReaderStore();
   const query = createQuery(() => bookPickerQueryOptions(brStore.bible.abbreviation));
 

@@ -2,12 +2,12 @@ import { db } from '@/core/database';
 import { s3 } from '@/core/storage';
 import { generateChapterEmbeddings } from '@/core/utils/bibles/generate-chapter-embeddings';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import * as Sentry from '@sentry/aws-serverless';
+import { wrapHandler } from '@sentry/aws-serverless';
 import type { S3EventRecord, SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
 import type { IndexChapterEvent } from './types';
 import { insertChapter, insertVerses } from './utils';
 
-export const handler: SQSHandler = Sentry.wrapHandler(async (event) => {
+export const handler: SQSHandler = wrapHandler(async (event) => {
   console.log('Processing index bible chapter event:', JSON.stringify(event, null, 2));
 
   const batchItemFailures: SQSBatchItemFailure[] = [];

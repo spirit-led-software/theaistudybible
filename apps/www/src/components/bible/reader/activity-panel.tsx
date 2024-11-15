@@ -7,13 +7,13 @@ import { Highlighter, MessageCircle, Notebook, Share, X } from 'lucide-solid';
 import { Switch, createContext, createMemo, createSignal, splitProps, useContext } from 'solid-js';
 import type { Accessor, JSXElement, Setter } from 'solid-js';
 import { Match, Show } from 'solid-js';
-import { BookmarkButton } from './bookmark/button';
-import { ChatCard } from './chat/card';
-import { HighlightCard } from './highlight/card';
-import { NotesCard } from './notes/card';
-import { ReferencesButton } from './references/button';
-import { ReferencesCard } from './references/card';
-import { ShareCard } from './share/card';
+import { BookmarkButton } from './activity-panel/bookmark/button';
+import { ChatCard } from './activity-panel/chat/card';
+import { HighlightCard } from './activity-panel/highlight/card';
+import { NotesCard } from './activity-panel/notes/card';
+import { ReferencesButton } from './activity-panel/references/button';
+import { ReferencesCard } from './activity-panel/references/card';
+import { ShareCard } from './activity-panel/share/card';
 
 export type ActivityPanelContextValue = {
   value: Accessor<string | undefined>;

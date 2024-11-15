@@ -70,7 +70,7 @@ export type ChapterPickerProps = {
   book: Pick<Book, 'code' | 'shortName'>;
 };
 
-export default function ChapterPicker(props: ChapterPickerProps) {
+export function ChapterPicker(props: ChapterPickerProps) {
   const [brStore] = useBibleReaderStore();
 
   const query = createQuery(() => ({

@@ -30,7 +30,7 @@ export const smallTranslationPickerQueryOptions = () => ({
   queryFn: () => getSmallPickerData(),
 });
 
-export default function SmallTranslationPicker() {
+export function SmallTranslationPicker() {
   const navigate = useNavigate();
   const [brStore] = useBibleReaderStore();
 

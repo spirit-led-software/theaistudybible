@@ -1,5 +1,5 @@
 import { db } from '@/core/database';
-import * as schema from '@/core/database/schema';
+import { type bibles, type books, chapters, verses } from '@/core/database/schema';
 import { buildConflictUpdateColumns } from '@/core/database/utils';
 import type { parseUsx } from '@/core/utils/bibles/usx';
 import type { Bible, Book } from '@/schemas/bibles/types';
@@ -20,10 +20,10 @@ export async function insertChapter({
   chapterNumber: string;
   contents: ReturnType<typeof parseUsx>[number];
 }) {
-  const { content, ...columnsWithoutContent } = getTableColumns(schema.chapters);
+  const { content, ...columnsWithoutContent } = getTableColumns(chapters);
 
   const [insertedChapter] = await db
-    .insert(schema.chapters)
+    .insert(chapters)
     .values({
       id: contents.id,
       bibleId: bible.id,
@@ -37,8 +37,8 @@ export async function insertChapter({
     })
     // Since the queue can retry, we need to account for conflicts
     .onConflictDoUpdate({
-      target: schema.chapters.id,
-      set: buildConflictUpdateColumns(schema.chapters, [
+      target: chapters.id,
+      set: buildConflictUpdateColumns(chapters, [
         'code',
         'content',
         'name',
@@ -60,12 +60,12 @@ export async function insertVerses({
   chapter,
   content,
 }: {
-  bible: typeof schema.bibles.$inferSelect;
-  book: typeof schema.books.$inferSelect;
-  chapter: Omit<typeof schema.chapters.$inferSelect, 'content'>;
+  bible: typeof bibles.$inferSelect;
+  book: typeof books.$inferSelect;
+  chapter: Omit<typeof chapters.$inferSelect, 'content'>;
   content: ReturnType<typeof parseUsx>[number];
 }) {
-  const { content: verseContent, ...columnsWithoutContent } = getTableColumns(schema.verses);
+  const { content: verseContent, ...columnsWithoutContent } = getTableColumns(verses);
   const insertVerseBatchSize = 40;
   const allVerses = [];
   const verseEntries = Object.entries(content.verseContents).toSorted(
@@ -75,7 +75,7 @@ export async function insertVerses({
   for (let i = 0; i < verseEntries.length; i += insertVerseBatchSize) {
     const verseBatch = verseEntries.slice(i, i + insertVerseBatchSize);
     const insertedVerses = await db
-      .insert(schema.verses)
+      .insert(verses)
       .values(
         verseBatch.map(
           ([verseNumber, verseContent], idx) =>
@@ -90,13 +90,13 @@ export async function insertVerses({
               name: `${chapter.name}:${verseNumber}`,
               number: Number.parseInt(verseNumber),
               content: verseContent.contents,
-            }) satisfies typeof schema.verses.$inferInsert,
+            }) satisfies typeof verses.$inferInsert,
         ),
       )
       // Since the queue can retry, we need to account for conflicts
       .onConflictDoUpdate({
-        target: schema.verses.id,
-        set: buildConflictUpdateColumns(schema.verses, [
+        target: verses.id,
+        set: buildConflictUpdateColumns(verses, [
           'code',
           'content',
           'name',

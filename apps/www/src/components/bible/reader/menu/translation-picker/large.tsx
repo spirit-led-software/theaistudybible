@@ -22,7 +22,7 @@ export const largeTranslationPickerQueryOptions = {
   queryFn: () => getBibles(),
 };
 
-export default function LargeTranslationPicker() {
+export function LargeTranslationPicker() {
   const query = createQuery(() => largeTranslationPickerQueryOptions);
 
   const [search, setSearch] = createSignal('');
