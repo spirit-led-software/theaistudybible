@@ -10,11 +10,11 @@ import { Match, Show } from 'solid-js';
 import { BookmarkButton } from './activity-panel/bookmark/button';
 import { ReferencesButton } from './activity-panel/references/button';
 
-const ChatCard = lazy(async () => await import('./activity-panel/chat/card').ChatCard);
-const HighlightCard = lazy(async () => await import('./activity-panel/highlight/card').HighlightCard);
-const NotesCard = lazy(async () => await import('./activity-panel/notes/card').NotesCard);
-const ReferencesCard = lazy(async () => await import('./activity-panel/references/card').ReferencesCard);
-const ShareCard = lazy(async () => await import('./activity-panel/share/card').ShareCard);
+const ChatCard = lazy(async () => (await import('./activity-panel/chat/card')).ChatCard);
+const HighlightCard = lazy(async () => (await import('./activity-panel/highlight/card')).HighlightCard);
+const NotesCard = lazy(async () => (await import('./activity-panel/notes/card')).NotesCard);
+const ReferencesCard = lazy(async () => (await import('./activity-panel/references/card')).ReferencesCard);
+const ShareCard = lazy(async () => (await import('./activity-panel/share/card')).ShareCard);
 
 export type ActivityPanelContextValue = {
   value: Accessor<string | undefined>;
