@@ -16,6 +16,7 @@
     "@theaistudybible/tsconfig": "workspace:*",
     "@vite-pwa/assets-generator": "^0.2.6",
     "autoprefixer": "^10.4.20",
+    "cssnano": "^7.0.6",
     "nitropack": "^2.10.4",
     "postcss": "^8.4.49",
     "sharp": "^0.33.5",
