@@ -12,8 +12,7 @@ import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createQuery, useQueryClient } from '@tanstack/solid-query';
 import { generateObject } from 'ai';
 import { isNull } from 'drizzle-orm';
-import type { Accessor } from 'solid-js';
-import { createEffect, mergeProps, on, untrack } from 'solid-js';
+import { type Accessor, createEffect, mergeProps, untrack } from 'solid-js';
 import { z } from 'zod';
 import { requireAuth } from '../server/auth';
 
@@ -164,6 +163,13 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
       captureSentryException(err);
       return props?.().onError?.(err);
     },
+    onFinish: (event, options) => {
+      chatQuery.refetch();
+      followUpSuggestionsQuery.refetch();
+      qc.invalidateQueries({ queryKey: ['chats'] });
+      qc.invalidateQueries({ queryKey: ['user-credits'] });
+      props?.().onFinish?.(event, options);
+    },
   }));
 
   const chatQuery = createQuery(() => ({
@@ -201,22 +207,6 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
     ...getChatSuggestionsQueryProps(chatId()),
     enabled: !!chatId() && !useChatResult.isLoading(),
   }));
-
-  createEffect(
-    on(useChatResult.data, (data) => {
-      const lastData = data?.at(-1);
-      if (lastData && typeof lastData === 'object') {
-        if ('status' in lastData) {
-          if (lastData.status === 'complete') {
-            chatQuery.refetch();
-            followUpSuggestionsQuery.refetch();
-            qc.invalidateQueries({ queryKey: ['chats'] });
-            qc.invalidateQueries({ queryKey: ['user-credits'] });
-          }
-        }
-      }
-    }),
-  );
 
   return mergeProps(useChatResult, {
     id: chatId,

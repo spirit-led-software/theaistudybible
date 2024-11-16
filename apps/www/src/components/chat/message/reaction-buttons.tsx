@@ -69,7 +69,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
   const removeReaction = useAction(removeReactionAction);
 
   const reactionQuery = createQuery(() => ({
-    queryKey: ['reactions', { messageId: props.messageId }],
+    queryKey: ['message-reactions', { messageId: props.messageId }],
     queryFn: () => getReactions(props.messageId),
     staleTime: 1000 * 60 * 10, // 10 minutes
   }));

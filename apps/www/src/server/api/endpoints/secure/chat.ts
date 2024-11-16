@@ -231,7 +231,6 @@ const app = new Hono<{
           if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
             await restoreCreditsOnFailure(c.var.user!.id, 'chat');
           }
-          streamData.append({ status: 'complete' });
           await streamData.close();
           globalThis.posthog?.capture({
             distinctId: c.var.user!.id,
