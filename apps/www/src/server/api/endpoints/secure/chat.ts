@@ -67,7 +67,7 @@ const app = new Hono<{
 
       const body = c.req.valid('json');
       const providedMessages = body.messages;
-      const chatId = body.chatId ?? createId();
+      const providedChatId = body.chatId;
       const providedModelId = body.modelId;
       const additionalContext = body.additionalContext;
 
@@ -109,6 +109,7 @@ const app = new Hono<{
         );
       }
 
+      const chatId = providedChatId ?? createId();
       console.time('getChat');
       let chat = await db.query.chats.findFirst({
         where: (chats, { eq }) => eq(chats.id, chatId),
@@ -246,7 +247,9 @@ const app = new Hono<{
       const result = await streamText(messages);
 
       return stream(c, async (stream) => {
-        c.header('X-Chat-Id', chat.id);
+        if (providedChatId !== chat.id) {
+          c.header('X-Chat-Id', chat.id);
+        }
 
         // Mark the response as a v1 data stream:
         c.header('X-Vercel-AI-Data-Stream', 'v1');

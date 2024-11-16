@@ -155,7 +155,7 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
     },
     onResponse: (response) => {
       const newChatId = response.headers.get('X-Chat-Id');
-      if (newChatId) {
+      if (newChatId && newChatId !== chatId()) {
         setChatId(newChatId);
       }
       return props?.().onResponse?.(response);
@@ -166,9 +166,15 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
     },
   }));
 
-  const chatQuery = createQuery(() => getChatQueryProps(chatId()));
+  const chatQuery = createQuery(() => ({
+    ...getChatQueryProps(chatId()),
+    enabled: !!chatId() && !useChatResult.isLoading(),
+  }));
 
-  const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
+  const messagesQuery = createInfiniteQuery(() => ({
+    ...getChatMessagesQueryProps(chatId()),
+    enabled: !!chatId() && !useChatResult.isLoading(),
+  }));
   createEffect(() => {
     if (untrack(useChatResult.isLoading)) {
       return;
@@ -191,7 +197,10 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
     }
   });
 
-  const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chatId()));
+  const followUpSuggestionsQuery = createQuery(() => ({
+    ...getChatSuggestionsQueryProps(chatId()),
+    enabled: !!chatId() && !useChatResult.isLoading(),
+  }));
 
   createEffect(
     on(useChatResult.data, (data) => {

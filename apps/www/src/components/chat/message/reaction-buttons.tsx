@@ -71,6 +71,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
   const reactionQuery = createQuery(() => ({
     queryKey: ['reactions', { messageId: props.messageId }],
     queryFn: () => getReactions(props.messageId),
+    staleTime: 1000 * 60 * 10, // 10 minutes
   }));
 
   const addReactionMutation = createMutation(() => ({
