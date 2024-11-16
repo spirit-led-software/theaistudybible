@@ -43,6 +43,11 @@ export default defineNitroPlugin((nitroApp) => {
 });
 
 function compressResponse(event: H3Event, response: { body?: unknown }) {
+  const contentEncoding = getResponseHeader(event, 'Content-Encoding');
+  if (contentEncoding) {
+    return;
+  }
+
   const contentType = getResponseHeader(event, 'Content-Type');
   if (
     !contentType ||
