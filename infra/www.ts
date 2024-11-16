@@ -125,6 +125,9 @@ if (!$dev) {
         startPeriod: '20 seconds',
       },
       transform: {
+        loadBalancer: (args) => {
+          args.idleTimeout = 60 * 5; // Necessary for some chat responses to complete
+        },
         service: (args) => {
           args.waitForSteadyState = true;
         },
@@ -303,6 +306,7 @@ if (!$dev) {
         originProtocolPolicy: 'https-only',
         originSslProtocols: ['TLSv1.2'],
         originReadTimeout: 60,
+        originKeepaliveTimeout: 60,
       },
     };
 
