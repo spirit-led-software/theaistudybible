@@ -172,15 +172,9 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
     },
   }));
 
-  const chatQuery = createQuery(() => ({
-    ...getChatQueryProps(chatId()),
-    enabled: !!chatId() && !useChatResult.isLoading(),
-  }));
+  const chatQuery = createQuery(() => getChatQueryProps(chatId()));
 
-  const messagesQuery = createInfiniteQuery(() => ({
-    ...getChatMessagesQueryProps(chatId()),
-    enabled: !!chatId() && !useChatResult.isLoading(),
-  }));
+  const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
   createEffect(() => {
     if (untrack(useChatResult.isLoading)) {
       return;
@@ -203,10 +197,7 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
     }
   });
 
-  const followUpSuggestionsQuery = createQuery(() => ({
-    ...getChatSuggestionsQueryProps(chatId()),
-    enabled: !!chatId() && !useChatResult.isLoading(),
-  }));
+  const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chatId()));
 
   return mergeProps(useChatResult, {
     id: chatId,
