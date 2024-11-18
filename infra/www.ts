@@ -127,7 +127,7 @@ if (!$dev) {
           ],
           cpuType: 'shared',
           cpus: 2,
-          memory: 512,
+          memory: 1024,
         }),
       );
     }
