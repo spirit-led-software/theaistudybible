@@ -15,7 +15,6 @@ import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import { For, Show, createEffect, createMemo } from 'solid-js';
 
 const getDevotion = query(async (id: string) => {
-  'use server';
   const devotion = await db.query.devotions.findFirst({
     where: (devotions, { eq }) => eq(devotions.id, id),
     with: { images: true },
@@ -24,6 +23,7 @@ const getDevotion = query(async (id: string) => {
 }, 'devotion');
 
 const getDevotionRequest = GET(async (id: string) => {
+  'use server';
   const data = await getDevotion(id);
   return json(data, {
     headers: {
