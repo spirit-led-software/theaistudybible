@@ -115,8 +115,8 @@ if (!$dev) {
         cpuUtilization: 95,
         memoryUtilization: 95,
       },
-      cpu: isProd ? '0.5 vCPU' : '0.25 vCPU',
-      memory: isProd ? '1 GB' : '0.5 GB',
+      cpu: '0.25 vCPU',
+      memory: '0.5 GB',
       health: {
         command: ['CMD-SHELL', 'curl -f http://localhost:8080/health || exit 1'],
         interval: '10 seconds',
