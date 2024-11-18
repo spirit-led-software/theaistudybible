@@ -2,7 +2,6 @@ import path from 'node:path';
 import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { analyticsApi } from './analytics';
 import {
-  AWS_HOSTED_ZONE,
   DOMAIN,
   POSTHOG_API_KEY,
   POSTHOG_UI_HOST,
@@ -97,29 +96,13 @@ if (!$dev) {
   });
   const webAppImage = buildWebAppImage();
 
-  const ipv4 = new fly.Ip('WebAppIpv4', {
+  new fly.Ip('WebAppIpv4', {
     app: flyApp.name,
     type: 'v4',
   });
-  const ipv6 = new fly.Ip('WebAppIpv6', {
+  new fly.Ip('WebAppIpv6', {
     app: flyApp.name,
     type: 'v6',
-  });
-
-  const serverDomain = $interpolate`server.${DOMAIN.value}`;
-  const serverARecord = new aws.route53.Record('WebAppServerARecord', {
-    zoneId: AWS_HOSTED_ZONE.zoneId,
-    name: serverDomain,
-    type: 'A',
-    ttl: 60 * 60,
-    records: [ipv4.address],
-  });
-  const serverAAAARecord = new aws.route53.Record('WebAppServerAAAARecord', {
-    zoneId: AWS_HOSTED_ZONE.zoneId,
-    name: serverDomain,
-    type: 'AAAA',
-    ttl: 60 * 60,
-    records: [ipv6.address],
   });
 
   const env = buildEnv();
@@ -392,7 +375,7 @@ if (!$dev) {
 
     const serverOrigin: aws.types.input.cloudfront.DistributionOrigin = {
       originId: 'serverOrigin',
-      domainName: serverDomain,
+      domainName: $interpolate`${flyApp.name}.fly.dev`,
       customOriginConfig: {
         httpPort: 80,
         httpsPort: 443,
@@ -479,12 +462,7 @@ if (!$dev) {
         },
       },
       {
-        dependsOn: [
-          ...regionalResources.flatMap(({ machines }) => machines),
-          flyAutoscalerMachine,
-          serverARecord,
-          serverAAAARecord,
-        ],
+        dependsOn: [...regionalResources.flatMap(({ machines }) => machines), flyAutoscalerMachine],
       },
     );
   }
