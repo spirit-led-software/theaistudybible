@@ -89,12 +89,13 @@ if (!$dev) {
     { access: 'cloudfront' },
     { retainOnDelete: false },
   );
-  const webAppImage = buildWebAppImage();
 
   const flyApp = new fly.App('WebApp', {
     name: `${$app.name}-${$app.stage}-www`,
     org: process.env.FLY_ORG,
   });
+  const webAppImage = buildWebAppImage();
+
   const ipv4 = new fly.Ip('WebAppIpv4', {
     app: flyApp.name,
     type: 'v4',
