@@ -109,10 +109,13 @@ export default function HighlightsPage() {
           <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
             Your Highlighted Verses
           </H2>
-          <div class='mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
+          <div
+            ref={autoAnimateRef}
+            class='mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'
+          >
             <QueryBoundary query={highlightsQuery}>
               {() => (
-                <div ref={autoAnimateRef}>
+                <>
                   <For
                     each={highlights}
                     fallback={
@@ -190,7 +193,7 @@ export default function HighlightsPage() {
                       </Match>
                     </Switch>
                   </div>
-                </div>
+                </>
               )}
             </QueryBoundary>
           </div>

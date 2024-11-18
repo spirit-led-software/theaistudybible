@@ -110,6 +110,7 @@ RUN aws s3 sync /build/apps/www/.output/public s3://${assets_bucket} \
 FROM base AS release
 
 ENV NODE_ENV production
+ENV HOSTNAME 0.0.0.0
 ENV PORT 8080
 
 ENV PUBLIC_STAGE ${stage}

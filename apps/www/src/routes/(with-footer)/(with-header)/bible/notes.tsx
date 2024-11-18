@@ -93,10 +93,13 @@ export default function NotesPage() {
           <H2 class='inline-block bg-gradient-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
             Your Notes
           </H2>
-          <div class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
+          <div
+            ref={autoAnimateRef}
+            class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'
+          >
             <QueryBoundary query={notesQuery}>
               {() => (
-                <div ref={autoAnimateRef}>
+                <>
                   <For
                     each={notes}
                     fallback={
@@ -139,7 +142,7 @@ export default function NotesPage() {
                       </Match>
                     </Switch>
                   </div>
-                </div>
+                </>
               )}
             </QueryBoundary>
           </div>
