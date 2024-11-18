@@ -23,7 +23,6 @@ type GetChapterReaderDataProps = {
 };
 
 const getChapterReaderData = query(async (props: GetChapterReaderDataProps) => {
-  'use server';
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
     with: {
@@ -89,6 +88,7 @@ const getChapterReaderData = query(async (props: GetChapterReaderDataProps) => {
 }, 'chapter-reader');
 
 const getChapterReaderDataRequest = GET(async (props: GetChapterReaderDataProps) => {
+  'use server';
   const data = await getChapterReaderData(props);
   return json(data, {
     headers: {
