@@ -164,6 +164,13 @@ export const userCredits = sqliteTable(
   },
   (table) => ({
     userIdIdx: uniqueIndex('user_credits_user_id_idx').on(table.userId),
+    balanceIdx: index('user_credits_balance_idx').on(table.balance),
+    lastSignInCreditAtIdx: index('user_credits_last_sign_in_credit_at_idx').on(
+      table.lastSignInCreditAt,
+    ),
+    lastReadingCreditAtIdx: index('user_credits_last_reading_credit_at_idx').on(
+      table.lastReadingCreditAt,
+    ),
   }),
 );
 

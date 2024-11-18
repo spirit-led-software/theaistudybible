@@ -11,7 +11,7 @@ import { Button } from '@/www/components/ui/button';
 import { CommandItem } from '@/www/components/ui/command';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { A } from '@solidjs/router';
+import { A, json, query } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Check } from 'lucide-solid';
@@ -22,15 +22,15 @@ type GetChapterPickerDataProps = {
   bookCode: string;
 };
 
-const getChapterPickerData = GET(async ({ bibleAbbr, bookCode }: GetChapterPickerDataProps) => {
+const getChapterPickerData = query(async (props: GetChapterPickerDataProps) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
-    where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+    where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
     columns: { id: true },
     with: {
       books: {
         limit: 1,
-        where: (books, { eq }) => eq(books.code, bookCode),
+        where: (books, { eq }) => eq(books.code, props.bookCode),
         columns: { code: true },
         with: {
           chapters: {
@@ -58,11 +58,24 @@ const getChapterPickerData = GET(async ({ bibleAbbr, bookCode }: GetChapterPicke
     book,
     chapters,
   };
+}, 'chapter-picker');
+
+const getChapterPickerDataRequest = GET(async (props: GetChapterPickerDataProps) => {
+  const data = await getChapterPickerData(props);
+  return json(data, {
+    headers: {
+      'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
+    },
+    revalidate: getChapterPickerData.keyFor(props),
+  });
 });
 
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
   queryKey: ['chapter-picker', props],
-  queryFn: () => getChapterPickerData(props),
+  queryFn: async () => {
+    const response = await getChapterPickerDataRequest(props);
+    return (await response.json()) as Awaited<ReturnType<typeof getChapterPickerData>>;
+  },
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 
@@ -73,12 +86,12 @@ export type ChapterPickerProps = {
 export function ChapterPicker(props: ChapterPickerProps) {
   const [brStore] = useBibleReaderStore();
 
-  const query = createQuery(() => ({
-    ...chapterPickerQueryOptions({
+  const query = createQuery(() =>
+    chapterPickerQueryOptions({
       bibleAbbr: brStore.bible.abbreviation,
       bookCode: props.book.code,
     }),
-  }));
+  );
 
   return (
     <CommandItem value={props.book.shortName} class='aria-selected:bg-background'>
