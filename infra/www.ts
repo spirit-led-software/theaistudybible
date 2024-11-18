@@ -80,8 +80,7 @@ if (!$dev) {
 
   const serverDomain = $interpolate`server.${DOMAIN.value}`;
 
-  const servers: ReturnType<sst.aws.Cluster['addService']>[] = [];
-  for (const region of regions) {
+  const regionResources = regions.map((region) => {
     const provider = new aws.Provider(`AwsProvider-${region}`, { region });
 
     const vpc = new sst.aws.Vpc(`WebAppVpc-${region}`, {}, { provider });
@@ -91,24 +90,7 @@ if (!$dev) {
       environment: env,
       link: allLinks,
       permissions: [{ actions: ['cloudfront:CreateInvalidation'], resources: ['*'] }],
-      loadBalancer: {
-        ports: [
-          { listen: '80/http', forward: '8080/http' },
-          { listen: '443/https', forward: '8080/http' },
-        ],
-        domain: {
-          name: serverDomain,
-          dns: sst.aws.dns({
-            override: true,
-            transform: {
-              record: (args) => {
-                args.setIdentifier = region;
-                args.latencyRoutingPolicies = [{ region }];
-              },
-            },
-          }),
-        },
-      },
+      serviceRegistry: { port: 8080 },
       scaling: {
         min: 1,
         max: isProd ? 4 : 1,
@@ -133,8 +115,23 @@ if (!$dev) {
         },
       },
     });
-    servers.push(service);
-  }
+    const api = new sst.aws.ApiGatewayV2(`WebAppApi-${region}`, {
+      vpc,
+      domain: {
+        name: serverDomain,
+        dns: sst.aws.dns({
+          transform: {
+            record: (args) => {
+              args.setIdentifier = region;
+              args.latencyRoutingPolicies = [{ region }];
+            },
+          },
+        }),
+      },
+    });
+    api.route('$default', service.nodes.cloudmapService.arn);
+    return { service, api };
+  });
 
   webAppCdn = buildCdn();
 
@@ -385,7 +382,7 @@ if (!$dev) {
           },
         },
       },
-      { dependsOn: servers },
+      { dependsOn: regionResources.flatMap(({ service, api }) => [service, api]) },
     );
   }
 }
