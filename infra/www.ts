@@ -140,6 +140,9 @@ if (!$dev) {
               protocol: 'tcp',
             },
           ],
+          cpuType: 'shared',
+          cpus: 1,
+          memory: 256,
         }),
       );
     }
