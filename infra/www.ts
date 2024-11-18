@@ -395,8 +395,9 @@ if (!$dev) {
       allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
       cachedMethods: ['GET', 'HEAD'],
       compress: true,
-      // CloudFront's Managed-AllViewer policy
-      originRequestPolicyId: '216adef6-5c7f-47e4-b989-5492eafa07d3',
+      // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
+      // CloudFront's managed AllViewerExceptHostHeader policy
+      originRequestPolicyId: 'b689b0a8-53d0-40ab-baf2-68738e2966ac',
       cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnServerCachePolicy', {
         maxTtl: 60 * 60 * 24 * 365, // 1 year
         minTtl: 0,
@@ -409,6 +410,15 @@ if (!$dev) {
           enableAcceptEncodingGzip: true,
         },
       }).id,
+      functionAssociations: [
+        {
+          eventType: 'viewer-request',
+          functionArn: new aws.cloudfront.Function('WebAppServerOriginCdnFn', {
+            runtime: 'cloudfront-js-2.0',
+            code: 'async function handler(event) { event.request.headers["x-forwarded-host"] = event.request.headers.host; return event.request; }',
+          }).arn,
+        },
+      ],
     };
     const assetsCacheBehavior: Omit<
       aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
@@ -419,6 +429,7 @@ if (!$dev) {
       allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
       cachedMethods: ['GET', 'HEAD'],
       compress: true,
+      // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
       // CloudFront's managed CachingOptimized policy
       cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
     };
