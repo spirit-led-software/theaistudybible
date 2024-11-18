@@ -5,7 +5,7 @@ import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { useSwipe } from '@/www/hooks/use-swipe';
 import { cn } from '@/www/lib/utils';
-import { A, json, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
+import { A, json, query, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
@@ -22,8 +22,7 @@ type GetChapterReaderDataProps = {
   chapterNum: number;
 };
 
-const getChapterReaderDataRequest = GET(async (props: GetChapterReaderDataProps) => {
-  'use server';
+const getChapterReaderData = query(async (props: GetChapterReaderDataProps) => {
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
     with: {
@@ -80,26 +79,30 @@ const getChapterReaderDataRequest = GET(async (props: GetChapterReaderDataProps)
 
   const chapter = chapters[0];
 
-  return json(
-    {
-      bible,
-      book,
-      chapter,
-      rightsHolder: biblesToRightsHolders[0].rightsHolder,
+  return {
+    bible,
+    book,
+    chapter,
+    rightsHolder: biblesToRightsHolders[0].rightsHolder,
+  };
+}, 'chapter-reader');
+
+const getChapterReaderDataRequest = GET(async (props: GetChapterReaderDataProps) => {
+  'use server';
+  const data = await getChapterReaderData(props);
+  return json(data, {
+    headers: {
+      'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
     },
-    {
-      headers: {
-        'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
-      },
-    },
-  );
+    revalidate: getChapterReaderData.keyFor(props),
+  });
 });
 
 export const chapterReaderQueryOptions = (props: GetChapterReaderDataProps) => ({
   queryKey: ['chapter-reader', props],
   queryFn: async () => {
     const response = await getChapterReaderDataRequest(props);
-    return response.customBody();
+    return (await response.json()) as Awaited<ReturnType<typeof getChapterReaderData>>;
   },
   staleTime: 1000 * 60 * 60, // 1 hour
 });

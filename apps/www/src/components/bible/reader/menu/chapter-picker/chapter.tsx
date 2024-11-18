@@ -11,7 +11,7 @@ import { Button } from '@/www/components/ui/button';
 import { CommandItem } from '@/www/components/ui/command';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { A, json } from '@solidjs/router';
+import { A, json, query } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Check } from 'lucide-solid';
@@ -22,8 +22,7 @@ type GetChapterPickerDataProps = {
   bookCode: string;
 };
 
-const getChapterPickerDataRequest = GET(async (props: GetChapterPickerDataProps) => {
-  'use server';
+const getChapterPickerData = query(async (props: GetChapterPickerDataProps) => {
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
     columns: { id: true },
@@ -52,21 +51,30 @@ const getChapterPickerDataRequest = GET(async (props: GetChapterPickerDataProps)
   }
 
   const { chapters, ...book } = books[0];
-  return json(
-    { bible, book, chapters },
-    {
-      headers: {
-        'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
-      },
+
+  return {
+    bible,
+    book,
+    chapters,
+  };
+}, 'chapter-picker');
+
+const getChapterPickerDataRequest = GET(async (props: GetChapterPickerDataProps) => {
+  'use server';
+  const data = await getChapterPickerData(props);
+  return json(data, {
+    headers: {
+      'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
     },
-  );
+    revalidate: getChapterPickerData.keyFor(props),
+  });
 });
 
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
   queryKey: ['chapter-picker', props],
   queryFn: async () => {
     const response = await getChapterPickerDataRequest(props);
-    return response.customBody();
+    return (await response.json()) as Awaited<ReturnType<typeof getChapterPickerData>>;
   },
   staleTime: 1000 * 60 * 60, // 1 hour
 });

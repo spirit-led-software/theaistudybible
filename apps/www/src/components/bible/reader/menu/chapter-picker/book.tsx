@@ -4,15 +4,14 @@ import { Button } from '@/www/components/ui/button';
 import { Command, CommandEmpty, CommandInput, CommandList } from '@/www/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { json } from '@solidjs/router';
+import { json, query } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronsUpDown } from 'lucide-solid';
 import { For } from 'solid-js';
 import { ChapterPicker } from './chapter';
 
-const getBookPickerDataRequest = GET(async (bibleId: string) => {
-  'use server';
+const getBookPickerData = query(async (bibleId: string) => {
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { or, eq }) => or(eq(bibles.abbreviation, bibleId), eq(bibles.id, bibleId)),
     with: {
@@ -27,21 +26,29 @@ const getBookPickerDataRequest = GET(async (bibleId: string) => {
   }
 
   const { books, ...bible } = bibleData;
-  return json(
-    { bible, books },
-    {
-      headers: {
-        'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
-      },
+
+  return {
+    bible,
+    books,
+  };
+}, 'book-picker');
+
+const getBookPickerDataRequest = GET(async (bibleId: string) => {
+  'use server';
+  const data = await getBookPickerData(bibleId);
+  return json(data, {
+    headers: {
+      'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
     },
-  );
+    revalidate: getBookPickerData.keyFor(bibleId),
+  });
 });
 
 export const bookPickerQueryOptions = (bibleId: string) => ({
   queryKey: ['book-picker', { bibleId }],
   queryFn: async () => {
     const response = await getBookPickerDataRequest(bibleId);
-    return response.customBody();
+    return (await response.json()) as Awaited<ReturnType<typeof getBookPickerData>>;
   },
   staleTime: 1000 * 60 * 60, // 1 hour
 });

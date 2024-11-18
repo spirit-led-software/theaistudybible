@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { toTitleCase } from '@/core/utils/string';
 import { cn } from '@/www/lib/utils';
-import { json, useNavigate } from '@solidjs/router';
+import { useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
@@ -29,29 +29,17 @@ const getDevotions = GET(async ({ offset, limit }: { offset: number; limit: numb
     offset,
     limit,
   });
-  return json(
-    {
-      devotions,
-      nextCursor: devotions.length === limit ? offset + devotions.length : undefined,
-    },
-    {
-      headers: {
-        'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
-      },
-    },
-  );
+  return {
+    devotions,
+    nextCursor: devotions.length === limit ? offset + devotions.length : undefined,
+  };
 });
 
 export const getDevotionsQueryOptions = () => ({
   queryKey: ['devotions'],
-  queryFn: async ({ pageParam }: { pageParam: number }) => {
-    const response = await getDevotions({ offset: pageParam, limit: 7 });
-    return response.customBody();
-  },
+  queryFn: ({ pageParam }: { pageParam: number }) => getDevotions({ offset: pageParam, limit: 7 }),
   initialPageParam: 0,
-  getNextPageParam: (
-    lastPage: ReturnType<Awaited<ReturnType<typeof getDevotions>>['customBody']>,
-  ) => lastPage.nextCursor,
+  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getDevotions>>) => lastPage.nextCursor,
   keepPreviousData: true,
 });
 
@@ -63,7 +51,7 @@ export const DevotionSidebar = () => {
   const devotionsQuery = createInfiniteQuery(() => getDevotionsQueryOptions());
 
   const [devotions, setDevotions] = createStore<
-    ReturnType<Awaited<ReturnType<typeof getDevotions>>['customBody']>['devotions']
+    Awaited<ReturnType<typeof getDevotions>>['devotions']
   >([]);
   createEffect(() => {
     if (devotionsQuery.status === 'success') {

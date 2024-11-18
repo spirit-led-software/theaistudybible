@@ -5,7 +5,7 @@ import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { useSwipe } from '@/www/hooks/use-swipe';
 import { cn } from '@/www/lib/utils';
-import { A, json, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
+import { A, json, query, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
@@ -23,8 +23,7 @@ type GetVerseReaderDataProps = {
   verseNum: number;
 };
 
-const getVerseReaderDataRequest = GET(async (props: GetVerseReaderDataProps) => {
-  'use server';
+const getVerseReaderData = query(async (props: GetVerseReaderDataProps) => {
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
     with: {
@@ -123,27 +122,32 @@ const getVerseReaderDataRequest = GET(async (props: GetVerseReaderDataProps) => 
     throw new Error('Verse not found');
   }
   const verse = verses[0];
-  return json(
-    {
-      bible,
-      book,
-      chapter,
-      verse,
-      rightsHolder: biblesToRightsHolders[0].rightsHolder,
+
+  return {
+    bible,
+    book,
+    chapter,
+    verse,
+    rightsHolder: biblesToRightsHolders[0].rightsHolder,
+  };
+}, 'verse-reader');
+
+const getVerseReaderDataRequest = GET(async (props: GetVerseReaderDataProps) => {
+  'use server';
+  const data = await getVerseReaderData(props);
+  return json(data, {
+    headers: {
+      'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
     },
-    {
-      headers: {
-        'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
-      },
-    },
-  );
+    revalidate: getVerseReaderData.keyFor(props),
+  });
 });
 
 export const getVerseReaderQueryOptions = (props: GetVerseReaderDataProps) => ({
   queryKey: ['verse-reader', props],
   queryFn: async () => {
     const response = await getVerseReaderDataRequest(props);
-    return response.customBody();
+    return (await response.json()) as Awaited<ReturnType<typeof getVerseReaderData>>;
   },
   staleTime: 1000 * 60 * 60, // 1 hour
 });

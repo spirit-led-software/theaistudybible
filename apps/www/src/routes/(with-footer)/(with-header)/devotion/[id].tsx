@@ -9,32 +9,35 @@ import { H2, H3 } from '@/www/components/ui/typography';
 import { useDevotionStore } from '@/www/contexts/devotion';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
-import { A, json, useParams } from '@solidjs/router';
+import { A, json, query, useParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import { For, Show, createEffect, createMemo } from 'solid-js';
 
-const getDevotionRequest = GET(async (id: string) => {
-  'use server';
+const getDevotion = query(async (id: string) => {
   const devotion = await db.query.devotions.findFirst({
     where: (devotions, { eq }) => eq(devotions.id, id),
     with: { images: true },
   });
-  return json(
-    { devotion: devotion ?? null },
-    {
-      headers: {
-        'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
-      },
+  return { devotion: devotion ?? null };
+}, 'devotion');
+
+const getDevotionRequest = GET(async (id: string) => {
+  'use server';
+  const data = await getDevotion(id);
+  return json(data, {
+    headers: {
+      'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
     },
-  );
+    revalidate: getDevotion.keyFor(id),
+  });
 });
 
 const getDevotionQueryProps = (id: string) => ({
   queryKey: ['devotion', id],
   queryFn: async () => {
     const response = await getDevotionRequest(id);
-    return response.customBody();
+    return (await response.json()) as Awaited<ReturnType<typeof getDevotion>>;
   },
   staleTime: 1000 * 60 * 60, // 1 hour
 });
@@ -161,9 +164,7 @@ export default function DevotionPage() {
 }
 
 const MetaTags = (props: {
-  devotion: NonNullable<
-    ReturnType<Awaited<ReturnType<typeof getDevotionRequest>>['customBody']>['devotion']
-  >;
+  devotion: NonNullable<Awaited<ReturnType<typeof getDevotion>>['devotion']>;
 }) => {
   const topic = createMemo(() => toTitleCase(props.devotion.topic));
   const title = createMemo(() => `${topic()} - Daily Bible Devotional | The AI Study Bible`);
