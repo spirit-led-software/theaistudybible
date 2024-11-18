@@ -1,4 +1,4 @@
-name: 'CI setup'
+name: 'CI Setup'
 description: 'CI setup for The AI Study Bible'
 
 runs:

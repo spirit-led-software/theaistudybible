@@ -2,6 +2,7 @@ import path from 'node:path';
 import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { analyticsApi } from './analytics';
 import {
+  AWS_HOSTED_ZONE,
   DOMAIN,
   POSTHOG_API_KEY,
   POSTHOG_UI_HOST,
@@ -10,13 +11,27 @@ import {
 } from './constants';
 import { allLinks } from './defaults';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
+import * as queues from './queues';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
+import * as storage from './storage';
+import type { FlyRegion } from './types/fly.io';
 import { isProd } from './utils/constants';
+import { buildLinks } from './utils/link';
 
-const regions: aws.Region[] = isProd ? ['us-east-1', 'ap-southeast-1'] : ['us-east-1'];
+type RegionConfig = {
+  region: FlyRegion;
+  replicas: number;
+};
 
-const env = $util
+const regions: RegionConfig[] = isProd
+  ? [
+      { region: 'iad', replicas: 6 },
+      { region: 'sin', replicas: 3 },
+    ]
+  : [{ region: 'iad', replicas: 1 }];
+
+const baseEnv = $util
   .all([
     WEBAPP_URL.value,
     cdn.url,
@@ -58,82 +73,134 @@ const env = $util
     }),
   );
 
-export const webAppDev = new sst.x.DevCommand('WebAppDev', {
+export const webAppDevCmd = new sst.x.DevCommand('WebAppDev', {
   dev: {
     directory: 'apps/www',
     command: 'bun run dev',
     autostart: true,
   },
-  environment: env,
+  environment: baseEnv,
   link: allLinks,
 });
 
-export let webAppCdn: sst.aws.Cdn | undefined;
 if (!$dev) {
   const bucket = new sst.aws.Bucket(
     `WebAppBucket-${Date.now()}`,
     { access: 'cloudfront' },
     { retainOnDelete: false },
   );
-
   const webAppImage = buildWebAppImage();
 
-  const serverDomain = $interpolate`server.${DOMAIN.value}`;
-
-  const regionResources = regions.map((region) => {
-    const provider = new aws.Provider(`AwsProvider-${region}`, { region });
-
-    const vpc = new sst.aws.Vpc(`WebAppVpc-${region}`, {}, { provider });
-    const cluster = new sst.aws.Cluster(`WebAppCluster-${region}`, { vpc }, { provider });
-    const service = cluster.addService(`WebAppService-${region}`, {
-      image: webAppImage.ref,
-      environment: env,
-      link: allLinks,
-      permissions: [{ actions: ['cloudfront:CreateInvalidation'], resources: ['*'] }],
-      serviceRegistry: { port: 8080 },
-      scaling: {
-        min: 1,
-        max: isProd ? 4 : 1,
-        cpuUtilization: 95,
-        memoryUtilization: 95,
-      },
-      cpu: '0.25 vCPU',
-      memory: '0.5 GB',
-      health: {
-        command: ['CMD-SHELL', 'curl -f http://localhost:8080/health || exit 1'],
-        interval: '10 seconds',
-        timeout: '5 seconds',
-        retries: 3,
-        startPeriod: '20 seconds',
-      },
-      transform: {
-        loadBalancer: (args) => {
-          args.idleTimeout = 60 * 5; // Necessary for some chat responses to complete
-        },
-        service: (args) => {
-          args.waitForSteadyState = true;
-        },
-      },
-    });
-    const api = new sst.aws.ApiGatewayV2(`WebAppApi-${region}`, {
-      vpc,
-      domain: {
-        name: serverDomain,
-        dns: sst.aws.dns({
-          transform: {
-            record: (args) => {
-              args.setIdentifier = region;
-              args.latencyRoutingPolicies = [{ region }];
-            },
-          },
-        }),
-      },
-    });
-    api.route('$default', service.nodes.cloudmapService.arn);
-    return { service, api };
+  const flyApp = new fly.App('WebApp', {
+    name: `${$app.name}-${$app.stage}-www`,
+    org: process.env.FLY_ORG,
+  });
+  const ipv4 = new fly.Ip('WebAppIpv4', {
+    app: flyApp.name,
+    type: 'v4',
+  });
+  const ipv6 = new fly.Ip('WebAppIpv6', {
+    app: flyApp.name,
+    type: 'v6',
   });
 
-  webAppCdn = buildCdn();
+  const serverDomain = $interpolate`server.${DOMAIN.value}`;
+  const serverARecord = new aws.route53.Record('WebAppServerARecord', {
+    zoneId: AWS_HOSTED_ZONE.zoneId,
+    name: serverDomain,
+    type: 'A',
+    ttl: 60 * 60,
+    records: [ipv4.address],
+  });
+  const serverAAAARecord = new aws.route53.Record('WebAppServerAAAARecord', {
+    zoneId: AWS_HOSTED_ZONE.zoneId,
+    name: serverDomain,
+    type: 'AAAA',
+    ttl: 60 * 60,
+    records: [ipv6.address],
+  });
+
+  const env = buildEnv();
+  const regionalResources = regions.map(({ region, replicas }) => {
+    const machines: fly.Machine[] = [];
+    for (let i = 0; i < replicas; i++) {
+      machines.push(
+        new fly.Machine(`WebAppMachine-${region}-${i}`, {
+          app: flyApp.name,
+          region,
+          image: webAppImage.ref,
+          env,
+          services: [
+            {
+              ports: [
+                { port: 80, handlers: ['http'] },
+                { port: 443, handlers: ['tls', 'http'] },
+              ],
+              internalPort: 8080,
+              protocol: 'tcp',
+            },
+          ],
+        }),
+      );
+    }
+    return { region, machines };
+  });
+  const { machine: flyAutoscalerMachine } = buildFlyAutoscaler();
+
+  buildCdn();
+
+  function buildFlyIamUser() {
+    const flyIamPolicy = new aws.iam.Policy('FlyIamPolicy', {
+      policy: {
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Effect: 'Allow',
+            Action: ['s3:*'],
+            Resource: Object.values(storage)
+              .filter((b) => b instanceof sst.aws.Bucket)
+              .flatMap((b) => [b.nodes.bucket.arn, $interpolate`${b.nodes.bucket.arn}/*`]),
+          },
+          {
+            Effect: 'Allow',
+            Action: ['sqs:*'],
+            Resource: Object.values(queues).map((q) => q.arn),
+          },
+        ],
+      },
+    });
+    const flyIamUser = new aws.iam.User('FlyIamUser');
+    new aws.iam.UserPolicyAttachment('FlyUserPolicyAttachment', {
+      user: flyIamUser.name,
+      policyArn: flyIamPolicy.arn,
+    });
+    const flyAwsAccessKey = new aws.iam.AccessKey('FlyAccessKey', {
+      user: flyIamUser.name,
+    });
+    return { flyIamUser, flyAwsAccessKey };
+  }
+
+  function buildEnv() {
+    const { flyAwsAccessKey } = buildFlyIamUser();
+    const links = allLinks.apply((links) => buildLinks(links));
+    return $util
+      .all([links, baseEnv, flyAwsAccessKey.id, $util.secret(flyAwsAccessKey.secret)])
+      .apply(([links, env, flyAwsAccessKeyId, flyAwsAccessKeySecret]) => ({
+        ...links.reduce(
+          (acc, l) => {
+            acc[`SST_RESOURCE_${l.name}`] = JSON.stringify(l.properties);
+            return acc;
+          },
+          {} as Record<string, string>,
+        ),
+        SST_RESOURCE_App: JSON.stringify({ name: $app.name, stage: $app.stage }),
+        ...env,
+        AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
+        AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
+        AWS_REGION: ($app.providers?.aws.region ?? 'us-east-1') as string,
+        PRIMARY_REGION: regions[0].region,
+      }));
+  }
 
   function buildWebAppImage() {
     const buildIamUser = new aws.iam.User('BuildIamUser');
@@ -155,11 +222,6 @@ if (!$dev) {
     });
     const accessKey = new aws.iam.AccessKey('BuildIamAccessKey', {
       user: buildIamUser.name,
-    });
-
-    const webAppImageRepository = new aws.ecr.Repository('WebAppImageRepository', {
-      name: `${$app.name}-${$app.stage}-www`,
-      forceDelete: true,
     });
 
     const buildArgs = $util
@@ -219,19 +281,15 @@ if (!$dev) {
 
     return new dockerbuild.Image('WebAppImage', {
       tags: [
-        $interpolate`${webAppImageRepository.repositoryUrl}:${Date.now()}`,
-        $interpolate`${webAppImageRepository.repositoryUrl}:latest`,
+        $interpolate`registry.fly.io/${flyApp.name}:${Date.now()}`,
+        $interpolate`registry.fly.io/${flyApp.name}:latest`,
       ],
       registries: [
-        aws.ecr
-          .getAuthorizationTokenOutput({
-            registryId: webAppImageRepository.registryId,
-          })
-          .apply(({ proxyEndpoint, userName, password }) => ({
-            address: proxyEndpoint,
-            username: userName,
-            password: $util.secret(password),
-          })),
+        {
+          address: 'registry.fly.io',
+          username: 'x',
+          password: $util.secret(process.env.FLY_API_TOKEN!),
+        },
       ],
       dockerfile: { location: path.join($cli.paths.root, 'docker/www.Dockerfile') },
       context: { location: $cli.paths.root },
@@ -242,6 +300,39 @@ if (!$dev) {
       cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
       cacheTo: [{ local: { dest: '/tmp/.buildx-cache-new', mode: 'max' } }],
     });
+  }
+
+  function buildFlyAutoscaler() {
+    const app = new fly.App('FlyAutoscalerApp', {
+      name: `${$app.name}-${$app.stage}-www-autoscaler`,
+    });
+    const env = $util
+      .all([$util.secret(process.env.FLY_API_TOKEN!), flyApp.name])
+      .apply(([flyApiToken, appName]) => ({
+        FAS_ORG: process.env.FLY_ORG!,
+        FAS_APP_NAME: appName,
+        FAS_API_TOKEN: flyApiToken,
+        FAS_REGIONS: regions.map(({ region }) => region).join(','),
+        FAS_STARTED_MACHINE_COUNT: `max(min(ceil(connects / 500), ${regions.reduce((acc, { replicas }) => acc + replicas, 0)}), ${regions.length})`, // 500 connections per machine, max all replicas per region, min 1 machine per region
+        FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${process.env.FLY_ORG!}`,
+        FAS_PROMETHEUS_TOKEN: flyApiToken,
+        FAS_PROMETHEUS_METRIC_NAME: 'connects',
+        FAS_PROMETHEUS_QUERY: 'fly_app_tcp_connects_count{app="$APP_NAME"} or vector(0)',
+      }));
+    const machine = new fly.Machine(
+      'FlyAutoscalerMachine',
+      {
+        app: app.name,
+        region: 'iad',
+        image: 'flyio/fly-autoscaler:latest',
+        env,
+        cpuType: 'shared',
+        cpus: 1,
+        memory: 256,
+      },
+      { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
+    );
+    return { app, machine };
   }
 
   function getStaticAssets() {
@@ -382,7 +473,14 @@ if (!$dev) {
           },
         },
       },
-      { dependsOn: regionResources.flatMap(({ service, api }) => [service, api]) },
+      {
+        dependsOn: [
+          ...regionalResources.flatMap(({ machines }) => machines),
+          flyAutoscalerMachine,
+          serverARecord,
+          serverAAAARecord,
+        ],
+      },
     );
   }
 }

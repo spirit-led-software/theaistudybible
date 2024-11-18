@@ -1,4 +1,4 @@
-name: 'CI cleanup'
+name: 'CI Cleanup'
 description: 'CI cleanup for The AI Study Bible'
 
 runs:
