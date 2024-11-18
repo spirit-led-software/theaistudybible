@@ -8,7 +8,7 @@ import { Meta, Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
 import { EllipsisVertical, Globe, HousePlus, MonitorUp, Plus, Share } from 'lucide-solid';
 import type { JSX } from 'solid-js';
-import { For, Show, createEffect, createSignal } from 'solid-js';
+import { For, Show, createEffect, createMemo, createSignal } from 'solid-js';
 
 export default function InstallPage() {
   const [isLoading, setIsLoading] = createSignal(true);
@@ -23,15 +23,17 @@ export default function InstallPage() {
     }
   });
 
-  const isIOS = () => /iphone|ipad|ipod/.test(userAgent());
-  const isAndroid = () => /android/.test(userAgent());
-  const isChrome = () => /chrome/.test(userAgent()) && !/edge|opr\//.test(userAgent());
-  const isFirefox = () => /firefox/.test(userAgent());
-  const isSafari = () => /safari/.test(userAgent()) && !/chrome|opera|edge/.test(userAgent());
-  const isOpera = () => /opr\/|opera/.test(userAgent());
-  const isEdge = () => /edg/.test(userAgent());
-  const isMac = () => /macintosh|mac os x/.test(userAgent());
-  const isWindows = () => /windows/.test(userAgent());
+  const isIOS = createMemo(() => /iphone|ipad|ipod/.test(userAgent()));
+  const isAndroid = createMemo(() => /android/.test(userAgent()));
+  const isChrome = createMemo(() => /chrome/.test(userAgent()) && !/edge|opr\//.test(userAgent()));
+  const isFirefox = createMemo(() => /firefox/.test(userAgent()));
+  const isSafari = createMemo(
+    () => /safari/.test(userAgent()) && !/chrome|opera|edge/.test(userAgent()),
+  );
+  const isOpera = createMemo(() => /opr\/|opera/.test(userAgent()));
+  const isEdge = createMemo(() => /edg/.test(userAgent()));
+  const isMac = createMemo(() => /macintosh|mac os x/.test(userAgent()));
+  const isWindows = createMemo(() => /windows/.test(userAgent()));
 
   return (
     <>

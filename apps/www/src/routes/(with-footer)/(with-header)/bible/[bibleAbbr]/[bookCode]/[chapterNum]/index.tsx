@@ -4,6 +4,7 @@ import { smallTranslationPickerQueryOptions } from '@/www/components/bible/reade
 import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
+import { createMemo } from 'solid-js';
 
 export const route: RouteDefinition = {
   preload: ({ params }) => {
@@ -22,7 +23,7 @@ export const route: RouteDefinition = {
 export default function ChapterPage() {
   const params = useParams();
 
-  const chapterNum = () => Number.parseInt(params.chapterNum);
+  const chapterNum = createMemo(() => Number.parseInt(params.chapterNum));
 
   return (
     <ChapterReader

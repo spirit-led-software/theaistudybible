@@ -254,8 +254,10 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
 const MetaTags = () => {
   const [chatStore] = useChatStore();
-  const chatName = () => chatStore.chat?.name ?? 'New Chat';
-  const title = () => `${chatName()} | The AI Study Bible - AI Bible Study Chat Assistant`;
+  const chatName = createMemo(() => chatStore.chat?.name ?? 'New Chat');
+  const title = createMemo(
+    () => `${chatName()} | The AI Study Bible - AI Bible Study Chat Assistant`,
+  );
   const description =
     'Engage in meaningful conversations about Scripture with our AI-powered Bible study assistant. Get instant insights, answers, and deeper understanding of biblical passages.';
 

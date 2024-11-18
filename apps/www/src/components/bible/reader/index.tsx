@@ -6,7 +6,7 @@ import { Meta, Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
-import { onMount } from 'solid-js';
+import { createMemo, onMount } from 'solid-js';
 import {
   ActivityPanel,
   ActivityPanelAlwaysOpenButtons,
@@ -128,10 +128,14 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
 const MetaTags = () => {
   const [brStore] = useBibleReaderStore();
-  const title = () =>
-    `${brStore.verse ? brStore.verse.name : brStore.chapter.name} | ${brStore.bible.abbreviationLocal} | The AI Study Bible - Read & Study the Bible with AI`;
-  const description = () =>
-    `Study ${brStore.verse ? brStore.verse.name : brStore.chapter.name} with AI-powered insights, commentary, and cross-references. Access multiple translations and study tools to deepen your understanding of Scripture.`;
+  const title = createMemo(
+    () =>
+      `${brStore.verse ? brStore.verse.name : brStore.chapter.name} | ${brStore.bible.abbreviationLocal} | The AI Study Bible - Read & Study the Bible with AI`,
+  );
+  const description = createMemo(
+    () =>
+      `Study ${brStore.verse ? brStore.verse.name : brStore.chapter.name} with AI-powered insights, commentary, and cross-references. Access multiple translations and study tools to deepen your understanding of Scripture.`,
+  );
   return (
     <>
       <Title>{title()}</Title>

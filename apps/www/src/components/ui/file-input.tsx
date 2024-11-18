@@ -1,7 +1,14 @@
 import { cn } from '@/www/lib/utils';
 import type { PolymorphicProps } from '@kobalte/core';
 import type { JSX, ValidComponent } from 'solid-js';
-import { createContext, createSignal, onCleanup, splitProps, useContext } from 'solid-js';
+import {
+  createContext,
+  createMemo,
+  createSignal,
+  onCleanup,
+  splitProps,
+  useContext,
+} from 'solid-js';
 import { Show } from 'solid-js';
 import type { ButtonProps } from './button';
 import { Button } from './button';
@@ -22,7 +29,7 @@ const FileInput = <T extends ValidComponent = 'div'>(props: FileInputProps<T>) =
   let dragCounter = 0;
   let timeout: number | undefined;
 
-  const files = () => props.value ?? internalFiles();
+  const files = createMemo(() => props.value ?? internalFiles());
   const setFiles = (newFiles: FileList | null) => {
     if (props.onChange) {
       props.onChange(newFiles);

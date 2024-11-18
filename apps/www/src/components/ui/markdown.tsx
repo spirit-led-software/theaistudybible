@@ -1,5 +1,5 @@
 import { A } from '@solidjs/router';
-import { Show, splitProps } from 'solid-js';
+import { Show, createMemo, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import SolidMarkedMarkdown from 'solid-marked/component';
 import { Button } from './button';
@@ -7,6 +7,7 @@ import { Checkbox } from './checkbox';
 import * as Typography from './typography';
 
 export const Markdown = (props: { children: string }) => {
+  const children = createMemo(() => props.children);
   return (
     <SolidMarkedMarkdown
       builtins={{
@@ -103,7 +104,7 @@ export const Markdown = (props: { children: string }) => {
         },
       }}
     >
-      {props.children}
+      {children()}
     </SolidMarkedMarkdown>
   );
 };

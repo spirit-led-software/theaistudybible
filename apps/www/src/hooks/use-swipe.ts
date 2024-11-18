@@ -7,7 +7,6 @@ type SwipeHandlers = {
 
 export function useSwipe(element: Accessor<HTMLElement | undefined>, handlers: SwipeHandlers) {
   let touchStartX = 0;
-  const minSwipeDistance = 50;
 
   function handleTouchStart(event: TouchEvent) {
     touchStartX = event.touches[0].clientX;
@@ -17,7 +16,7 @@ export function useSwipe(element: Accessor<HTMLElement | undefined>, handlers: S
     const touchEndX = event.changedTouches[0].clientX;
     const swipeDistance = touchEndX - touchStartX;
 
-    if (Math.abs(swipeDistance) >= minSwipeDistance) {
+    if (Math.abs(swipeDistance) >= 100) {
       if (swipeDistance > 0 && handlers.onSwipeRight) {
         handlers.onSwipeRight();
       } else if (swipeDistance < 0 && handlers.onSwipeLeft) {
@@ -26,28 +25,16 @@ export function useSwipe(element: Accessor<HTMLElement | undefined>, handlers: S
     }
   }
 
-  let cleanup: (() => void) | undefined;
-
-  function setupSwipe(el: HTMLElement) {
-    el.addEventListener('touchstart', handleTouchStart);
-    el.addEventListener('touchend', handleTouchEnd);
-
-    cleanup = () => {
-      el.removeEventListener('touchstart', handleTouchStart);
-      el.removeEventListener('touchend', handleTouchEnd);
-    };
-  }
-
   createEffect(() => {
     const el = element();
     if (el) {
-      setupSwipe(el);
-    }
-  });
+      el.addEventListener('touchstart', handleTouchStart);
+      el.addEventListener('touchend', handleTouchEnd);
 
-  onCleanup(() => {
-    if (cleanup) {
-      cleanup();
+      onCleanup(() => {
+        el.removeEventListener('touchstart', handleTouchStart);
+        el.removeEventListener('touchend', handleTouchEnd);
+      });
     }
   });
 }

@@ -12,7 +12,7 @@ import type { RouteDefinition } from '@solidjs/router';
 import { A, useParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import { For, Show, createEffect } from 'solid-js';
+import { For, Show, createEffect, createMemo } from 'solid-js';
 
 const getDevotion = GET(async ({ id }: { id: string }) => {
   'use server';
@@ -155,12 +155,16 @@ export default function DevotionPage() {
 const MetaTags = (props: {
   devotion: NonNullable<Awaited<ReturnType<typeof getDevotion>>['devotion']>;
 }) => {
-  const topic = () => toTitleCase(props.devotion.topic);
-  const title = () => `${topic()} - Daily Bible Devotional | The AI Study Bible`;
-  const description = () =>
-    `Explore our daily devotional on ${topic()}. Find spiritual insights, biblical wisdom, and guided prayer for deeper faith and understanding with The AI Study Bible.`;
-  const keywords = () =>
-    `bible devotional, ${topic().toLowerCase()}, daily devotion, bible study, spiritual growth, christian meditation, prayer, biblical wisdom, AI bible study`;
+  const topic = createMemo(() => toTitleCase(props.devotion.topic));
+  const title = createMemo(() => `${topic()} - Daily Bible Devotional | The AI Study Bible`);
+  const description = createMemo(
+    () =>
+      `Explore our daily devotional on ${topic()}. Find spiritual insights, biblical wisdom, and guided prayer for deeper faith and understanding with The AI Study Bible.`,
+  );
+  const keywords = createMemo(
+    () =>
+      `bible devotional, ${topic().toLowerCase()}, daily devotion, bible study, spiritual growth, christian meditation, prayer, biblical wisdom, AI bible study`,
+  );
 
   return (
     <>
