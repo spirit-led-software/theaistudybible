@@ -26,8 +26,9 @@ type RegionConfig = {
 
 const regions: RegionConfig[] = isProd
   ? [
-      { region: 'iad', replicas: 6 },
-      { region: 'sin', replicas: 3 },
+      { region: 'iad', replicas: 4 },
+      { region: 'fra', replicas: 3 },
+      { region: 'sin', replicas: 2 },
     ]
   : [{ region: 'iad', replicas: 1 }];
 
@@ -143,7 +144,7 @@ if (!$dev) {
           ],
           cpuType: 'shared',
           cpus: 1,
-          memory: 256,
+          memory: 512,
         }),
       );
     }

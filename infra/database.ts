@@ -9,7 +9,7 @@ function getTursoDatabase() {
           {
             name: 'default',
             primary: 'iad' satisfies FlyRegion,
-            locations: ['iad', 'sin'] satisfies FlyRegion[],
+            locations: ['iad', 'fra', 'sin'] satisfies FlyRegion[],
           },
           { retainOnDelete: true },
         )
