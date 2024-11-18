@@ -12,6 +12,7 @@ import { For } from 'solid-js';
 import { ChapterPicker } from './chapter';
 
 const getBookPickerData = query(async (bibleId: string) => {
+  'use server';
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { or, eq }) => or(eq(bibles.abbreviation, bibleId), eq(bibles.id, bibleId)),
     with: {
@@ -34,7 +35,6 @@ const getBookPickerData = query(async (bibleId: string) => {
 }, 'book-picker');
 
 const getBookPickerDataRequest = GET(async (bibleId: string) => {
-  'use server';
   const data = await getBookPickerData(bibleId);
   return json(data, {
     headers: {

@@ -23,6 +23,7 @@ type GetChapterPickerDataProps = {
 };
 
 const getChapterPickerData = query(async (props: GetChapterPickerDataProps) => {
+  'use server';
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
     columns: { id: true },
@@ -60,7 +61,6 @@ const getChapterPickerData = query(async (props: GetChapterPickerDataProps) => {
 }, 'chapter-picker');
 
 const getChapterPickerDataRequest = GET(async (props: GetChapterPickerDataProps) => {
-  'use server';
   const data = await getChapterPickerData(props);
   return json(data, {
     headers: {
