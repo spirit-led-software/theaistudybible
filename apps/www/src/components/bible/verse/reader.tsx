@@ -5,7 +5,7 @@ import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { useSwipe } from '@/www/hooks/use-swipe';
 import { cn } from '@/www/lib/utils';
-import { A, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
+import { A, json, query, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
@@ -16,85 +16,85 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
 import { BibleReaderMenu } from '../reader/menu';
 
-const getVerseReaderData = GET(
-  async (props: {
-    bibleAbbr: string;
-    bookCode: string;
-    chapterNum: number;
-    verseNum: number;
-  }) => {
-    'use server';
-    const bibleData = await db.query.bibles.findFirst({
-      where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
-      with: {
-        biblesToRightsHolders: { with: { rightsHolder: true } },
-        books: {
-          limit: 1,
-          where: (books, { eq }) => eq(books.code, props.bookCode),
-          with: {
-            chapters: {
-              columns: { content: false },
-              limit: 1,
-              where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
-              with: {
-                verses: {
-                  limit: 1,
-                  where: (verses, { eq }) => eq(verses.number, props.verseNum),
-                  with: {
-                    previous: { columns: { code: true, number: true, name: true } },
-                    next: { columns: { code: true, number: true, name: true } },
+type GetVerseReaderDataProps = {
+  bibleAbbr: string;
+  bookCode: string;
+  chapterNum: number;
+  verseNum: number;
+};
+
+const getVerseReaderData = query(async (props: GetVerseReaderDataProps) => {
+  'use server';
+  const bibleData = await db.query.bibles.findFirst({
+    where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
+    with: {
+      biblesToRightsHolders: { with: { rightsHolder: true } },
+      books: {
+        limit: 1,
+        where: (books, { eq }) => eq(books.code, props.bookCode),
+        with: {
+          chapters: {
+            columns: { content: false },
+            limit: 1,
+            where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
+            with: {
+              verses: {
+                limit: 1,
+                where: (verses, { eq }) => eq(verses.number, props.verseNum),
+                with: {
+                  previous: { columns: { code: true, number: true, name: true } },
+                  next: { columns: { code: true, number: true, name: true } },
+                },
+              },
+              previous: {
+                columns: { id: true },
+                with: {
+                  verses: {
+                    columns: { code: true, number: true, name: true },
+                    orderBy: (verses, { desc }) => desc(verses.number),
+                    limit: 1,
                   },
                 },
-                previous: {
-                  columns: { id: true },
-                  with: {
-                    verses: {
-                      columns: { code: true, number: true, name: true },
-                      orderBy: (verses, { desc }) => desc(verses.number),
-                      limit: 1,
-                    },
-                  },
-                },
-                next: {
-                  columns: { id: true },
-                  with: {
-                    verses: {
-                      columns: { code: true, number: true, name: true },
-                      orderBy: (verses, { asc }) => asc(verses.number),
-                      limit: 1,
-                    },
+              },
+              next: {
+                columns: { id: true },
+                with: {
+                  verses: {
+                    columns: { code: true, number: true, name: true },
+                    orderBy: (verses, { asc }) => asc(verses.number),
+                    limit: 1,
                   },
                 },
               },
             },
-            previous: {
-              columns: { id: true },
-              with: {
-                chapters: {
-                  columns: { id: true, number: true },
-                  orderBy: (chapters, { desc }) => desc(chapters.number),
-                  with: {
-                    verses: {
-                      columns: { code: true, number: true, name: true },
-                      orderBy: (verses, { desc }) => desc(verses.number),
-                      limit: 1,
-                    },
+          },
+          previous: {
+            columns: { id: true },
+            with: {
+              chapters: {
+                columns: { id: true, number: true },
+                orderBy: (chapters, { desc }) => desc(chapters.number),
+                with: {
+                  verses: {
+                    columns: { code: true, number: true, name: true },
+                    orderBy: (verses, { desc }) => desc(verses.number),
+                    limit: 1,
                   },
                 },
               },
             },
-            next: {
-              columns: { id: true },
-              with: {
-                chapters: {
-                  columns: { id: true, number: true },
-                  orderBy: (chapters, { asc }) => asc(chapters.number),
-                  with: {
-                    verses: {
-                      columns: { code: true, number: true, name: true },
-                      orderBy: (verses, { asc }) => asc(verses.number),
-                      limit: 1,
-                    },
+          },
+          next: {
+            columns: { id: true },
+            with: {
+              chapters: {
+                columns: { id: true, number: true },
+                orderBy: (chapters, { asc }) => asc(chapters.number),
+                with: {
+                  verses: {
+                    columns: { code: true, number: true, name: true },
+                    orderBy: (verses, { asc }) => asc(verses.number),
+                    limit: 1,
                   },
                 },
               },
@@ -102,45 +102,53 @@ const getVerseReaderData = GET(
           },
         },
       },
-    });
-    if (!bibleData) {
-      throw new Error('Bible not found');
-    }
+    },
+  });
+  if (!bibleData) {
+    throw new Error('Bible not found');
+  }
 
-    const { books, biblesToRightsHolders, ...bible } = bibleData;
-    if (!books[0]) {
-      throw new Error('Book not found');
-    }
+  const { books, biblesToRightsHolders, ...bible } = bibleData;
+  if (!books[0]) {
+    throw new Error('Book not found');
+  }
 
-    const { chapters, ...book } = books[0];
-    if (!chapters[0]) {
-      throw new Error('Chapter not found');
-    }
+  const { chapters, ...book } = books[0];
+  if (!chapters[0]) {
+    throw new Error('Chapter not found');
+  }
 
-    const { verses, ...chapter } = chapters[0];
-    if (!verses[0]) {
-      throw new Error('Verse not found');
-    }
-    const verse = verses[0];
+  const { verses, ...chapter } = chapters[0];
+  if (!verses[0]) {
+    throw new Error('Verse not found');
+  }
+  const verse = verses[0];
 
-    return {
-      bible,
-      book,
-      chapter,
-      verse,
-      rightsHolder: biblesToRightsHolders[0].rightsHolder,
-    };
-  },
-);
+  return {
+    bible,
+    book,
+    chapter,
+    verse,
+    rightsHolder: biblesToRightsHolders[0].rightsHolder,
+  };
+}, 'verse-reader');
 
-export const getVerseReaderQueryOptions = (props: {
-  bibleAbbr: string;
-  bookCode: string;
-  chapterNum: number;
-  verseNum: number;
-}) => ({
+const getVerseReaderDataRequest = GET(async (props: GetVerseReaderDataProps) => {
+  const data = await getVerseReaderData(props);
+  return json(data, {
+    headers: {
+      'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
+    },
+    revalidate: getVerseReaderData.keyFor(props),
+  });
+});
+
+export const getVerseReaderQueryOptions = (props: GetVerseReaderDataProps) => ({
   queryKey: ['verse-reader', props],
-  queryFn: () => getVerseReaderData(props),
+  queryFn: async () => {
+    const response = await getVerseReaderDataRequest(props);
+    return (await response.json()) as Awaited<ReturnType<typeof getVerseReaderData>>;
+  },
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 

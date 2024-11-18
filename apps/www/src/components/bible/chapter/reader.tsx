@@ -5,7 +5,7 @@ import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { useSwipe } from '@/www/hooks/use-swipe';
 import { cn } from '@/www/lib/utils';
-import { A, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
+import { A, json, query, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
@@ -16,85 +16,94 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
 import { BibleReaderMenu } from '../reader/menu';
 
-const getChapterReaderData = GET(
-  async (props: {
-    bibleAbbr: string;
-    bookCode: string;
-    chapterNum: number;
-  }) => {
-    'use server';
-    const bibleData = await db.query.bibles.findFirst({
-      where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
-      with: {
-        biblesToRightsHolders: { with: { rightsHolder: true } },
-        books: {
-          limit: 1,
-          where: (books, { eq }) => eq(books.code, props.bookCode),
-          with: {
-            chapters: {
-              limit: 1,
-              where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
-              with: {
-                previous: { columns: { code: true, number: true, name: true } },
-                next: { columns: { code: true, number: true, name: true } },
+type GetChapterReaderDataProps = {
+  bibleAbbr: string;
+  bookCode: string;
+  chapterNum: number;
+};
+
+const getChapterReaderData = query(async (props: GetChapterReaderDataProps) => {
+  'use server';
+  const bibleData = await db.query.bibles.findFirst({
+    where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
+    with: {
+      biblesToRightsHolders: { with: { rightsHolder: true } },
+      books: {
+        limit: 1,
+        where: (books, { eq }) => eq(books.code, props.bookCode),
+        with: {
+          chapters: {
+            limit: 1,
+            where: (chapters, { eq }) => eq(chapters.number, props.chapterNum),
+            with: {
+              previous: { columns: { code: true, number: true, name: true } },
+              next: { columns: { code: true, number: true, name: true } },
+            },
+          },
+          previous: {
+            columns: { id: true },
+            with: {
+              chapters: {
+                columns: { code: true, number: true, name: true },
+                orderBy: (chapters, { desc }) => desc(chapters.number),
+                limit: 1,
               },
             },
-            previous: {
-              columns: { id: true },
-              with: {
-                chapters: {
-                  columns: { code: true, number: true, name: true },
-                  orderBy: (chapters, { desc }) => desc(chapters.number),
-                  limit: 1,
-                },
-              },
-            },
-            next: {
-              columns: { id: true },
-              with: {
-                chapters: {
-                  columns: { code: true, number: true, name: true },
-                  orderBy: (chapters, { asc }) => asc(chapters.number),
-                  limit: 1,
-                },
+          },
+          next: {
+            columns: { id: true },
+            with: {
+              chapters: {
+                columns: { code: true, number: true, name: true },
+                orderBy: (chapters, { asc }) => asc(chapters.number),
+                limit: 1,
               },
             },
           },
         },
       },
-    });
-    if (!bibleData) {
-      throw new Error('Bible not found');
-    }
+    },
+  });
+  if (!bibleData) {
+    throw new Error('Bible not found');
+  }
 
-    const { books, biblesToRightsHolders, ...bible } = bibleData;
-    if (!books[0]) {
-      throw new Error('Book not found');
-    }
+  const { books, biblesToRightsHolders, ...bible } = bibleData;
+  if (!books[0]) {
+    throw new Error('Book not found');
+  }
 
-    const { chapters, ...book } = books[0];
-    if (!chapters[0]) {
-      throw new Error('Chapter not found');
-    }
+  const { chapters, ...book } = books[0];
+  if (!chapters[0]) {
+    throw new Error('Chapter not found');
+  }
 
-    const chapter = chapters[0];
+  const chapter = chapters[0];
 
-    return {
-      bible,
-      book,
-      chapter,
-      rightsHolder: biblesToRightsHolders[0].rightsHolder,
-    };
-  },
-);
+  return {
+    bible,
+    book,
+    chapter,
+    rightsHolder: biblesToRightsHolders[0].rightsHolder,
+  };
+}, 'chapter-reader');
 
-export const chapterReaderQueryOptions = (props: {
-  bibleAbbr: string;
-  bookCode: string;
-  chapterNum: number;
-}) => ({
+const getChapterReaderDataRequest = GET(async (props: GetChapterReaderDataProps) => {
+  const data = await getChapterReaderData(props);
+  return json(data, {
+    headers: {
+      'Cache-Control': 'public,max-age=86400,s-maxage=604800,stale-while-revalidate=86400',
+    },
+    revalidate: getChapterReaderData.keyFor(props),
+  });
+});
+
+export const chapterReaderQueryOptions = (props: GetChapterReaderDataProps) => ({
   queryKey: ['chapter-reader', props],
-  queryFn: () => getChapterReaderData(props),
+  queryFn: async () => {
+    const response = await getChapterReaderDataRequest(props);
+    return (await response.json()) as Awaited<ReturnType<typeof getChapterReaderData>>;
+  },
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 
