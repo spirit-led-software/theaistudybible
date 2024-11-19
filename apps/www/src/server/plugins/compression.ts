@@ -94,34 +94,43 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
 
       readable.on('end', () => {
         readable?.destroy();
-        compressor?.end().destroy();
+      });
+      readable.on('error', (err) => {
+        captureSentryException(err);
+        readable?.destroy();
       });
 
       if (acceptedEncoding.includes('gzip')) {
         setResponseHeader(event, 'Content-Encoding', 'gzip');
         compressor = createGzip();
+        compressor.on('end', () => {
+          compressor?.destroy();
+        });
         compressor.on('error', (err) => {
           captureSentryException(err);
           compressor?.destroy();
-          readable?.destroy();
         });
         response.body = readable.pipe(compressor);
       } else if (acceptedEncoding.includes('br')) {
         setResponseHeader(event, 'Content-Encoding', 'br');
         compressor = createBrotliCompress();
+        compressor.on('end', () => {
+          compressor?.destroy();
+        });
         compressor.on('error', (err) => {
           captureSentryException(err);
           compressor?.destroy();
-          readable?.destroy();
         });
         response.body = readable.pipe(compressor);
       } else if (acceptedEncoding.includes('deflate')) {
         setResponseHeader(event, 'Content-Encoding', 'deflate');
         compressor = createDeflate();
+        compressor.on('end', () => {
+          compressor?.destroy();
+        });
         compressor.on('error', (err) => {
           captureSentryException(err);
           compressor?.destroy();
-          readable?.destroy();
         });
         response.body = readable.pipe(compressor);
       }
