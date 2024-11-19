@@ -31,7 +31,7 @@ export const ChatCard = () => {
     <Card class='flex h-full w-full flex-1 flex-col overflow-hidden'>
       <SignedIn>
         <ChatWindow
-          chatId={chatStore.chatId || undefined}
+          chatId={chatStore.chatId ?? undefined}
           additionalContext={additionalContext()}
         />
       </SignedIn>

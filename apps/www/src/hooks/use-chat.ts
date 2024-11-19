@@ -153,8 +153,8 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
       chatId: chatId(),
     },
     onResponse: (response) => {
-      const newChatId = response.headers.get('X-Chat-Id');
-      if (newChatId && newChatId !== chatId()) {
+      const newChatId = response.headers.get('x-chat-id');
+      if (newChatId) {
         setChatId(newChatId);
       }
       return props?.().onResponse?.(response);

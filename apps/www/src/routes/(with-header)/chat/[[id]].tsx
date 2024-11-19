@@ -5,7 +5,7 @@ import { ChatWindow } from '@/www/components/chat/window';
 import { useChatStore } from '@/www/contexts/chat';
 import { getChatMessagesQueryProps, getChatQueryProps } from '@/www/hooks/use-chat';
 import type { RouteDefinition } from '@solidjs/router';
-import { Navigate, useParams, useSearchParams } from '@solidjs/router';
+import { Navigate, useLocation, useParams, useSearchParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
 import { Show } from 'solid-js';
 
@@ -25,6 +25,7 @@ export default function ChatPage() {
   const params = useParams();
   const [searchParams] = useSearchParams();
   const [chatStore] = useChatStore();
+  const location = useLocation();
 
   return (
     <Show
@@ -39,7 +40,7 @@ export default function ChatPage() {
               </SignedIn>
               <SignedOut>
                 <div class='flex h-full w-full flex-col items-center justify-center'>
-                  <SignIn />
+                  <SignIn redirectUrl={`/chat${location.search}`} />
                 </div>
               </SignedOut>
             </>
@@ -58,7 +59,7 @@ export default function ChatPage() {
           </SignedIn>
           <SignedOut>
             <div class='flex h-full w-full flex-col items-center justify-center'>
-              <SignIn />
+              <SignIn redirectUrl={`/chat/${id}${location.search}`} />
             </div>
           </SignedOut>
         </>

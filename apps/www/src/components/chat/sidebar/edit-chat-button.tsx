@@ -17,7 +17,6 @@ import {
   TextFieldLabel,
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
-import { useChatStore } from '@/www/contexts/chat';
 import { requireAuth } from '@/www/server/auth';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
 import { action, useAction } from '@solidjs/router';
@@ -48,7 +47,6 @@ export const EditChatButton = (props: EditChatButtonProps) => {
   const editChat = useAction(editChatAction);
 
   const qc = useQueryClient();
-  const [chatStore] = useChatStore();
 
   const editChatMutation = createMutation(() => ({
     mutationFn: (mProps: { name: string }) =>
@@ -57,14 +55,12 @@ export const EditChatButton = (props: EditChatButtonProps) => {
         name: mProps.name,
       }),
     onSettled: () => {
-      void qc.invalidateQueries({
+      qc.invalidateQueries({
         queryKey: ['chats'],
       });
-      if (chatStore.chatId === props.chat.id) {
-        void qc.invalidateQueries({
-          queryKey: ['chat', { chatId: props.chat.id }],
-        });
-      }
+      qc.invalidateQueries({
+        queryKey: ['chat', { chatId: props.chat.id }],
+      });
     },
   }));
 
