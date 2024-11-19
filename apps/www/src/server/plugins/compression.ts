@@ -75,7 +75,6 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
   ) {
     removeResponseHeader(event, 'Content-Length');
 
-    let stream: ReadableStream | undefined;
     let compressor:
       | ReturnType<typeof createGzip>
       | ReturnType<typeof createBrotliCompress>
@@ -83,14 +82,8 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
       | undefined;
     let readable: Readable | undefined;
 
-    const cleanup = () => {
-      stream?.cancel();
-      readable?.destroy();
-      compressor?.destroy();
-    };
-
     try {
-      stream = (
+      const stream = (
         response.body instanceof ReadableStream
           ? response.body
           : response.body instanceof Readable
@@ -100,7 +93,8 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
       readable = Readable.fromWeb(stream);
 
       readable.on('end', () => {
-        cleanup();
+        readable?.destroy();
+        compressor?.end().destroy();
       });
 
       if (acceptedEncoding.includes('gzip')) {
@@ -108,7 +102,8 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
         compressor = createGzip();
         compressor.on('error', (err) => {
           captureSentryException(err);
-          cleanup();
+          compressor?.destroy();
+          readable?.destroy();
         });
         response.body = readable.pipe(compressor);
       } else if (acceptedEncoding.includes('br')) {
@@ -116,7 +111,8 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
         compressor = createBrotliCompress();
         compressor.on('error', (err) => {
           captureSentryException(err);
-          cleanup();
+          compressor?.destroy();
+          readable?.destroy();
         });
         response.body = readable.pipe(compressor);
       } else if (acceptedEncoding.includes('deflate')) {
@@ -124,14 +120,16 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
         compressor = createDeflate();
         compressor.on('error', (err) => {
           captureSentryException(err);
-          cleanup();
+          compressor?.destroy();
+          readable?.destroy();
         });
         response.body = readable.pipe(compressor);
       }
     } catch (err) {
       captureSentryException(err);
       removeResponseHeader(event, 'Content-Encoding');
-      cleanup();
+      compressor?.destroy();
+      readable?.destroy();
     }
   }
 }
