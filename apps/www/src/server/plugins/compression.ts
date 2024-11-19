@@ -73,54 +73,65 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
     typeof acceptedEncoding === 'string' &&
     supportedEncodings.some((e) => acceptedEncoding.includes(e))
   ) {
-    // Remove content-length as it's no longer valid
     removeResponseHeader(event, 'Content-Length');
+
+    let stream: ReadableStream | undefined;
+    let compressor:
+      | ReturnType<typeof createGzip>
+      | ReturnType<typeof createBrotliCompress>
+      | ReturnType<typeof createDeflate>
+      | undefined;
+    let readable: Readable | undefined;
+
+    const cleanup = () => {
+      stream?.cancel();
+      readable?.destroy();
+      compressor?.destroy();
+    };
+
     try {
-      const stream = (
+      stream = (
         response.body instanceof ReadableStream
           ? response.body
           : response.body instanceof Readable
             ? ReadableStream.from(response.body)
             : new Response(response.body).body!
       ) as ReadableStream;
-      const readable = Readable.fromWeb(stream);
+      readable = Readable.fromWeb(stream);
+
+      readable.on('end', () => {
+        cleanup();
+      });
 
       if (acceptedEncoding.includes('gzip')) {
         setResponseHeader(event, 'Content-Encoding', 'gzip');
-        const gzip = createGzip();
-        gzip.on('error', (err) => {
+        compressor = createGzip();
+        compressor.on('error', (err) => {
           captureSentryException(err);
-          gzip.destroy();
-          stream.cancel();
-          readable.destroy();
+          cleanup();
         });
-        response.body = readable.pipe(gzip);
+        response.body = readable.pipe(compressor);
       } else if (acceptedEncoding.includes('br')) {
-        // TODO: Put brotli second because it is not optimized in bun yet (too much memory):
-        // https://bun.sh/docs/runtime/nodejs-apis
         setResponseHeader(event, 'Content-Encoding', 'br');
-        const brotli = createBrotliCompress();
-        brotli.on('error', (err) => {
+        compressor = createBrotliCompress();
+        compressor.on('error', (err) => {
           captureSentryException(err);
-          brotli.destroy();
-          stream.cancel();
-          readable.destroy();
+          cleanup();
         });
-        response.body = readable.pipe(brotli);
+        response.body = readable.pipe(compressor);
       } else if (acceptedEncoding.includes('deflate')) {
         setResponseHeader(event, 'Content-Encoding', 'deflate');
-        const deflate = createDeflate();
-        deflate.on('error', (err) => {
+        compressor = createDeflate();
+        compressor.on('error', (err) => {
           captureSentryException(err);
-          deflate.destroy();
-          stream.cancel();
-          readable.destroy();
+          cleanup();
         });
-        response.body = readable.pipe(deflate);
+        response.body = readable.pipe(compressor);
       }
     } catch (err) {
       captureSentryException(err);
       removeResponseHeader(event, 'Content-Encoding');
+      cleanup();
     }
   }
 }
