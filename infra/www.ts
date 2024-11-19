@@ -114,7 +114,10 @@ if (!$dev) {
           app: flyApp.name,
           region,
           image: webAppImage.ref,
-          env,
+          env: $output(env).apply((env) => ({
+            ...env,
+            BUN_JSC_forceRAMSize: (1024 * 1024 * 350).toString(), // 350 MB in bytes, leave some room for other system processes
+          })),
           services: [
             {
               ports: [
@@ -126,8 +129,8 @@ if (!$dev) {
             },
           ],
           cpuType: 'shared',
-          cpus: 2,
-          memory: 1024,
+          cpus: 1,
+          memory: 512,
         }),
       );
     }
