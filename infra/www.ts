@@ -116,7 +116,7 @@ if (!$dev) {
           image: webAppImage.ref,
           env: $output(env).apply((env) => ({
             ...env,
-            BUN_JSC_forceRAMSize: (1024 * 1024 * 350).toString(), // 350 MB in bytes, leave some room for other system processes
+            BUN_JSC_forceRAMSize: (1024 * 1024 * 400).toString(), // 400 MB in bytes, leave some room for other system processes
           })),
           services: [
             {

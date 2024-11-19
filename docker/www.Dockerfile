@@ -144,7 +144,7 @@ COPY --link ./apps/www/instrument.mjs ./
 RUN bun add --trust @sentry/bun posthog-node && \
     bun pm cache rm
 
-ENTRYPOINT [ "bun","run", "--smol", "--preload", "./instrument.mjs", "./index.mjs" ]
+ENTRYPOINT [ "bun", "run", "--preload", "./instrument.mjs", "./index.mjs" ]
 EXPOSE ${PORT}
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
