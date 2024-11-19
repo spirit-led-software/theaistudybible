@@ -1,7 +1,7 @@
 import type { Chat } from '@/schemas/chats';
 import { makePersisted } from '@solid-primitives/storage';
 import type { JSXElement } from 'solid-js';
-import { createContext, splitProps, useContext } from 'solid-js';
+import { createContext, createEffect, createSignal, splitProps, useContext } from 'solid-js';
 import type { SetStoreFunction, Store } from 'solid-js/store';
 import { createStore } from 'solid-js/store';
 
@@ -24,14 +24,21 @@ export type ChatProviderProps = {
 export const ChatProvider = (props: ChatProviderProps) => {
   const [local, others] = splitProps(props, ['children']);
 
-  const [store, setStore] = makePersisted(
-    createStore<ChatStore>({
-      chatId: others.chatId ?? null,
-      chat: null,
-      modelId: others.modelId ?? null,
-    }),
-    { name: 'chat' },
-  );
+  const [store, setStore] = createStore<ChatStore>({
+    chatId: others.chatId ?? null,
+    chat: null,
+    modelId: others.modelId ?? null,
+  });
+
+  const [, setChatId] = makePersisted(createSignal(store.chatId), { name: 'chatId' });
+  createEffect(() => {
+    setChatId(store.chatId);
+  });
+
+  const [, setModelId] = makePersisted(createSignal(store.modelId), { name: 'modelId' });
+  createEffect(() => {
+    setModelId(store.modelId);
+  });
 
   return (
     <ChatContext.Provider value={[store, setStore] as ChatContextValue}>

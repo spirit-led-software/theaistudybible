@@ -11,6 +11,7 @@ import { createQuery } from '@tanstack/solid-query';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { createSignal } from 'solid-js';
+import { setResponseHeader } from 'vinxi/http';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
@@ -79,6 +80,10 @@ const getChapterReaderData = GET(
 
     const chapter = chapters[0];
 
+    setResponseHeader(
+      'Cache-Control',
+      'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
+    );
     return {
       bible,
       book,

@@ -2,7 +2,7 @@ import { createScrollAnchor } from '@/www/hooks/create-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
-import { useSearchParams } from '@solidjs/router';
+import { useLocation, useSearchParams } from '@solidjs/router';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createMemo, on } from 'solid-js';
 import { toast } from 'solid-sonner';
@@ -24,14 +24,15 @@ import { Message } from './message';
 import { SelectModelButton } from './select-model-button';
 
 export type ChatWindowProps = {
-  chatId?: string;
   additionalContext?: string;
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
+  const location = useLocation();
   const [chatStore, setChatStore] = useChatStore();
 
   const {
+    id,
     input,
     setInput,
     handleSubmit,
@@ -44,13 +45,15 @@ export const ChatWindow = (props: ChatWindowProps) => {
     chatQuery,
     followUpSuggestionsQuery,
   } = useChat(() => ({
-    id: props.chatId,
+    id: chatStore.chatId ?? undefined,
     body: {
       additionalContext: props.additionalContext,
       modelId: chatStore.modelId,
     },
   }));
-
+  createEffect(() => {
+    setChatStore('chatId', id() ?? null);
+  });
   createEffect(() => {
     if (chatQuery.status === 'success') {
       setChatStore('chat', chatQuery.data.chat);
@@ -100,7 +103,9 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   return (
     <>
-      <MetaTags />
+      <Show when={location.pathname.startsWith('/chat')}>
+        <MetaTags />
+      </Show>
       <div
         class='relative flex h-full w-full flex-1 flex-col overflow-hidden'
         aria-label='Chat window'

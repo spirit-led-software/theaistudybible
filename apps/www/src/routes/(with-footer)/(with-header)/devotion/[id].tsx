@@ -13,6 +13,7 @@ import { A, useParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import { For, Show, createEffect, createMemo } from 'solid-js';
+import { setResponseHeader } from 'vinxi/http';
 
 const getDevotion = GET(async ({ id }: { id: string }) => {
   'use server';
@@ -20,6 +21,10 @@ const getDevotion = GET(async ({ id }: { id: string }) => {
     where: (devotions, { eq }) => eq(devotions.id, id),
     with: { images: true },
   });
+  setResponseHeader(
+    'Cache-Control',
+    'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
+  );
   return { devotion: devotion ?? null };
 });
 

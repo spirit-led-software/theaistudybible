@@ -16,10 +16,10 @@ const getUserCredits = GET(async () => {
   'use server';
   const { user } = auth();
   if (!user) {
-    return 10;
+    return { balance: 10 };
   }
   const [userCredit] = await db.select().from(userCredits).where(eq(userCredits.userId, user.id));
-  return userCredit?.balance ?? 10;
+  return { balance: userCredit?.balance ?? 10 };
 });
 
 export function CreditDisplay() {
@@ -30,7 +30,7 @@ export function CreditDisplay() {
 
   return (
     <QueryBoundary query={creditsQuery} loadingFallback={<Spinner size='sm' />}>
-      {(credits) => (
+      {({ balance }) => (
         <Popover>
           <PopoverTrigger
             as={Button}
@@ -38,14 +38,14 @@ export function CreditDisplay() {
             size='icon'
             class={cn(
               'flex size-8 flex-col items-center justify-center gap-1 rounded-full p-2 text-xs lg:flex-row',
-              credits < 5 && 'text-red-500',
-              credits < 10 && 'text-yellow-500',
+              balance < 5 && 'text-red-500',
+              balance < 10 && 'text-yellow-500',
             )}
           >
-            {credits > 100 ? `>${100}` : credits}
+            {balance > 100 ? `>${100}` : balance}
           </PopoverTrigger>
           <PopoverContent class='flex flex-col gap-2'>
-            <H5>{credits} credits</H5>
+            <H5>{balance} credits</H5>
 
             <div>
               <H6>Spend credits using AI</H6>

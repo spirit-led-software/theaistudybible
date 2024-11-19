@@ -7,11 +7,9 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/www/components/ui/c
 import { DrawerClose } from '@/www/components/ui/drawer';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { useChatStore } from '@/www/contexts/chat';
 import { createMemo } from 'solid-js';
 
 export const ChatCard = () => {
-  const [chatStore] = useChatStore();
   const [brStore] = useBibleReaderStore();
 
   const additionalContext = createMemo(() => {
@@ -30,10 +28,7 @@ export const ChatCard = () => {
   return (
     <Card class='flex h-full w-full flex-1 flex-col overflow-hidden'>
       <SignedIn>
-        <ChatWindow
-          chatId={chatStore.chatId ?? undefined}
-          additionalContext={additionalContext()}
-        />
+        <ChatWindow additionalContext={additionalContext()} />
       </SignedIn>
       <SignedOut>
         <CardHeader />

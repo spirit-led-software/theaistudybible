@@ -8,6 +8,7 @@ import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronsUpDown } from 'lucide-solid';
 import { For } from 'solid-js';
+import { setResponseHeader } from 'vinxi/http';
 import { ChapterPicker } from './chapter';
 
 const getBookPickerData = GET(async (bibleId: string) => {
@@ -27,6 +28,10 @@ const getBookPickerData = GET(async (bibleId: string) => {
 
   const { books, ...bible } = bibleData;
 
+  setResponseHeader(
+    'Cache-Control',
+    'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
+  );
   return {
     bible,
     books,

@@ -5,9 +5,9 @@ import { ChatWindow } from '@/www/components/chat/window';
 import { useChatStore } from '@/www/contexts/chat';
 import { getChatMessagesQueryProps, getChatQueryProps } from '@/www/hooks/use-chat';
 import type { RouteDefinition } from '@solidjs/router';
-import { Navigate, useLocation, useParams, useSearchParams } from '@solidjs/router';
+import { useLocation, useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
-import { Show } from 'solid-js';
+import { createEffect } from 'solid-js';
 
 export const route: RouteDefinition = {
   preload: ({ params }) => {
@@ -23,47 +23,23 @@ export const route: RouteDefinition = {
 
 export default function ChatPage() {
   const params = useParams();
-  const [searchParams] = useSearchParams();
-  const [chatStore] = useChatStore();
   const location = useLocation();
 
+  const [, setChatStore] = useChatStore();
+  createEffect(() => {
+    setChatStore('chatId', params.id ?? null);
+  });
+
   return (
-    <Show
-      when={params.id}
-      fallback={
-        <Show
-          when={!searchParams.query && chatStore.chatId}
-          fallback={
-            <>
-              <SignedIn>
-                <ChatWindow />
-              </SignedIn>
-              <SignedOut>
-                <div class='flex h-full w-full flex-col items-center justify-center'>
-                  <SignIn redirectUrl={`/chat${location.search}`} />
-                </div>
-              </SignedOut>
-            </>
-          }
-          keyed
-        >
-          {(chatId) => <Navigate href={({ location }) => `/chat/${chatId}${location.search}`} />}
-        </Show>
-      }
-      keyed
-    >
-      {(id) => (
-        <>
-          <SignedIn>
-            <ChatWindow chatId={id} />
-          </SignedIn>
-          <SignedOut>
-            <div class='flex h-full w-full flex-col items-center justify-center'>
-              <SignIn redirectUrl={`/chat/${id}${location.search}`} />
-            </div>
-          </SignedOut>
-        </>
-      )}
-    </Show>
+    <>
+      <SignedIn>
+        <ChatWindow />
+      </SignedIn>
+      <SignedOut>
+        <div class='flex h-full w-full flex-col items-center justify-center'>
+          <SignIn redirectUrl={`/chat/${params.id}${location.search}`} />
+        </div>
+      </SignedOut>
+    </>
   );
 }

@@ -301,7 +301,7 @@ if (!$dev) {
         FAS_APP_NAME: appName,
         FAS_API_TOKEN: flyApiToken,
         FAS_REGIONS: regions.map(({ region }) => region).join(','),
-        FAS_STARTED_MACHINE_COUNT: `max(min(ceil(connects / 500), ${regions.reduce((acc, { replicas }) => acc + replicas, 0)}), ${regions.length})`, // 500 connections per machine, max all replicas per region, min 1 machine per region
+        FAS_STARTED_MACHINE_COUNT: `max(min(ceil(connects / 200), ${regions.reduce((acc, { replicas }) => acc + replicas, 0)}), ${regions.length})`, // 200 connections per machine, max all replicas per region, min 1 machine per region
         FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${process.env.FLY_ORG!}`,
         FAS_PROMETHEUS_TOKEN: flyApiToken,
         FAS_PROMETHEUS_METRIC_NAME: 'connects',

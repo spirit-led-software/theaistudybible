@@ -92,17 +92,21 @@ RUN aws s3 sync /build/apps/www/.output/public s3://${assets_bucket} \
         --include "*.jpg" \
         --include "*.png" \
         --include "*.svg" \
-        --include "*.webp" && \
+        --include "*.webp" \
+        --include "*.ico" \
+        --include "*.gif" && \
     aws s3 sync /build/apps/www/.output/public s3://${assets_bucket} \
         --metadata-directive 'REPLACE' \
-        --cache-control 'public,max-age=0,s-maxage=31536000,stale-while-revalidate=86400' \
+        --cache-control 'public,max-age=3600,s-maxage=31536000,stale-while-revalidate=86400,stale-if-error=259200' \
         --exclude "*.js" \
         --exclude "*.css" \
         --exclude "*.woff2" \
         --exclude "*.jpg" \
         --exclude "*.png" \
         --exclude "*.svg" \
-        --exclude "*.webp"
+        --exclude "*.webp" \
+        --exclude "*.ico" \
+        --exclude "*.gif"
 
 ########################################################
 # Release
