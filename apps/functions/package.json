@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@sentry/aws-serverless": "^8.38.0",
-    "posthog-node": "^4.2.1",
+    "posthog-node": "^4.2.2",
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {

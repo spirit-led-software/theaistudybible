@@ -23,10 +23,8 @@ found in the vector store.
 Your output will be the bible reading AS-IS in the format:
 "<text>" - <book> <chapter>:<verse> (<translation>)`,
     prompt: `Find a bible reading for the topic: "${topic}"`,
-    tools: {
-      vectorStore: bibleVectorStoreTool,
-    },
-    maxToolRoundtrips: 5,
+    tools: { vectorStore: bibleVectorStoreTool },
+    maxSteps: 5,
   });
 
   return bibleReading;
@@ -47,10 +45,8 @@ Your summary must be 500 words or less.`,
     prompt: `The topic is "${topic}".
 Summarize the following bible passage:
 ${bibleReading}`,
-    tools: {
-      vectorStore: vectorStoreTool,
-    },
-    maxToolRoundtrips: 5,
+    tools: { vectorStore: vectorStoreTool },
+    maxSteps: 5,
   });
 
   return summary;
@@ -83,10 +79,8 @@ ${summary}
 ---
 
 Write a reflection of the passage.`,
-    tools: {
-      vectorStore: vectorStoreTool,
-    },
-    maxToolRoundtrips: 5,
+    tools: { vectorStore: vectorStoreTool },
+    maxSteps: 5,
   });
 
   return reflection;
