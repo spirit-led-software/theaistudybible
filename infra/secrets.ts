@@ -1,5 +1,6 @@
 export const OPENAI_API_KEY = new sst.Secret('OpenAiApiKey');
 export const ANTHROPIC_API_KEY = new sst.Secret('AnthropicApiKey');
+export const GROQ_API_KEY = new sst.Secret('GroqApiKey');
 
 export const ADMIN_EMAIL = new sst.Secret('AdminEmail');
 export const ADMIN_PASSWORD = new sst.Secret('AdminPassword');

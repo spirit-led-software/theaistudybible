@@ -1,4 +1,5 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createGroq } from '@ai-sdk/groq';
 import { createOpenAI } from '@ai-sdk/openai';
 import { experimental_createProviderRegistry as createProviderRegistry } from 'ai';
 import OpenAI from 'openai';
@@ -9,10 +10,7 @@ export const openai = new OpenAI({
 });
 
 export const registry = createProviderRegistry({
-  anthropic: createAnthropic({
-    apiKey: Resource.AnthropicApiKey.value,
-  }),
-  openai: createOpenAI({
-    apiKey: Resource.OpenAiApiKey.value,
-  }),
+  anthropic: createAnthropic({ apiKey: Resource.AnthropicApiKey.value }),
+  openai: createOpenAI({ apiKey: Resource.OpenAiApiKey.value }),
+  qroq: createGroq({ apiKey: Resource.GroqApiKey.value }),
 });

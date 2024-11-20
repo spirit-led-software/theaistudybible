@@ -14,17 +14,9 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "AnalyticsDomain": {
-      "type": "asb.asb.Constant"
-      "value": string
-    }
-    "AnalyticsRouter": {
-      "type": "sst.aws.Router"
+    "AnalyticsApi": {
+      "type": "sst.sst.Linkable"
       "url": string
-    }
-    "AnalyticsUrl": {
-      "type": "asb.asb.Constant"
-      "value": string
     }
     "AnthropicApiKey": {
       "type": "sst.sst.Secret"
@@ -76,6 +68,10 @@ declare module "sst" {
     "GeneratedImagesBucket": {
       "name": string
       "type": "sst.aws.Bucket"
+    }
+    "GroqApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
     }
     "IndexBibleChapterQueue": {
       "type": "sst.aws.Queue"
@@ -145,46 +141,18 @@ declare module "sst" {
       "restUrl": string
       "type": "upstash.index/vectorIndex.VectorIndex"
     }
-    "WebAppBucket": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppService-ap-southeast-1": {
-      "service": string
-      "type": "sst.aws.Service"
-      "url": string
-    }
-    "WebAppService-us-east-1": {
-      "service": string
-      "type": "sst.aws.Service"
-      "url": string
-    }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
       "value": string
     }
-    "WebAppVpc-ap-southeast-1": {
-      "type": "sst.aws.Vpc"
-    }
-    "WebAppVpc-us-east-1": {
-      "type": "sst.aws.Vpc"
+    "WebhooksApi": {
+      "type": "sst.aws.Router"
+      "url": string
     }
     "WebhooksApiFunction": {
       "name": string
       "type": "sst.aws.Function"
       "url": string
-    }
-    "WebhooksApiRouter": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
-    "WebhooksDomain": {
-      "type": "asb.asb.Constant"
-      "value": string
-    }
-    "WebhooksUrl": {
-      "type": "asb.asb.Constant"
-      "value": string
     }
   }
 }

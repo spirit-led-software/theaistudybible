@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/pop
 import { useChatStore } from '@/www/contexts/chat';
 import { cn } from '@/www/lib/utils';
 import { For, Match, Switch, createMemo, createSignal } from 'solid-js';
-import { Anthropic, OpenAI } from '../ui/brand-icons';
+import { Anthropic, Meta, Mistral, OpenAI } from '../ui/brand-icons';
 
 export const SelectModelButton = () => {
   const [store, setStore] = useChatStore();
@@ -32,6 +32,12 @@ export const SelectModelButton = () => {
           <Match when={selectedModel().provider === 'anthropic'}>
             <Anthropic fill='hsl(var(--foreground))' class='size-full' />
           </Match>
+          <Match when={selectedModel().provider === 'mistral'}>
+            <Mistral class='size-full' />
+          </Match>
+          <Match when={selectedModel().provider === 'meta'}>
+            <Meta fill='hsl(var(--foreground))' class='size-full' />
+          </Match>
         </Switch>
       </PopoverTrigger>
       <PopoverContent class='w-fit p-0'>
@@ -57,6 +63,12 @@ export const SelectModelButton = () => {
                       </Match>
                       <Match when={model.provider === 'anthropic'}>
                         <Anthropic fill='hsl(var(--foreground))' class='size-full' />
+                      </Match>
+                      <Match when={model.provider === 'mistral'}>
+                        <Mistral class='size-full' />
+                      </Match>
+                      <Match when={model.provider === 'meta'}>
+                        <Meta fill='hsl(var(--foreground))' class='size-full' />
                       </Match>
                     </Switch>
                   </div>

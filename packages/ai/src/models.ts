@@ -3,7 +3,8 @@ import type { openai } from '@ai-sdk/openai';
 
 export type ModelInfo = {
   id: Parameters<typeof openai>[0] | Parameters<typeof anthropic>[0];
-  provider: 'openai' | 'anthropic' | 'mistral';
+  provider: 'openai' | 'anthropic' | 'mistral' | 'meta';
+  host: 'openai' | 'anthropic' | 'mistral' | 'groq';
   name: string;
   description: string;
   contextSize: number;
@@ -13,11 +14,22 @@ export type ModelInfo = {
 
 export const freeTierModels: ModelInfo[] = [
   {
+    id: 'llama-3.1-8b-instant',
+    name: 'Llama 3.1 8B',
+    description: 'A large language model trained by Meta',
+    contextSize: 128_000,
+    provider: 'meta',
+    host: 'groq',
+    link: 'https://ai.meta.com/blog/meta-llama-3-1',
+    tier: 'free',
+  },
+  {
     id: 'gpt-4o-mini',
     name: 'GPT-4o Mini',
     description: 'A large language model trained by OpenAI',
     contextSize: 128_000,
     provider: 'openai',
+    host: 'openai',
     link: 'https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/',
     tier: 'free',
   },
@@ -27,11 +39,22 @@ export const freeTierModelIds = freeTierModels.map((model) => model.id);
 
 export const plusTierModels: ModelInfo[] = [
   {
+    id: 'llama-3.1-70b-versatile',
+    name: 'Llama 3.1 70B',
+    description: 'A large language model trained by Meta',
+    contextSize: 128_000,
+    provider: 'meta',
+    host: 'groq',
+    link: 'https://ai.meta.com/blog/meta-llama-3-1',
+    tier: 'plus',
+  },
+  {
     id: 'gpt-4o',
     name: 'GPT-4o',
     description: 'A large language model trained by OpenAI',
     contextSize: 128_000,
     provider: 'openai',
+    host: 'openai',
     link: 'https://openai.com/index/hello-gpt-4o/',
     tier: 'plus',
   },
@@ -41,6 +64,7 @@ export const plusTierModels: ModelInfo[] = [
     description: 'A large language model trained by Anthropic',
     contextSize: 200_000,
     provider: 'anthropic',
+    host: 'anthropic',
     link: 'https://www.anthropic.com/news/claude-3-5-sonnet',
     tier: 'plus',
   },
