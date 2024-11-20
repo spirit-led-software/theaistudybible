@@ -105,6 +105,7 @@ if (!$dev) {
     type: 'v6',
   });
 
+  const memoryMb = 1024;
   const env = buildEnv();
   const regionalResources = regions.map(({ region, replicas }) => {
     const machines: fly.Machine[] = [];
@@ -114,7 +115,10 @@ if (!$dev) {
           app: flyApp.name,
           region,
           image: webAppImage.ref,
-          env,
+          env: $output(env).apply((env) => ({
+            ...env,
+            BUN_JSC_forceRAMSize: Math.floor(1024 * 1024 * memoryMb * 0.9).toString(10), // 90% of the VM's memory
+          })),
           services: [
             {
               ports: [
@@ -127,7 +131,7 @@ if (!$dev) {
           ],
           cpuType: 'shared',
           cpus: 1,
-          memory: 1024,
+          memory: memoryMb,
         }),
       );
     }
