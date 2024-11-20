@@ -48,10 +48,10 @@ export const SelectModelButton = () => {
                 variant='ghost'
                 class={cn(
                   'h-fit w-full justify-start px-5 py-3',
-                  store.modelId === `${model.provider}:${model.id}` && 'bg-accent',
+                  store.modelId === `${model.host}:${model.id}` && 'bg-accent',
                 )}
                 onClick={() => {
-                  setStore('modelId', `${model.provider}:${model.id}`);
+                  setStore('modelId', `${model.host}:${model.id}`);
                   setOpen(false);
                 }}
               >

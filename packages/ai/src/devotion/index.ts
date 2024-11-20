@@ -16,7 +16,7 @@ const modelInfo = plusTierModels[0];
 
 export const getBibleReading = async (topic: string) => {
   const { text: bibleReading } = await generateText({
-    model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
+    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     system: `Your goal is to search the vector store to find a bible reading for a given topic. You must only use Bible readings
 found in the vector store. 
 
@@ -38,7 +38,7 @@ export const generateSummary = async ({
   bibleReading: string;
 }) => {
   const { text: summary } = await generateText({
-    model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
+    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     system: `You are an expert at summarizing Bible passages. You must search for relevant resources in the vector store to
 provide an accurate summary of the passage for the provided topic. You must only use the information from the vector store in your summary. 
 Your summary must be 500 words or less.`,
@@ -62,7 +62,7 @@ export const generateReflection = async ({
   summary: string;
 }) => {
   const { text: reflection } = await generateText({
-    model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
+    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     system: `You are an expert at reflecting upon Bible passages. You must search for relevant resources in the vector store to
 provide a thought-provoking and accurate reflection of the passage for the provided topic. You must only use
 the information from the vector store in your reflection. Your reflection must be 500 words or less.`,
@@ -98,7 +98,7 @@ export const generatePrayer = async ({
   reflection: string;
 }) => {
   const { text: prayer } = await generateText({
-    model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
+    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     system: `You are an expert at writing Christian prayers. You must write a closing prayer for the provided devotional. 
 Your prayer must be 200 words or less.`,
     prompt: `Here is the devotional (delimited by triple dashes):
@@ -133,7 +133,7 @@ export const generateDiveDeeperQueries = async ({
   prayer: string;
 }) => {
   const { object } = await generateObject({
-    model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
+    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     schema: z.object({
       queries: z.array(z.string()),
     }),
@@ -164,7 +164,7 @@ Generate 1 to 4 follow-up queries to help the user dive deeper into the topic ex
 
 export const generateImagePrompt = async (devotion: Devotion) => {
   const { text: imagePrompt } = await generateText({
-    model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
+    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     system:
       'You must generate a prompt that will generate an image to represent the devotional. Be creative and unique.',
     prompt: `Here is the devotional (delimited by triple dashes):

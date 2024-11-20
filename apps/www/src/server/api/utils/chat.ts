@@ -18,10 +18,10 @@ export function validateModelId({
   providedModelId: string;
 }): Response | undefined {
   const isFreeTier = freeTierModels.some(
-    (model) => `${model.provider}:${model.id}` === providedModelId,
+    (model) => `${model.host}:${model.id}` === providedModelId,
   );
   const isPlusTier = plusTierModels.some(
-    (model) => `${model.provider}:${model.id}` === providedModelId,
+    (model) => `${model.host}:${model.id}` === providedModelId,
   );
   if (!isFreeTier && !isPlusTier) {
     console.log('Invalid modelId provided');
@@ -47,9 +47,9 @@ export function validateModelId({
 export function getDefaultModelId(c: Context<{ Bindings: Bindings; Variables: Variables }>) {
   return c.var.roles?.some((role) => role.id === 'admin')
     ? Resource.Stage.value === 'production'
-      ? `${plusTierModels[0].provider}:${plusTierModels[0].id}`
-      : `${freeTierModels[0].provider}:${freeTierModels[0].id}`
-    : `${freeTierModels[0].provider}:${freeTierModels[0].id}`;
+      ? `${plusTierModels[0].host}:${plusTierModels[0].id}`
+      : `${freeTierModels[0].host}:${freeTierModels[0].id}`
+    : `${freeTierModels[0].host}:${freeTierModels[0].id}`;
 }
 
 const messageChunkSize = 10;

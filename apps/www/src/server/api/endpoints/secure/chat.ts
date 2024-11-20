@@ -186,7 +186,7 @@ const app = new Hono<{
         userId: c.var.user!.id,
         chatId: chat.id,
         maxTokens: modelInfo.contextSize - additionalContextTokens - maxResponseTokens,
-        mustStartWithUserMessage: modelInfo.provider === 'anthropic',
+        mustStartWithUserMessage: modelInfo.host === 'anthropic',
       });
       console.timeEnd('getValidMessages');
 

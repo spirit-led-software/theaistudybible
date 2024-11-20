@@ -24,7 +24,7 @@ export const renameChat = async ({
   additionalContext?: string | null;
 }) => {
   const { object } = await generateObject({
-    model: registry.languageModel(`${defaultModel.provider}:${defaultModel.id}`),
+    model: registry.languageModel(`${defaultModel.host}:${defaultModel.id}`),
     schema: z.object({
       title: z.string().describe('The new title of the chat'),
     }),

@@ -100,7 +100,7 @@ const getChatSuggestions = GET(async (chatId: string) => {
   }
 
   const { object } = await generateObject({
-    model: registry.languageModel(`${modelInfo.provider}:${modelInfo.id}`),
+    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     schema: z.object({
       suggestions: z
         .array(
