@@ -390,30 +390,25 @@ export const generateImageTool = (props: {
     },
   });
 
-export const saveContextTool = (options: { hasSavedContext: boolean }) =>
-  tool({
-    description:
-      'Save Context: Save additional context to the conversation history. You do not need to ask the user for confirmation before using this tool.',
-    parameters: z.object({
-      context: z
-        .string()
-        .describe(
-          'The context to save to the conversation history. This must be plain text, not markdown.',
-        ),
-    }),
-    execute: ({ context }) => {
-      options.hasSavedContext = true;
-      return Promise.resolve({
-        status: 'success',
-        message: 'Context saved',
-        context,
-      } as const);
-    },
-  });
+export const saveContextTool = tool({
+  description:
+    'Save Context: Save additional context to the conversation history. You do not need to ask the user for confirmation before using this tool.',
+  parameters: z.object({
+    context: z
+      .string()
+      .describe(
+        'The context to save to the conversation history. This must be plain text, not markdown.',
+      ),
+  }),
+  execute: ({ context }) => Promise.resolve({
+    status: 'success',
+    message: 'Context saved',
+    context,
+  } as const),
+});
 
 export const tools = (options: {
   userId: string;
-  hasSavedContext: boolean;
 }) => ({
   askForConfirmation: askForConfirmationTool,
   askForHighlightColor: askForHighlightColorTool,
@@ -430,7 +425,5 @@ export const tools = (options: {
     userId: options.userId,
   }),
   vectorStore: vectorStoreTool,
-  saveContext: saveContextTool({
-    hasSavedContext: options.hasSavedContext,
-  }),
+  saveContext: saveContextTool,
 });
