@@ -14,16 +14,6 @@ export type ModelInfo = {
 
 export const freeTierModels: ModelInfo[] = [
   {
-    id: 'llama-3.1-8b-instant',
-    name: 'Llama 3.1 8B',
-    description: 'A large language model trained by Meta',
-    contextSize: 128_000,
-    provider: 'meta',
-    host: 'groq',
-    link: 'https://ai.meta.com/blog/meta-llama-3-1',
-    tier: 'free',
-  },
-  {
     id: 'gpt-4o-mini',
     name: 'GPT-4o Mini',
     description: 'A large language model trained by OpenAI',
@@ -38,16 +28,6 @@ export type FreeTierModelId = (typeof freeTierModels)[number]['id'];
 export const freeTierModelIds = freeTierModels.map((model) => model.id);
 
 export const plusTierModels: ModelInfo[] = [
-  {
-    id: 'llama-3.1-70b-versatile',
-    name: 'Llama 3.1 70B',
-    description: 'A large language model trained by Meta',
-    contextSize: 128_000,
-    provider: 'meta',
-    host: 'groq',
-    link: 'https://ai.meta.com/blog/meta-llama-3-1',
-    tier: 'plus',
-  },
   {
     id: 'gpt-4o',
     name: 'GPT-4o',
