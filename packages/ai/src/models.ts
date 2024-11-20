@@ -1,9 +1,15 @@
 import type { anthropic } from '@ai-sdk/anthropic';
+import type { groq } from '@ai-sdk/groq';
+import type { mistral } from '@ai-sdk/mistral';
 import type { openai } from '@ai-sdk/openai';
 
 export type ModelInfo = {
-  id: Parameters<typeof openai>[0] | Parameters<typeof anthropic>[0];
-  provider: 'openai' | 'anthropic' | 'mistral' | 'meta';
+  id:
+    | Parameters<typeof openai>[0]
+    | Parameters<typeof anthropic>[0]
+    | Parameters<typeof mistral>[0]
+    | Parameters<typeof groq>[0];
+  provider: 'openai' | 'anthropic' | 'mistral' | 'meta' | 'groq';
   host: 'openai' | 'anthropic' | 'mistral' | 'groq';
   name: string;
   description: string;

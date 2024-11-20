@@ -94,25 +94,22 @@ export const Message = (props: MessageProps) => {
               }
               keyed
             >
-              {({ modelId }) => {
-                const modelInfo = allModels.find((m) => m.id === modelId.split(':')[1]);
-                return (
-                  <Show when={modelInfo} keyed>
-                    {(modelInfo) => (
-                      <Button
-                        variant='outline'
-                        as={A}
-                        href={modelInfo.link}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        class='w-fit rounded-full border p-2 text-muted-foreground text-xs'
-                      >
-                        {modelInfo.name}
-                      </Button>
-                    )}
-                  </Show>
-                );
-              }}
+              {({ modelId }) => (
+                <Show when={allModels.find((m) => `${m.host}:${m.id}` === modelId)} keyed>
+                  {(modelInfo) => (
+                    <Button
+                      variant='outline'
+                      as={A}
+                      href={modelInfo.link}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      class='w-fit rounded-full border p-2 text-muted-foreground text-xs'
+                    >
+                      {modelInfo.name}
+                    </Button>
+                  )}
+                </Show>
+              )}
             </Show>
             <Button
               variant='ghost'

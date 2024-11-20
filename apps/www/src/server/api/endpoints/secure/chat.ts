@@ -15,6 +15,7 @@ import {
 } from '@/www/server/api/utils/chat';
 import { zValidator } from '@hono/zod-validator';
 import { StreamData } from 'ai';
+import { parseISO } from 'date-fns';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
@@ -168,7 +169,7 @@ const app = new Hono<{
       } else {
         await db.insert(messagesTable).values({
           ...lastMessage,
-          createdAt: lastMessage.createdAt ? new Date(lastMessage.createdAt) : undefined,
+          createdAt: lastMessage.createdAt ? parseISO(lastMessage.createdAt) : undefined,
           updatedAt: new Date(),
           chatId: chat.id,
           userId: c.var.user!.id,
@@ -217,6 +218,7 @@ const app = new Hono<{
         maxTokens: maxResponseTokens,
         onStepFinish: (step) => {
           streamData.appendMessageAnnotation({ modelId });
+
           globalThis.posthog?.capture({
             distinctId: c.var.user!.id,
             event: 'chat step finished',
@@ -228,10 +230,13 @@ const app = new Hono<{
         },
         onFinish: async (event) => {
           await Promise.all(pendingPromises);
+
           if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
             await restoreCreditsOnFailure(c.var.user!.id, 'chat');
           }
+
           await streamData.close();
+
           globalThis.posthog?.capture({
             distinctId: c.var.user!.id,
             event: 'chat event finished',
