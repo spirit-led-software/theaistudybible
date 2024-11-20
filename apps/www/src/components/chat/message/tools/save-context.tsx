@@ -33,7 +33,7 @@ export const SaveContextTool = (props: SaveContextToolProps) => {
         when={
           'result' in props.toolInvocation &&
           (props.toolInvocation.result as Awaited<
-            ReturnType<ReturnType<typeof saveContextTool>['execute']>
+            ReturnType<typeof saveContextTool['execute']>
           >)
         }
         keyed
