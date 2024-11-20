@@ -5,7 +5,7 @@ import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createMemo, on } from 'solid-js';
-import {} from 'solid-js/store';
+import { createStore, reconcile } from 'solid-js/store';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
@@ -39,7 +39,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
     handleSubmit,
     isLoading,
     error,
-    messages,
+    messages: _messages,
     messagesQuery,
     append,
     addToolResult,
@@ -87,9 +87,14 @@ export const ChatWindow = (props: ChatWindowProps) => {
     ),
   );
 
+  const [messages, setMessages] = createStore(_messages());
+  createEffect(() => {
+    setMessages(reconcile(_messages()));
+  });
+
   // Find the index of the last message grouped by role
   const lastMessageIdx = createMemo(() => {
-    const currentMessages = messages();
+    const currentMessages = messages;
     if (currentMessages.length === 0) {
       return 0;
     }
@@ -151,7 +156,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             </div>
             <div class='flex w-full flex-1 flex-col items-center justify-end'>
               <For
-                each={messages()}
+                each={messages}
                 fallback={
                   <EmptyWindow append={append} additionalContext={props.additionalContext} />
                 }
@@ -162,9 +167,9 @@ export const ChatWindow = (props: ChatWindowProps) => {
                       <div ref={setTopOfLastMessageRef} class='h-px w-full shrink-0' />
                     </Show>
                     <Message
-                      previousMessage={messages()[idx() - 1]}
+                      previousMessage={messages[idx() - 1]}
                       message={message}
-                      nextMessage={messages()[idx() + 1]}
+                      nextMessage={messages[idx() + 1]}
                       addToolResult={addToolResult}
                       isLoading={isLoading}
                     />
