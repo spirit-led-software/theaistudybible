@@ -243,8 +243,7 @@ const app = new Hono<{
         },
       });
 
-      const result = await streamText(messages);
-
+      const result = streamText(messages);
       return stream(c, async (stream) => {
         if (providedChatId !== chat.id) {
           c.header('X-Chat-Id', chat.id);
