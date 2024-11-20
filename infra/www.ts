@@ -309,7 +309,8 @@ if (!$dev) {
         FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${process.env.FLY_ORG!}`,
         FAS_PROMETHEUS_TOKEN: flyApiToken,
         FAS_PROMETHEUS_METRIC_NAME: 'connects',
-        FAS_PROMETHEUS_QUERY: 'fly_app_tcp_connects_count{app="$APP_NAME"} or vector(0)',
+        FAS_PROMETHEUS_QUERY:
+          'sum(increase(fly_app_tcp_connects_count{app="$APP_NAME"}[1m])) or vector(0)',
       }));
     const machine = new fly.Machine(
       'FlyAutoscalerMachine',
