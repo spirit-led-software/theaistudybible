@@ -89,7 +89,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   const [messages, setMessages] = createStore(messagesSignal());
   createEffect(() => {
-    setMessages(reconcile(messagesSignal()));
+    setMessages(reconcile(messagesSignal(), { merge: true }));
   });
 
   // Find the index of the last message grouped by role
