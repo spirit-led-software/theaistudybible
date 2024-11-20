@@ -14,7 +14,13 @@ export default createMiddleware({
     // Logging Middleware
     async ({ request }) => {
       const url = new URL(request.url);
-      console.log(`<-- ${request.method} ${url.pathname}`);
+      const userAgent = request.headers.get('user-agent') ?? 'unknown';
+      const ip =
+        request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+        request.headers.get('x-real-ip') ??
+        'unknown';
+
+      console.log(`<-- ${request.method} ${url.pathname} | IP: ${ip} | UA: ${userAgent}`);
       if (Resource.Dev.value === 'true') {
         const body = await request.clone().text();
         if (body) console.log(`\t\t${body}`);

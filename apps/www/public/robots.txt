@@ -1,50 +1,31 @@
-# Allow search engines
+# Global rules
 User-agent: *
-Allow: /
-Sitemap: https://theaistudybible.com/sitemap.xml
+Disallow: /
 
-# Explicitly allow major search engines
+# Google
 User-agent: Googlebot
+Allow: /
+
 User-agent: Googlebot-Image
+Allow: /
+
 User-agent: Googlebot-Mobile
+Allow: /
+
+# Bing
 User-agent: Bingbot
+Allow: /
+
+# DuckDuckGo
 User-agent: DuckDuckBot
+Allow: /
+
+# Yahoo
 User-agent: Slurp
 Allow: /
 
-# SEO Tools Bots
-User-agent: SemrushBot
-User-agent: SemrushBot-SA
-User-agent: SemrushBot-BA
-User-agent: SemrushBot-SI
-User-agent: SemrushBot-SWA
-User-agent: SemrushBot-CT
-User-agent: SemrushBot-BM
-User-agent: AhrefsBot
-User-agent: MJ12bot
-User-agent: DotBot
-User-agent: RankingBot
-User-agent: SEOkicks-Robot
-User-agent: SearchmetricsBot
-Disallow: /
-
-# AI/ML Training Bots
-User-agent: GPTBot
-User-agent: ChatGPT-User
-User-agent: Google-Extended
-User-agent: CCBot
-User-agent: anthropic-ai
-User-agent: Claude-Web
-User-agent: Cohere-ai
-User-agent: PerplexityBot
-Disallow: /
-
-# Aggressive Crawlers
-User-agent: PetalBot
-User-agent: Bytespider
-User-agent: FacebookBot
-User-agent: DataForSeoBot
-Disallow: /
-
-# Rate Limiting (Optional)
+# Rate limiting
 Crawl-delay: 10
+
+# Sitemap
+Sitemap: https://theaistudybible.com/sitemap.xml
