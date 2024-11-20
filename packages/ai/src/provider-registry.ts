@@ -12,5 +12,5 @@ export const openai = new OpenAI({
 export const registry = createProviderRegistry({
   anthropic: createAnthropic({ apiKey: Resource.AnthropicApiKey.value }),
   openai: createOpenAI({ apiKey: Resource.OpenAiApiKey.value }),
-  qroq: createGroq({ apiKey: Resource.GroqApiKey.value }),
+  groq: createGroq({ apiKey: Resource.GroqApiKey.value }),
 });
