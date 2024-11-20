@@ -7,6 +7,7 @@ import type { PostHog } from 'posthog-node';
 
 declare module '@solidjs/start/server' {
   export interface RequestEventLocals {
+    requestId: string;
     session: Session | null;
     user: User | null;
     roles: Role[] | null;

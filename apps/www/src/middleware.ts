@@ -1,6 +1,7 @@
 import { lucia } from '@/core/auth';
 import { db } from '@/core/database';
 import { userCredits } from '@/core/database/schema';
+import { createId } from '@/core/utils/id';
 import { sentryBeforeResponseMiddleware } from '@sentry/solidstart';
 import { createMiddleware } from '@solidjs/start/middleware';
 import { add, isAfter } from 'date-fns';
@@ -12,7 +13,10 @@ import { getCookie, setCookie } from 'vinxi/http';
 export default createMiddleware({
   onRequest: [
     // Logging Middleware
-    async ({ request }) => {
+    async ({ request, locals }) => {
+      const requestId = createId();
+      locals.requestId = requestId;
+
       const url = new URL(request.url);
       const userAgent = request.headers.get('user-agent') ?? 'unknown';
       const ip =
@@ -20,7 +24,9 @@ export default createMiddleware({
         request.headers.get('x-real-ip') ??
         'unknown';
 
-      console.log(`<-- ${request.method} ${url.pathname} | IP: ${ip} | UA: ${userAgent}`);
+      console.log(
+        `${requestId} <-- ${request.method} ${url.pathname}\n\t\tIP: ${ip}\n\t\tUser-Agent: ${userAgent}`,
+      );
       if (Resource.Dev.value === 'true') {
         const body = await request.clone().text();
         if (body) console.log(`\t\t${body}`);
@@ -94,9 +100,9 @@ export default createMiddleware({
   ],
   onBeforeResponse: [
     // Logging Middleware
-    ({ request, response }) => {
+    ({ request, response, locals }) => {
       const url = new URL(request.url);
-      console.log(`--> ${request.method} ${url.pathname} ${response.status}`);
+      console.log(`${locals.requestId} --> ${request.method} ${url.pathname} ${response.status}`);
     },
     // Sentry Middleware
     sentryBeforeResponseMiddleware(),
