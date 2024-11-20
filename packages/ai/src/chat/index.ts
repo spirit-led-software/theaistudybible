@@ -69,21 +69,12 @@ export type CreateChatChainOptions = {
   maxTokens?: number;
   onStepFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onStepFinish'];
   onFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onFinish'];
-  tracer?: NonNullable<
-    Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['experimental_telemetry']
-  >['tracer'];
 };
 
 export const createChatChain = (options: CreateChatChainOptions) => {
-  return async (messages: Pick<Message, 'role' | 'content'>[]) => {
-    // biome-ignore lint/style/useConst: The tool needs to be able to update the value
-    let hasSavedContext = false;
-    const resolvedTools = tools({
-      hasSavedContext,
-      userId: options.userId,
-    });
-
-    return await streamText({
+  return (messages: Pick<Message, 'role' | 'content'>[]) => {
+    const resolvedTools = tools({ userId: options.userId });
+    return streamText({
       model: registry.languageModel(options.modelId),
       system: `You are an expert on Christian faith and theology. Your goal is to answer questions about the Christian faith. You may also be provided with additional context to help you answer the question.
 
@@ -163,10 +154,6 @@ ${options.additionalContext}
         return await options.onStepFinish?.(step);
       },
       onFinish: (event) => options.onFinish?.(event),
-      experimental_telemetry: {
-        isEnabled: !!options.tracer,
-        tracer: options.tracer,
-      },
     });
   };
 };
