@@ -400,11 +400,12 @@ export const saveContextTool = tool({
         'The context to save to the conversation history. This must be plain text, not markdown.',
       ),
   }),
-  execute: ({ context }) => Promise.resolve({
-    status: 'success',
-    message: 'Context saved',
-    context,
-  } as const),
+  execute: ({ context }) =>
+    Promise.resolve({
+      status: 'success',
+      message: 'Context saved',
+      context,
+    } as const),
 });
 
 export const tools = (options: {
