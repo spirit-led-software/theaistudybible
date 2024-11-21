@@ -6,7 +6,6 @@ import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createMemo, on } from 'solid-js';
-import {} from 'solid-js/store';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
