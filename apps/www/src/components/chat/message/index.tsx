@@ -60,16 +60,13 @@ export const Message = (props: MessageProps) => {
         </Show>
       </div>
       <div class='flex w-full flex-col'>
-        <Show when={props.message.content} keyed>
-          {(content) => <Markdown>{content}</Markdown>}
-        </Show>
+        <Show when={props.message.content}>{(content) => <Markdown>{content()}</Markdown>}</Show>
         <Show
-          when={(props.message.toolInvocations?.length ?? 0) > 0 && props.message.toolInvocations}
-          keyed
+          when={Boolean(props.message.toolInvocations?.length) && props.message.toolInvocations}
         >
           {(toolInvocations) => (
             <Tools
-              toolInvocations={toolInvocations}
+              toolInvocations={toolInvocations()}
               addToolResult={props.addToolResult}
               isLoading={props.isLoading() && !props.nextMessage}
             />
@@ -92,20 +89,19 @@ export const Message = (props: MessageProps) => {
                     typeof a.modelId === 'string',
                 ) as { modelId: string } | undefined
               }
-              keyed
             >
-              {({ modelId }) => (
-                <Show when={allModels.find((m) => `${m.host}:${m.id}` === modelId)} keyed>
+              {(annotation) => (
+                <Show when={allModels.find((m) => `${m.host}:${m.id}` === annotation().modelId)}>
                   {(modelInfo) => (
                     <Button
                       variant='outline'
                       as={A}
-                      href={modelInfo.link}
+                      href={modelInfo().link}
                       target='_blank'
                       rel='noopener noreferrer'
                       class='w-fit rounded-full border p-2 text-muted-foreground text-xs'
                     >
-                      {modelInfo.name}
+                      {modelInfo().name}
                     </Button>
                   )}
                 </Show>

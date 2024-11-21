@@ -9,7 +9,6 @@ import { HighlightVerseTool } from './highlight-verse';
 import { GenerateImageTool } from './image';
 import { SaveContextTool } from './save-context';
 import { VectorStoreTool } from './vector-store';
-import { Key } from '@solid-primitives/keyed';
 
 export type ToolsProps = {
   toolInvocations: ToolInvocation[];
@@ -19,17 +18,17 @@ export type ToolsProps = {
 
 export const Tools = (props: ToolsProps) => {
   return (
-    <Key each={props.toolInvocations} by={(ti) => ti.toolCallId}>
-      {(toolInvocation) => (
-        <div class='flex w-full flex-col [&:not(:first-child)]:mt-6'>
+    <For each={props.toolInvocations}>
+      {(toolInvocation, idx) => (
+        <div data-idx={idx()} class='flex w-full flex-col [&:not(:first-child)]:mt-6'>
           <Switch
             fallback={
               <div class='flex w-full flex-col'>
                 <H6>{toolInvocation.toolName}</H6>
-                <Show when={'result' in toolInvocation && toolInvocation.result} keyed>
+                <Show when={'result' in toolInvocation && toolInvocation.result}>
                   {(result) => (
                     <p>
-                      <strong>Result:</strong> {result}
+                      <strong>Result:</strong> {result()}
                     </p>
                   )}
                 </Show>
@@ -71,6 +70,6 @@ export const Tools = (props: ToolsProps) => {
           </Switch>
         </div>
       )}
-    </Key>
+    </For>
   );
 };
