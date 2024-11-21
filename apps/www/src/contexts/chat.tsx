@@ -24,18 +24,21 @@ export type ChatProviderProps = {
 export const ChatProvider = (props: ChatProviderProps) => {
   const [local, others] = splitProps(props, ['children']);
 
-  const [store, setStore] = createStore<ChatStore>({
-    chatId: others.chatId ?? null,
-    chat: null,
-    modelId: others.modelId ?? null,
+  const [chatId, setChatId] = makePersisted(createSignal(others.chatId ?? null), {
+    name: 'chatId',
+  });
+  const [modelId, setModelId] = makePersisted(createSignal(others.modelId ?? null), {
+    name: 'modelId',
   });
 
-  const [, setChatId] = makePersisted(createSignal(store.chatId), { name: 'chatId' });
+  const [store, setStore] = createStore<ChatStore>({
+    chatId: chatId() ?? null,
+    chat: null,
+    modelId: modelId() ?? null,
+  });
   createEffect(() => {
     setChatId(store.chatId);
   });
-
-  const [, setModelId] = makePersisted(createSignal(store.modelId), { name: 'modelId' });
   createEffect(() => {
     setModelId(store.modelId);
   });
