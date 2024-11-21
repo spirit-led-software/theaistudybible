@@ -11,10 +11,10 @@
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^1.0.1",
-    "@ai-sdk/groq": "^1.0.1",
-    "@ai-sdk/mistral": "^1.0.2",
-    "@ai-sdk/openai": "^1.0.2",
+    "@ai-sdk/anthropic": "^1.0.2",
+    "@ai-sdk/groq": "^1.0.3",
+    "@ai-sdk/mistral": "^1.0.3",
+    "@ai-sdk/openai": "^1.0.4",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
     "@upstash/vector": "^1.1.7",

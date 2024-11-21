@@ -1,7 +1,6 @@
 import { createScrollAnchor } from '@/www/hooks/create-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
-import { Key } from '@solid-primitives/keyed';
 import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
 import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
@@ -150,9 +149,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </Show>
             </div>
             <div class='flex w-full flex-1 flex-col items-center justify-end'>
-              <Key
+              <For
                 each={messages()}
-                by={(message) => message.id}
                 fallback={
                   <EmptyWindow append={append} additionalContext={props.additionalContext} />
                 }
@@ -164,14 +162,14 @@ export const ChatWindow = (props: ChatWindowProps) => {
                     </Show>
                     <Message
                       previousMessage={messages()[idx() - 1]}
-                      message={message()}
+                      message={message}
                       nextMessage={messages()[idx() + 1]}
                       addToolResult={addToolResult}
                       isLoading={isLoading}
                     />
                   </>
                 )}
-              </Key>
+              </For>
             </div>
             <Show
               when={
