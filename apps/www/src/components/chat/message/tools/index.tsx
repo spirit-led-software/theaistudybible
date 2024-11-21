@@ -9,6 +9,7 @@ import { HighlightVerseTool } from './highlight-verse';
 import { GenerateImageTool } from './image';
 import { SaveContextTool } from './save-context';
 import { VectorStoreTool } from './vector-store';
+import { Key } from '@solid-primitives/keyed';
 
 export type ToolsProps = {
   toolInvocations: ToolInvocation[];
@@ -18,7 +19,7 @@ export type ToolsProps = {
 
 export const Tools = (props: ToolsProps) => {
   return (
-    <For each={props.toolInvocations}>
+    <Key each={props.toolInvocations} by={(ti) => ti.toolCallId}>
       {(toolInvocation) => (
         <div class='flex w-full flex-col [&:not(:first-child)]:mt-6'>
           <Switch
@@ -70,6 +71,6 @@ export const Tools = (props: ToolsProps) => {
           </Switch>
         </div>
       )}
-    </For>
+    </Key>
   );
 };
