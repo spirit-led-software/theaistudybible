@@ -32,9 +32,9 @@ export const ChatProvider = (props: ChatProviderProps) => {
   });
 
   const [store, setStore] = createStore<ChatStore>({
-    chatId: chatId() ?? null,
+    chatId: chatId(),
     chat: null,
-    modelId: modelId() ?? null,
+    modelId: modelId(),
   });
   createEffect(() => {
     setChatId(store.chatId);
