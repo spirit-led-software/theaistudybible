@@ -1,6 +1,7 @@
 import { allModels } from '@/ai/models';
 import { Markdown } from '@/www/components/ui/markdown';
 import { cn } from '@/www/lib/utils';
+import { getMessageId } from '@/www/utils/message';
 import type { useChat } from '@ai-sdk/solid';
 import type { Message as AIMessage } from '@ai-sdk/solid';
 import { writeClipboard } from '@solid-primitives/clipboard';
@@ -124,7 +125,7 @@ export const Message = (props: MessageProps) => {
             >
               <Copy size={15} aria-hidden='true' />
             </Button>
-            <MessageReactionButtons messageId={props.message.id} />
+            <MessageReactionButtons messageId={getMessageId(props.message)} />
           </Show>
         </div>
       </div>

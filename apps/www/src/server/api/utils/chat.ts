@@ -1,7 +1,6 @@
 import { freeTierModels, plusTierModels } from '@/ai/models';
 import { numTokensFromString } from '@/ai/utils';
 import { db } from '@/core/database';
-import type { Message } from '@/schemas/chats/types';
 import type { Context } from 'hono';
 import type { Bindings } from 'hono/types';
 import { Resource } from 'sst';
@@ -114,21 +113,4 @@ export async function getValidMessages({
   }
 
   return messages;
-}
-
-export function getMessageId(message: Pick<Message, 'annotations' | 'id'>) {
-  return getMessageIdFromAnnotations(message) ?? message.id;
-}
-
-export function getMessageIdFromAnnotations(message: Pick<Message, 'annotations'>) {
-  return (
-    message.annotations?.find(
-      (a) =>
-        typeof a === 'object' &&
-        a !== null &&
-        !Array.isArray(a) &&
-        'dbId' in a &&
-        typeof a.dbId === 'string',
-    ) as { dbId: string } | undefined
-  )?.dbId;
 }

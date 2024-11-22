@@ -7,12 +7,8 @@ import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/cr
 import { createId } from '@/core/utils/id';
 import { MessageSchema } from '@/schemas/chats';
 import type { Bindings, Variables } from '@/www/server/api/types';
-import {
-  getDefaultModelId,
-  getMessageId,
-  getValidMessages,
-  validateModelId,
-} from '@/www/server/api/utils/chat';
+import { getDefaultModelId, getValidMessages, validateModelId } from '@/www/server/api/utils/chat';
+import { getMessageId } from '@/www/utils/message';
 import { zValidator } from '@hono/zod-validator';
 import { StreamData } from 'ai';
 import { parseISO } from 'date-fns';
@@ -211,7 +207,7 @@ const app = new Hono<{
       const streamText = createChatChain({
         modelId,
         chatId: chat.id,
-        userMessageId: lastUserMessage.id,
+        userMessageId: getMessageId(lastUserMessage),
         userId: c.var.user!.id,
         streamData,
         additionalContext,
