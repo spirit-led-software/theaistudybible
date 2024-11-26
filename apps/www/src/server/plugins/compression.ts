@@ -81,9 +81,9 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
       | null = null;
 
     const cleanup = () => {
-      compressor?.removeAllListeners().destroy();
+      compressor?.destroy();
       compressor = null;
-      readable?.removeAllListeners().destroy();
+      readable?.destroy();
       readable = null;
     };
 
