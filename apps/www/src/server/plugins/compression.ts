@@ -37,7 +37,9 @@ const compressibleTypes = [
 const supportedEncodings = ['gzip', 'br', 'deflate'];
 
 export default defineNitroPlugin((nitroApp) => {
-  nitroApp.hooks.hook('beforeResponse', compressResponse);
+  nitroApp.hooks.hook('beforeResponse', (event, response) => {
+    compressResponse(event, response);
+  });
 });
 
 function compressResponse(event: H3Event, response: { body?: unknown }) {
@@ -73,21 +75,12 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
   ) {
     removeResponseHeader(event, 'Content-Length');
 
-    let readable: Readable | null = null;
     let compressor:
       | ReturnType<typeof createGzip>
       | ReturnType<typeof createBrotliCompress>
       | ReturnType<typeof createDeflate>
-      | null = null;
-
-    const cleanup = () => {
-      compressor?.destroy();
-      compressor = null;
-      readable?.destroy();
-      readable = null;
-    };
-
-    event.node.req.on('close', cleanup);
+      | undefined;
+    let readable: Readable | undefined;
 
     try {
       const stream = (
@@ -97,50 +90,40 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
             ? ReadableStream.from(response.body)
             : new Response(response.body).body!
       ) as ReadableStream;
-
       readable = Readable.fromWeb(stream);
-      readable.on('end', cleanup);
-      readable.on('close', cleanup);
+
+      readable.on('end', () => readable?.destroy());
+      readable.on('close', () => readable?.destroy());
       readable.on('error', (err) => {
         captureSentryException(err);
-        cleanup();
+        readable?.destroy();
       });
 
       if (acceptedEncoding.includes('br')) {
         setResponseHeader(event, 'Content-Encoding', 'br');
         compressor = createBrotliCompress();
-        compressor.on('end', cleanup);
-        compressor.on('close', cleanup);
-        compressor.on('error', (err) => {
-          captureSentryException(err);
-          cleanup();
-        });
-        response.body = readable.pipe(compressor);
       } else if (acceptedEncoding.includes('gzip')) {
         setResponseHeader(event, 'Content-Encoding', 'gzip');
         compressor = createGzip();
-        compressor.on('end', cleanup);
-        compressor.on('close', cleanup);
-        compressor.on('error', (err) => {
-          captureSentryException(err);
-          cleanup();
-        });
-        response.body = readable.pipe(compressor);
       } else if (acceptedEncoding.includes('deflate')) {
         setResponseHeader(event, 'Content-Encoding', 'deflate');
         compressor = createDeflate();
-        compressor.on('end', cleanup);
-        compressor.on('close', cleanup);
+      }
+
+      if (compressor) {
+        compressor.on('end', () => compressor?.destroy());
+        compressor.on('close', () => compressor?.destroy());
         compressor.on('error', (err) => {
           captureSentryException(err);
-          cleanup();
+          compressor?.destroy();
         });
         response.body = readable.pipe(compressor);
       }
     } catch (err) {
-      captureSentryException(err);
       removeResponseHeader(event, 'Content-Encoding');
-      cleanup();
+      captureSentryException(err);
+      compressor?.destroy();
+      readable?.destroy();
     }
   }
 }
