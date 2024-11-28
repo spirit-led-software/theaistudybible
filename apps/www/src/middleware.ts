@@ -24,9 +24,9 @@ export default createMiddleware({
         request.headers.get('x-real-ip') ??
         'unknown';
 
-      console.log(
-        `${requestId} <-- ${request.method} ${url.pathname}\n\t\tIP: ${ip}\n\t\tUser-Agent: ${userAgent}`,
-      );
+      console.log(`${requestId} <-- ${request.method} ${url.pathname}`);
+      console.log(`${requestId} (?) IP: ${ip} | User-Agent: ${userAgent}`);
+
       if (Resource.Dev.value === 'true') {
         const body = await request.clone().text();
         if (body) console.log(`\t\t${body}`);
