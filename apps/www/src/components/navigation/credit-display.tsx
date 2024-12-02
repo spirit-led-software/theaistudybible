@@ -46,7 +46,6 @@ export function CreditDisplay() {
           </PopoverTrigger>
           <PopoverContent class='flex flex-col gap-2'>
             <H5>{balance} credits</H5>
-
             <div>
               <H6>Spend credits using AI</H6>
               <ul class='list-inside list-disc'>

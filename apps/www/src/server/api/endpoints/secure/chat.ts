@@ -222,12 +222,10 @@ const app = new Hono<{
               });
             },
             onFinish: async (event) => {
-              await Promise.all(pendingPromises);
-
               if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
-                await restoreCreditsOnFailure(c.var.user!.id, 'chat');
+                pendingPromises.push(restoreCreditsOnFailure(c.var.user!.id, 'chat'));
               }
-
+              await Promise.all(pendingPromises);
               globalThis.posthog?.capture({
                 distinctId: c.var.user!.id,
                 event: 'chat event finished',

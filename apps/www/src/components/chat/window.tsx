@@ -1,4 +1,4 @@
-import { createScrollAnchor } from '@/www/hooks/create-scroll-anchor';
+import { createChatScrollAnchor } from '@/www/hooks/create-chat-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
@@ -70,7 +70,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   const [setAnimateRef] = createAutoAnimate();
   const { isAtBottom, scrollToBottom, setScrollRef, setBottomRef, setTopOfLastMessageRef } =
-    createScrollAnchor();
+    createChatScrollAnchor(() => ({ isLoading: isLoading() }));
 
   const [searchParams, setSearchParams] = useSearchParams();
   createEffect(
