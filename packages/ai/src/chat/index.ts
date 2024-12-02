@@ -5,7 +5,7 @@ import {
   messagesToSourceDocuments,
 } from '@/core/database/schema';
 import type { Message } from '@/schemas/chats/messages/types';
-import type { StreamData } from 'ai';
+import type { DataStreamWriter } from 'ai';
 import { generateObject, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
@@ -64,7 +64,7 @@ export type CreateChatChainOptions = {
   chatId: string;
   userMessageId: string;
   userId: string;
-  streamData: StreamData;
+  dataStream: DataStreamWriter;
   additionalContext?: string | null;
   maxTokens?: number;
   onStepFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onStepFinish'];
@@ -73,7 +73,10 @@ export type CreateChatChainOptions = {
 
 export const createChatChain = (options: CreateChatChainOptions) => {
   return (messages: Pick<Message, 'role' | 'content'>[]) => {
-    const resolvedTools = tools({ userId: options.userId });
+    const resolvedTools = tools({
+      dataStream: options.dataStream,
+      userId: options.userId,
+    });
     return streamText({
       model: registry.languageModel(options.modelId),
       system: `You are an expert on Christian faith and theology. Your goal is to answer questions about the Christian faith. You may also be provided with additional context to help you answer the question.
@@ -117,7 +120,7 @@ ${options.additionalContext}
           })
           .returning();
 
-        options.streamData.appendMessageAnnotation({
+        options.dataStream.writeMessageAnnotation({
           dbId: response.id,
         });
 

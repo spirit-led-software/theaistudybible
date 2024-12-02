@@ -10,7 +10,7 @@ import type { Bindings, Variables } from '@/www/server/api/types';
 import { getDefaultModelId, getValidMessages, validateModelId } from '@/www/server/api/utils/chat';
 import { getMessageId } from '@/www/utils/message';
 import { zValidator } from '@hono/zod-validator';
-import { StreamData } from 'ai';
+import { createDataStream } from 'ai';
 import { parseISO } from 'date-fns';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
@@ -203,59 +203,56 @@ const app = new Hono<{
 
       const lastUserMessage = messages.find((m) => m.role === 'user')!;
 
-      const streamData = new StreamData();
-      const streamText = createChatChain({
-        modelId,
-        chatId: chat.id,
-        userMessageId: getMessageId(lastUserMessage),
-        userId: c.var.user!.id,
-        streamData,
-        additionalContext,
-        maxTokens: maxResponseTokens,
-        onStepFinish: (step) => {
-          streamData.appendMessageAnnotation({ modelId });
+      const dataStream = createDataStream({
+        execute: (dataStream) => {
+          const streamText = createChatChain({
+            modelId,
+            chatId: chat.id,
+            userMessageId: getMessageId(lastUserMessage),
+            userId: c.var.user!.id,
+            dataStream: dataStream,
+            additionalContext,
+            maxTokens: maxResponseTokens,
+            onStepFinish: (step) => {
+              dataStream.writeMessageAnnotation({ modelId });
+              globalThis.posthog?.capture({
+                distinctId: c.var.user!.id,
+                event: 'chat step finished',
+                properties: { modelId, step },
+              });
+            },
+            onFinish: async (event) => {
+              await Promise.all(pendingPromises);
 
-          globalThis.posthog?.capture({
-            distinctId: c.var.user!.id,
-            event: 'chat step finished',
-            properties: {
-              modelId,
-              step,
+              if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
+                await restoreCreditsOnFailure(c.var.user!.id, 'chat');
+              }
+
+              globalThis.posthog?.capture({
+                distinctId: c.var.user!.id,
+                event: 'chat event finished',
+                properties: { modelId, event },
+              });
             },
           });
+
+          const result = streamText(messages);
+          result.mergeIntoDataStream(dataStream);
         },
-        onFinish: async (event) => {
-          await Promise.all(pendingPromises);
-
-          if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
-            await restoreCreditsOnFailure(c.var.user!.id, 'chat');
-          }
-
-          await streamData.close();
-
-          globalThis.posthog?.capture({
-            distinctId: c.var.user!.id,
-            event: 'chat event finished',
-            properties: {
-              modelId,
-              event,
-            },
-          });
+        onError: (error) => {
+          return error instanceof Error ? error.message : String(error);
         },
       });
 
-      const result = streamText(messages);
-      return stream(c, async (stream) => {
-        if (providedChatId !== chat.id) {
-          c.header('X-Chat-Id', chat.id);
-        }
+      if (providedChatId !== chat.id) {
+        c.header('X-Chat-Id', chat.id);
+      }
 
-        // Mark the response as a v1 data stream:
-        c.header('X-Vercel-AI-Data-Stream', 'v1');
-        c.header('Content-Type', 'text/plain; charset=utf-8');
+      // Mark the response as a v1 data stream:
+      c.header('X-Vercel-AI-Data-Stream', 'v1');
+      c.header('Content-Type', 'text/plain; charset=utf-8');
 
-        await stream.pipe(result.toDataStream({ data: streamData }));
-      });
+      return stream(c, (stream) => stream.pipe(dataStream));
     },
   );
 

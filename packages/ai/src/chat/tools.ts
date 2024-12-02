@@ -9,7 +9,7 @@ import { s3 } from '@/core/storage';
 import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
 import { createId } from '@/core/utils/id';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { tool } from 'ai';
+import { type DataStreamWriter, tool } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { openai } from '../provider-registry';
@@ -302,8 +302,9 @@ export const vectorStoreTool = tool({
   },
 });
 
-export const generateImageTool = (props: {
+export const generateImageTool = (input: {
   userId: string;
+  dataStream: DataStreamWriter;
 }) =>
   tool({
     description:
@@ -323,7 +324,7 @@ export const generateImageTool = (props: {
         .describe('The size of the generated image. More detailed images need a larger size.'),
     }),
     execute: async ({ prompt, size }) => {
-      const hasEnoughCredits = await checkAndConsumeCredits(props.userId, 'image');
+      const hasEnoughCredits = await checkAndConsumeCredits(input.userId, 'image');
       if (!hasEnoughCredits) {
         return {
           status: 'error',
@@ -331,6 +332,8 @@ export const generateImageTool = (props: {
         } as const;
       }
 
+      // Ping the stream every 200ms to avoid idle connection timeout
+      const pingInterval = setInterval(() => input.dataStream.writeData('ping'), 200);
       try {
         const generateImageResponse = await openai.images.generate({
           prompt,
@@ -370,7 +373,7 @@ export const generateImageTool = (props: {
             url: `${Resource.Cdn.url}/generated-images/${key}`,
             userPrompt: prompt,
             prompt: generateImageResponse.data[0].revised_prompt,
-            userId: props.userId,
+            userId: input.userId,
           })
           .returning();
 
@@ -381,11 +384,14 @@ export const generateImageTool = (props: {
         } as const;
       } catch (error) {
         console.error(JSON.stringify(error, null, 2));
-        await restoreCreditsOnFailure(props.userId, 'image');
+        await restoreCreditsOnFailure(input.userId, 'image');
         return {
           status: 'error',
           message: 'An unknown error occurred. Please try again later.',
         } as const;
+      } finally {
+        // Clear the ping interval to avoid memory leak
+        clearInterval(pingInterval);
       }
     },
   });
@@ -408,22 +414,24 @@ export const saveContextTool = tool({
     } as const),
 });
 
-export const tools = (options: {
+export const tools = (input: {
+  dataStream: DataStreamWriter;
   userId: string;
 }) => ({
   askForConfirmation: askForConfirmationTool,
   askForHighlightColor: askForHighlightColorTool,
   highlightVerse: highlightVerseTool({
-    userId: options.userId,
+    userId: input.userId,
   }),
   bookmarkVerse: bookmarkVerseTool({
-    userId: options.userId,
+    userId: input.userId,
   }),
   bookmarkChapter: bookmarkChapterTool({
-    userId: options.userId,
+    userId: input.userId,
   }),
   generateImage: generateImageTool({
-    userId: options.userId,
+    userId: input.userId,
+    dataStream: input.dataStream,
   }),
   vectorStore: vectorStoreTool,
   saveContext: saveContextTool,
