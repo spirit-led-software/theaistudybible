@@ -19,11 +19,6 @@
       "@/scripts/*": ["../../tools/scripts/src/*"]
     }
   },
-  "include": [
-    "../../packages/core/globals.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "../core/src/utils/credits/check-and-consume-credits.ts"
-  ],
+  "include": ["../../packages/core/globals.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

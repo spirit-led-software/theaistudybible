@@ -10,7 +10,7 @@ export default defineConfig({
     preset: 'bun',
     serveStatic: false,
     plugins: ['./src/server/plugins/compression.ts'],
-    compatibilityDate: '2024-11-19',
+    compatibilityDate: '2024-12-02',
   },
   vite: {
     envPrefix: 'PUBLIC_',

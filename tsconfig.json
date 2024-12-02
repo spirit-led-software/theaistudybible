@@ -3,6 +3,19 @@
   "compilerOptions": {
     "types": ["cypress", "cypress-wait-until"]
   },
-  "include": [".sst/platform/config.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    ".sst/platform/config.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "apps/functions/vitest.config.js",
+    "apps/www/vitest.config.js",
+    "apps/www/tailwind.config.js",
+    "apps/www/pwa-assets.config.js",
+    "packages/ai/vitest.config.js",
+    "packages/core/vitest.config.js",
+    "packages/schemas/vitest.config.js",
+    "tools/scripts/vitest.config.js",
+    "apps/www/app.config.js"
+  ],
   "exclude": ["node_modules", "apps", "packages", "tools"]
 }
