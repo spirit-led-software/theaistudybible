@@ -25,8 +25,7 @@
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-safe-area": "^0.6.0",
     "vinxi": "^0.4.3",
-    "vite": "^5.4.11",
-    "vite-plugin-pwa": "^0.21.0"
+    "vite-plugin-pwa": "^0.21.1"
   },
   "dependencies": {
     "@ai-sdk/solid": "^1.0.3",
@@ -63,7 +62,7 @@
     "embla-carousel-solid": "^8.5.1",
     "hono": "^4.6.12",
     "lucide-solid": "^0.462.0",
-    "posthog-js": "^1.194.0",
+    "posthog-js": "^1.194.1",
     "posthog-node": "^4.3.1",
     "solid-js": "^1.9.3",
     "solid-marked": "^0.6.3",
