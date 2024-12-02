@@ -62,24 +62,20 @@ const app = new Hono<{
     async (c) => {
       const pendingPromises: Promise<unknown>[] = []; // promises to wait for before closing the stream
 
-      const body = c.req.valid('json');
-      const providedMessages = body.messages;
-      const providedChatId = body.chatId;
-      const providedModelId = body.modelId;
-      const additionalContext = body.additionalContext;
+      const input = c.req.valid('json');
 
       console.time('validateModelId');
-      if (providedModelId) {
+      if (input.modelId) {
         const modelIdValidationResponse = validateModelId({
           c,
-          providedModelId,
+          providedModelId: input.modelId,
         });
         if (modelIdValidationResponse) {
           return modelIdValidationResponse;
         }
       }
       console.timeEnd('validateModelId');
-      const modelId = providedModelId ?? getDefaultModelId(c);
+      const modelId = input.modelId ?? getDefaultModelId(c);
 
       const modelInfo = allModels.find((m) => m.id === modelId.split(':')[1]);
       if (!modelInfo) {
@@ -106,7 +102,7 @@ const app = new Hono<{
         );
       }
 
-      const chatId = providedChatId ?? createId();
+      const chatId = input.chatId ?? createId();
       console.time('getChat');
       let chat = await db.query.chats.findFirst({
         where: (chats, { eq }) => eq(chats.id, chatId),
@@ -130,7 +126,7 @@ const app = new Hono<{
       }
       console.timeEnd('getChat');
 
-      const lastMessage = providedMessages[providedMessages.length - 1];
+      const lastMessage = input.messages.at(-1);
       if (!lastMessage) {
         return c.json(
           {
@@ -174,8 +170,8 @@ const app = new Hono<{
       console.timeEnd('saveMessage');
 
       let additionalContextTokens = 0;
-      if (additionalContext) {
-        additionalContextTokens = numTokensFromString({ text: additionalContext });
+      if (input.additionalContext) {
+        additionalContextTokens = numTokensFromString({ text: input.additionalContext });
       }
 
       console.time('getValidMessages');
@@ -192,7 +188,7 @@ const app = new Hono<{
           renameChat({
             chatId: chat.id,
             messages,
-            additionalContext,
+            additionalContext: input.additionalContext,
           }),
         );
       } else {
@@ -205,13 +201,17 @@ const app = new Hono<{
 
       const dataStream = createDataStream({
         execute: (dataStream) => {
+          if (input.chatId !== chat.id) {
+            dataStream.writeData({ chatId: chat.id });
+          }
+
           const streamText = createChatChain({
             modelId,
             chatId: chat.id,
             userMessageId: getMessageId(lastUserMessage),
             userId: c.var.user!.id,
             dataStream: dataStream,
-            additionalContext,
+            additionalContext: input.additionalContext,
             maxTokens: maxResponseTokens,
             onStepFinish: (step) => {
               dataStream.writeMessageAnnotation({ modelId });
@@ -241,10 +241,6 @@ const app = new Hono<{
           return error instanceof Error ? error.message : String(error);
         },
       });
-
-      if (providedChatId !== chat.id) {
-        c.header('X-Chat-Id', chat.id);
-      }
 
       // Mark the response as a v1 data stream:
       c.header('X-Vercel-AI-Data-Stream', 'v1');

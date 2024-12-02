@@ -4,7 +4,7 @@ import { s3 } from '@/core/storage';
 import { createId } from '@/core/utils/id';
 import type { Devotion } from '@/schemas/devotions/types';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { generateObject, generateText } from 'ai';
+import { Output, generateText } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { plusTierModels } from '../models';
@@ -132,10 +132,14 @@ export const generateDiveDeeperQueries = async ({
   reflection: string;
   prayer: string;
 }) => {
-  const { object } = await generateObject({
+  const {
+    experimental_output: { queries },
+  } = await generateText({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
-    schema: z.object({
-      queries: z.array(z.string()),
+    experimental_output: Output.object({
+      schema: z.object({
+        queries: z.array(z.string()),
+      }),
     }),
     system: `You must generate follow-up queries to help the user dive deeper into the topic explored in the devotional. The queries must be posed
 as though you are the user.
@@ -159,7 +163,7 @@ ${prayer}
 Generate 1 to 4 follow-up queries to help the user dive deeper into the topic explored in the devotional.`,
   });
 
-  return object.queries;
+  return queries;
 };
 
 export const generateImagePrompt = async (devotion: Devotion) => {

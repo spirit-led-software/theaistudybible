@@ -11,18 +11,20 @@ import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
-import { generateObject } from 'ai';
+import { Output, generateText } from 'ai';
 import { For } from 'solid-js';
 import { z } from 'zod';
 
 const getReferences = GET(async ({ text, bibleId }: { text: string; bibleId: string }) => {
   'use server';
   const {
-    object: { searchTerms },
-  } = await generateObject({
+    experimental_output: { searchTerms },
+  } = await generateText({
     model: registry.languageModel('openai:gpt-4o-mini'),
-    schema: z.object({
-      searchTerms: z.array(z.string()),
+    experimental_output: Output.object({
+      schema: z.object({
+        searchTerms: z.array(z.string()),
+      }),
     }),
     prompt: `You are an expert in the bible. You will be given a passage and asked to find references to it in the bible. Return a list of search terms or phrases that could be used to find references to this verse in a vector similarity search engine. 
 

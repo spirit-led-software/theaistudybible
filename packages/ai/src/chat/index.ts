@@ -6,7 +6,7 @@ import {
 } from '@/core/database/schema';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { DataStreamWriter } from 'ai';
-import { generateObject, streamText } from 'ai';
+import { Output, generateText, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { defaultModel } from '../models';
@@ -23,10 +23,14 @@ export const renameChat = async ({
   messages: Pick<Message, 'role' | 'content'>[];
   additionalContext?: string | null;
 }) => {
-  const { object } = await generateObject({
+  const {
+    experimental_output: { title },
+  } = await generateText({
     model: registry.languageModel(`${defaultModel.host}:${defaultModel.id}`),
-    schema: z.object({
-      title: z.string().describe('The new title of the chat'),
+    experimental_output: Output.object({
+      schema: z.object({
+        title: z.string().describe('The new title of the chat'),
+      }),
     }),
     system: `Given the following conversation, you must generate a new title for the conversation. The new title must be short and descriptive.
 Here are some additional rules for you to follow:
@@ -51,7 +55,7 @@ What's the new title?`,
   const [chat] = await db
     .update(chats)
     .set({
-      name: object.title,
+      name: title,
     })
     .where(eq(chats.id, chatId))
     .returning();
