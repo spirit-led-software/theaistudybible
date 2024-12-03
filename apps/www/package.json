@@ -31,7 +31,7 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
-    "@ai-sdk/solid": "^1.0.3",
+    "@ai-sdk/solid": "^1.0.4",
     "@corvu/drawer": "^0.2.2",
     "@fontsource-variable/inter": "^5.1.0",
     "@fontsource/goldman": "^5.1.0",
