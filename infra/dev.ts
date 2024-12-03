@@ -1,6 +1,6 @@
-import { database } from './database';
+import { allLinks } from './defaults';
 
 export const drizzleStudio = new sst.x.DevCommand('DrizzleStudio', {
-  link: [database],
+  link: allLinks,
   dev: { command: 'bun drizzle-kit studio', autostart: true },
 });

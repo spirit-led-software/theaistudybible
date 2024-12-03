@@ -9,7 +9,7 @@ import {
   removeResponseHeader,
   setResponseHeader,
 } from 'h3';
-import { defineNitroPlugin } from 'nitropack/runtime';
+import { defineNitroPlugin } from 'nitropack/runtime/plugin';
 
 const compressibleTypes = [
   'text/',

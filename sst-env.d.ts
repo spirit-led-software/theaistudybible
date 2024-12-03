@@ -135,12 +135,6 @@ declare module "sst" {
       "restUrl": string
       "type": "upstash.index/redisDatabase.RedisDatabase"
     }
-    "UpstashVectorIndex": {
-      "readOnlyRestToken": string
-      "restToken": string
-      "restUrl": string
-      "type": "upstash.index/vectorIndex.VectorIndex"
-    }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
       "value": string

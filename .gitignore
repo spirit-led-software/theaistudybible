@@ -17,7 +17,7 @@ node_modules
 .turbo
 
 # Local LibSQL DB
-.libsql.db
+.libsql.db*
 
 # SSH key
 *key_rsa

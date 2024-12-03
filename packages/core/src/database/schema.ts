@@ -1,8 +1,9 @@
+import { embeddingsModelInfo } from '@/ai/embeddings';
 import type { Content } from '@/schemas/bibles/contents';
 import type { Metadata } from '@/schemas/utils/metadata';
 import type { FinishReason, JSONValue, ToolInvocation } from 'ai';
 import { add, formatISO, parseISO } from 'date-fns';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
 import {
   customType,
@@ -24,6 +25,17 @@ const timestamp = customType<{
   dataType: () => 'text',
   toDriver: (value) => formatISO(value),
   fromDriver: (value) => parseISO(value),
+});
+
+const float32Array = customType<{
+  data: number[];
+  config: { dimensions: number };
+  configRequired: true;
+  driverData: Buffer;
+}>({
+  dataType: (config) => `F32_BLOB(${config.dimensions})`,
+  fromDriver: (value) => Array.from(new Float32Array(value.buffer)),
+  toDriver: (value) => sql`vector32(${JSON.stringify(value)})`,
 });
 
 const baseModel = {
@@ -369,7 +381,9 @@ export const messagesToSourceDocuments = sqliteTable(
     messageId: text('message_id')
       .notNull()
       .references(() => messages.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id').notNull(),
+    sourceDocumentId: text('source_document_id')
+      .notNull()
+      .references(() => sourceDocuments.id),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -482,7 +496,9 @@ export const userGeneratedImagesToSourceDocuments = sqliteTable(
     userGeneratedImageId: text('user_generated_image_id')
       .notNull()
       .references(() => userGeneratedImages.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id').notNull(),
+    sourceDocumentId: text('source_document_id')
+      .notNull()
+      .references(() => sourceDocuments.id),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -607,7 +623,9 @@ export const devotionsToSourceDocuments = sqliteTable(
     devotionId: text('devotion_id')
       .notNull()
       .references(() => devotions.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id').notNull(),
+    sourceDocumentId: text('source_document_id')
+      .notNull()
+      .references(() => sourceDocuments.id),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -675,7 +693,9 @@ export const dataSourcesToSourceDocuments = sqliteTable(
     dataSourceId: text('data_source_id')
       .notNull()
       .references(() => dataSources.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id').notNull(),
+    sourceDocumentId: text('source_document_id')
+      .notNull()
+      .references(() => sourceDocuments.id),
   },
   (table) => ({
     dataSourceSourceDocumentKey: primaryKey({
@@ -1171,7 +1191,9 @@ export const chaptersToSourceDocuments = sqliteTable(
     chapterId: text('chapter_id')
       .notNull()
       .references(() => chapters.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id').notNull(),
+    sourceDocumentId: text('source_document_id')
+      .notNull()
+      .references(() => sourceDocuments.id),
   },
   (table) => ({
     primaryKey: primaryKey({
@@ -1371,3 +1393,17 @@ export const verseNotesRelations = relations(verseNotes, ({ one }) => ({
     references: [verses.id],
   }),
 }));
+
+export const sourceDocuments = sqliteTable(
+  'source_documents',
+  {
+    ...baseModel,
+    embedding: float32Array('embedding', { dimensions: embeddingsModelInfo.dimensions }).notNull(),
+    metadata: text('metadata', { mode: 'json' }).$type<Metadata>().notNull().default({}),
+  },
+  (table) => ({
+    embeddingIdx: index('source_documents_embedding_idx').on(
+      sql`libsql_vector_idx(${table.embedding})`,
+    ),
+  }),
+);

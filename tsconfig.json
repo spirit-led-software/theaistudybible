@@ -1,7 +1,23 @@
 {
   "extends": "./tools/tsconfig/tsconfig.json",
   "compilerOptions": {
-    "types": ["cypress", "cypress-wait-until"]
+    "types": ["cypress", "cypress-wait-until"],
+    "paths": {
+      "@/core": ["./packages/core/src"],
+      "@/core/*": ["./packages/core/src/*"],
+      "@/schemas": ["./packages/schemas/src"],
+      "@/schemas/*": ["./packages/schemas/src/*"],
+      "@/ai": ["./packages/ai/src"],
+      "@/ai/*": ["./packages/ai/src/*"],
+      "@/www": ["./apps/www/src"],
+      "@/www/*": ["./apps/www/src/*"],
+      "@/functions": ["./apps/functions/src"],
+      "@/functions/*": ["./apps/functions/src/*"],
+      "@/workers": ["./apps/workers/src"],
+      "@/workers/*": ["./apps/workers/src/*"],
+      "@/scripts": ["./tools/scripts/src"],
+      "@/scripts/*": ["./tools/scripts/src/*"]
+    }
   },
   "include": [".sst/platform/config.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "apps", "packages", "tools"]

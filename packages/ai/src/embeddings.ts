@@ -1,5 +1,4 @@
 import type { EmbeddingModel } from 'ai';
-import { Resource } from 'sst';
 import { registry } from './provider-registry';
 import type { Document, DocumentWithEmbedding } from './types/document';
 
@@ -10,20 +9,12 @@ export type EmbeddingModelInfo = {
   chunkOverlap: number;
 };
 
-export const embeddingsModelInfo: EmbeddingModelInfo =
-  Resource.Stage.value === 'production'
-    ? {
-        id: 'openai:text-embedding-3-large',
-        dimensions: 3072,
-        chunkSize: 1024,
-        chunkOverlap: 256,
-      }
-    : {
-        id: 'openai:text-embedding-ada-002',
-        dimensions: 1536,
-        chunkSize: 1024,
-        chunkOverlap: 256,
-      };
+export const embeddingsModelInfo: EmbeddingModelInfo = {
+  id: 'openai:text-embedding-3-small',
+  dimensions: 1536,
+  chunkSize: 1024,
+  chunkOverlap: 256,
+};
 
 export class Embeddings {
   private readonly embeddings: EmbeddingModel<string>;

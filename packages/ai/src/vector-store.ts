@@ -1,26 +1,24 @@
-import type { Prettify } from '@/core/types/util';
-import { Index } from '@upstash/vector';
-import { Resource } from 'sst';
+import { db } from '@/core/database';
+import { sourceDocuments } from '@/core/database/schema';
+import type { SourceDocument } from '@/schemas/source-documents/types';
+import { type SQL, inArray, sql } from 'drizzle-orm';
 import type { Embeddings } from './embeddings';
 import { embeddings } from './embeddings';
 import type { Document, DocumentWithScore } from './types/document';
 
 export type AddDocumentsOptions = {
-  namespace?: string;
   overwrite?: boolean;
 };
 const addDocumentsDefaults = {
-  namespace: undefined,
   overwrite: false,
 } as const satisfies AddDocumentsOptions;
 
 export type SearchDocumentsOptions = {
-  filter?: Prettify<VectorStore['FilterType']>;
+  filter?: VectorStore['FilterType'];
   scoreThreshold?: number;
   withEmbedding?: boolean;
   withMetadata?: boolean;
   limit?: number;
-  namespace?: string;
 };
 const searchDocumentsDefaults = {
   withEmbedding: false,
@@ -39,19 +37,14 @@ const getDocumentsDefaults: GetDocumentsOptions = {
 };
 
 export class VectorStore {
-  declare FilterType: string;
+  declare FilterType: SQL<unknown>;
   private readonly embeddings: Embeddings;
-  private readonly client: Index;
 
   public static MAX_UPSERT_BATCH_SIZE = 1000;
   public static MAX_DELETE_BATCH_SIZE = 1000;
 
   constructor(embeddings: Embeddings) {
     this.embeddings = embeddings;
-    this.client = new Index({
-      url: Resource.UpstashVectorIndex.restUrl,
-      token: Resource.UpstashVectorIndex.restToken,
-    });
   }
 
   async addDocuments(
@@ -66,31 +59,30 @@ export class VectorStore {
         (i + 1) * VectorStore.MAX_UPSERT_BATCH_SIZE,
       );
 
-      let existingDocs: Document[] = [];
+      let existingDocs: SourceDocument[] = [];
       if (options.overwrite === false) {
-        existingDocs = await this.client
-          .fetch(
-            batch.map((d) => d.id),
-            {
-              includeMetadata: false,
-              includeVectors: false,
-              namespace: options.namespace,
-            },
-          )
-          .then((r) => r.filter((d) => d !== null) as Document[]);
+        existingDocs = await db.query.sourceDocuments.findMany({
+          where: (sourceDocuments, { inArray }) =>
+            inArray(
+              sourceDocuments.id,
+              batch.map((d) => d.id),
+            ),
+        });
         batch = batch.filter((d) => !existingDocs.some((e) => e.id === d.id));
       }
 
-      await this.client.upsert(
-        batch.map((d) => ({
-          id: d.id,
-          vector: d.embedding,
-          metadata: {
-            content: d.content,
-            ...d.metadata,
-          },
-        })),
-        { namespace: options.namespace },
+      await db.insert(sourceDocuments).values(
+        batch.map(
+          (d) =>
+            ({
+              id: d.id,
+              embedding: d.embedding,
+              metadata: {
+                content: d.content,
+                ...d.metadata,
+              },
+            }) satisfies typeof sourceDocuments.$inferInsert,
+        ),
       );
     }
     return docsWithEmbeddings.map((d) => d.id);
@@ -103,7 +95,7 @@ export class VectorStore {
         i * VectorStore.MAX_DELETE_BATCH_SIZE,
         (i + 1) * VectorStore.MAX_DELETE_BATCH_SIZE,
       );
-      await this.client.delete(batch);
+      await db.delete(sourceDocuments).where(inArray(sourceDocuments.id, batch));
     }
   }
 
@@ -111,23 +103,33 @@ export class VectorStore {
     query: string,
     options: SearchDocumentsOptions = searchDocumentsDefaults,
   ): Promise<DocumentWithScore[]> {
-    const result = await this.client.query(
-      {
-        vector: await this.embeddings.embedQuery(query),
-        topK: options.limit ?? searchDocumentsDefaults.limit ?? 20,
-        filter: options.filter ?? searchDocumentsDefaults.filter,
-        includeMetadata: options.withMetadata ?? searchDocumentsDefaults.withMetadata,
-        includeVectors: options.withEmbedding ?? searchDocumentsDefaults.withEmbedding,
+    const queryEmbedding = await this.embeddings.embedQuery(query);
+    const vectorQuery = sql<number>`vector_distance_cosine(${sourceDocuments.embedding}, vector32(${JSON.stringify(queryEmbedding)}))`;
+    const result = (await db.query.sourceDocuments.findMany({
+      columns: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        embedding: options.withEmbedding ?? searchDocumentsDefaults.withEmbedding,
+        metadata: options.withMetadata ?? searchDocumentsDefaults.withMetadata,
       },
-      { namespace: options.namespace },
-    );
+      where: options.filter,
+      orderBy: vectorQuery,
+      limit: options.limit ?? searchDocumentsDefaults.limit,
+      extras: {
+        score: vectorQuery.as('score'),
+      },
+    })) as (Pick<SourceDocument, 'id' | 'createdAt' | 'updatedAt'> &
+      Partial<SourceDocument> & {
+        score: number;
+      })[];
 
     return result.map((r) => {
       const { content, ...metadata } = r.metadata ?? {};
       return {
         id: r.id.toString(),
         content: content as string,
-        embedding: r.vector,
+        embedding: r.embedding,
         metadata,
         score: r.score,
       };
@@ -138,10 +140,16 @@ export class VectorStore {
     ids: string[],
     options: GetDocumentsOptions = getDocumentsDefaults,
   ): Promise<Document[]> {
-    const result = await this.client.fetch(ids, {
-      includeMetadata: options.withMetadata ?? getDocumentsDefaults.withMetadata,
-      includeVectors: options.withEmbedding ?? getDocumentsDefaults.withEmbedding,
-    });
+    const result = (await db.query.sourceDocuments.findMany({
+      where: inArray(sourceDocuments.id, ids),
+      columns: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        embedding: options.withEmbedding ?? getDocumentsDefaults.withEmbedding,
+        metadata: options.withMetadata ?? getDocumentsDefaults.withMetadata,
+      },
+    })) as (Pick<SourceDocument, 'id' | 'createdAt' | 'updatedAt'> & Partial<SourceDocument>)[];
     return result
       .filter((r) => r !== null)
       .map((r) => {
@@ -149,7 +157,7 @@ export class VectorStore {
         return {
           id: r.id.toString(),
           content: content as string,
-          embedding: r.vector as number[],
+          embedding: r.embedding ?? undefined,
           metadata,
         };
       });

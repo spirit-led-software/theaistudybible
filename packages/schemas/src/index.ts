@@ -4,5 +4,6 @@ export * from './data-sources';
 export * from './devotions';
 export * from './generated-images';
 export * from './roles';
+export * from './source-documents';
 export * from './utils';
 export * from './users';
