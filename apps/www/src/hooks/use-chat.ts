@@ -136,7 +136,7 @@ export type UseChatProps = Prettify<
 export const useChat = (props?: Accessor<UseChatProps>) => {
   const qc = useQueryClient();
 
-  const [chatId, setChatId] = createWritableMemo(() => props?.().id);
+  const [chatId, setChatId] = createWritableMemo(() => props?.().id ?? createId());
 
   const useChatResult = useAIChat(() => ({
     ...props?.(),
