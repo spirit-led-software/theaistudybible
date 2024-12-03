@@ -65,22 +65,15 @@ export type ModelId = (typeof allModelIds)[number];
 
 export const defaultModel = freeTierModels[0];
 
-export type EmbeddingModelInfo = {
+export type EmbeddingsModelInfo = {
   id: Parameters<(typeof openai)['embedding']>[0];
   dimensions: number;
   chunkSize: number;
   chunkOverlap: number;
 };
 
-export const embeddingModel: EmbeddingModelInfo = {
-  id: 'text-embedding-3-large',
-  dimensions: 3072,
-  chunkSize: 1024,
-  chunkOverlap: 256,
-};
-
-export const devEmbeddingModel: EmbeddingModelInfo = {
-  id: 'text-embedding-ada-002',
+export const embeddingsModel: EmbeddingsModelInfo = {
+  id: 'text-embedding-3-small',
   dimensions: 1536,
   chunkSize: 1024,
   chunkOverlap: 256,

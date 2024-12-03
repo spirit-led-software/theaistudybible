@@ -1,9 +1,5 @@
 import type { z } from 'zod';
-import type {
-  CreateDataSourceSchema,
-  DataSourceSchema,
-  UpdateDataSourceSchema,
-} from './data-sources';
+import type { CreateDataSourceSchema, DataSourceSchema, UpdateDataSourceSchema } from '.';
 import type {
   CreateIndexOperationSchema,
   IndexOperationSchema,

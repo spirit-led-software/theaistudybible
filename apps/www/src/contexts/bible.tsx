@@ -1,4 +1,4 @@
-import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles';
+import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import { makePersisted } from '@solid-primitives/storage';
 import type { JSXElement } from 'solid-js';
 import { createContext, splitProps, useContext } from 'solid-js';

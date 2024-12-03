@@ -1,4 +1,4 @@
-import type { Role } from '@/schemas/roles';
+import type { Role } from '@/schemas/roles/types';
 import { auth } from '@/www/server/auth';
 import { setUser as setSentryUser } from '@sentry/solidstart';
 import { GET } from '@solidjs/start';

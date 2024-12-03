@@ -1,5 +1,5 @@
-import type { VerseNote } from '@/schemas/bibles';
 import type { Content } from '@/schemas/bibles/contents';
+import type { VerseNote } from '@/schemas/bibles/verses/types';
 import { cn } from '@/www/lib/utils';
 import type { HighlightInfo } from '@/www/types/bible';
 import { For, Match, Switch } from 'solid-js';

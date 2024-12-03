@@ -14,7 +14,7 @@ const addDocumentsDefaults = {
 } as const satisfies AddDocumentsOptions;
 
 export type SearchDocumentsOptions = {
-  filter?: VectorStore['FilterType'];
+  filter?: SQL<unknown>;
   scoreThreshold?: number;
   withEmbedding?: boolean;
   withMetadata?: boolean;
@@ -31,21 +31,19 @@ export type GetDocumentsOptions = {
   withEmbedding?: boolean;
   withMetadata?: boolean;
 };
-const getDocumentsDefaults: GetDocumentsOptions = {
+const getDocumentsDefaults = {
   withEmbedding: false,
   withMetadata: true,
-};
+} as const satisfies GetDocumentsOptions;
 
 export class VectorStore {
-  declare FilterType: SQL<unknown>;
-  private readonly embeddings: Embeddings;
+  public static MAX_UPSERT_BATCH_SIZE = 100;
+  public static MAX_DELETE_BATCH_SIZE = 100;
 
-  public static MAX_UPSERT_BATCH_SIZE = 1000;
-  public static MAX_DELETE_BATCH_SIZE = 1000;
-
-  constructor(embeddings: Embeddings) {
-    this.embeddings = embeddings;
-  }
+  constructor(
+    private readonly client: typeof db,
+    private readonly embeddings: Embeddings,
+  ) {}
 
   async addDocuments(
     docs: Document[],
@@ -61,7 +59,7 @@ export class VectorStore {
 
       let existingDocs: SourceDocument[] = [];
       if (options.overwrite === false) {
-        existingDocs = await db.query.sourceDocuments.findMany({
+        existingDocs = await this.client.query.sourceDocuments.findMany({
           where: (sourceDocuments, { inArray }) =>
             inArray(
               sourceDocuments.id,
@@ -71,7 +69,7 @@ export class VectorStore {
         batch = batch.filter((d) => !existingDocs.some((e) => e.id === d.id));
       }
 
-      await db.insert(sourceDocuments).values(
+      await this.client.insert(sourceDocuments).values(
         batch.map(
           (d) =>
             ({
@@ -95,7 +93,7 @@ export class VectorStore {
         i * VectorStore.MAX_DELETE_BATCH_SIZE,
         (i + 1) * VectorStore.MAX_DELETE_BATCH_SIZE,
       );
-      await db.delete(sourceDocuments).where(inArray(sourceDocuments.id, batch));
+      await this.client.delete(sourceDocuments).where(inArray(sourceDocuments.id, batch));
     }
   }
 
@@ -105,7 +103,7 @@ export class VectorStore {
   ): Promise<DocumentWithScore[]> {
     const queryEmbedding = await this.embeddings.embedQuery(query);
     const vectorQuery = sql<number>`vector_distance_cosine(${sourceDocuments.embedding}, vector32(${JSON.stringify(queryEmbedding)}))`;
-    const result = (await db.query.sourceDocuments.findMany({
+    const result = (await this.client.query.sourceDocuments.findMany({
       columns: {
         id: true,
         createdAt: true,
@@ -140,7 +138,7 @@ export class VectorStore {
     ids: string[],
     options: GetDocumentsOptions = getDocumentsDefaults,
   ): Promise<Document[]> {
-    const result = (await db.query.sourceDocuments.findMany({
+    const result = (await this.client.query.sourceDocuments.findMany({
       where: inArray(sourceDocuments.id, ids),
       columns: {
         id: true,
@@ -164,4 +162,4 @@ export class VectorStore {
   }
 }
 
-export const vectorStore = new VectorStore(embeddings);
+export const vectorStore = new VectorStore(db, embeddings);

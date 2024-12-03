@@ -1,6 +1,6 @@
-import { embeddingsModelInfo } from '@/ai/embeddings';
+import { embeddingsModel } from '@/ai/models';
 import type { Content } from '@/schemas/bibles/contents';
-import type { Metadata } from '@/schemas/utils/metadata';
+import type { Metadata } from '@/schemas/utils/types';
 import type { FinishReason, JSONValue, ToolInvocation } from 'ai';
 import { add, formatISO, parseISO } from 'date-fns';
 import { relations, sql } from 'drizzle-orm';
@@ -1398,7 +1398,7 @@ export const sourceDocuments = sqliteTable(
   'source_documents',
   {
     ...baseModel,
-    embedding: float32Array('embedding', { dimensions: embeddingsModelInfo.dimensions }).notNull(),
+    embedding: float32Array('embedding', { dimensions: embeddingsModel.dimensions }).notNull(),
     metadata: text('metadata', { mode: 'json' }).$type<Metadata>().notNull().default({}),
   },
   (table) => ({

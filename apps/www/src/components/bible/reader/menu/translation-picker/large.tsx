@@ -1,5 +1,5 @@
 import { db } from '@/core/database';
-import type { BibleLanguage } from '@/schemas';
+import type { BibleLanguage } from '@/schemas/bibles/types';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Input } from '@/www/components/ui/input';

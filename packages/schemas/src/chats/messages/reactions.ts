@@ -1,6 +1,6 @@
 import { messageReactions } from '@/core/database/schema';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { defaultRefine } from '../../utils/default-refine';
+import { defaultRefine } from '../../utils/refine';
 
 export const MessageReactionSchema = createSelectSchema(messageReactions, defaultRefine);
 

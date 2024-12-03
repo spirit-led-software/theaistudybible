@@ -3,7 +3,7 @@ import type {
   CreateUserGeneratedImageSchema,
   UpdateUserGeneratedImageSchema,
   UserGeneratedImageSchema,
-} from './generated-images';
+} from '.';
 
 export type UserGeneratedImage = z.infer<typeof UserGeneratedImageSchema>;
 export type CreateUserGeneratedImage = z.infer<typeof CreateUserGeneratedImageSchema>;

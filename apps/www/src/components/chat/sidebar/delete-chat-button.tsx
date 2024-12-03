@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { chats } from '@/core/database/schema';
-import type { Chat } from '@/schemas/chats';
+import type { Chat } from '@/schemas/chats/types';
 import { Button } from '@/www/components/ui/button';
 import {
   Dialog,

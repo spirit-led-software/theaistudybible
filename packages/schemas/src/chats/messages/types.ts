@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { CreateMessageSchema, MessageSchema, UpdateMessageSchema } from './messages';
+import type { CreateMessageSchema, MessageSchema, UpdateMessageSchema } from '.';
 import type {
   CreateMessageReactionSchema,
   MessageReactionSchema,

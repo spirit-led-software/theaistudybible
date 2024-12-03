@@ -1,6 +1,7 @@
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
-import { type UpdateUser, UpdateUserSchema } from '@/schemas';
+import { UpdateUserSchema } from '@/schemas/users';
+import type { UpdateUser } from '@/schemas/users/types';
 import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
 import { createForm, zodForm } from '@modular-forms/solid';

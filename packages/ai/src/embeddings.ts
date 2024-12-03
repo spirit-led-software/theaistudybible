@@ -1,26 +1,13 @@
 import type { EmbeddingModel } from 'ai';
+import { embeddingsModel } from './models';
 import { registry } from './provider-registry';
 import type { Document, DocumentWithEmbedding } from './types/document';
-
-export type EmbeddingModelInfo = {
-  id: string;
-  dimensions: number;
-  chunkSize: number;
-  chunkOverlap: number;
-};
-
-export const embeddingsModelInfo: EmbeddingModelInfo = {
-  id: 'openai:text-embedding-3-small',
-  dimensions: 1536,
-  chunkSize: 1024,
-  chunkOverlap: 256,
-};
 
 export class Embeddings {
   private readonly embeddings: EmbeddingModel<string>;
 
   constructor() {
-    this.embeddings = registry.textEmbeddingModel(embeddingsModelInfo.id);
+    this.embeddings = registry.textEmbeddingModel(embeddingsModel.id);
   }
 
   async embedQuery(query: string) {

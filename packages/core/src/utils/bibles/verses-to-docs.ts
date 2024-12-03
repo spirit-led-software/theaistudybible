@@ -1,4 +1,4 @@
-import { embeddingsModelInfo } from '@/ai/embeddings';
+import { embeddingsModel } from '@/ai/models';
 import type { Document } from '@/ai/types/document';
 import { numTokensFromString } from '@/ai/utils/num-tokens-from-string';
 import { contentsToText } from '@/core/utils/bible';
@@ -50,7 +50,7 @@ function processVerseChunk(
     let j = i - 1;
     while (
       j >= 0 &&
-      numTokensFromString({ text: currentPageContent }) < embeddingsModelInfo.chunkOverlap
+      numTokensFromString({ text: currentPageContent }) < embeddingsModel.chunkOverlap
     ) {
       const prevVerse = verses[j];
       verseStart = prevVerse.number;
@@ -64,7 +64,7 @@ function processVerseChunk(
   // Handle content
   while (
     i < verses.length &&
-    numTokensFromString({ text: currentPageContent }) < embeddingsModelInfo.chunkSize
+    numTokensFromString({ text: currentPageContent }) < embeddingsModel.chunkSize
   ) {
     const verse = verses[i];
     verseEnd = verse.number;

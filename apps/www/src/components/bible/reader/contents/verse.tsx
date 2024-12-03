@@ -1,5 +1,5 @@
-import type { VerseNote } from '@/schemas/bibles';
 import type { VerseContent as VerseContentType } from '@/schemas/bibles/contents';
+import type { VerseNote } from '@/schemas/bibles/verses/types';
 import { Button } from '@/www/components/ui/button';
 import { Markdown } from '@/www/components/ui/markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';

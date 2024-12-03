@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { ChatSchema, CreateChatSchema, UpdateChatSchema } from './chats';
+import type { ChatSchema, CreateChatSchema, UpdateChatSchema } from '.';
 import type {
   CreateShareChatOptionsSchema,
   ShareChatOptionsSchema,

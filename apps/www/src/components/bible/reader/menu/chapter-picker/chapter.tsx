@@ -1,5 +1,5 @@
 import { db } from '@/core/database';
-import type { Book } from '@/schemas/bibles';
+import type { Book } from '@/schemas/bibles/types';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import {
   Accordion,

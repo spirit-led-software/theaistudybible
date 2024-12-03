@@ -1,7 +1,7 @@
 import { indexOperations } from '@/core/database/schema';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { MetadataSchema } from '../utils';
-import { defaultRefine } from '../utils/default-refine';
+import { MetadataSchema } from '../utils/metadata';
+import { defaultRefine } from '../utils/refine';
 
 const refine = {
   ...defaultRefine,

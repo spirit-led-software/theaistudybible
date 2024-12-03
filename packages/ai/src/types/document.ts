@@ -1,5 +1,5 @@
 import type { Prettify } from '@/core/types/util';
-import type { Metadata } from '@/schemas/utils/metadata';
+import type { Metadata } from '@/schemas/utils/types';
 
 export type Document = {
   id: string;

@@ -3,7 +3,7 @@ import type {
   CreateSourceDocumentSchema,
   SourceDocumentSchema,
   UpdateSourceDocumentSchema,
-} from './source-documents';
+} from '.';
 
 export type SourceDocument = z.infer<typeof SourceDocumentSchema>;
 export type CreateSourceDocument = z.infer<typeof CreateSourceDocumentSchema>;

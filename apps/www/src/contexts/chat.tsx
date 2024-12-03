@@ -1,4 +1,4 @@
-import type { Chat } from '@/schemas/chats';
+import type { Chat } from '@/schemas/chats/types';
 import { makePersisted } from '@solid-primitives/storage';
 import type { JSXElement } from 'solid-js';
 import { createContext, createEffect, createSignal, splitProps, useContext } from 'solid-js';

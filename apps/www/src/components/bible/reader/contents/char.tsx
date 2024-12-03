@@ -1,5 +1,5 @@
-import type { VerseNote } from '@/schemas/bibles';
 import type { CharContent as CharContentType } from '@/schemas/bibles/contents';
+import type { VerseNote } from '@/schemas/bibles/verses/types';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { cn } from '@/www/lib/utils';
 import type { HighlightInfo } from '@/www/types/bible';
