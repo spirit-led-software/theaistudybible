@@ -180,7 +180,10 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
 
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
 
-  const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
+  const messagesQuery = createInfiniteQuery(() => ({
+    ...getChatMessagesQueryProps(chatId()),
+    enabled: !!chatId() && !useChatResult.isLoading(),
+  }));
   createEffect(() => {
     if (untrack(useChatResult.isLoading)) {
       return;
