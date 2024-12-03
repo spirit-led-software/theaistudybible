@@ -26,14 +26,9 @@ const getChat = GET(async (chatId: string) => {
   return { chat: chat ?? null };
 });
 
-export const getChatQueryProps = (chatId?: string) => ({
-  queryKey: ['chat', { chatId: chatId ?? null }],
-  queryFn: async () => {
-    if (chatId) {
-      return await getChat(chatId);
-    }
-    return { chat: null };
-  },
+export const getChatQueryProps = (chatId: string) => ({
+  queryKey: ['chat', { chatId }],
+  queryFn: () => getChat(chatId),
 });
 
 const getChatMessages = GET(
@@ -59,14 +54,10 @@ const getChatMessages = GET(
   },
 );
 
-export const getChatMessagesQueryProps = (chatId?: string) => ({
-  queryKey: ['chat-messages', { chatId: chatId ?? null }],
-  queryFn: async ({ pageParam }: { pageParam: number }) => {
-    if (chatId) {
-      return await getChatMessages({ chatId: chatId!, limit: 10, offset: pageParam });
-    }
-    return { messages: [], nextCursor: undefined };
-  },
+export const getChatMessagesQueryProps = (chatId: string) => ({
+  queryKey: ['chat-messages', { chatId }],
+  queryFn: ({ pageParam }: { pageParam: number }) =>
+    getChatMessages({ chatId, limit: 10, offset: pageParam }),
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
   initialPageParam: 0,
   keepPreviousData: true,
@@ -118,14 +109,9 @@ What are some follow up questions that the user may ask?`,
   return suggestions;
 });
 
-export const getChatSuggestionsQueryProps = (chatId?: string) => ({
-  queryKey: ['chat-suggestions', { chatId: chatId ?? null }],
-  queryFn: async () => {
-    if (chatId) {
-      return await getChatSuggestions(chatId);
-    }
-    return [];
-  },
+export const getChatSuggestionsQueryProps = (chatId: string) => ({
+  queryKey: ['chat-suggestions', { chatId }],
+  queryFn: () => getChatSuggestions(chatId),
   staleTime: Number.MAX_SAFE_INTEGER,
 });
 
@@ -180,10 +166,7 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
 
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
 
-  const messagesQuery = createInfiniteQuery(() => ({
-    ...getChatMessagesQueryProps(chatId()),
-    enabled: !!chatId() && !useChatResult.isLoading(),
-  }));
+  const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
   createEffect(() => {
     if (untrack(useChatResult.isLoading)) {
       return;

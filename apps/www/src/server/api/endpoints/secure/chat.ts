@@ -120,6 +120,7 @@ const app = new Hono<{
         [chat] = await db
           .insert(chats)
           .values({
+            id: chatId,
             userId: c.var.user!.id,
           })
           .returning();
