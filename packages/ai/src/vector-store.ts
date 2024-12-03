@@ -102,7 +102,7 @@ export class VectorStore {
     options: SearchDocumentsOptions = searchDocumentsDefaults,
   ): Promise<DocumentWithScore[]> {
     const queryEmbedding = await this.embeddings.embedQuery(query);
-    const vectorQuery = sql<number>`vector_distance_cosine(${sourceDocuments.embedding}, vector32(${JSON.stringify(queryEmbedding)}))`;
+    const vectorQuery = sql<number>`vector_distance_cos(${sourceDocuments.embedding}, vector32(${JSON.stringify(queryEmbedding)}))`;
     const result = (await this.client.query.sourceDocuments.findMany({
       columns: {
         id: true,
