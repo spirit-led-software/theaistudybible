@@ -57,15 +57,15 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
               <div class='flex w-full max-w-xl flex-col gap-3'>
                 <H1>Oops, something went wrong. Please contact support.</H1>
                 <H3>{err.message}</H3>
-                <Show when={err.stack}>
+                <Show when={err.stack} keyed>
                   {(stack) => (
                     <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
-                      {stack()}
+                      {stack}
                     </pre>
                   )}
                 </Show>
-                <Show when={'cause' in err && err.cause instanceof Error && err.cause}>
-                  {(cause) => <H3>{cause().message}</H3>}
+                <Show when={'cause' in err && err.cause instanceof Error && err.cause} keyed>
+                  {(cause) => <H3>{cause.message}</H3>}
                 </Show>
                 <Button
                   onClick={async () => {
@@ -88,8 +88,8 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
               </div>
             )}
           </Match>
-          <Match when={Boolean(props.query.data) && props.query.data}>
-            {(data) => props.children(data() as Exclude<T, null | false | undefined>)}
+          <Match when={props.query.data} keyed>
+            {(data) => props.children(data as Exclude<T, null | false | undefined>)}
           </Match>
         </Switch>
       </SentryErrorBoundary>

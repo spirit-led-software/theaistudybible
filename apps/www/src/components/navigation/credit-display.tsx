@@ -29,7 +29,20 @@ export function CreditDisplay() {
   }));
 
   return (
-    <QueryBoundary query={creditsQuery} loadingFallback={<Spinner size='sm' />}>
+    <QueryBoundary
+      query={creditsQuery}
+      loadingFallback={<Spinner size='sm' />}
+      errorFallback={(_, retry) => (
+        <Button
+          variant='outline'
+          size='icon'
+          class='flex size-8 flex-col items-center justify-center gap-1 rounded-full p-2 text-xs lg:flex-row'
+          onClick={retry}
+        >
+          Error
+        </Button>
+      )}
+    >
       {({ balance }) => (
         <Popover>
           <PopoverTrigger
