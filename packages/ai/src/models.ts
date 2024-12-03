@@ -73,7 +73,7 @@ export type EmbeddingsModelInfo = {
 };
 
 export const embeddingsModel: EmbeddingsModelInfo = {
-  id: 'text-embedding-3-small',
+  id: 'openai:text-embedding-3-small',
   dimensions: 1536,
   chunkSize: 1024,
   chunkOverlap: 256,
