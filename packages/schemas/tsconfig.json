@@ -19,6 +19,6 @@
       "@/scripts/*": ["../../tools/scripts/src/*"]
     }
   },
-  "include": ["globals.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["../core/globals.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }
