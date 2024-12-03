@@ -27,6 +27,7 @@ $transform(sst.aws.Function, (args) => {
     install: $output([
       ...(nodejs?.install ?? []),
       '@libsql/client',
+      'tiktoken',
       '@sentry/aws-serverless',
       'posthog-node',
     ]),
@@ -34,6 +35,7 @@ $transform(sst.aws.Function, (args) => {
       external: [
         ...(nodejs?.esbuild?.external ?? []),
         '@libsql/client',
+        'tiktoken',
         '@sentry/aws-serverless',
         'posthog-node',
       ],
