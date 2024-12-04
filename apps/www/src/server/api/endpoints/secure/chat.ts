@@ -1,5 +1,5 @@
 import { createChatChain, renameChat } from '@/ai/chat';
-import { allModels } from '@/ai/models';
+import { allChatModels } from '@/ai/models';
 import { numTokensFromString } from '@/ai/utils';
 import { db } from '@/core/database';
 import { chats, messages as messagesTable } from '@/core/database/schema';
@@ -77,7 +77,7 @@ const app = new Hono<{
       console.timeEnd('validateModelId');
       const modelId = input.modelId ?? getDefaultModelId(c);
 
-      const modelInfo = allModels.find((m) => m.id === modelId.split(':')[1]);
+      const modelInfo = allChatModels.find((m) => m.id === modelId.split(':')[1]);
       if (!modelInfo) {
         return c.json(
           {
@@ -90,13 +90,13 @@ const app = new Hono<{
       console.time('checkAndConsumeCredits');
       const hasCredits = await checkAndConsumeCredits(
         c.var.user!.id,
-        modelInfo.tier === 'plus' ? 'advanced-chat' : 'chat',
+        modelInfo.tier === 'advanced' ? 'advanced-chat' : 'chat',
       );
       console.timeEnd('checkAndConsumeCredits');
       if (!hasCredits) {
         return c.json(
           {
-            message: `You must have at least ${modelInfo.tier === 'plus' ? 5 : 1} credit to use this resource.`,
+            message: `You must have at least ${modelInfo.tier === 'advanced' ? 5 : 1} credit to use this resource.`,
           },
           400,
         );

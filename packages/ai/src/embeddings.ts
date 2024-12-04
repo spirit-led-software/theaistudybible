@@ -1,5 +1,5 @@
 import type { EmbeddingModel } from 'ai';
-import { embeddingsModel } from './models';
+import { embeddingModel } from './models';
 import { registry } from './provider-registry';
 import type { Document, DocumentWithEmbedding } from './types/document';
 
@@ -7,7 +7,7 @@ export class Embeddings {
   private readonly embeddings: EmbeddingModel<string>;
 
   constructor() {
-    this.embeddings = registry.textEmbeddingModel(`${embeddingsModel.host}:${embeddingsModel.id}`);
+    this.embeddings = registry.textEmbeddingModel(`${embeddingModel.host}:${embeddingModel.id}`);
   }
 
   async embedQuery(query: string) {

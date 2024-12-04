@@ -1,30 +1,30 @@
 import type { Prettify } from '@/core/types/util';
 import type { Metadata } from '@/schemas/utils/types';
 
-export type Document = {
+export type Document<T = Metadata> = {
   id: string;
   content: string;
-  metadata?: Metadata;
+  metadata?: T;
   embedding?: number[];
 };
 
-export type DocumentWithMetadata = Prettify<
-  Document & {
-    metadata: Metadata;
+export type DocumentWithMetadata<T = Metadata> = Prettify<
+  Document<T> & {
+    metadata: T;
   }
 >;
 
-export type DocumentWithEmbedding = Prettify<
-  Document & {
+export type DocumentWithEmbedding<T = Metadata> = Prettify<
+  Document<T> & {
     embedding: number[];
   }
 >;
 
-export type DocumentWithEmbeddingAndMetadata = Prettify<
-  Document & {
+export type DocumentWithEmbeddingAndMetadata<T = Metadata> = Prettify<
+  Document<T> & {
     embedding: number[];
-    metadata: Metadata;
+    metadata: T;
   }
 >;
 
-export type DocumentWithScore = Prettify<Document & { score: number }>;
+export type DocumentWithScore<T = Metadata> = Prettify<Document<T> & { score: number }>;

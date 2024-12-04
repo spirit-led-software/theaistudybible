@@ -1,4 +1,4 @@
-import { freeTierModels } from '@/ai/models';
+import { defaultChatModel } from '@/ai/models';
 import { registry } from '@/ai/provider-registry';
 import { messagesToString } from '@/ai/utils/messages-to-string';
 import { db } from '@/core/database';
@@ -67,11 +67,10 @@ export const getChatMessagesQueryProps = (chatId: string) => ({
 const getChatSuggestions = GET(async (chatId: string) => {
   'use server';
   const { user } = requireAuth();
-  const modelInfo = freeTierModels[0];
   const messages = await getValidMessages({
     chatId,
     userId: user.id,
-    maxTokens: modelInfo.contextSize,
+    maxTokens: defaultChatModel.contextSize,
   });
   // If there are no messages, don't suggest follow ups
   if (messages.length === 0) {
@@ -81,7 +80,7 @@ const getChatSuggestions = GET(async (chatId: string) => {
   const {
     experimental_output: { suggestions },
   } = await generateText({
-    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
+    model: registry.languageModel(`${defaultChatModel.host}:${defaultChatModel.id}`),
     experimental_output: Output.object({
       schema: z.object({
         suggestions: z

@@ -3,7 +3,10 @@ import type { groq } from '@ai-sdk/groq';
 import type { mistral } from '@ai-sdk/mistral';
 import type { openai } from '@ai-sdk/openai';
 
-export type ModelInfo = {
+export type ChatModelInfo = {
+  /**
+   * The id of the model.
+   */
   id:
     | Parameters<typeof openai>[0]
     | Parameters<typeof anthropic>[0]
@@ -17,14 +20,29 @@ export type ModelInfo = {
    * Where the model is hosted.
    */
   host: 'openai' | 'anthropic' | 'mistral' | 'groq';
+  /**
+   * The name of the model.
+   */
   name: string;
+  /**
+   * The description of the model.
+   */
   description: string;
+  /**
+   * The context size of the model.
+   */
   contextSize: number;
+  /**
+   * The link to the model.
+   */
   link: string;
-  tier: 'free' | 'plus';
+  /**
+   * The tier of the model.
+   */
+  tier: 'basic' | 'advanced';
 };
 
-export const freeTierModels: ModelInfo[] = [
+export const basicChatModels: ChatModelInfo[] = [
   {
     id: 'gpt-4o-mini',
     name: 'GPT-4o Mini',
@@ -33,13 +51,11 @@ export const freeTierModels: ModelInfo[] = [
     provider: 'openai',
     host: 'openai',
     link: 'https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/',
-    tier: 'free',
+    tier: 'basic',
   },
 ];
-export type FreeTierModelId = (typeof freeTierModels)[number]['id'];
-export const freeTierModelIds = freeTierModels.map((model) => model.id);
 
-export const plusTierModels: ModelInfo[] = [
+export const advancedChatModels: ChatModelInfo[] = [
   {
     id: 'gpt-4o',
     name: 'GPT-4o',
@@ -48,7 +64,7 @@ export const plusTierModels: ModelInfo[] = [
     provider: 'openai',
     host: 'openai',
     link: 'https://openai.com/index/hello-gpt-4o/',
-    tier: 'plus',
+    tier: 'advanced',
   },
   {
     id: 'claude-3-5-sonnet-latest',
@@ -58,29 +74,42 @@ export const plusTierModels: ModelInfo[] = [
     provider: 'anthropic',
     host: 'anthropic',
     link: 'https://www.anthropic.com/news/claude-3-5-sonnet',
-    tier: 'plus',
+    tier: 'advanced',
   },
 ];
-export type PlusTierModelId = (typeof plusTierModels)[number]['id'];
-export const plusTierModelIds = plusTierModels.map((model) => model.id);
 
-export const allModels = [...freeTierModels, ...plusTierModels];
+export const allChatModels = [...basicChatModels, ...advancedChatModels];
 
-export const allModelIds = allModels.map((model) => model.id);
-export type ModelId = (typeof allModelIds)[number];
+export const defaultChatModel = basicChatModels[0];
 
-export const defaultModel = freeTierModels[0];
-
-export type EmbeddingsModelInfo = {
+export type EmbeddingModelInfo = {
+  /**
+   * The id of the model.
+   */
   id: Parameters<(typeof openai)['embedding']>[0];
+  /**
+   * Who owns and created the model.
+   */
   provider: 'openai';
+  /**
+   * Where the model is hosted.
+   */
   host: 'openai';
+  /**
+   * The number of dimensions in the embedding vector.
+   */
   dimensions: number;
+  /**
+   * The size of the chunks to embed.
+   */
   chunkSize: number;
+  /**
+   * The overlap between chunks.
+   */
   chunkOverlap: number;
 };
 
-export const embeddingsModel: EmbeddingsModelInfo = {
+export const embeddingModel: EmbeddingModelInfo = {
   id: 'text-embedding-3-small',
   provider: 'openai',
   host: 'openai',

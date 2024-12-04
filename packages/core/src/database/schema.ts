@@ -1,4 +1,4 @@
-import { embeddingsModel } from '@/ai/models';
+import { embeddingModel } from '@/ai/models';
 import type { Content } from '@/schemas/bibles/contents';
 import type { Metadata } from '@/schemas/utils/types';
 import type { FinishReason, JSONValue, ToolInvocation } from 'ai';
@@ -1398,7 +1398,7 @@ export const sourceDocuments = sqliteTable(
   'source_documents',
   {
     ...baseModel,
-    embedding: float32Array('embedding', { dimensions: embeddingsModel.dimensions }).notNull(),
+    embedding: float32Array('embedding', { dimensions: embeddingModel.dimensions }).notNull(),
     metadata: text('metadata', { mode: 'json' }).$type<Metadata>().notNull().default({}),
   },
   (table) => ({

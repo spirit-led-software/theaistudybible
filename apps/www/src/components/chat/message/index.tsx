@@ -1,4 +1,4 @@
-import { allModels } from '@/ai/models';
+import { allChatModels } from '@/ai/models';
 import { Markdown } from '@/www/components/ui/markdown';
 import { cn } from '@/www/lib/utils';
 import { getMessageId } from '@/www/utils/message';
@@ -92,7 +92,9 @@ export const Message = (props: MessageProps) => {
               }
             >
               {(annotation) => (
-                <Show when={allModels.find((m) => `${m.host}:${m.id}` === annotation().modelId)}>
+                <Show
+                  when={allChatModels.find((m) => `${m.host}:${m.id}` === annotation().modelId)}
+                >
                   {(modelInfo) => (
                     <Button
                       variant='outline'

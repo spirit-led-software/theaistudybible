@@ -1,4 +1,4 @@
-import { freeTierModels, plusTierModels } from '@/ai/models';
+import { advancedChatModels, basicChatModels } from '@/ai/models';
 import { numTokensFromString } from '@/ai/utils';
 import { db } from '@/core/database';
 import type { Context } from 'hono';
@@ -16,13 +16,13 @@ export function validateModelId({
   }>;
   providedModelId: string;
 }): Response | undefined {
-  const isFreeTier = freeTierModels.some(
+  const isBasicTier = basicChatModels.some(
     (model) => `${model.host}:${model.id}` === providedModelId,
   );
-  const isPlusTier = plusTierModels.some(
+  const isAdvancedTier = advancedChatModels.some(
     (model) => `${model.host}:${model.id}` === providedModelId,
   );
-  if (!isFreeTier && !isPlusTier) {
+  if (!isBasicTier && !isAdvancedTier) {
     console.log('Invalid modelId provided');
     c.json(
       {
@@ -31,7 +31,7 @@ export function validateModelId({
       400,
     );
   }
-  if (isPlusTier && !c.var.roles?.some((role) => role.id === 'admin')) {
+  if (isAdvancedTier && !c.var.roles?.some((role) => role.id === 'admin')) {
     return c.json(
       {
         message:
@@ -46,9 +46,9 @@ export function validateModelId({
 export function getDefaultModelId(c: Context<{ Bindings: Bindings; Variables: Variables }>) {
   return c.var.roles?.some((role) => role.id === 'admin')
     ? Resource.Stage.value === 'production'
-      ? `${plusTierModels[0].host}:${plusTierModels[0].id}`
-      : `${freeTierModels[0].host}:${freeTierModels[0].id}`
-    : `${freeTierModels[0].host}:${freeTierModels[0].id}`;
+      ? `${advancedChatModels[0].host}:${advancedChatModels[0].id}`
+      : `${basicChatModels[0].host}:${basicChatModels[0].id}`
+    : `${basicChatModels[0].host}:${basicChatModels[0].id}`;
 }
 
 const messageChunkSize = 10;

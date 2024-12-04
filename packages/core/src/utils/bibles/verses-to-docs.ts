@@ -1,10 +1,9 @@
-import { embeddingsModel } from '@/ai/models';
+import { embeddingModel } from '@/ai/models';
 import type { Document } from '@/ai/types/document';
 import { numTokensFromString } from '@/ai/utils/num-tokens-from-string';
 import { contentsToText } from '@/core/utils/bible';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
-import { sha256 } from '@noble/hashes/sha256';
-import { bytesToHex } from '@noble/hashes/utils';
+import { murmurHash } from 'ohash';
 
 export const versesToDocs = ({
   bible,
@@ -16,7 +15,7 @@ export const versesToDocs = ({
   book: Book;
   chapter: Omit<Chapter, 'content'>;
   verses: Verse[];
-}) => {
+}): Document[] => {
   const docs: Document[] = [];
   let i = 0;
   while (i < verses.length) {
@@ -39,39 +38,44 @@ function processVerseChunk(
   book: Book,
   chapter: Omit<Chapter, 'content'>,
 ): Document {
-  let verseStart = verses[startIndex].number;
-  let verseEnd = verseStart;
-  let currentPageContent = '';
   const verseIds: string[] = [];
+  let currentPageContent = '';
 
-  // Handle overlap
+  // Process verses in a single pass with a sliding window
+  const maxTokens = embeddingModel.chunkSize;
+  const overlapTokens = embeddingModel.chunkOverlap;
+  let currentTokens = 0;
+
+  // First pass: collect verses until we hit max tokens
   let i = startIndex;
-  if (i > 0) {
-    let j = i - 1;
-    while (
-      j >= 0 &&
-      numTokensFromString({ text: currentPageContent }) < embeddingsModel.chunkOverlap
-    ) {
-      const prevVerse = verses[j];
-      verseStart = prevVerse.number;
-      currentPageContent = `${contentsToText(prevVerse.content).trim()} ${currentPageContent}`;
-      verseIds.unshift(prevVerse.id);
-      j--;
-    }
-    i = j + 1;
-  }
-
-  // Handle content
-  while (
-    i < verses.length &&
-    numTokensFromString({ text: currentPageContent }) < embeddingsModel.chunkSize
-  ) {
+  while (i < verses.length && currentTokens < maxTokens) {
     const verse = verses[i];
-    verseEnd = verse.number;
-    currentPageContent += ` ${contentsToText(verse.content).trim()}`;
+    const verseText = contentsToText(verse.content).trim();
+    const newTokens = numTokensFromString({ text: verseText });
+
+    if (currentTokens + newTokens > maxTokens) break;
+
+    currentPageContent += `${currentPageContent ? ' ' : ''}${verseText}`;
     verseIds.push(verse.id);
+    currentTokens += newTokens;
     i++;
   }
+
+  // Add overlap verses from before start if needed
+  let j = startIndex - 1;
+  while (j >= 0 && currentTokens < overlapTokens) {
+    const verse = verses[j];
+    const verseText = contentsToText(verse.content).trim();
+    const newTokens = numTokensFromString({ text: verseText });
+
+    currentPageContent = `${verseText} ${currentPageContent}`;
+    verseIds.unshift(verse.id);
+    currentTokens += newTokens;
+    j--;
+  }
+
+  const verseStart = verses[Math.max(0, j + 1)].number;
+  const verseEnd = verses[Math.min(verses.length - 1, i - 1)].number;
 
   currentPageContent = currentPageContent.trim();
 
@@ -80,9 +84,7 @@ function processVerseChunk(
 
   const content = `"${currentPageContent}" - ${name}`;
 
-  const sha265hasher = sha256.create();
-  sha265hasher.outputLen = 12;
-  const id = `${bible.abbreviation}_${bytesToHex(sha265hasher.update(content).digest())}`;
+  const id = `${bible.abbreviation}_${murmurHash(content)}`;
 
   return {
     id,

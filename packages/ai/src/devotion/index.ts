@@ -7,12 +7,12 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { Output, generateText } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
-import { plusTierModels } from '../models';
+import { advancedChatModels } from '../models';
 import { openai, registry } from '../provider-registry';
 import { bibleVectorStoreTool, vectorStoreTool } from './tools';
 import { getTodaysTopic } from './topics';
 
-const modelInfo = plusTierModels[0];
+const modelInfo = advancedChatModels[0];
 
 export const getBibleReading = async (topic: string) => {
   const { text: bibleReading } = await generateText({

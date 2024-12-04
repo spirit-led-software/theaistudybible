@@ -1,4 +1,4 @@
-import { allModels, defaultModel } from '@/ai/models';
+import { allChatModels, defaultChatModel } from '@/ai/models';
 import { Button } from '@/www/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
 import { useChatStore } from '@/www/contexts/chat';
@@ -12,8 +12,8 @@ export const SelectModelButton = () => {
   const [open, setOpen] = createSignal(false);
 
   const selectedModel = createMemo(() => {
-    const model = allModels.find((m) => m.id === store.modelId?.split(':')[1]);
-    return model ?? defaultModel;
+    const model = allChatModels.find((m) => m.id === store.modelId?.split(':')[1]);
+    return model ?? defaultChatModel;
   });
 
   return (
@@ -42,7 +42,7 @@ export const SelectModelButton = () => {
       </PopoverTrigger>
       <PopoverContent class='w-fit p-0'>
         <div class='flex flex-col items-start gap-1'>
-          <For each={allModels}>
+          <For each={allChatModels}>
             {(model) => (
               <Button
                 variant='ghost'
@@ -75,7 +75,7 @@ export const SelectModelButton = () => {
                   <div class='flex flex-col items-start'>
                     <span>{model.name}</span>
                     <span class='text-muted-foreground text-xs'>
-                      {model.tier === 'free' ? 'Basic' : 'Advanced'}
+                      {model.tier === 'basic' ? 'Basic' : 'Advanced'}
                     </span>
                   </div>
                 </div>

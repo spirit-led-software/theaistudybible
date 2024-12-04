@@ -9,7 +9,7 @@ import type { DataStreamWriter } from 'ai';
 import { Output, generateText, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { defaultModel } from '../models';
+import { defaultChatModel } from '../models';
 import { registry } from '../provider-registry';
 import { messagesToString } from '../utils';
 import { tools } from './tools';
@@ -26,7 +26,7 @@ export const renameChat = async ({
   const {
     experimental_output: { title },
   } = await generateText({
-    model: registry.languageModel(`${defaultModel.host}:${defaultModel.id}`),
+    model: registry.languageModel(`${defaultChatModel.host}:${defaultChatModel.id}`),
     experimental_output: Output.object({
       schema: z.object({
         title: z.string().describe('The new title of the chat'),
