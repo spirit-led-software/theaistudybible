@@ -110,7 +110,7 @@ export class VectorStore {
       })
       .from(
         // ! Must use embedding index name from schema
-        sql`vector_top_k('source_documents_embedding_idx',${JSON.stringify(queryEmbedding)},${options.limit}) as top_k`,
+        sql`vector_top_k('source_documents_embedding_idx',vector32(${JSON.stringify(queryEmbedding)}),${options.limit}) as top_k`,
       )
       .innerJoin(sourceDocuments, sql`${sourceDocuments.id} = top_k.id`)
       .orderBy(asc(sql`distance`));
