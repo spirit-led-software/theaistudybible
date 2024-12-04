@@ -94,25 +94,23 @@ export class VectorStore {
     options: SearchDocumentsOptions = searchDocumentsDefaults,
   ): Promise<DocumentWithScore[]> {
     const queryEmbedding = await this.embeddings.embedQuery(query);
-    const vectorQuery = sql<number>`vector_distance_cos(${sourceDocuments.embedding}, vector32(${JSON.stringify(queryEmbedding)}))`;
-    const result = (await this.client.query.sourceDocuments.findMany({
-      columns: {
-        id: true,
-        createdAt: true,
-        updatedAt: true,
-        embedding: options.withEmbedding ?? searchDocumentsDefaults.withEmbedding,
-        metadata: options.withMetadata ?? searchDocumentsDefaults.withMetadata,
-      },
-      where: options.filter,
-      orderBy: vectorQuery,
-      limit: options.limit ?? searchDocumentsDefaults.limit,
-      extras: {
-        score: vectorQuery.as('score'),
-      },
-    })) as (Pick<SourceDocument, 'id' | 'createdAt' | 'updatedAt'> &
-      Partial<SourceDocument> & {
-        score: number;
-      })[];
+
+    // ! Must use embedding index name from schema
+    const from = sql`vector_top_k('source_documents_embedding_idx',${JSON.stringify(queryEmbedding)},${options.limit})`;
+    const result = await db
+      .select({
+        ...{
+          id: sourceDocuments.id,
+          createdAt: sourceDocuments.createdAt,
+          updatedAt: sourceDocuments.updatedAt,
+          score: sql<number>`vector_distance_cos(${sourceDocuments.embedding}, vector32(${JSON.stringify(queryEmbedding)}))`,
+        },
+        ...(options.withEmbedding ? { embedding: sourceDocuments.embedding } : {}),
+        ...(options.withMetadata ? { metadata: sourceDocuments.metadata } : {}),
+      })
+      .from(from)
+      .innerJoin(sourceDocuments, sql`${sourceDocuments.id} = id`)
+      .orderBy(sql`score`);
 
     return result.map((r) => {
       const { content, ...metadata } = r.metadata ?? {};
