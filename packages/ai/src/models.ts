@@ -9,7 +9,13 @@ export type ModelInfo = {
     | Parameters<typeof anthropic>[0]
     | Parameters<typeof mistral>[0]
     | Parameters<typeof groq>[0];
+  /**
+   * The provider of the model. (Who owns and created the model)
+   */
   provider: 'openai' | 'anthropic' | 'mistral' | 'meta' | 'groq';
+  /**
+   * Where the model is hosted.
+   */
   host: 'openai' | 'anthropic' | 'mistral' | 'groq';
   name: string;
   description: string;
@@ -67,13 +73,17 @@ export const defaultModel = freeTierModels[0];
 
 export type EmbeddingsModelInfo = {
   id: Parameters<(typeof openai)['embedding']>[0];
+  provider: 'openai';
+  host: 'openai';
   dimensions: number;
   chunkSize: number;
   chunkOverlap: number;
 };
 
 export const embeddingsModel: EmbeddingsModelInfo = {
-  id: 'openai:text-embedding-3-small',
+  id: 'text-embedding-3-small',
+  provider: 'openai',
+  host: 'openai',
   dimensions: 1536,
   chunkSize: 512,
   chunkOverlap: 128,

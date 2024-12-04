@@ -7,7 +7,7 @@ export class Embeddings {
   private readonly embeddings: EmbeddingModel<string>;
 
   constructor() {
-    this.embeddings = registry.textEmbeddingModel(embeddingsModel.id);
+    this.embeddings = registry.textEmbeddingModel(`${embeddingsModel.host}:${embeddingsModel.id}`);
   }
 
   async embedQuery(query: string) {
