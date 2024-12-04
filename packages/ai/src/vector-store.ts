@@ -100,7 +100,7 @@ export class VectorStore {
         ...(options.withMetadata ? { metadata: sourceDocuments.metadata } : {}),
         ...{
           id: sourceDocuments.id,
-          distance: sql<number>`top_k.distance`,
+          distance: sql<number>`vector_distance_cos(${sourceDocuments.embedding},vector32(${JSON.stringify(queryEmbedding)}))`,
           createdAt: sourceDocuments.createdAt,
           updatedAt: sourceDocuments.updatedAt,
         },
@@ -110,7 +110,7 @@ export class VectorStore {
         sql`vector_top_k('source_documents_embedding_idx',${JSON.stringify(queryEmbedding)},${options.limit}) as top_k`,
       )
       .innerJoin(sourceDocuments, sql`${sourceDocuments.id} = top_k.id`)
-      .orderBy(asc(sql`top_k.distance`));
+      .orderBy(asc(sql`distance`));
 
     return result.map((r) => {
       const { content, ...metadata } = r.metadata ?? {};
