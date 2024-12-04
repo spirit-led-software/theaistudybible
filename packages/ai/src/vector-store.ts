@@ -96,11 +96,14 @@ export class VectorStore {
     const queryEmbedding = await this.embeddings.embedQuery(query);
     const result = await db
       .select({
-        ...(options.withEmbedding ? { embedding: sourceDocuments.embedding } : {}),
-        ...(options.withMetadata ? { metadata: sourceDocuments.metadata } : {}),
+        ...(options.withEmbedding && { embedding: sourceDocuments.embedding }),
+        ...(options.withMetadata && { metadata: sourceDocuments.metadata }),
         ...{
           id: sourceDocuments.id,
-          distance: sql<number>`vector_distance_cos(${sourceDocuments.embedding},vector32(${JSON.stringify(queryEmbedding)}))`,
+          distance:
+            sql<number>`vector_distance_cos(${sourceDocuments.embedding},vector32(${JSON.stringify(queryEmbedding)}))`.as(
+              'distance',
+            ),
           createdAt: sourceDocuments.createdAt,
           updatedAt: sourceDocuments.updatedAt,
         },
