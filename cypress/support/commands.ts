@@ -1,5 +1,6 @@
 Cypress.Commands.add('login', (email: string, password: string) => {
   cy.visit('/sign-in');
+  cy.get('button[data-key="email-password"]').click();
   cy.get('form').should('be.visible');
 
   // Type email and password, ensuring fields are enabled before each action
