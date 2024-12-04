@@ -38,7 +38,7 @@
     "@types/aws-lambda": "^8.10.146",
     "@types/bun": "^1.1.14",
     "@types/node": "^22.10.1",
-    "cypress": "^13.16.0",
+    "cypress": "^13.16.1",
     "cypress-wait-until": "^3.0.2",
     "drizzle-kit": "^0.29.1",
     "husky": "^9.1.7",
@@ -61,7 +61,7 @@
     "drizzle-orm": "^0.37.0",
     "drizzle-zod": "^0.5.1",
     "lucia": "^3.2.2",
-    "sst": "3.3.44",
+    "sst": "3.3.45",
     "stripe": "^17.4.0",
     "zod": "^3.23.8"
   },

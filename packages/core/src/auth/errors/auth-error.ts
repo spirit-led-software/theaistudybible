@@ -4,7 +4,8 @@ export type AuthErrorType =
   | 'EmailExists'
   | 'InvalidSession'
   | 'UserNotFound'
-  | 'InvalidResetCode';
+  | 'InvalidResetCode'
+  | 'ReusedPassword';
 
 export class AuthError extends Error {
   type: AuthErrorType;

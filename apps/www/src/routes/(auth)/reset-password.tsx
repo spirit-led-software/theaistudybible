@@ -1,15 +1,17 @@
 import { ResetPassword } from '@/www/components/auth/reset-password';
 import { Meta, Title } from '@solidjs/meta';
-import { Navigate, useSearchParams } from '@solidjs/router';
+import { Navigate, useNavigate, useSearchParams } from '@solidjs/router';
 import { Show } from 'solid-js';
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
   return (
     <>
       <MetaTags />
       <Show when={searchParams.code} fallback={<Navigate href='/forgot-password' />} keyed>
-        {(code) => <ResetPassword code={code as string} />}
+        {(code) => <ResetPassword code={code as string} onSuccess={() => navigate('/sign-in')} />}
       </Show>
     </>
   );

@@ -9,7 +9,7 @@ import { eq } from 'drizzle-orm';
 import { Resource } from 'sst';
 import type { z } from 'zod';
 import { forgotPasswordSchema, resetPasswordSchema, signInSchema, signUpSchema } from './schemas';
-import { generateSalt, hashPassword, verifyPassword } from './utils';
+import { hashPassword, verifyPassword } from './utils';
 
 export async function signIn(credentials: z.infer<typeof signInSchema>) {
   const validated = await signInSchema.parseAsync(credentials);
@@ -21,7 +21,8 @@ export async function signIn(credentials: z.infer<typeof signInSchema>) {
   }
 
   const existingUserPassword = await db.query.passwords.findFirst({
-    where: (passwords, { eq }) => eq(passwords.userId, existingUser.id),
+    where: (passwords, { and, eq }) =>
+      and(eq(passwords.userId, existingUser.id), eq(passwords.active, true)),
   });
   if (!existingUserPassword) {
     throw new AuthError(
@@ -30,11 +31,7 @@ export async function signIn(credentials: z.infer<typeof signInSchema>) {
     );
   }
 
-  const validPassword = verifyPassword(
-    validated.password,
-    existingUserPassword.salt,
-    existingUserPassword.hash,
-  );
+  const validPassword = await verifyPassword(existingUserPassword.hash, validated.password);
   if (!validPassword) {
     throw new AuthError('InvalidSignIn', 'Invalid password');
   }
@@ -54,8 +51,7 @@ export async function signUp(credentials: z.infer<typeof signUpSchema>) {
     throw new AuthError('EmailExists', 'A user with this email already exists');
   }
 
-  const salt = generateSalt();
-  const hash = hashPassword(validated.password, salt);
+  const hash = await hashPassword(validated.password);
   const [user] = await db
     .insert(users)
     .values({
@@ -65,7 +61,6 @@ export async function signUp(credentials: z.infer<typeof signUpSchema>) {
   await db.insert(passwords).values({
     userId: user.id,
     hash,
-    salt,
   });
 
   const session = await lucia.createSession(user.id, {});
@@ -114,14 +109,35 @@ export async function resetPassword(values: z.infer<typeof resetPasswordSchema>)
   const code = await db.query.forgottenPasswordCodes.findFirst({
     where: (forgottenPasswordCodes, { eq }) => eq(forgottenPasswordCodes.code, validated.code),
   });
-
   if (!code || code.expiresAt < new Date()) {
     throw new AuthError('InvalidResetCode', 'Invalid reset code');
   }
 
-  const salt = generateSalt();
-  const hash = hashPassword(validated.password, salt);
-  await db.update(passwords).set({ hash, salt }).where(eq(passwords.userId, code.userId));
+  const hash = await hashPassword(validated.password);
+
+  const oldPasswords = await db.query.passwords.findMany({
+    where: (passwords, { eq }) => eq(passwords.userId, code.userId),
+    orderBy: (passwords, { desc }) => [desc(passwords.createdAt)],
+    limit: 2,
+  });
+
+  for (const oldPassword of oldPasswords) {
+    if (await verifyPassword(oldPassword.hash, validated.password)) {
+      throw new AuthError('ReusedPassword', 'New password is the same as the last two passwords');
+    }
+  }
+
+  // Invalidate the existing passwords
+  await db.update(passwords).set({ active: false }).where(eq(passwords.userId, code.userId));
+
+  // Create the new password
+  await db
+    .insert(passwords)
+    .values({ userId: code.userId, hash })
+    .onConflictDoUpdate({
+      target: [passwords.userId],
+      set: { hash },
+    });
 }
 
 export {

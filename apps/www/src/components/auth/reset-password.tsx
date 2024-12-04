@@ -13,25 +13,23 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { TextField, TextFieldErrorMessage, TextFieldInput, TextFieldLabel } from '../ui/text-field';
 
-export type ResetPasswordProps = {
-  code: string;
-  onSuccess?: () => void;
-};
-
 const resetPasswordAction = action(async (values: z.infer<typeof resetPasswordSchema>) => {
   'use server';
   await resetPassword(values);
   return { success: true };
 });
 
+export type ResetPasswordProps = {
+  code: string;
+  onSuccess?: () => void;
+};
+
 export function ResetPassword(props: ResetPasswordProps) {
   const resetPassword = useAction(resetPasswordAction);
 
   const [form, { Form, Field }] = createForm<z.infer<typeof resetPasswordSchema>>({
     validate: zodForm(resetPasswordSchema),
-    initialValues: {
-      code: props.code,
-    },
+    initialValues: { code: props.code },
   });
 
   const onSubmit = createMutation(() => ({
@@ -50,7 +48,7 @@ export function ResetPassword(props: ResetPasswordProps) {
 
   return (
     <Form
-      onSubmit={(values) => onSubmit.mutateAsync(values)}
+      onSubmit={(values) => onSubmit.mutate(values)}
       class='mx-auto w-full max-w-[90%] sm:max-w-md'
     >
       <Card class='w-full'>
@@ -59,6 +57,26 @@ export function ResetPassword(props: ResetPasswordProps) {
           <CardTitle>Reset Password</CardTitle>
         </CardHeader>
         <CardContent class='space-y-4 px-4 sm:px-6'>
+          <Field name='code'>
+            {(field, props) => (
+              <TextField
+                value={field.value}
+                validationState={field.error ? 'invalid' : 'valid'}
+                class='w-full'
+              >
+                <TextFieldLabel class='text-sm sm:text-base'>Reset Code</TextFieldLabel>
+                <TextFieldInput
+                  {...props}
+                  type='text'
+                  autocomplete='one-time-code'
+                  class='w-full p-2 pr-10 text-sm sm:text-base'
+                />
+                <TextFieldErrorMessage class='text-xs sm:text-sm'>
+                  {field.error}
+                </TextFieldErrorMessage>
+              </TextField>
+            )}
+          </Field>
           <Field name='password'>
             {(field, props) => (
               <TextField
@@ -116,10 +134,10 @@ export function ResetPassword(props: ResetPasswordProps) {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword())}
                   >
                     <Switch>
-                      <Match when={showPassword()}>
+                      <Match when={showConfirmPassword()}>
                         <EyeOff class='h-5 w-5 text-gray-400' />
                       </Match>
-                      <Match when={!showPassword()}>
+                      <Match when={!showConfirmPassword()}>
                         <Eye class='h-5 w-5 text-gray-400' />
                       </Match>
                     </Switch>

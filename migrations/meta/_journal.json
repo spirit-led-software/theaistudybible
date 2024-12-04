@@ -36,6 +36,27 @@
       "when": 1733253490004,
       "tag": "0004_windy_proudstar",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1733325803542,
+      "tag": "0005_free_reavers",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1733335165833,
+      "tag": "0006_public_oracle",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1733336475377,
+      "tag": "0007_exotic_husk",
+      "breakpoints": true
     }
   ]
 }

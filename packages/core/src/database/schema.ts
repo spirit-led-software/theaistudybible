@@ -6,6 +6,7 @@ import { add, formatISO, parseISO } from 'date-fns';
 import { relations, sql } from 'drizzle-orm';
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
 import {
+  blob,
   customType,
   foreignKey,
   index,
@@ -73,6 +74,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   passwords: many(passwords),
   forgottenPasswordCodes: many(forgottenPasswordCodes),
   sessions: many(sessions),
+  passkeyCredentials: many(passkeyCredentials),
   userCredits: many(userCredits),
   usersToRoles: many(usersToRoles),
   chats: many(chats),
@@ -100,10 +102,10 @@ export const passwords = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     hash: text('hash').notNull(),
-    salt: text('salt').notNull(),
+    active: integer('active', { mode: 'boolean' }).notNull().default(true),
   },
   (table) => ({
-    userIdIdx: uniqueIndex('passwords_user_id_idx').on(table.userId),
+    userIdIdx: index('passwords_user_id_idx').on(table.userId),
   }),
 );
 
@@ -129,7 +131,8 @@ export const forgottenPasswordCodes = sqliteTable(
       .$defaultFn(() => add(new Date(), { hours: 1 })),
   },
   (table) => ({
-    userIdIdx: uniqueIndex('forgotten_password_codes_user_id_idx').on(table.userId),
+    codeIdx: index('forgotten_password_codes_code_idx').on(table.code),
+    userIdIdx: index('forgotten_password_codes_user_id_idx').on(table.userId),
   }),
 );
 
@@ -157,6 +160,31 @@ export const sessions = sqliteTable(
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, {
     fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const passkeyCredentials = sqliteTable(
+  'passkey_credential',
+  {
+    ...baseModel,
+    id: blob('id', { mode: 'buffer' }).primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    algorithmId: integer('algorithm_id').notNull(),
+    publicKey: blob('public_key', { mode: 'buffer' }).notNull(),
+  },
+  (table) => ({
+    userIdIdx: index('passkey_credential_user_id_idx').on(table.userId),
+    algorithmIdIdx: index('passkey_credential_algorithm_id_idx').on(table.algorithmId),
+  }),
+);
+
+export const passkeyCredentialsRelations = relations(passkeyCredentials, ({ one }) => ({
+  user: one(users, {
+    fields: [passkeyCredentials.userId],
     references: [users.id],
   }),
 }));

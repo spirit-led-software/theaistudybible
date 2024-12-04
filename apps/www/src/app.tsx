@@ -48,12 +48,6 @@ export default function App() {
           return query.state.data === undefined;
         },
       },
-      mutations: {
-        throwOnError: (error) => {
-          captureSentryException(error);
-          return true;
-        },
-      },
     },
   });
 
