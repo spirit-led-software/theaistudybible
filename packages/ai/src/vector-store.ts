@@ -50,12 +50,8 @@ export class VectorStore {
     options: AddDocumentsOptions = addDocumentsDefaults,
   ): Promise<string[]> {
     const docsWithEmbeddings = await this.embeddings.embedDocuments(docs);
-    const batches = Math.ceil(docsWithEmbeddings.length / VectorStore.MAX_UPSERT_BATCH_SIZE);
-    for (let i = 0; i < batches; i++) {
-      let batch = docsWithEmbeddings.slice(
-        i * VectorStore.MAX_UPSERT_BATCH_SIZE,
-        (i + 1) * VectorStore.MAX_UPSERT_BATCH_SIZE,
-      );
+    for (let i = 0; i < docsWithEmbeddings.length; i += VectorStore.MAX_UPSERT_BATCH_SIZE) {
+      let batch = docsWithEmbeddings.slice(i, i + VectorStore.MAX_UPSERT_BATCH_SIZE);
 
       let existingDocs: SourceDocument[] = [];
       if (options.overwrite === false) {
@@ -87,12 +83,8 @@ export class VectorStore {
   }
 
   async deleteDocuments(ids: string[]): Promise<void> {
-    const batches = Math.ceil(ids.length / VectorStore.MAX_DELETE_BATCH_SIZE);
-    for (let i = 0; i < batches; i++) {
-      const batch = ids.slice(
-        i * VectorStore.MAX_DELETE_BATCH_SIZE,
-        (i + 1) * VectorStore.MAX_DELETE_BATCH_SIZE,
-      );
+    for (let i = 0; i < ids.length; i += VectorStore.MAX_DELETE_BATCH_SIZE) {
+      const batch = ids.slice(i, i + VectorStore.MAX_DELETE_BATCH_SIZE);
       await this.client.delete(sourceDocuments).where(inArray(sourceDocuments.id, batch));
     }
   }
