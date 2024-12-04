@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { sourceDocuments } from '@/core/database/schema';
 import type { SourceDocument } from '@/schemas/source-documents/types';
-import { type SQL, inArray, sql } from 'drizzle-orm';
+import { type SQL, asc, inArray, sql } from 'drizzle-orm';
 import type { Embeddings } from './embeddings';
 import { embeddings } from './embeddings';
 import type { Document, DocumentWithScore } from './types/document';
@@ -94,32 +94,32 @@ export class VectorStore {
     options: SearchDocumentsOptions = searchDocumentsDefaults,
   ): Promise<DocumentWithScore[]> {
     const queryEmbedding = await this.embeddings.embedQuery(query);
-
-    // ! Must use embedding index name from schema
-    const from = sql`vector_top_k('source_documents_embedding_idx',${JSON.stringify(queryEmbedding)},${options.limit})`;
     const result = await db
       .select({
-        ...{
-          id: sourceDocuments.id,
-          createdAt: sourceDocuments.createdAt,
-          updatedAt: sourceDocuments.updatedAt,
-          score: sql<number>`vector_distance_cos(${sourceDocuments.embedding}, vector32(${JSON.stringify(queryEmbedding)}))`,
-        },
         ...(options.withEmbedding ? { embedding: sourceDocuments.embedding } : {}),
         ...(options.withMetadata ? { metadata: sourceDocuments.metadata } : {}),
+        ...{
+          id: sourceDocuments.id,
+          distance: sql<number>`vector_distance_cos(${sourceDocuments.embedding},vector32(${JSON.stringify(queryEmbedding)}))`,
+          createdAt: sourceDocuments.createdAt,
+          updatedAt: sourceDocuments.updatedAt,
+        },
       })
-      .from(from)
-      .innerJoin(sourceDocuments, sql`${sourceDocuments.id} = id`)
-      .orderBy(sql`score`);
+      .from(
+        // ! Must use embedding index name from schema
+        sql`vector_top_k('source_documents_embedding_idx',${JSON.stringify(queryEmbedding)},${options.limit}) as top_k`,
+      )
+      .innerJoin(sourceDocuments, sql`${sourceDocuments.id} = top_k.id`)
+      .orderBy(asc(sql`distance`));
 
     return result.map((r) => {
       const { content, ...metadata } = r.metadata ?? {};
       return {
         id: r.id.toString(),
         content: content as string,
-        embedding: r.embedding,
+        embedding: r.embedding ?? undefined,
         metadata,
-        score: r.score,
+        score: r.distance,
       };
     });
   }
