@@ -24,7 +24,7 @@ env:
 jobs:
   remove:
     name: Remove
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     steps:
       - name: Checkout
         uses: actions/checkout@v3
