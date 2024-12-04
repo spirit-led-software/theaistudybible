@@ -7,12 +7,21 @@ import { createQuery } from '@tanstack/solid-query';
 import { TextSearch } from 'lucide-solid';
 import { useActivityPanel } from '../../activity-panel';
 
-const getHasReferences = GET(async (chapterId: string) => {
+const getHasReferences = GET(async (bibleId: string) => {
   'use server';
-  const sourceDocs = await db.query.chaptersToSourceDocuments.findMany({
-    where: (table, { eq }) => eq(table.chapterId, chapterId),
+  const bibleData = await db.query.bibles.findFirst({
+    columns: {},
+    where: (table, { eq }) => eq(table.id, bibleId),
+    with: {
+      chapters: {
+        columns: {},
+        with: { chaptersToSourceDocuments: { limit: 1 } },
+      },
+    },
   });
-  return { hasReferences: sourceDocs.length > 0 };
+  return {
+    hasReferences: bibleData?.chapters.some((c) => c.chaptersToSourceDocuments.length > 0) ?? false,
+  };
 });
 
 export const ReferencesButton = () => {
@@ -20,8 +29,8 @@ export const ReferencesButton = () => {
   const { setValue } = useActivityPanel();
 
   const query = createQuery(() => ({
-    queryKey: ['has-references', brStore.chapter.id],
-    queryFn: () => getHasReferences(brStore.chapter.id),
+    queryKey: ['has-references', { bibleId: brStore.bible.id }],
+    queryFn: () => getHasReferences(brStore.bible.id),
   }));
 
   return (
