@@ -2,12 +2,11 @@ import { embeddingModel } from '@/ai/models';
 import type { Content } from '@/schemas/bibles/contents';
 import type { Metadata } from '@/schemas/utils/types';
 import type { FinishReason, JSONValue, ToolInvocation } from 'ai';
-import { add, formatISO, parseISO } from 'date-fns';
-import { relations, sql } from 'drizzle-orm';
+import { add } from 'date-fns';
+import { relations } from 'drizzle-orm';
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
 import {
   blob,
-  customType,
   foreignKey,
   index,
   integer,
@@ -18,39 +17,8 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
 import { createId } from '../utils/id';
-
-const timestamp = customType<{
-  data: Date;
-  driverData: string;
-}>({
-  dataType: () => 'text',
-  toDriver: (value) => formatISO(value),
-  fromDriver: (value) => parseISO(value),
-});
-
-const float32Array = customType<{
-  data: number[];
-  config: { dimensions: number };
-  configRequired: true;
-  driverData: Buffer;
-}>({
-  dataType: (config) => `F32_BLOB(${config.dimensions})`,
-  fromDriver: (value) => Array.from(new Float32Array(value.buffer)),
-  toDriver: (value) => sql`vector32(${JSON.stringify(value)})`,
-});
-
-const baseModel = {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  createdAt: timestamp('created_at')
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: timestamp('updated_at')
-    .notNull()
-    .$defaultFn(() => new Date())
-    .$onUpdateFn(() => new Date()),
-};
+import { baseModel, timestamp } from './utils';
+import { libsqlVectorIdx, vectorType } from './utils/vector';
 
 export const users = sqliteTable(
   'users',
@@ -1422,16 +1390,23 @@ export const verseNotesRelations = relations(verseNotes, ({ one }) => ({
   }),
 }));
 
+export const sourceDocumentsEmbeddingIdxName = 'source_documents_embedding_idx';
+
 export const sourceDocuments = sqliteTable(
   'source_documents',
   {
     ...baseModel,
-    embedding: float32Array('embedding', { dimensions: embeddingModel.dimensions }).notNull(),
+    embedding: vectorType('embedding', { dimensions: embeddingModel.dimensions }).notNull(),
     metadata: text('metadata', { mode: 'json' }).$type<Metadata>().notNull().default({}),
   },
   (table) => ({
-    embeddingIdx: index('source_documents_embedding_idx').on(
-      sql`libsql_vector_idx(${table.embedding})`,
+    embeddingIdx: index(sourceDocumentsEmbeddingIdxName).on(
+      libsqlVectorIdx(table.embedding, {
+        metric: 'cosine',
+        compressNeighbors: 'float8',
+        maxNeighbors: Math.floor(embeddingModel.dimensions / 6),
+        searchL: 100,
+      }),
     ),
   }),
 );

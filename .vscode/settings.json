@@ -12,6 +12,7 @@
     "flyio",
     "Groq",
     "Hnsw",
+    "libsql",
     "mistralai",
     "Mixtral",
     "NKJV",

@@ -1,7 +1,8 @@
 import { db } from '@/core/database';
 import { sourceDocuments } from '@/core/database/schema';
+import { vectorDistance, vectorTopK } from '@/core/database/utils/vector';
 import type { SourceDocument } from '@/schemas/source-documents/types';
-import { type SQL, asc, inArray, sql } from 'drizzle-orm';
+import { type SQL, asc, getTableColumns, inArray, sql } from 'drizzle-orm';
 import type { Embeddings } from './embeddings';
 import { embeddings } from './embeddings';
 import type { Document, DocumentWithScore } from './types/document';
@@ -93,28 +94,20 @@ export class VectorStore {
     query: string,
     options: SearchDocumentsOptions = searchDocumentsDefaults,
   ): Promise<DocumentWithScore[]> {
+    const limit = options.limit ?? searchDocumentsDefaults.limit;
     const queryEmbedding = await this.embeddings.embedQuery(query);
     const result = await db
       .select({
+        ...getTableColumns(sourceDocuments),
         ...(options.withEmbedding && { embedding: sourceDocuments.embedding }),
         ...(options.withMetadata && { metadata: sourceDocuments.metadata }),
-        ...{
-          id: sourceDocuments.id,
-          distance:
-            sql<number>`vector_distance_cos(${sourceDocuments.embedding},vector32(${JSON.stringify(queryEmbedding)}))`.as(
-              'distance',
-            ),
-          createdAt: sourceDocuments.createdAt,
-          updatedAt: sourceDocuments.updatedAt,
-        },
+        distance: vectorDistance(sourceDocuments.embedding, queryEmbedding).as('distance'),
       })
-      .from(
-        // ! Must use embedding index name from schema
-        sql`vector_top_k('source_documents_embedding_idx',vector32(${JSON.stringify(queryEmbedding)}),${options.limit}) as top_k`,
-      )
+      .from(sql`${vectorTopK(queryEmbedding, limit)} as top_k`)
       .innerJoin(sourceDocuments, sql`${sourceDocuments.id} = top_k.id`)
       .where(options.filter)
-      .orderBy(asc(sql`distance`));
+      .orderBy(asc(sql`distance`))
+      .limit(limit);
 
     return result.map((r) => {
       const { content, ...metadata } = r.metadata ?? {};
@@ -135,9 +128,13 @@ export class VectorStore {
     const result = (await this.client.query.sourceDocuments.findMany({
       where: inArray(sourceDocuments.id, ids),
       columns: {
-        id: true,
-        createdAt: true,
-        updatedAt: true,
+        ...Object.keys(getTableColumns(sourceDocuments)).reduce(
+          (acc, key) => {
+            acc[key] = true;
+            return acc;
+          },
+          {} as Record<string, boolean>,
+        ),
         embedding: options.withEmbedding ?? getDocumentsDefaults.withEmbedding,
         metadata: options.withMetadata ?? getDocumentsDefaults.withMetadata,
       },
