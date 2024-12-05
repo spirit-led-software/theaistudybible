@@ -248,7 +248,14 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 </Button>
               }
             >
-              <Button type='button' size='icon' variant='outline' onClick={stop}>
+              <Button
+                type='button'
+                size='icon'
+                variant='outline'
+                class='rounded-full'
+                aria-label='Stop generating response'
+                onClick={stop}
+              >
                 <StopCircle size={20} />
               </Button>
             </Show>
