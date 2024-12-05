@@ -12,7 +12,6 @@ import { A } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Output, generateText } from 'ai';
-import {} from 'drizzle-orm';
 import { For } from 'solid-js';
 import { z } from 'zod';
 
