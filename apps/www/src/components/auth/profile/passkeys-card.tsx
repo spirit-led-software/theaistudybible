@@ -307,7 +307,7 @@ export function PasskeysCard() {
             </DialogHeader>
             <div class='space-y-4'>
               <div class='space-y-2'>
-                <label for='passkey-name' class='text-sm font-medium'>
+                <label for='passkey-name' class='font-medium text-sm'>
                   Passkey Name <span class='text-muted-foreground'>(optional)</span>
                 </label>
                 <input
