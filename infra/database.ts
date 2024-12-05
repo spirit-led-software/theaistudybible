@@ -60,3 +60,22 @@ export const upstashRedis = new upstash.RedisDatabase(
   },
   { retainOnDelete: isProd },
 );
+
+sst.Linkable.wrap(upstash.VectorIndex, (resource) => ({
+  properties: {
+    restUrl: $interpolate`https://${resource.endpoint}`,
+    restToken: resource.token,
+    readOnlyRestToken: resource.readOnlyToken,
+  },
+}));
+export const upstashVectorIndex = new upstash.VectorIndex(
+  'UpstashVectorIndex',
+  {
+    name: `${$app.name}-${$app.stage}`,
+    region: 'eu-west-1',
+    dimensionCount: 1536,
+    similarityFunction: 'COSINE',
+    type: 'payg',
+  },
+  { retainOnDelete: isProd },
+);

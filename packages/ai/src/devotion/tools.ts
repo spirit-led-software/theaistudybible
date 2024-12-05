@@ -1,6 +1,4 @@
-import { sourceDocuments } from '@/core/database/schema';
 import { tool } from 'ai';
-import { sql } from 'drizzle-orm';
 import { z } from 'zod';
 import type { DocumentWithScore } from '../types/document';
 import { vectorStore } from '../vector-store';
@@ -19,7 +17,7 @@ export const bibleVectorStoreTool = tool({
       await Promise.all(
         terms.map((term) =>
           vectorStore.searchDocuments(term, {
-            filter: sql`${sourceDocuments.metadata}->>'type' = 'bible'`,
+            filter: 'type = "bible"',
             limit: 12,
             withMetadata: true,
             withEmbedding: false,

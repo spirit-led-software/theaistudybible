@@ -1,25 +1,26 @@
-import { db } from '@/core/database';
-import { sourceDocuments } from '@/core/database/schema';
-import { vectorDistance, vectorTopK } from '@/core/database/utils/vector';
-import type { SourceDocument } from '@/schemas/source-documents/types';
-import { type SQL, asc, getTableColumns, inArray, sql } from 'drizzle-orm';
+import type { Prettify } from '@/core/types/util';
+import { Index } from '@upstash/vector';
+import { Resource } from 'sst';
 import type { Embeddings } from './embeddings';
 import { embeddings } from './embeddings';
 import type { Document, DocumentWithScore } from './types/document';
 
 export type AddDocumentsOptions = {
+  namespace?: string;
   overwrite?: boolean;
 };
 const addDocumentsDefaults = {
+  namespace: undefined,
   overwrite: false,
 } as const satisfies AddDocumentsOptions;
 
 export type SearchDocumentsOptions = {
-  filter?: SQL<unknown>;
+  filter?: Prettify<VectorStore['FilterType']>;
   scoreThreshold?: number;
   withEmbedding?: boolean;
   withMetadata?: boolean;
   limit?: number;
+  namespace?: string;
 };
 const searchDocumentsDefaults = {
   withEmbedding: false,
@@ -38,55 +39,71 @@ const getDocumentsDefaults = {
 } as const satisfies GetDocumentsOptions;
 
 export class VectorStore {
-  public static MAX_UPSERT_BATCH_SIZE = 100;
-  public static MAX_DELETE_BATCH_SIZE = 100;
+  declare FilterType: string;
+  private readonly embeddings: Embeddings;
+  private readonly client: Index;
 
-  constructor(
-    private readonly client: typeof db,
-    private readonly embeddings: Embeddings,
-  ) {}
+  public static MAX_UPSERT_BATCH_SIZE = 1000;
+  public static MAX_DELETE_BATCH_SIZE = 1000;
+
+  constructor(embeddings: Embeddings) {
+    this.embeddings = embeddings;
+    this.client = new Index({
+      url: Resource.UpstashVectorIndex.restUrl,
+      token: Resource.UpstashVectorIndex.restToken,
+    });
+  }
 
   async addDocuments(
     docs: Document[],
     options: AddDocumentsOptions = addDocumentsDefaults,
   ): Promise<string[]> {
     const docsWithEmbeddings = await this.embeddings.embedDocuments(docs);
-    for (let i = 0; i < docsWithEmbeddings.length; i += VectorStore.MAX_UPSERT_BATCH_SIZE) {
-      let batch = docsWithEmbeddings.slice(i, i + VectorStore.MAX_UPSERT_BATCH_SIZE);
+    const batches = Math.ceil(docsWithEmbeddings.length / VectorStore.MAX_UPSERT_BATCH_SIZE);
+    for (let i = 0; i < batches; i++) {
+      let batch = docsWithEmbeddings.slice(
+        i * VectorStore.MAX_UPSERT_BATCH_SIZE,
+        (i + 1) * VectorStore.MAX_UPSERT_BATCH_SIZE,
+      );
 
-      let existingDocs: SourceDocument[] = [];
+      let existingDocs: Document[] = [];
       if (options.overwrite === false) {
-        existingDocs = await this.client.query.sourceDocuments.findMany({
-          where: (sourceDocuments, { inArray }) =>
-            inArray(
-              sourceDocuments.id,
-              batch.map((d) => d.id),
-            ),
-        });
+        existingDocs = await this.client
+          .fetch(
+            batch.map((d) => d.id),
+            {
+              includeMetadata: false,
+              includeVectors: false,
+              namespace: options.namespace,
+            },
+          )
+          .then((r) => r.filter((d) => d !== null) as Document[]);
         batch = batch.filter((d) => !existingDocs.some((e) => e.id === d.id));
       }
 
-      await this.client.insert(sourceDocuments).values(
-        batch.map(
-          (d) =>
-            ({
-              id: d.id,
-              embedding: d.embedding,
-              metadata: {
-                content: d.content,
-                ...d.metadata,
-              },
-            }) satisfies typeof sourceDocuments.$inferInsert,
-        ),
+      await this.client.upsert(
+        batch.map((d) => ({
+          id: d.id,
+          vector: d.embedding,
+          metadata: {
+            content: d.content,
+            ...d.metadata,
+          },
+        })),
+        { namespace: options.namespace },
       );
     }
     return docsWithEmbeddings.map((d) => d.id);
   }
 
   async deleteDocuments(ids: string[]): Promise<void> {
-    for (let i = 0; i < ids.length; i += VectorStore.MAX_DELETE_BATCH_SIZE) {
-      const batch = ids.slice(i, i + VectorStore.MAX_DELETE_BATCH_SIZE);
-      await this.client.delete(sourceDocuments).where(inArray(sourceDocuments.id, batch));
+    const batches = Math.ceil(ids.length / VectorStore.MAX_DELETE_BATCH_SIZE);
+    for (let i = 0; i < batches; i++) {
+      const batch = ids.slice(
+        i * VectorStore.MAX_DELETE_BATCH_SIZE,
+        (i + 1) * VectorStore.MAX_DELETE_BATCH_SIZE,
+      );
+      await this.client.delete(batch);
     }
   }
 
@@ -94,29 +111,25 @@ export class VectorStore {
     query: string,
     options: SearchDocumentsOptions = searchDocumentsDefaults,
   ): Promise<DocumentWithScore[]> {
-    const limit = options.limit ?? searchDocumentsDefaults.limit;
-    const queryEmbedding = await this.embeddings.embedQuery(query);
-    const result = await db
-      .select({
-        ...getTableColumns(sourceDocuments),
-        ...(options.withEmbedding && { embedding: sourceDocuments.embedding }),
-        ...(options.withMetadata && { metadata: sourceDocuments.metadata }),
-        distance: vectorDistance(sourceDocuments.embedding, queryEmbedding).as('distance'),
-      })
-      .from(sql`${vectorTopK(queryEmbedding, limit)} as top_k`)
-      .innerJoin(sourceDocuments, sql`${sourceDocuments.id} = top_k.id`)
-      .where(options.filter)
-      .orderBy(asc(sql`distance`))
-      .limit(limit);
+    const result = await this.client.query(
+      {
+        vector: await this.embeddings.embedQuery(query),
+        topK: options.limit ?? searchDocumentsDefaults.limit ?? 20,
+        filter: options.filter ?? searchDocumentsDefaults.filter,
+        includeMetadata: options.withMetadata ?? searchDocumentsDefaults.withMetadata,
+        includeVectors: options.withEmbedding ?? searchDocumentsDefaults.withEmbedding,
+      },
+      { namespace: options.namespace },
+    );
 
     return result.map((r) => {
       const { content, ...metadata } = r.metadata ?? {};
       return {
         id: r.id.toString(),
         content: content as string,
-        embedding: r.embedding ?? undefined,
+        embedding: r.vector,
         metadata,
-        score: r.distance,
+        score: r.score,
       };
     });
   }
@@ -125,20 +138,10 @@ export class VectorStore {
     ids: string[],
     options: GetDocumentsOptions = getDocumentsDefaults,
   ): Promise<Document[]> {
-    const result = (await this.client.query.sourceDocuments.findMany({
-      where: inArray(sourceDocuments.id, ids),
-      columns: {
-        ...Object.keys(getTableColumns(sourceDocuments)).reduce(
-          (acc, key) => {
-            acc[key] = true;
-            return acc;
-          },
-          {} as Record<string, boolean>,
-        ),
-        embedding: options.withEmbedding ?? getDocumentsDefaults.withEmbedding,
-        metadata: options.withMetadata ?? getDocumentsDefaults.withMetadata,
-      },
-    })) as (Pick<SourceDocument, 'id' | 'createdAt' | 'updatedAt'> & Partial<SourceDocument>)[];
+    const result = await this.client.fetch(ids, {
+      includeMetadata: options.withMetadata ?? getDocumentsDefaults.withMetadata,
+      includeVectors: options.withEmbedding ?? getDocumentsDefaults.withEmbedding,
+    });
     return result
       .filter((r) => r !== null)
       .map((r) => {
@@ -146,11 +149,11 @@ export class VectorStore {
         return {
           id: r.id.toString(),
           content: content as string,
-          embedding: r.embedding ?? undefined,
+          embedding: r.vector as number[],
           metadata,
         };
       });
   }
 }
 
-export const vectorStore = new VectorStore(db, embeddings);
+export const vectorStore = new VectorStore(embeddings);

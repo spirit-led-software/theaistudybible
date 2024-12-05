@@ -1,6 +1,5 @@
 import { registry } from '@/ai/provider-registry';
 import { vectorStore } from '@/ai/vector-store';
-import { sourceDocuments } from '@/core/database/schema';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button, buttonVariants } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
@@ -13,7 +12,7 @@ import { A } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Output, generateText } from 'ai';
-import { eq, ne, or, sql } from 'drizzle-orm';
+import {} from 'drizzle-orm';
 import { For } from 'solid-js';
 import { z } from 'zod';
 
@@ -44,10 +43,7 @@ ${text}`,
         withMetadata: true,
         withEmbedding: false,
         limit: Math.ceil(maxDocs / searchTerms.length),
-        filter: or(
-          eq(sql`${sourceDocuments.metadata}->>'bibleId'`, bibleId),
-          ne(sql`${sourceDocuments.metadata}->>'type'`, 'bible'),
-        ), // Get references from the same bible OR non-bible references like commentaries
+        filter: `bibleId = "${bibleId}" or type != "bible"`, // Get references from the same bible OR non-bible references like commentaries
       }),
     ),
   ).then((results) =>

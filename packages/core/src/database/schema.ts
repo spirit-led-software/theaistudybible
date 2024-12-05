@@ -1,4 +1,3 @@
-import { embeddingModel } from '@/ai/models';
 import type { Content } from '@/schemas/bibles/contents';
 import type { Metadata } from '@/schemas/utils/types';
 import type { FinishReason, JSONValue, ToolInvocation } from 'ai';
@@ -18,7 +17,6 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { createId } from '../utils/id';
 import { baseModel, timestamp } from './utils';
-import { libsqlVectorIdx, vectorType } from './utils/vector';
 
 export const users = sqliteTable(
   'users',
@@ -377,9 +375,7 @@ export const messagesToSourceDocuments = sqliteTable(
     messageId: text('message_id')
       .notNull()
       .references(() => messages.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id')
-      .notNull()
-      .references(() => sourceDocuments.id),
+    sourceDocumentId: text('source_document_id').notNull(),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -492,9 +488,7 @@ export const userGeneratedImagesToSourceDocuments = sqliteTable(
     userGeneratedImageId: text('user_generated_image_id')
       .notNull()
       .references(() => userGeneratedImages.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id')
-      .notNull()
-      .references(() => sourceDocuments.id),
+    sourceDocumentId: text('source_document_id').notNull(),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -619,9 +613,7 @@ export const devotionsToSourceDocuments = sqliteTable(
     devotionId: text('devotion_id')
       .notNull()
       .references(() => devotions.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id')
-      .notNull()
-      .references(() => sourceDocuments.id),
+    sourceDocumentId: text('source_document_id').notNull(),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -689,9 +681,7 @@ export const dataSourcesToSourceDocuments = sqliteTable(
     dataSourceId: text('data_source_id')
       .notNull()
       .references(() => dataSources.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id')
-      .notNull()
-      .references(() => sourceDocuments.id),
+    sourceDocumentId: text('source_document_id').notNull(),
   },
   (table) => ({
     dataSourceSourceDocumentKey: primaryKey({
@@ -1187,9 +1177,7 @@ export const chaptersToSourceDocuments = sqliteTable(
     chapterId: text('chapter_id')
       .notNull()
       .references(() => chapters.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id')
-      .notNull()
-      .references(() => sourceDocuments.id),
+    sourceDocumentId: text('source_document_id').notNull(),
   },
   (table) => ({
     primaryKey: primaryKey({
@@ -1389,24 +1377,3 @@ export const verseNotesRelations = relations(verseNotes, ({ one }) => ({
     references: [verses.id],
   }),
 }));
-
-export const sourceDocumentsEmbeddingIdxName = 'source_documents_embedding_idx';
-
-export const sourceDocuments = sqliteTable(
-  'source_documents',
-  {
-    ...baseModel,
-    embedding: vectorType('embedding', { dimensions: embeddingModel.dimensions }).notNull(),
-    metadata: text('metadata', { mode: 'json' }).$type<Metadata>().notNull().default({}),
-  },
-  (table) => ({
-    embeddingIdx: index(sourceDocumentsEmbeddingIdxName).on(
-      libsqlVectorIdx(table.embedding, {
-        metric: 'cosine',
-        compressNeighbors: 'float8',
-        maxNeighbors: Math.floor(embeddingModel.dimensions / 6),
-        searchL: 100,
-      }),
-    ),
-  }),
-);
