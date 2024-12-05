@@ -375,7 +375,9 @@ export const messagesToSourceDocuments = sqliteTable(
     messageId: text('message_id')
       .notNull()
       .references(() => messages.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id').notNull(),
+    sourceDocumentId: text('source_document_id')
+      .notNull()
+      .references(() => sourceDocuments.id),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -488,7 +490,9 @@ export const userGeneratedImagesToSourceDocuments = sqliteTable(
     userGeneratedImageId: text('user_generated_image_id')
       .notNull()
       .references(() => userGeneratedImages.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id').notNull(),
+    sourceDocumentId: text('source_document_id')
+      .notNull()
+      .references(() => sourceDocuments.id),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -613,7 +617,9 @@ export const devotionsToSourceDocuments = sqliteTable(
     devotionId: text('devotion_id')
       .notNull()
       .references(() => devotions.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id').notNull(),
+    sourceDocumentId: text('source_document_id')
+      .notNull()
+      .references(() => sourceDocuments.id),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -681,7 +687,9 @@ export const dataSourcesToSourceDocuments = sqliteTable(
     dataSourceId: text('data_source_id')
       .notNull()
       .references(() => dataSources.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id').notNull(),
+    sourceDocumentId: text('source_document_id')
+      .notNull()
+      .references(() => sourceDocuments.id),
   },
   (table) => ({
     dataSourceSourceDocumentKey: primaryKey({
@@ -1177,7 +1185,9 @@ export const chaptersToSourceDocuments = sqliteTable(
     chapterId: text('chapter_id')
       .notNull()
       .references(() => chapters.id, { onDelete: 'cascade' }),
-    sourceDocumentId: text('source_document_id').notNull(),
+    sourceDocumentId: text('source_document_id')
+      .notNull()
+      .references(() => sourceDocuments.id),
   },
   (table) => ({
     primaryKey: primaryKey({
@@ -1377,3 +1387,7 @@ export const verseNotesRelations = relations(verseNotes, ({ one }) => ({
     references: [verses.id],
   }),
 }));
+
+export const sourceDocuments = sqliteTable('source_documents', {
+  ...baseModel,
+});

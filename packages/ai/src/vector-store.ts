@@ -1,5 +1,8 @@
+import { db } from '@/core/database';
+import { sourceDocuments } from '@/core/database/schema';
 import type { Prettify } from '@/core/types/util';
 import { Index } from '@upstash/vector';
+import { inArray } from 'drizzle-orm';
 import { Resource } from 'sst';
 import type { Embeddings } from './embeddings';
 import { embeddings } from './embeddings';
@@ -40,14 +43,12 @@ const getDocumentsDefaults = {
 
 export class VectorStore {
   declare FilterType: string;
-  private readonly embeddings: Embeddings;
   private readonly client: Index;
 
   public static MAX_UPSERT_BATCH_SIZE = 1000;
   public static MAX_DELETE_BATCH_SIZE = 1000;
 
-  constructor(embeddings: Embeddings) {
-    this.embeddings = embeddings;
+  constructor(private readonly embeddings: Embeddings) {
     this.client = new Index({
       url: Resource.UpstashVectorIndex.restUrl,
       token: Resource.UpstashVectorIndex.restToken,
@@ -81,17 +82,27 @@ export class VectorStore {
         batch = batch.filter((d) => !existingDocs.some((e) => e.id === d.id));
       }
 
-      await this.client.upsert(
-        batch.map((d) => ({
-          id: d.id,
-          vector: d.embedding,
-          metadata: {
-            content: d.content,
-            ...d.metadata,
-          },
-        })),
-        { namespace: options.namespace },
-      );
+      await Promise.all([
+        this.client.upsert(
+          batch.map((d) => ({
+            id: d.id,
+            vector: d.embedding,
+            metadata: {
+              content: d.content,
+              ...d.metadata,
+            },
+          })),
+          { namespace: options.namespace },
+        ),
+        db.insert(sourceDocuments).values(
+          batch.map(
+            (d) =>
+              ({
+                id: d.id,
+              }) satisfies typeof sourceDocuments.$inferInsert,
+          ),
+        ),
+      ]);
     }
     return docsWithEmbeddings.map((d) => d.id);
   }
@@ -103,7 +114,10 @@ export class VectorStore {
         i * VectorStore.MAX_DELETE_BATCH_SIZE,
         (i + 1) * VectorStore.MAX_DELETE_BATCH_SIZE,
       );
-      await this.client.delete(batch);
+      await Promise.all([
+        this.client.delete(batch),
+        db.delete(sourceDocuments).where(inArray(sourceDocuments.id, batch)),
+      ]);
     }
   }
 

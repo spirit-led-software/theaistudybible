@@ -1,4 +1,3 @@
-import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import * as schema from '@/core/database/schema';
 import { buildConflictUpdateColumns } from '@/core/database/utils';
@@ -87,13 +86,13 @@ async function findExistingBible(abbreviation: string, overwrite: boolean) {
     where: eq(schema.bibles.abbreviation, abbreviation),
   });
 
-  if (bible && !overwrite) {
-    throw new Error(
-      `Bible ${abbreviation} already exists. ID: ${bible.id}. Use --overwrite to replace it.`,
-    );
-  }
-
   if (bible) {
+    if (!overwrite) {
+      throw new Error(
+        `Bible ${abbreviation} already exists. ID: ${bible.id}. Use --overwrite to replace it.`,
+      );
+    }
+
     console.log(`Bible ${abbreviation} already exists. Deleting...`);
     await deleteBibleAndEmbeddings(bible.id);
     return undefined;
@@ -103,34 +102,7 @@ async function findExistingBible(abbreviation: string, overwrite: boolean) {
 }
 
 async function deleteBibleAndEmbeddings(bibleId: string) {
-  const sourceDocIds = await getSourceDocIds(bibleId);
-  await Promise.all([
-    db.delete(schema.bibles).where(eq(schema.bibles.id, bibleId)),
-    sourceDocIds.length && vectorStore.deleteDocuments(sourceDocIds),
-  ]);
-}
-
-async function getSourceDocIds(bibleId: string) {
-  const bible = await db.query.bibles.findFirst({
-    where: (bibles, { eq }) => eq(bibles.id, bibleId),
-    columns: { id: true },
-    with: {
-      chapters: {
-        columns: { id: true },
-        with: {
-          chaptersToSourceDocuments: {
-            columns: { sourceDocumentId: true },
-          },
-        },
-      },
-    },
-  });
-
-  return (
-    bible?.chapters.flatMap((chapter) =>
-      chapter.chaptersToSourceDocuments.map((c) => c.sourceDocumentId),
-    ) ?? []
-  );
+  await db.delete(schema.bibles).where(eq(schema.bibles.id, bibleId));
 }
 
 async function createNewBible(metadata: DBLMetadata, abbreviation: string) {
