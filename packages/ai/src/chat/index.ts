@@ -7,15 +7,9 @@ import {
 } from '@/core/database/schema';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { DataStreamWriter } from 'ai';
-import {
-  Output,
-  generateText,
-  streamText,
-  experimental_wrapLanguageModel as wrapLanguageModel,
-} from 'ai';
+import { Output, generateText, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { cacheMiddleware } from '../middleware/caching';
 import { defaultChatModel } from '../models';
 import { registry } from '../provider-registry';
 import { messagesToString } from '../utils';
@@ -83,10 +77,12 @@ export type CreateChatChainOptions = Omit<
 };
 
 export const createChatChain = (options: CreateChatChainOptions) => {
-  const model = wrapLanguageModel({
-    model: registry.languageModel(options.modelId),
-    middleware: cacheMiddleware,
-  });
+  // TODO: Uncomment this once bun fixes this issue: https://github.com/oven-sh/bun/issues/13072
+  // const model = wrapLanguageModel({
+  //   model: registry.languageModel(options.modelId),
+  //   middleware: cacheMiddleware,
+  // });
+  const model = registry.languageModel(options.modelId);
   return (messages: Pick<Message, 'role' | 'content'>[]) => {
     const resolvedTools = tools({ userId: options.userId });
     return streamText({

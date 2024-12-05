@@ -1,3 +1,4 @@
+// TODO: Use this once bun fixes this issue: https://github.com/oven-sh/bun/issues/13072
 import { cache } from '@/core/cache';
 import type {
   LanguageModelV1,
