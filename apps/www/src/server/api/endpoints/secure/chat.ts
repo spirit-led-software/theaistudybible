@@ -239,6 +239,7 @@ const app = new Hono<{
               });
             },
             experimental_toolCallStreaming: true,
+            abortSignal: c.req.raw.signal,
           });
 
           const result = streamText(messages);

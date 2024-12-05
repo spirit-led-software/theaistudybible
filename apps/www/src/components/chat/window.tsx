@@ -3,8 +3,8 @@ import { useChat } from '@/www/hooks/use-chat';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
-import { ChevronDown, ChevronUp, Send } from 'lucide-solid';
-import { For, Match, Show, Switch, createEffect, createMemo, on } from 'solid-js';
+import { ChevronDown, ChevronUp, Send, StopCircle } from 'lucide-solid';
+import { For, Show, createEffect, createMemo, on } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
@@ -41,6 +41,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
     messages,
     messagesQuery,
     append,
+    stop,
     addToolResult,
     chatQuery,
     followUpSuggestionsQuery,
@@ -232,7 +233,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 aria-label='Message input'
               />
             </TextField>
-            <Switch
+            <Show
+              when={!isLoading()}
               fallback={
                 <Button
                   type='submit'
@@ -246,10 +248,10 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 </Button>
               }
             >
-              <Match when={isLoading()} keyed>
-                <Spinner size='sm' aria-label='Sending message' />
-              </Match>
-            </Switch>
+              <Button type='button' size='icon' variant='outline' onClick={stop}>
+                <StopCircle size={20} />
+              </Button>
+            </Show>
           </div>
         </form>
       </div>
