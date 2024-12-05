@@ -7,9 +7,15 @@ import {
 } from '@/core/database/schema';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { DataStreamWriter } from 'ai';
-import { Output, generateText, streamText } from 'ai';
+import {
+  Output,
+  generateText,
+  streamText,
+  experimental_wrapLanguageModel as wrapLanguageModel,
+} from 'ai';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import { cacheMiddleware } from '../middleware/caching';
 import { defaultChatModel } from '../models';
 import { registry } from '../provider-registry';
 import { messagesToString } from '../utils';
@@ -77,11 +83,15 @@ export type CreateChatChainOptions = Omit<
 };
 
 export const createChatChain = (options: CreateChatChainOptions) => {
+  const model = wrapLanguageModel({
+    model: registry.languageModel(options.modelId),
+    middleware: cacheMiddleware,
+  });
   return (messages: Pick<Message, 'role' | 'content'>[]) => {
     const resolvedTools = tools({ userId: options.userId });
     return streamText({
       ...options,
-      model: registry.languageModel(options.modelId),
+      model,
       system: `You are an expert on Christian faith and theology. Your goal is to answer questions about the Christian faith. You may also be provided with additional context to help you answer the question.
 
 Here are some additional rules for you to follow:

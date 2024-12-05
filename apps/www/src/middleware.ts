@@ -1,27 +1,34 @@
 import { lucia } from '@/core/auth';
+import { cache } from '@/core/cache';
 import { db } from '@/core/database';
 import { userCredits } from '@/core/database/schema';
 import { createId } from '@/core/utils/id';
 import { sentryBeforeResponseMiddleware } from '@sentry/solidstart';
 import { createMiddleware } from '@solidjs/start/middleware';
+import { Ratelimit } from '@upstash/ratelimit';
 import { add, isAfter } from 'date-fns';
 import { sql } from 'drizzle-orm';
 import { eq } from 'drizzle-orm';
 import { Resource } from 'sst';
-import { getCookie, setCookie } from 'vinxi/http';
+import { getCookie, getHeader, setCookie } from 'vinxi/http';
+
+const ratelimit = new Ratelimit({
+  redis: cache,
+  limiter: Ratelimit.slidingWindow(2000, '1 m'),
+});
 
 export default createMiddleware({
   onRequest: [
     // Logging Middleware
-    async ({ request, locals }) => {
+    async ({ nativeEvent, request, locals }) => {
       const requestId = createId();
       locals.requestId = requestId;
 
       const url = new URL(request.url);
-      const userAgent = request.headers.get('user-agent') ?? 'unknown';
+      const userAgent = getHeader(nativeEvent, 'user-agent') ?? 'unknown';
       const ip =
-        request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
-        request.headers.get('x-real-ip') ??
+        getHeader(nativeEvent, 'x-forwarded-for')?.split(',')[0].trim() ??
+        getHeader(nativeEvent, 'x-real-ip') ??
         'unknown';
 
       console.log(`${requestId} <-- ${request.method} ${url.pathname}`);
@@ -30,6 +37,25 @@ export default createMiddleware({
       if (Resource.Dev.value === 'true') {
         const body = await request.clone().text();
         if (body) console.log(`\t\t${body}`);
+      }
+    },
+    // Rate Limiting Middleware
+    async ({ nativeEvent }) => {
+      const ip =
+        getHeader(nativeEvent, 'x-forwarded-for')?.split(',')[0].trim() ??
+        getHeader(nativeEvent, 'x-real-ip') ??
+        'ip';
+
+      const { success, limit, remaining, reset } = await ratelimit.limit(`toplevel:${ip}`);
+      if (!success) {
+        return new Response('Too Many Requests', {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': remaining.toString(),
+            'X-RateLimit-Reset': reset.toString(),
+          },
+        });
       }
     },
     // Auth Middleware
