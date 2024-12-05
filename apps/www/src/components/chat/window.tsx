@@ -234,7 +234,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               />
             </TextField>
             <Show
-              when={!isLoading()}
+              when={isLoading()}
               fallback={
                 <Button
                   type='submit'
