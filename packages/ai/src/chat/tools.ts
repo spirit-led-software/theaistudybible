@@ -9,20 +9,12 @@ import { s3 } from '@/core/storage';
 import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
 import { createId } from '@/core/utils/id';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { type DataStreamWriter, tool } from 'ai';
+import { tool } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { openai } from '../provider-registry';
 import type { DocumentWithScore } from '../types/document';
 import { vectorStore } from '../vector-store';
-
-export const askForConfirmationTool = tool({
-  description:
-    'Ask for Confirmation: Ask the user for confirmation to use another one of your tools.',
-  parameters: z.object({
-    message: z.string().describe('The message you want to ask the user to confirm.'),
-  }),
-});
 
 export const askForHighlightColorTool = tool({
   description: 'Ask for Highlight Color: Ask which color to use when highlighting a verse.',
@@ -34,7 +26,7 @@ export const askForHighlightColorTool = tool({
 export const highlightVerseTool = (options: { userId: string }) =>
   tool({
     description:
-      'Highlight Verse: Highlight a verse in the Bible. You must always ask the user for confirmation and the highlight color before using this tool.',
+      'Highlight Verse: Highlight a verse in the Bible. You must always ask the user for the highlight color using the "Ask for Highlight Color" tool before using this tool.',
     parameters: z.object({
       bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
       bookName: z.string().describe('The name or abbreviation of the book the verse is from.'),
@@ -118,8 +110,7 @@ export const highlightVerseTool = (options: { userId: string }) =>
 
 export const bookmarkVerseTool = (options: { userId: string }) =>
   tool({
-    description:
-      'Bookmark Verse: Bookmark a verse in the Bible. You must always ask the user for confirmation before using this tool.',
+    description: 'Bookmark Verse: Bookmark a verse in the Bible.',
     parameters: z.object({
       bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
       bookName: z.string().describe('The name or abbreviation of the book the verse is from.'),
@@ -204,8 +195,7 @@ export const bookmarkVerseTool = (options: { userId: string }) =>
 
 export const bookmarkChapterTool = (options: { userId: string }) =>
   tool({
-    description:
-      'Bookmark Chapter: Bookmark a chapter in the Bible. You must always ask the user for confirmation before using this tool.',
+    description: 'Bookmark Chapter: Bookmark a chapter in the Bible.',
     parameters: z.object({
       bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
       bookName: z.string().describe('The name or abbreviation of the book the verse is from.'),
@@ -277,8 +267,7 @@ export const bookmarkChapterTool = (options: { userId: string }) =>
   });
 
 export const vectorStoreTool = tool({
-  description:
-    'Vector Store: Fetch relevant resources for your answer. This tool does not require confirmation.',
+  description: 'Vector Store: Fetch relevant resources for your answer.',
   parameters: z.object({
     terms: z
       .array(z.string())
@@ -310,13 +299,10 @@ export const vectorStoreTool = tool({
   },
 });
 
-export const generateImageTool = (input: {
-  userId: string;
-  dataStream: DataStreamWriter;
-}) =>
+export const generateImageTool = (input: { userId: string }) =>
   tool({
     description:
-      'Generate Image: Generate an image from a text prompt. You must use the "Vector Store" tool to fetch relevant resources to make your prompt more detailed. You must always ask the user for confirmation before using this tool.',
+      'Generate Image: Generate an image from a text prompt. You must use the "Vector Store" tool to fetch relevant resources to make your prompt more detailed.',
     parameters: z.object({
       prompt: z
         .string()
@@ -340,8 +326,6 @@ export const generateImageTool = (input: {
         } as const;
       }
 
-      // Ping the stream every 200ms to avoid idle connection timeout
-      const pingInterval = setInterval(() => input.dataStream.writeData('ping'), 200);
       try {
         const generateImageResponse = await openai.images.generate({
           prompt,
@@ -397,36 +381,11 @@ export const generateImageTool = (input: {
           status: 'error',
           message: 'An unknown error occurred. Please try again later.',
         } as const;
-      } finally {
-        // Clear the ping interval to avoid memory leak
-        clearInterval(pingInterval);
       }
     },
   });
 
-export const saveContextTool = tool({
-  description:
-    'Save Context: Save additional context to the conversation history. You do not need to ask the user for confirmation before using this tool.',
-  parameters: z.object({
-    context: z
-      .string()
-      .describe(
-        'The context to save to the conversation history. This must be plain text, not markdown.',
-      ),
-  }),
-  execute: ({ context }) =>
-    Promise.resolve({
-      status: 'success',
-      message: 'Context saved',
-      context,
-    } as const),
-});
-
-export const tools = (input: {
-  dataStream: DataStreamWriter;
-  userId: string;
-}) => ({
-  askForConfirmation: askForConfirmationTool,
+export const tools = (input: { userId: string }) => ({
   askForHighlightColor: askForHighlightColorTool,
   highlightVerse: highlightVerseTool({
     userId: input.userId,
@@ -439,8 +398,6 @@ export const tools = (input: {
   }),
   generateImage: generateImageTool({
     userId: input.userId,
-    dataStream: input.dataStream,
   }),
   vectorStore: vectorStoreTool,
-  saveContext: saveContextTool,
 });

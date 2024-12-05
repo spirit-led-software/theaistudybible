@@ -200,8 +200,12 @@ const app = new Hono<{
 
       const lastUserMessage = messages.find((m) => m.role === 'user')!;
 
+      let pingInterval: Timer | undefined;
       const dataStream = createDataStream({
         execute: (dataStream) => {
+          // Ping the stream every 200ms to avoid idle connection timeout
+          pingInterval = setInterval(() => dataStream.writeData('ping'), 200);
+
           if (input.chatId !== chat.id) {
             dataStream.writeData({ chatId: chat.id });
           }
@@ -223,6 +227,7 @@ const app = new Hono<{
               });
             },
             onFinish: async (event) => {
+              clearInterval(pingInterval);
               if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
                 pendingPromises.push(restoreCreditsOnFailure(c.var.user!.id, 'chat'));
               }
@@ -233,12 +238,14 @@ const app = new Hono<{
                 properties: { modelId, event },
               });
             },
+            experimental_toolCallStreaming: true,
           });
 
           const result = streamText(messages);
           result.mergeIntoDataStream(dataStream);
         },
         onError: (error) => {
+          clearInterval(pingInterval);
           return error instanceof Error ? error.message : String(error);
         },
       });

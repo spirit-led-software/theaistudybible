@@ -18,6 +18,10 @@ declare module "sst" {
       "type": "sst.sst.Linkable"
       "url": string
     }
+    "AnalyticsApiRouter": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "AnthropicApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -140,6 +144,14 @@ declare module "sst" {
       "restToken": string
       "restUrl": string
       "type": "upstash.index/vectorIndex.VectorIndex"
+    }
+    "WebAppBucket-1733414696567": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppCdnLoggingBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
     }
     "WebAppUrl": {
       "type": "asb.asb.Constant"

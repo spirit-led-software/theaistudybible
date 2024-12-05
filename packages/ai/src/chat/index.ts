@@ -3,6 +3,7 @@ import {
   chats,
   messages as messagesTable,
   messagesToSourceDocuments,
+  userGeneratedImagesToSourceDocuments,
 } from '@/core/database/schema';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { DataStreamWriter } from 'ai';
@@ -63,25 +64,23 @@ What's the new title?`,
   return chat;
 };
 
-export type CreateChatChainOptions = {
+export type CreateChatChainOptions = Omit<
+  Parameters<typeof streamText<ReturnType<typeof tools>>>[0],
+  'model' | 'system' | 'messages' | 'tools'
+> & {
   modelId: string;
   chatId: string;
   userMessageId: string;
   userId: string;
   dataStream: DataStreamWriter;
   additionalContext?: string | null;
-  maxTokens?: number;
-  onStepFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onStepFinish'];
-  onFinish?: Parameters<typeof streamText<ReturnType<typeof tools>>>[0]['onFinish'];
 };
 
 export const createChatChain = (options: CreateChatChainOptions) => {
   return (messages: Pick<Message, 'role' | 'content'>[]) => {
-    const resolvedTools = tools({
-      dataStream: options.dataStream,
-      userId: options.userId,
-    });
+    const resolvedTools = tools({ userId: options.userId });
     return streamText({
+      ...options,
       model: registry.languageModel(options.modelId),
       system: `You are an expert on Christian faith and theology. Your goal is to answer questions about the Christian faith. You may also be provided with additional context to help you answer the question.
 
@@ -104,8 +103,7 @@ ${options.additionalContext}
       // @ts-expect-error - Messages are not typed correctly
       messages,
       tools: resolvedTools,
-      maxTokens: options.maxTokens,
-      maxSteps: 5,
+      maxSteps: options.maxSteps ?? 5,
       onStepFinish: async (step) => {
         const [response] = await db
           .insert(messagesTable)
@@ -154,10 +152,30 @@ ${options.additionalContext}
                 )
                 // In case there are multiple results with the same document
                 .onConflictDoNothing();
+
+              const generateImageToolResult = step.toolResults.find(
+                (t) => t.toolName === 'generateImage',
+              );
+              if (generateImageToolResult && generateImageToolResult.result.status === 'success') {
+                options.dataStream.writeMessageAnnotation({
+                  generatedImageId: generateImageToolResult.result.image.id,
+                });
+                await db
+                  .insert(userGeneratedImagesToSourceDocuments)
+                  .values(
+                    toolResult.result.map((d) => ({
+                      userGeneratedImageId: generateImageToolResult.result.image!.id,
+                      sourceDocumentId: d.id,
+                      distance: 1 - d.score,
+                      distanceMetric: 'cosine' as const,
+                    })),
+                  )
+                  // In case there are multiple results with the same document
+                  .onConflictDoNothing();
+              }
             }
           }
         }
-
         return await options.onStepFinish?.(step);
       },
       onFinish: (event) => options.onFinish?.(event),
