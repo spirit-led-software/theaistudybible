@@ -184,7 +184,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 aria-label='Follow-up suggestions'
               >
                 <H6 class='text-center'>Follow-up Questions</H6>
-                <Carousel class='mx-16 overflow-x-visible'>
+                <Carousel data-corvu-no-drag class='mx-16 overflow-x-visible'>
                   <CarouselContent>
                     <For each={followUpSuggestionsQuery.data}>
                       {(suggestion, idx) => (
