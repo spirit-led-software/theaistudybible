@@ -13,29 +13,29 @@ export const bibleVectorStoreTool = tool({
       ),
   }),
   execute: async ({ terms }) => {
-    return (
-      await Promise.all(
-        terms.map((term) =>
-          vectorStore.searchDocuments(term, {
-            filter: 'type = "bible"',
-            limit: 12,
-            withMetadata: true,
-            withEmbedding: false,
-          }),
-        ),
-      )
-    )
-      .flat()
-      .reduce((unique, doc) => {
-        if (!unique.has(doc.id)) {
-          unique.set(doc.id, doc);
-        }
-        return unique;
-      }, new Map<string, DocumentWithScore>())
-      .values()
-      .toArray()
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 8);
+    return await Promise.all(
+      terms.map((term) =>
+        vectorStore.searchDocuments(term, {
+          filter: 'type = "bible"',
+          limit: 12,
+          withMetadata: true,
+          withEmbedding: false,
+        }),
+      ),
+    ).then((docs) =>
+      docs
+        .flat()
+        .reduce((unique, doc) => {
+          if (!unique.has(doc.id)) {
+            unique.set(doc.id, doc);
+          }
+          return unique;
+        }, new Map<string, DocumentWithScore>())
+        .values()
+        .toArray()
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8),
+    );
   },
 });
 
@@ -47,27 +47,27 @@ export const vectorStoreTool = tool({
       .describe('1 to 4 search terms or phrases that will be used to find relevant resources.'),
   }),
   execute: async ({ terms }) => {
-    return (
-      await Promise.all(
-        terms.map((term) =>
-          vectorStore.searchDocuments(term, {
-            limit: 8,
-            withMetadata: true,
-            withEmbedding: false,
-          }),
-        ),
-      )
-    )
-      .flat()
-      .reduce((unique, doc) => {
-        if (!unique.has(doc.id)) {
-          unique.set(doc.id, doc);
-        }
-        return unique;
-      }, new Map<string, DocumentWithScore>())
-      .values()
-      .toArray()
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 4);
+    return await Promise.all(
+      terms.map((term) =>
+        vectorStore.searchDocuments(term, {
+          limit: 8,
+          withMetadata: true,
+          withEmbedding: false,
+        }),
+      ),
+    ).then((docs) =>
+      docs
+        .flat()
+        .reduce((unique, doc) => {
+          if (!unique.has(doc.id)) {
+            unique.set(doc.id, doc);
+          }
+          return unique;
+        }, new Map<string, DocumentWithScore>())
+        .values()
+        .toArray()
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 4),
+    );
   },
 });
