@@ -145,7 +145,7 @@ declare module "sst" {
       "restUrl": string
       "type": "upstash.index/vectorIndex.VectorIndex"
     }
-    "WebAppBucket-1733414696567": {
+    "WebAppBucket-1733574734058": {
       "name": string
       "type": "sst.aws.Bucket"
     }
