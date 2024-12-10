@@ -13,7 +13,6 @@ import { tool } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { openai } from '../provider-registry';
-import type { DocumentWithScore } from '../types/document';
 import { vectorStore } from '../vector-store';
 
 export const askForHighlightColorTool = tool({
@@ -285,14 +284,7 @@ export const vectorStoreTool = tool({
     ).then((docs) =>
       docs
         .flat()
-        .reduce((unique, doc) => {
-          if (!unique.has(doc.id)) {
-            unique.set(doc.id, doc);
-          }
-          return unique;
-        }, new Map<string, DocumentWithScore>())
-        .values()
-        .toArray()
+        .filter((doc, index, self) => self.findIndex((d) => d.id === doc.id) === index)
         .sort((a, b) => b.score - a.score)
         .slice(0, 8),
     );

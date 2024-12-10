@@ -1,6 +1,7 @@
 {
   "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
+    "types": ["@types/node"],
     "baseUrl": "./",
     "paths": {
       "@/functions": ["./src"],

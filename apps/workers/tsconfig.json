@@ -5,7 +5,7 @@
     "lib": ["ESNext", "ESNext.AsyncIterable"],
     "module": "ESNext",
     "moduleResolution": "Node",
-    "types": ["@types/node", "@cloudflare/workers-types"],
+    "types": ["@cloudflare/workers-types"],
     "baseUrl": "./",
     "paths": {
       "@/workers": ["./src"],

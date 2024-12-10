@@ -1,6 +1,7 @@
 {
   "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
+    "types": ["@types/node", "@types/bun"],
     "baseUrl": "./",
     "paths": {
       "@/ai": ["./src"],

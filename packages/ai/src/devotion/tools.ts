@@ -1,6 +1,5 @@
 import { tool } from 'ai';
 import { z } from 'zod';
-import type { DocumentWithScore } from '../types/document';
 import { vectorStore } from '../vector-store';
 
 export const bibleVectorStoreTool = tool({
@@ -25,14 +24,7 @@ export const bibleVectorStoreTool = tool({
     ).then((docs) =>
       docs
         .flat()
-        .reduce((unique, doc) => {
-          if (!unique.has(doc.id)) {
-            unique.set(doc.id, doc);
-          }
-          return unique;
-        }, new Map<string, DocumentWithScore>())
-        .values()
-        .toArray()
+        .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
         .sort((a, b) => b.score - a.score)
         .slice(0, 8),
     );
@@ -58,14 +50,7 @@ export const vectorStoreTool = tool({
     ).then((docs) =>
       docs
         .flat()
-        .reduce((unique, doc) => {
-          if (!unique.has(doc.id)) {
-            unique.set(doc.id, doc);
-          }
-          return unique;
-        }, new Map<string, DocumentWithScore>())
-        .values()
-        .toArray()
+        .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
         .sort((a, b) => b.score - a.score)
         .slice(0, 4),
     );

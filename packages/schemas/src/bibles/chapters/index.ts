@@ -1,11 +1,12 @@
 import { chapters } from '@/core/database/schema';
 import { defaultRefine } from '@/schemas/utils/refine';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod';
 import { ContentSchema } from '../contents';
 
 const refine = {
   ...defaultRefine,
-  content: ContentSchema.array(),
+  content: z.lazy(() => ContentSchema.array()),
 };
 
 export const ChapterSchema = createSelectSchema(chapters, refine);

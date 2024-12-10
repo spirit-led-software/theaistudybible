@@ -9,6 +9,7 @@
     "types": ["@types/bun", "vinxi/types/client", "vite-plugin-pwa/solid"],
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
+    "baseUrl": "./",
     "paths": {
       "@/www": ["./src"],
       "@/www/*": ["./src/*"],
