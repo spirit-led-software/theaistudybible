@@ -175,7 +175,7 @@ export function VerseReader(props: VerseReaderProps) {
   );
 
   return (
-    <div class='relative flex max-w-3xl flex-col items-center px-8 py-5' ref={setContainerRef}>
+    <div class='flex max-w-3xl flex-col items-center px-8 py-5' ref={setContainerRef}>
       <QueryBoundary
         query={query}
         notFoundFallback={
@@ -258,7 +258,7 @@ export function VerseReader(props: VerseReaderProps) {
                     href={`/bible/${bible.abbreviation}/${book.code}/${chapter.number}`}
                     variant='outline'
                   >
-                    More from {chapter.name}
+                    View all of <strong class='ml-1'>{chapter.name}</strong>
                   </Button>
                 </div>
                 <Show when={previousVerse} keyed>
@@ -270,7 +270,7 @@ export function VerseReader(props: VerseReaderProps) {
                           as={A}
                           class={cn(
                             buttonVariants(),
-                            '-translate-y-1/2 fixed top-1/2 left-0 flex size-8 items-center justify-center rounded-full p-0 md:left-2 md:size-10 lg:left-4 lg:size-12',
+                            '-translate-y-1/2 fixed top-1/2 left-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 md:left-safe-offset-2 md:size-12 lg:left-[15%] lg:size-14',
                             isRouting() && 'pointer-events-none opacity-50',
                           )}
                           href={previousVerseRoute}
@@ -293,7 +293,7 @@ export function VerseReader(props: VerseReaderProps) {
                           as={A}
                           class={cn(
                             buttonVariants(),
-                            '-translate-y-1/2 fixed top-1/2 right-0 flex size-8 items-center justify-center rounded-full p-0 md:right-2 md:size-10 lg:right-4 lg:size-12',
+                            '-translate-y-1/2 fixed top-1/2 right-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 md:right-safe-offset-2 md:size-12 lg:right-[15%] lg:size-14',
                             isRouting() && 'pointer-events-none opacity-50',
                           )}
                           href={nextVerseRoute}

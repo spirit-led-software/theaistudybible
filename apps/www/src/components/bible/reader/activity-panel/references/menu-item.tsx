@@ -1,7 +1,6 @@
 import { db } from '@/core/database';
 import { QueryBoundary } from '@/www/components/query-boundary';
-import { Button } from '@/www/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { DropdownMenuItem } from '@/www/components/ui/dropdown-menu';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
@@ -21,7 +20,11 @@ const getHasReferences = GET(async (bibleId: string) => {
   return { hasReferences: bibleData.chapters.some((c) => c.chaptersToSourceDocuments.length) };
 });
 
-export const ReferencesButton = () => {
+export type ReferencesMenuItemProps = {
+  onSelect?: () => void;
+};
+
+export function ReferencesMenuItem(props: ReferencesMenuItemProps) {
   const [brStore] = useBibleReaderStore();
   const { setValue } = useActivityPanel();
 
@@ -30,41 +33,31 @@ export const ReferencesButton = () => {
     queryFn: () => getHasReferences(brStore.bible.id),
   }));
 
+  const DisabledMenuItem = () => (
+    <DropdownMenuItem onSelect={props.onSelect} disabled>
+      <TextSearch class='mr-2' />
+      References
+    </DropdownMenuItem>
+  );
+
   return (
     <QueryBoundary
       query={query}
-      loadingFallback={
-        <Tooltip>
-          <TooltipTrigger as={Button} size='icon' disabled>
-            <TextSearch size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Checking for references...</TooltipContent>
-        </Tooltip>
-      }
-      errorFallback={(_, retry) => (
-        <Tooltip>
-          <TooltipTrigger as={Button} size='icon' onClick={retry}>
-            <TextSearch size={20} class='text-error' />
-          </TooltipTrigger>
-          <TooltipContent>Error checking for references, try again.</TooltipContent>
-        </Tooltip>
-      )}
+      loadingFallback={<DisabledMenuItem />}
+      errorFallback={() => <DisabledMenuItem />}
     >
       {({ hasReferences }) => (
-        <Tooltip>
-          <TooltipTrigger
-            as={Button}
-            size='icon'
-            disabled={!hasReferences}
-            onClick={() => setValue('references')}
-          >
-            <TextSearch size={20} />
-          </TooltipTrigger>
-          <TooltipContent>
-            {hasReferences ? 'Find References' : 'Reference search is not available for this bible'}
-          </TooltipContent>
-        </Tooltip>
+        <DropdownMenuItem
+          disabled={!hasReferences}
+          onSelect={() => {
+            setValue('references');
+            props.onSelect?.();
+          }}
+        >
+          <TextSearch class='mr-2' />
+          References
+        </DropdownMenuItem>
       )}
     </QueryBoundary>
   );
-};
+}

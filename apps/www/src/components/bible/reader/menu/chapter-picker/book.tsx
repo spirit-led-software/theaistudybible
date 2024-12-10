@@ -49,12 +49,12 @@ export function BookPicker() {
   const query = createQuery(() => bookPickerQueryOptions(brStore.bible.abbreviation));
 
   return (
-    <Popover>
+    <Popover placement='bottom-start'>
       <PopoverTrigger as={Button} variant='outline' class='justify-between text-nowrap'>
         {brStore.book.shortName} {brStore.chapter.number}
         <ChevronsUpDown class='ml-2 h-4 w-4 shrink-0 opacity-50' />
       </PopoverTrigger>
-      <PopoverContent class='w-[200px] p-0'>
+      <PopoverContent class='w-[250px] p-0'>
         <Command>
           <CommandInput placeholder='Search books...' />
           <QueryBoundary query={query}>

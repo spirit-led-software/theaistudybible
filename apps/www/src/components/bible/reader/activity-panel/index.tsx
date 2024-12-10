@@ -1,48 +1,52 @@
 import { Button } from '@/www/components/ui/button';
-import { Center } from '@/www/components/ui/center';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/www/components/ui/drawer';
-import { Spinner } from '@/www/components/ui/spinner';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
-import { H6 } from '@/www/components/ui/typography';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/www/components/ui/dropdown-menu';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { Highlighter, MessageCircle, Notebook, Share, X } from 'lucide-solid';
+import { cn } from '@/www/lib/utils';
+import { useSearchParams } from '@solidjs/router';
+import { Highlighter, Image, MessageCircle, Notebook, Share, Sparkles, X } from 'lucide-solid';
 import {
   type Accessor,
   type JSXElement,
   Match,
   type Setter,
   Show,
-  Suspense,
   Switch,
   createContext,
-  createMemo,
   createSignal,
-  lazy,
   splitProps,
   useContext,
 } from 'solid-js';
-import { BookmarkButton } from './bookmark/button';
-import { ReferencesButton } from './references/button';
+import { BookmarkMenuItem } from './bookmark/menu-item';
+import { ChatCard } from './chat/card';
+import { HighlightCard } from './highlight/card';
+import { NotesCard } from './notes/card';
+import { ReferencesCard } from './references/card';
+import { ReferencesMenuItem } from './references/menu-item';
+import { ShareCard } from './share/card';
 
-const ChatCard = lazy(async () => ({ default: (await import('./chat/card')).ChatCard }));
-const HighlightCard = lazy(async () => ({
-  default: (await import('./highlight/card')).HighlightCard,
-}));
-const NotesCard = lazy(async () => ({ default: (await import('./notes/card')).NotesCard }));
-const ReferencesCard = lazy(async () => ({
-  default: (await import('./references/card')).ReferencesCard,
-}));
-const ShareCard = lazy(async () => ({ default: (await import('./share/card')).ShareCard }));
+export type ActivityPanelValue =
+  | 'chat'
+  | 'notes'
+  | 'references'
+  | 'share'
+  | 'highlight'
+  | 'bookmark';
 
 export type ActivityPanelContextValue = {
-  value: Accessor<string | undefined>;
-  setValue: Setter<string | undefined>;
+  value: Accessor<ActivityPanelValue | undefined>;
+  setValue: Setter<ActivityPanelValue | undefined>;
 };
 
 export const ActivityPanelContext = createContext<ActivityPanelContextValue>();
 
 export type ActivityPanelProps = {
-  defaultValue?: string;
+  defaultValue?: ActivityPanelValue;
   children: JSXElement;
 };
 
@@ -65,84 +69,74 @@ export const useActivityPanel = () => {
   return context;
 };
 
-export const ActivityPanelAlwaysOpenButtons = () => {
+export const ActivityPanelSelectedTitle = () => {
   const [brStore] = useBibleReaderStore();
-  const { value, setValue } = useActivityPanel();
-  const open = createMemo(() => !brStore.selectedIds.length && !value());
-
   return (
-    <div
-      class={`-translate-x-1/2 fixed bottom-0 left-1/2 z-30 flex h-fit max-h-24 place-items-center justify-center space-x-2 rounded-t-lg bg-primary px-3 pt-1 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
-    >
-      <Tooltip>
-        <TooltipTrigger as={Button} size='icon' onClick={() => setValue('chat')}>
-          <MessageCircle />
-        </TooltipTrigger>
-        <TooltipContent>Chat</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger as={Button} size='icon' onClick={() => setValue('notes')}>
-          <Notebook size={20} />
-        </TooltipTrigger>
-        <TooltipContent>Take Notes</TooltipContent>
-      </Tooltip>
-    </div>
+    <Show when={brStore.selectedIds.length}>
+      <div class='-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-2 z-50 w-fit text-nowrap rounded-full bg-foreground/70 p-2 text-background text-xs backdrop-blur-sm'>
+        {brStore.selectedTitle}
+      </div>
+    </Show>
   );
 };
 
-export const ActivityPanelButtons = () => {
+export const ActivityPanelMenu = () => {
+  const [, setSearchParams] = useSearchParams();
   const [brStore, setBrStore] = useBibleReaderStore();
-  const { value, setValue } = useActivityPanel();
-  const open = createMemo(() => !!brStore.selectedIds.length && !value());
+  const { setValue } = useActivityPanel();
 
   return (
-    <div
-      class={`fixed inset-x-[20%] bottom-0 z-30 mx-auto flex h-fit max-h-52 w-fit flex-col items-center justify-center gap-1 rounded-t-lg bg-primary p-2 pb-safe transition-all duration-200 ${open() ? 'delay-200' : 'translate-y-full opacity-0'}`}
-    >
-      <div class='flex w-full items-center justify-between'>
-        <H6 class='w-full text-center text-primary-foreground text-sm'>
-          {brStore.selectedTitle.substring(0, brStore.selectedTitle.indexOf('(') - 1)}
-        </H6>
-        <Tooltip>
-          <TooltipTrigger
-            as={Button}
-            size='icon'
-            onClick={() => setBrStore('selectedVerseInfos', [])}
-          >
-            <X size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Clear Selection</TooltipContent>
-        </Tooltip>
-      </div>
-      <div class='grid shrink-0 grid-cols-3 gap-3 md:grid-cols-6'>
-        <Tooltip>
-          <TooltipTrigger as={Button} size='icon' onClick={() => setValue('share')}>
-            <Share size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Share</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger as={Button} size='icon' onClick={() => setValue('highlight')}>
-            <Highlighter size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Highlight</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger as={Button} size='icon' onClick={() => setValue('notes')}>
-            <Notebook size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Take Notes</TooltipContent>
-        </Tooltip>
-        <BookmarkButton />
-        <ReferencesButton />
-        <Tooltip>
-          <TooltipTrigger as={Button} size='icon' onClick={() => setValue('chat')}>
-            <MessageCircle size={20} />
-          </TooltipTrigger>
-          <TooltipContent>Explain</TooltipContent>
-        </Tooltip>
-      </div>
-    </div>
+    <DropdownMenu modal={false} placement='top-start'>
+      <DropdownMenuTrigger
+        as={Button}
+        size='icon'
+        class='fixed right-safe-offset-1 bottom-safe-offset-2 size-12 rounded-full p-3 md:right-safe-offset-2 md:size-14 lg:right-[15%] lg:size-16'
+      >
+        <Sparkles fill='hsl(var(--primary-foreground))' />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        class={cn(
+          'bg-background/80 backdrop-blur-sm [&>*]:px-4 [&>*]:py-3 [&>*]:hover:cursor-pointer',
+          brStore.selectedIds.length && 'grid grid-cols-2',
+        )}
+      >
+        <Show when={brStore.selectedIds.length}>
+          <DropdownMenuItem onSelect={() => setBrStore('selectedVerseInfos', [])}>
+            <X class='mr-3' />
+            Clear
+          </DropdownMenuItem>
+        </Show>
+        <DropdownMenuItem onSelect={() => setValue('chat')}>
+          <MessageCircle class='mr-3' />
+          Chat
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => {
+            setSearchParams({ query: 'Generate an image based on this passage.' });
+            setValue('chat');
+          }}
+        >
+          <Image class='mr-3' />
+          Image
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => setValue('notes')}>
+          <Notebook class='mr-3' />
+          Notes
+        </DropdownMenuItem>
+        <Show when={brStore.selectedIds.length}>
+          <ReferencesMenuItem />
+          <DropdownMenuItem onSelect={() => setValue('share')}>
+            <Share class='mr-3' />
+            Share
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setValue('highlight')}>
+            <Highlighter class='mr-3' />
+            Highlight
+          </DropdownMenuItem>
+          <BookmarkMenuItem />
+        </Show>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
@@ -153,12 +147,10 @@ export const ActivityPanelContent = () => {
   return (
     <Drawer
       side='bottom'
+      modal={false}
+      trapFocus={false}
       open={!!value()}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          setValue(undefined);
-        }
-      }}
+      onOpenChange={(isOpen) => !isOpen && setValue(undefined)}
     >
       <DrawerContent class='w-full max-w-2xl justify-self-center shadow-lg'>
         <div class='mx-auto flex max-h-[calc(100vh-120px)] w-full flex-col overflow-hidden p-4'>
@@ -167,31 +159,23 @@ export const ActivityPanelContent = () => {
               <DrawerTitle class='text-center'>{brStore.selectedTitle}</DrawerTitle>
             </DrawerHeader>
           </Show>
-          <Suspense
-            fallback={
-              <Center>
-                <Spinner />
-              </Center>
-            }
-          >
-            <Switch>
-              <Match when={value() === 'share'}>
-                <ShareCard />
-              </Match>
-              <Match when={value() === 'highlight'}>
-                <HighlightCard />
-              </Match>
-              <Match when={value() === 'notes'}>
-                <NotesCard />
-              </Match>
-              <Match when={value() === 'references'}>
-                <ReferencesCard />
-              </Match>
-              <Match when={value() === 'chat'}>
-                <ChatCard />
-              </Match>
-            </Switch>
-          </Suspense>
+          <Switch>
+            <Match when={value() === 'share'}>
+              <ShareCard />
+            </Match>
+            <Match when={value() === 'highlight'}>
+              <HighlightCard />
+            </Match>
+            <Match when={value() === 'notes'}>
+              <NotesCard />
+            </Match>
+            <Match when={value() === 'references'}>
+              <ReferencesCard />
+            </Match>
+            <Match when={value() === 'chat'}>
+              <ChatCard />
+            </Match>
+          </Switch>
         </div>
       </DrawerContent>
     </Drawer>

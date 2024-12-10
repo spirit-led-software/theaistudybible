@@ -9,9 +9,9 @@ import { createQuery } from '@tanstack/solid-query';
 import { createMemo, onMount } from 'solid-js';
 import {
   ActivityPanel,
-  ActivityPanelAlwaysOpenButtons,
-  ActivityPanelButtons,
   ActivityPanelContent,
+  ActivityPanelMenu,
+  ActivityPanelSelectedTitle,
 } from './activity-panel';
 import { Contents } from './contents';
 
@@ -118,8 +118,8 @@ export const ReaderContent = (props: ReaderContentProps) => {
         />
       </div>
       <ActivityPanel>
-        <ActivityPanelAlwaysOpenButtons />
-        <ActivityPanelButtons />
+        <ActivityPanelSelectedTitle />
+        <ActivityPanelMenu />
         <ActivityPanelContent />
       </ActivityPanel>
     </>

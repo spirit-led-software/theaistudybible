@@ -31,7 +31,7 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
-    "@ai-sdk/solid": "^1.0.5",
+    "@ai-sdk/solid": "^1.0.6",
     "@corvu/drawer": "^0.2.2",
     "@fontsource-variable/inter": "^5.1.0",
     "@fontsource/goldman": "^5.1.0",
@@ -41,7 +41,7 @@
     "@kobalte/core": "^0.13.7",
     "@modular-forms/solid": "0.25.0",
     "@paralleldrive/cuid2": "^2.2.2",
-    "@sentry/solidstart": "^8.42.0",
+    "@sentry/solidstart": "^8.43.0",
     "@solid-primitives/clipboard": "^1.5.10",
     "@solid-primitives/context": "^0.2.3",
     "@solid-primitives/intersection-observer": "^2.1.6",
@@ -66,7 +66,8 @@
     "embla-carousel-solid": "^8.5.1",
     "hono": "^4.6.13",
     "lucide-solid": "^0.468.0",
-    "posthog-js": "^1.194.6",
+    "motion": "^11.13.5",
+    "posthog-js": "^1.195.0",
     "posthog-node": "^4.3.1",
     "solid-js": "^1.9.3",
     "solid-marked": "^0.6.3",

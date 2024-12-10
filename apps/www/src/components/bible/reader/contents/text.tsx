@@ -65,8 +65,8 @@ export function TextContent(props: TextContentProps) {
       {...props.props}
       class={cn(
         props.style,
-        'relative cursor-pointer underline-offset-4 transition-all duration-1000 ease-in-out',
-        selected() && 'underline decoration-accent-foreground',
+        'inline decoration-transparent underline-offset-4 transition duration-500 hover:cursor-pointer',
+        selected() && 'underline decoration-foreground decoration-dotted',
         props.class,
       )}
       style={{
@@ -74,8 +74,7 @@ export function TextContent(props: TextContentProps) {
       }}
       onClick={handleClick}
     >
-      <span class='relative z-10'>{props.content.text}</span>
-      <span class='-left-1 -right-1 -top-2 -bottom-2 absolute inset-0 z-0' />
+      {props.content.text}
     </span>
   );
 }

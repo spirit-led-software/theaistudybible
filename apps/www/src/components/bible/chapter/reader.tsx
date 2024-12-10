@@ -127,7 +127,10 @@ export function ChapterReader(props: ChapterReaderProps) {
   const [containerRef, setContainerRef] = createSignal<HTMLDivElement>();
 
   return (
-    <div class='relative flex max-w-3xl flex-col items-center px-8 py-5' ref={setContainerRef}>
+    <div
+      class='flex h-full w-full max-w-3xl flex-1 flex-col justify-center py-5'
+      ref={setContainerRef}
+    >
       <QueryBoundary
         query={query}
         notFoundFallback={
@@ -174,7 +177,7 @@ export function ChapterReader(props: ChapterReaderProps) {
           return (
             <BibleReaderProvider bible={bible} book={book} chapter={chapter}>
               <BibleReaderMenu />
-              <div class='mt-10'>
+              <div class='mt-10 h-full w-full flex-1 overflow-y-auto px-10'>
                 <div class='flex w-full justify-center'>
                   <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
                     {chapter.name}
@@ -207,7 +210,7 @@ export function ChapterReader(props: ChapterReaderProps) {
                           as={A}
                           class={cn(
                             buttonVariants(),
-                            '-translate-y-1/2 fixed top-1/2 left-0 flex size-8 items-center justify-center rounded-full p-0 md:left-2 md:size-10 lg:left-4 lg:size-12',
+                            '-translate-y-1/2 fixed top-1/2 left-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 md:left-safe-offset-2 md:size-12 lg:left-[15%] lg:size-14',
                             isRouting() && 'pointer-events-none opacity-50',
                           )}
                           href={previousChapterRoute}
@@ -230,7 +233,7 @@ export function ChapterReader(props: ChapterReaderProps) {
                           as={A}
                           class={cn(
                             buttonVariants(),
-                            '-translate-y-1/2 fixed top-1/2 right-0 flex size-8 items-center justify-center rounded-full p-0 md:right-2 md:size-10 lg:right-4 lg:size-12',
+                            '-translate-y-1/2 fixed top-1/2 right-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 md:right-safe-offset-2 md:size-12 lg:right-[15%] lg:size-14',
                             isRouting() && 'pointer-events-none opacity-50',
                           )}
                           href={nextChapterRoute}

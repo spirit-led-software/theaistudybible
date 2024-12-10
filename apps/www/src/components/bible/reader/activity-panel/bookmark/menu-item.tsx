@@ -1,8 +1,8 @@
 import { db } from '@/core/database';
 import { verseBookmarks } from '@/core/database/schema';
 import { QueryBoundary } from '@/www/components/query-boundary';
-import { Button } from '@/www/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { DropdownMenuItem } from '@/www/components/ui/dropdown-menu';
+import {} from '@/www/components/ui/tooltip';
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth, requireAuth } from '@/www/server/auth';
@@ -58,9 +58,14 @@ const unbookmarkVersesAction = action(async (props: { verseIds: string[] }) => {
   return { success: true };
 });
 
-export const BookmarkButton = () => {
+export type BookmarkMenuItemProps = {
+  onSelect?: () => void;
+};
+
+export const BookmarkMenuItem = (props: BookmarkMenuItemProps) => {
   const bookmarkVerses = useAction(bookmarkVersesAction);
   const unbookmarkVerses = useAction(unbookmarkVersesAction);
+
   const { isSignedIn } = useAuth();
   const [brStore] = useBibleReaderStore();
 
@@ -85,46 +90,34 @@ export const BookmarkButton = () => {
     onSettled: () => getSelectionBookmarkedQuery.refetch(),
   }));
 
+  const DisabledMenuItem = () => (
+    <DropdownMenuItem onSelect={props.onSelect} disabled>
+      <Bookmark class='mr-2' />
+      Bookmark
+    </DropdownMenuItem>
+  );
+
   return (
     <QueryBoundary
       query={getSelectionBookmarkedQuery}
-      errorFallback={() => (
-        <Button size='icon' disabled>
-          <Bookmark size={20} />
-        </Button>
-      )}
-      loadingFallback={
-        <Button size='icon' disabled>
-          <Bookmark size={20} />
-        </Button>
-      }
-      notFoundFallback={
-        <Button size='icon' disabled>
-          <Bookmark size={20} />
-        </Button>
-      }
+      errorFallback={() => <DisabledMenuItem />}
+      loadingFallback={<DisabledMenuItem />}
     >
       {({ isBookmarked }) => (
-        <Tooltip>
-          <TooltipTrigger
-            as={Button}
-            size='icon'
-            disabled={!isSignedIn()}
-            onClick={() => {
-              if (isBookmarked) {
-                unbookmarkVersesMutation.mutate();
-              } else {
-                bookmarkVersesMutation.mutate();
-              }
-            }}
-          >
-            <Bookmark
-              size={20}
-              fill={isBookmarked ? 'hsl(var(--primary-foreground))' : undefined}
-            />
-          </TooltipTrigger>
-          <TooltipContent>Bookmark Selection</TooltipContent>
-        </Tooltip>
+        <DropdownMenuItem
+          disabled={!isSignedIn()}
+          onSelect={() => {
+            if (isBookmarked) {
+              unbookmarkVersesMutation.mutate();
+            } else {
+              bookmarkVersesMutation.mutate();
+            }
+            return props.onSelect?.();
+          }}
+        >
+          <Bookmark class='mr-2' />
+          {isBookmarked ? 'Unbookmark' : 'Bookmark'}
+        </DropdownMenuItem>
       )}
     </QueryBoundary>
   );

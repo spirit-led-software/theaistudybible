@@ -1,4 +1,3 @@
-// @refresh reload
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import { captureException as captureSentryException } from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';

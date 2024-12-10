@@ -6,9 +6,11 @@ import {
   CreditCard,
   Download,
   FileText,
+  HandCoins,
   Highlighter,
   Info,
   Lightbulb,
+  Mail,
   MessageCircle,
   Notebook,
   Shield,
@@ -40,24 +42,20 @@ export const Menu = (props: MenuProps) => {
           About
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2'>
+        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[500px] sm:grid-cols-3'>
           <NavigationMenuLink as={A} href='/about'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Info />
               About
             </NavigationMenuLabel>
-            <NavigationMenuDescription>
-              Learn about The AI Study Bible and what we stand for
-            </NavigationMenuDescription>
+            <NavigationMenuDescription>Learn about our mission</NavigationMenuDescription>
           </NavigationMenuLink>
           <NavigationMenuLink as={A} href='/about/install'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Download />
               Install
             </NavigationMenuLabel>
-            <NavigationMenuDescription>
-              Install this website as an app on your device
-            </NavigationMenuDescription>
+            <NavigationMenuDescription>Install this website as an app</NavigationMenuDescription>
           </NavigationMenuLink>
           <NavigationMenuLink as={A} href='/privacy'>
             <NavigationMenuLabel class='flex items-center gap-2'>
@@ -72,6 +70,30 @@ export const Menu = (props: MenuProps) => {
               Terms
             </NavigationMenuLabel>
             <NavigationMenuDescription>Learn about our terms of service</NavigationMenuDescription>
+          </NavigationMenuLink>
+          <NavigationMenuLink
+            as='a'
+            href='mailto:support@theaistudybible.com'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            <NavigationMenuLabel class='flex items-center gap-2'>
+              <Mail />
+              Contact
+            </NavigationMenuLabel>
+            <NavigationMenuDescription>Contact us via email</NavigationMenuDescription>
+          </NavigationMenuLink>
+          <NavigationMenuLink
+            as='a'
+            href='https://donate.stripe.com/cN23fc1mFdW2dXOcMM'
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            <NavigationMenuLabel class='flex items-center gap-2'>
+              <CreditCard />
+              Donate
+            </NavigationMenuLabel>
+            <NavigationMenuDescription>Support our mission</NavigationMenuDescription>
           </NavigationMenuLink>
         </NavigationMenuContent>
       </NavigationMenuItem>
@@ -116,29 +138,25 @@ export const Menu = (props: MenuProps) => {
           AI
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2'>
+        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[500px] sm:grid-cols-3'>
           <NavigationMenuLink as={A} href='/chat'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <MessageCircle />
               Chat
             </NavigationMenuLabel>
-            <NavigationMenuDescription>
-              Engage with AI about Jesus and the Bible
-            </NavigationMenuDescription>
+            <NavigationMenuDescription>Engage with AI about Christianity</NavigationMenuDescription>
           </NavigationMenuLink>
           <NavigationMenuLink as={A} href='/devotion'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Lightbulb />
               Devotions
             </NavigationMenuLabel>
-            <NavigationMenuDescription>
-              Stir up your spirit with today's devotion
-            </NavigationMenuDescription>
+            <NavigationMenuDescription>View today's devotion</NavigationMenuDescription>
           </NavigationMenuLink>
           <SignedIn>
             <NavigationMenuLink as={A} href='/credits'>
               <NavigationMenuLabel class='flex items-center gap-2'>
-                <CreditCard />
+                <HandCoins />
                 Credits
               </NavigationMenuLabel>
               <NavigationMenuDescription>

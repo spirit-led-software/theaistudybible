@@ -90,7 +90,7 @@ export function ChapterPicker(props: ChapterPickerProps) {
       <Accordion collapsible class='w-full'>
         <AccordionItem value={props.book.code}>
           <AccordionTrigger>{props.book.shortName}</AccordionTrigger>
-          <AccordionContent class='grid grid-cols-3 gap-1'>
+          <AccordionContent class='grid grid-cols-4 gap-1'>
             <QueryBoundary
               loadingFallback={
                 <For each={Array(24)}>

@@ -15,6 +15,7 @@ import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Match, Switch, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
+import { useActivityPanel } from '..';
 import { ColorItem } from './color-item';
 
 const updateHighlightsAction = action(
@@ -55,28 +56,37 @@ export const HighlightCard = () => {
 
   const qc = useQueryClient();
   const [brStore] = useBibleReaderStore();
+  const { setValue } = useActivityPanel();
 
   const addHighlightsMutation = createMutation(() => ({
     mutationFn: ({ color = '#FFD700', verseIds }: { color?: string; verseIds: string[] }) =>
       updateHighlights({ verseIds, color }),
+    onSuccess: () => {
+      toast.success('Highlights saved');
+      setValue(undefined);
+    },
+    onError: (err) => {
+      toast.error(`Failed to save highlights: ${err.message}`);
+    },
     onSettled: () =>
       qc.invalidateQueries({
         queryKey: ['highlights'],
       }),
-    onError: () => {
-      toast.error('Failed to save highlights');
-    },
   }));
 
   const deleteHighlightsMutation = createMutation(() => ({
     mutationFn: ({ verseIds }: { verseIds: string[] }) => deleteHighlights({ verseIds }),
+    onSuccess: () => {
+      toast.success('Highlights deleted');
+      setValue(undefined);
+    },
+    onError: (err) => {
+      toast.error(`Failed to delete highlights: ${err.message}`);
+    },
     onSettled: () =>
       qc.invalidateQueries({
         queryKey: ['highlights'],
       }),
-    onError: () => {
-      toast.error('Failed to delete highlights');
-    },
   }));
 
   const [tgValue, setTgValue] = createSignal<string | null>(null);
@@ -112,7 +122,7 @@ export const HighlightCard = () => {
               })
             }
           >
-            <Switch fallback={'Reset'}>
+            <Switch fallback={'Remove'}>
               <Match when={deleteHighlightsMutation.isPending}>
                 <Spinner size='sm' variant='destructive-foreground' />
               </Match>

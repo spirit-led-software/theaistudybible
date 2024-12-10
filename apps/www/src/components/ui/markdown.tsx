@@ -1,9 +1,12 @@
+import { Image } from '@kobalte/core';
 import { A } from '@solidjs/router';
 import { Show, createMemo, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import SolidMarkedMarkdown from 'solid-marked/component';
 import { Button } from './button';
 import { Checkbox } from './checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './dialog';
+import { Spinner } from './spinner';
 import * as Typography from './typography';
 
 export const Markdown = (props: { children: string }) => {
@@ -46,14 +49,45 @@ export const Markdown = (props: { children: string }) => {
         Image: (props) => {
           const [local, rest] = splitProps(props, ['url', 'alt', 'title']);
           return (
-            // biome-ignore lint/a11y/useAltText: <explanation>
-            <img
-              src={local.url}
-              alt={local.alt ?? local.title ?? undefined}
-              loading='lazy'
-              class='rounded-md'
-              {...rest}
-            />
+            <Dialog>
+              <DialogTrigger>
+                <Image.Root>
+                  <Image.Img
+                    src={local.url}
+                    alt={local.alt ?? local.title ?? 'Generated Image'}
+                    loading='lazy'
+                    class='h-auto w-full rounded-md'
+                    {...rest}
+                  />
+                  <Image.Fallback>
+                    <div class='flex h-full min-h-52 w-full items-center justify-center rounded-md bg-muted'>
+                      <Spinner size='sm' />
+                    </div>
+                  </Image.Fallback>
+                </Image.Root>
+              </DialogTrigger>
+              <DialogContent class='max-w-screen-lg'>
+                <DialogHeader>
+                  <DialogTitle>Generated Image</DialogTitle>
+                </DialogHeader>
+                <A href={local.url} target='_blank' rel='noopener noreferrer'>
+                  <Image.Root>
+                    <Image.Img
+                      src={local.url}
+                      alt={local.alt ?? local.title ?? 'Generated Image'}
+                      loading='lazy'
+                      class='h-auto w-full rounded-md'
+                      {...rest}
+                    />
+                    <Image.Fallback>
+                      <div class='flex h-full min-h-52 w-full items-center justify-center rounded-md bg-muted'>
+                        <Spinner size='sm' />
+                      </div>
+                    </Image.Fallback>
+                  </Image.Root>
+                </A>
+              </DialogContent>
+            </Dialog>
           );
         },
         List: (props) => {

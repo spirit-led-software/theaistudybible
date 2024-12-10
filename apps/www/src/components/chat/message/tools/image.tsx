@@ -1,9 +1,17 @@
 import type { generateImageTool } from '@/ai/chat/tools';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/www/components/ui/dialog';
 import { Spinner } from '@/www/components/ui/spinner';
 import { H5, H6 } from '@/www/components/ui/typography';
+import { Image } from '@kobalte/core';
 import { A } from '@solidjs/router';
 import type { ToolInvocation } from 'ai';
-import { Image } from 'lucide-solid';
+import { Image as ImageIcon } from 'lucide-solid';
 import { Show } from 'solid-js';
 import type { z } from 'zod';
 
@@ -16,7 +24,7 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
   return (
     <div class='flex w-full flex-col'>
       <H5 class='flex items-center'>
-        <Image class='mr-2' size={18} />
+        <ImageIcon class='mr-2' size={18} />
         Generate Image
       </H5>
       <Show
@@ -55,17 +63,52 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
                 <div class='flex flex-col text-sm'>
                   <Show when={result.status === 'success' && result} keyed>
                     {(successResult) => (
-                      <div class='flex flex-col gap-2'>
-                        <A href={successResult.image.url!} class='w-fit'>
-                          <img
-                            src={successResult.image.url!}
-                            alt={successResult.image.prompt!}
-                            loading='lazy'
-                            width={128}
-                            height={128}
-                            class='rounded-md'
-                          />
-                        </A>
+                      <div class='flex w-full flex-col gap-2'>
+                        {/* Show small thumbnail here */}
+                        <div class='h-auto w-[128px]'>
+                          <Dialog>
+                            <DialogTrigger>
+                              <Image.Root>
+                                <Image.Img
+                                  src={successResult.image.url!}
+                                  alt={successResult.image.prompt ?? 'Generated Image'}
+                                  loading='lazy'
+                                  width={128}
+                                  class='h-auto w-full rounded-md'
+                                />
+                                <Image.Fallback>
+                                  <div class='flex h-full min-h-52 w-full items-center justify-center rounded-md bg-muted'>
+                                    <Spinner size='sm' />
+                                  </div>
+                                </Image.Fallback>
+                              </Image.Root>
+                            </DialogTrigger>
+                            <DialogContent class='max-w-screen-lg'>
+                              <DialogHeader>
+                                <DialogTitle>Generated Image</DialogTitle>
+                              </DialogHeader>
+                              <A
+                                href={successResult.image.url!}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                              >
+                                <Image.Root>
+                                  <Image.Img
+                                    src={successResult.image.url!}
+                                    alt={successResult.image.prompt ?? 'Generated Image'}
+                                    loading='lazy'
+                                    class='h-auto w-full rounded-md'
+                                  />
+                                  <Image.Fallback>
+                                    <div class='flex h-full min-h-52 w-full items-center justify-center rounded-md bg-muted'>
+                                      <Spinner size='sm' />
+                                    </div>
+                                  </Image.Fallback>
+                                </Image.Root>
+                              </A>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
                         <p class='text-xs'>
                           <strong>Revised Prompt:</strong> {successResult.image.prompt!}
                         </p>

@@ -24,7 +24,7 @@ export function CharContent(props: CharContentProps) {
       data-verse-id={props.content.verseId}
       data-verse-number={props.content.verseNumber}
       {...props.props}
-      class={cn(props.style, 'h-full w-full', props.class)}
+      class={cn(props.style, 'inline', props.class)}
     >
       <Contents
         contents={props.content.contents}
