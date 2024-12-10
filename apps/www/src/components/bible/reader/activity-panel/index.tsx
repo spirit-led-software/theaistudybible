@@ -41,6 +41,8 @@ export type ActivityPanelValue =
 export type ActivityPanelContextValue = {
   value: Accessor<ActivityPanelValue | undefined>;
   setValue: Setter<ActivityPanelValue | undefined>;
+  isMenuOpen: Accessor<boolean>;
+  setIsMenuOpen: Setter<boolean>;
 };
 
 export const ActivityPanelContext = createContext<ActivityPanelContextValue>();
@@ -53,9 +55,10 @@ export type ActivityPanelProps = {
 export const ActivityPanel = (props: ActivityPanelProps) => {
   const [local, others] = splitProps(props, ['children']);
   const [value, setValue] = createSignal(others.defaultValue);
+  const [isMenuOpen, setIsMenuOpen] = createSignal(false);
 
   return (
-    <ActivityPanelContext.Provider value={{ value, setValue }}>
+    <ActivityPanelContext.Provider value={{ value, setValue, isMenuOpen, setIsMenuOpen }}>
       {local.children}
     </ActivityPanelContext.Provider>
   );
@@ -71,11 +74,16 @@ export const useActivityPanel = () => {
 
 export const ActivityPanelSelectedTitle = () => {
   const [brStore] = useBibleReaderStore();
+  const { setIsMenuOpen } = useActivityPanel();
+
   return (
     <Show when={brStore.selectedIds.length}>
-      <div class='-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-2 z-50 w-fit text-nowrap rounded-full bg-foreground/70 p-2 text-background text-xs backdrop-blur-sm'>
+      <Button
+        class='-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-2 z-50 w-fit text-nowrap rounded-full bg-foreground/80 p-2 text-background text-xs backdrop-blur-sm'
+        onClick={() => setIsMenuOpen(true)}
+      >
         {brStore.selectedTitle}
-      </div>
+      </Button>
     </Show>
   );
 };
@@ -83,10 +91,15 @@ export const ActivityPanelSelectedTitle = () => {
 export const ActivityPanelMenu = () => {
   const [, setSearchParams] = useSearchParams();
   const [brStore, setBrStore] = useBibleReaderStore();
-  const { setValue } = useActivityPanel();
+  const { setValue, isMenuOpen, setIsMenuOpen } = useActivityPanel();
 
   return (
-    <DropdownMenu modal={false} placement='top-start'>
+    <DropdownMenu
+      modal={false}
+      placement='top-end'
+      open={isMenuOpen()}
+      onOpenChange={setIsMenuOpen}
+    >
       <DropdownMenuTrigger
         as={Button}
         size='icon'
@@ -95,12 +108,21 @@ export const ActivityPanelMenu = () => {
         <Sparkles fill='hsl(var(--primary-foreground))' />
       </DropdownMenuTrigger>
       <DropdownMenuContent
+        onInteractOutside={(e) => e.preventDefault()}
         class={cn(
           'bg-background/80 backdrop-blur-sm [&>*]:px-4 [&>*]:py-3 [&>*]:hover:cursor-pointer',
           brStore.selectedIds.length && 'grid grid-cols-2',
         )}
       >
-        <Show when={brStore.selectedIds.length}>
+        <Show
+          when={brStore.selectedIds.length}
+          fallback={
+            <DropdownMenuItem onSelect={() => setIsMenuOpen(false)}>
+              <X class='mr-3' />
+              Close
+            </DropdownMenuItem>
+          }
+        >
           <DropdownMenuItem onSelect={() => setBrStore('selectedVerseInfos', [])}>
             <X class='mr-3' />
             Clear

@@ -128,13 +128,21 @@ const NavigationMenuContent = <T extends ValidComponent = 'ul'>(
 type NavigationMenuLinkProps<T extends ValidComponent = 'a'> =
   NavigationMenuPrimitive.NavigationMenuItemProps<T> & {
     class?: string | undefined;
+    doNavigate?: boolean;
   };
 
 const NavigationMenuLink = <T extends ValidComponent = 'a'>(
   props: PolymorphicProps<T, NavigationMenuLinkProps<T>>,
 ) => {
   const navigate = useNavigate();
-  const [local, others] = splitProps(props as NavigationMenuLinkProps, ['class', 'onSelect']);
+  const [local, others] = splitProps(props as NavigationMenuLinkProps, [
+    'class',
+    'onSelect',
+    'doNavigate',
+  ]);
+
+  const doNavigate = () => local.doNavigate ?? true;
+
   return (
     <NavigationMenuPrimitive.Item
       class={cn(
@@ -142,7 +150,9 @@ const NavigationMenuLink = <T extends ValidComponent = 'a'>(
         local.class,
       )}
       onSelect={() => {
-        navigate(props.href);
+        if (doNavigate()) {
+          navigate(props.href);
+        }
         local.onSelect?.();
       }}
       {...others}

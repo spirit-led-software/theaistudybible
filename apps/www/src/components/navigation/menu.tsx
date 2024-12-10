@@ -76,6 +76,7 @@ export const Menu = (props: MenuProps) => {
             href='mailto:support@theaistudybible.com'
             target='_blank'
             rel='noopener noreferrer'
+            doNavigate={false} // Let the anchor tag handle the navigation
           >
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Mail />
@@ -88,6 +89,7 @@ export const Menu = (props: MenuProps) => {
             href='https://donate.stripe.com/cN23fc1mFdW2dXOcMM'
             target='_blank'
             rel='noopener noreferrer'
+            doNavigate={false} // Let the anchor tag handle the navigation
           >
             <NavigationMenuLabel class='flex items-center gap-2'>
               <CreditCard />
