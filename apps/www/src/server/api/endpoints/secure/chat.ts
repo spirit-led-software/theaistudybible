@@ -15,6 +15,7 @@ import { parseISO } from 'date-fns';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
+import { getRequestEvent } from 'solid-js/web';
 import { z } from 'zod';
 
 const maxResponseTokens = 4096;
@@ -239,7 +240,7 @@ const app = new Hono<{
               });
             },
             experimental_toolCallStreaming: true,
-            abortSignal: c.req.raw.signal,
+            abortSignal: getRequestEvent()?.request.signal,
           });
 
           const result = streamText(messages);

@@ -29,11 +29,11 @@ export const users = sqliteTable(
     stripeCustomerId: text('stripe_customer_id'),
     preferredBibleId: text('preferred_bible_id').references(() => bibles.id),
   },
-  (table) => ({
-    emailIdx: uniqueIndex('users_email_idx').on(table.email),
-    stripeCustomerIdIdx: index('users_stripe_customer_id_idx').on(table.stripeCustomerId),
-    preferredBibleIdx: index('users_preferred_bible_id_idx').on(table.preferredBibleId),
-  }),
+  (table) => [
+    uniqueIndex('users_email_idx').on(table.email),
+    index('users_stripe_customer_id_idx').on(table.stripeCustomerId),
+    index('users_preferred_bible_id_idx').on(table.preferredBibleId),
+  ],
 );
 
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -70,9 +70,7 @@ export const passwords = sqliteTable(
     hash: text('hash').notNull(),
     active: integer('active', { mode: 'boolean' }).notNull().default(true),
   },
-  (table) => ({
-    userIdIdx: index('passwords_user_id_idx').on(table.userId),
-  }),
+  (table) => [index('passwords_user_id_idx').on(table.userId)],
 );
 
 export const passwordsRelations = relations(passwords, ({ one }) => ({
@@ -96,10 +94,10 @@ export const forgottenPasswordCodes = sqliteTable(
       .notNull()
       .$defaultFn(() => add(new Date(), { hours: 1 })),
   },
-  (table) => ({
-    codeIdx: index('forgotten_password_codes_code_idx').on(table.code),
-    userIdIdx: index('forgotten_password_codes_user_id_idx').on(table.userId),
-  }),
+  (table) => [
+    index('forgotten_password_codes_code_idx').on(table.code),
+    index('forgotten_password_codes_user_id_idx').on(table.userId),
+  ],
 );
 
 export const forgottenPasswordCodesRelations = relations(forgottenPasswordCodes, ({ one }) => ({
@@ -118,9 +116,7 @@ export const sessions = sqliteTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     expiresAt: integer('expires_at').notNull(),
   },
-  (table) => ({
-    userIdIdx: index('sessions_user_id_idx').on(table.userId),
-  }),
+  (table) => [index('sessions_user_id_idx').on(table.userId)],
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -142,10 +138,10 @@ export const passkeyCredentials = sqliteTable(
     algorithmId: integer('algorithm_id').notNull(),
     publicKey: blob('public_key', { mode: 'buffer' }).notNull(),
   },
-  (table) => ({
-    userIdIdx: index('passkey_credential_user_id_idx').on(table.userId),
-    algorithmIdIdx: index('passkey_credential_algorithm_id_idx').on(table.algorithmId),
-  }),
+  (table) => [
+    index('passkey_credential_user_id_idx').on(table.userId),
+    index('passkey_credential_algorithm_id_idx').on(table.algorithmId),
+  ],
 );
 
 export const passkeyCredentialsRelations = relations(passkeyCredentials, ({ one }) => ({
@@ -168,9 +164,7 @@ export const userCredits = sqliteTable(
     lastSignInCreditAt: timestamp('last_sign_in_credit_at'),
     lastReadingCreditAt: timestamp('last_reading_credit_at'),
   },
-  (table) => ({
-    userIdIdx: uniqueIndex('user_credits_user_id_idx').on(table.userId),
-  }),
+  (table) => [uniqueIndex('user_credits_user_id_idx').on(table.userId)],
 );
 
 export const userCreditsRelations = relations(userCredits, ({ one }) => ({
@@ -186,9 +180,7 @@ export const roles = sqliteTable(
     ...baseModel,
     name: text('name').notNull(),
   },
-  (table) => ({
-    nameIdx: index('roles_name_idx').on(table.name),
-  }),
+  (table) => [index('roles_name_idx').on(table.name)],
 );
 
 export const rolesRelations = relations(roles, ({ many }) => ({
@@ -205,11 +197,11 @@ export const usersToRoles = sqliteTable(
       .notNull()
       .references(() => roles.id, { onDelete: 'cascade' }),
   },
-  (table) => ({
-    primaryKey: primaryKey({ columns: [table.userId, table.roleId] }),
-    userIdIdx: index('users_to_roles_user_id_idx').on(table.userId),
-    roleIdIdx: index('users_to_roles_role_id_idx').on(table.roleId),
-  }),
+  (table) => [
+    primaryKey({ columns: [table.userId, table.roleId] }),
+    index('users_to_roles_user_id_idx').on(table.userId),
+    index('users_to_roles_role_id_idx').on(table.roleId),
+  ],
 );
 
 export const usersToRolesRelations = relations(usersToRoles, ({ one }) => ({
@@ -233,10 +225,7 @@ export const chats = sqliteTable(
     name: text('name').notNull().default('New Chat'),
     customName: integer('custom_name', { mode: 'boolean' }).notNull().default(false),
   },
-  (table) => ({
-    userIdIdx: index('chats_user_id_idx').on(table.userId),
-    nameIdx: index('chats_name_idx').on(table.name),
-  }),
+  (table) => [index('chats_user_id_idx').on(table.userId), index('chats_name_idx').on(table.name)],
 );
 
 export const chatsRelations = relations(chats, ({ one, many }) => ({
@@ -256,9 +245,7 @@ export const shareChatOptions = sqliteTable(
       .notNull()
       .references(() => chats.id, { onDelete: 'cascade' }),
   },
-  (table) => ({
-    chatIdIdx: uniqueIndex('chat_share_options_chat_id_idx').on(table.chatId),
-  }),
+  (table) => [uniqueIndex('chat_share_options_chat_id_idx').on(table.chatId)],
 );
 
 export const shareChatOptionsRelations = relations(shareChatOptions, ({ one }) => ({
@@ -298,19 +285,19 @@ export const messages = sqliteTable(
     anonymous: integer('anonymous', { mode: 'boolean' }).notNull().default(false),
     regenerated: integer('regenerated', { mode: 'boolean' }).notNull().default(false),
   },
-  (table) => ({
-    chatIdIdx: index('messages_chat_id_idx').on(table.chatId),
-    userIdIdx: index('messages_user_id_idx').on(table.userId),
-    originMessageIdIdx: index('messages_origin_message_id_idx').on(table.originMessageId),
-    originMessageReference: foreignKey({
+  (table) => [
+    index('messages_chat_id_idx').on(table.chatId),
+    index('messages_user_id_idx').on(table.userId),
+    index('messages_origin_message_id_idx').on(table.originMessageId),
+    foreignKey({
       columns: [table.originMessageId],
       foreignColumns: [table.id],
       name: 'origin_message_reference',
     }).onDelete('cascade'),
-    roleIdx: index('messages_role_idx').on(table.role),
-    contentIdx: index('messages_content_idx').on(table.content),
-    finishReasonIdx: index('messages_finish_reason_idx').on(table.finishReason),
-  }),
+    index('messages_role_idx').on(table.role),
+    index('messages_content_idx').on(table.content),
+    index('messages_finish_reason_idx').on(table.finishReason),
+  ],
 );
 
 export const messagesRelations = relations(messages, ({ one, many }) => ({
@@ -348,14 +335,11 @@ export const messageReactions = sqliteTable(
     reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
     comment: text('comment'),
   },
-  (table) => ({
-    uniqueUserIdx: uniqueIndex('message_reactions_unique_user_idx').on(
-      table.messageId,
-      table.userId,
-    ),
-    messageIdIdx: index('message_reactions_message_id_idx').on(table.messageId),
-    userIdIdx: index('message_reactions_user_id_idx').on(table.userId),
-  }),
+  (table) => [
+    uniqueIndex('message_reactions_unique_user_idx').on(table.messageId, table.userId),
+    index('message_reactions_message_id_idx').on(table.messageId),
+    index('message_reactions_user_id_idx').on(table.userId),
+  ],
 );
 
 export const messageReactionsRelations = relations(messageReactions, ({ one }) => ({
@@ -385,15 +369,13 @@ export const messagesToSourceDocuments = sqliteTable(
       .notNull()
       .default('cosine'),
   },
-  (table) => ({
-    primaryKey: primaryKey({
+  (table) => [
+    primaryKey({
       columns: [table.messageId, table.sourceDocumentId],
     }),
-    messageIdIdx: index('messages_to_source_documents_message_id_idx').on(table.messageId),
-    sourceDocumentIdIdx: index('messages_to_source_documents_source_document_id_idx').on(
-      table.sourceDocumentId,
-    ),
-  }),
+    index('messages_to_source_documents_message_id_idx').on(table.messageId),
+    index('messages_to_source_documents_source_document_id_idx').on(table.sourceDocumentId),
+  ],
 );
 
 export const messagesToSourceDocumentsRelations = relations(
@@ -423,12 +405,12 @@ export const userGeneratedImages = sqliteTable(
     searchQueries: text('search_queries', { mode: 'json' }).notNull().default([]).$type<string[]>(),
     failed: integer('failed', { mode: 'boolean' }).notNull().default(false),
   },
-  (table) => ({
-    userIdIdx: index('user_generated_images_user_id_idx').on(table.userId),
-    messageIdIdx: index('user_generated_images_message_id_idx').on(table.messageId),
-    userPromptIdx: index('user_generated_images_user_prompt_idx').on(table.userPrompt),
-    failedIdx: index('user_generated_images_failed_idx').on(table.failed),
-  }),
+  (table) => [
+    index('user_generated_images_user_id_idx').on(table.userId),
+    index('user_generated_images_message_id_idx').on(table.messageId),
+    index('user_generated_images_user_prompt_idx').on(table.userPrompt),
+    index('user_generated_images_failed_idx').on(table.failed),
+  ],
 );
 
 export const userGeneratedImagesRelations = relations(userGeneratedImages, ({ one, many }) => ({
@@ -457,17 +439,14 @@ export const userGeneratedImagesReactions = sqliteTable(
     reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
     comment: text('comment'),
   },
-  (table) => ({
-    userGeneratedImageReactionIdx: uniqueIndex('user_generated_image_reaction_idx').on(
+  (table) => [
+    uniqueIndex('user_generated_image_reaction_idx').on(table.userGeneratedImageId, table.userId),
+    index('user_generated_images_reactions_user_generated_image_id_idx').on(
       table.userGeneratedImageId,
-      table.userId,
     ),
-    userGeneratedImageIdIdx: index(
-      'user_generated_images_reactions_user_generated_image_id_idx',
-    ).on(table.userGeneratedImageId),
-    userIdIdx: index('user_generated_images_reactions_user_id_idx').on(table.userId),
-    reactionIdx: index('user_generated_images_reactions_reaction_idx').on(table.reaction),
-  }),
+    index('user_generated_images_reactions_user_id_idx').on(table.userId),
+    index('user_generated_images_reactions_reaction_idx').on(table.reaction),
+  ],
 );
 
 export const userGeneratedImagesReactionsRelations = relations(
@@ -500,17 +479,17 @@ export const userGeneratedImagesToSourceDocuments = sqliteTable(
       .notNull()
       .default('cosine'),
   },
-  (table) => ({
-    primaryKey: primaryKey({
+  (table) => [
+    primaryKey({
       columns: [table.userGeneratedImageId, table.sourceDocumentId],
     }),
-    userGeneratedImageIdIdx: index(
-      'user_generated_images_to_source_documents_user_generated_image_id_idx',
-    ).on(table.userGeneratedImageId),
-    sourceDocumentIdIdx: index(
-      'user_generated_images_to_source_documents_source_document_id_idx',
-    ).on(table.sourceDocumentId),
-  }),
+    index('user_generated_images_to_source_documents_user_generated_image_id_idx').on(
+      table.userGeneratedImageId,
+    ),
+    index('user_generated_images_to_source_documents_source_document_id_idx').on(
+      table.sourceDocumentId,
+    ),
+  ],
 );
 
 export const userGeneratedImagesToSourceDocumentsRelations = relations(
@@ -538,11 +517,11 @@ export const devotions = sqliteTable(
       .$type<string[]>(),
     failed: integer('failed', { mode: 'boolean' }).notNull().default(false),
   },
-  (table) => ({
-    topicIdx: index('devotions_topic_idx').on(table.topic),
-    createdAtIdx: index('devotions_created_at_idx').on(table.createdAt),
-    failedIdx: index('devotions_failed_idx').on(table.failed),
-  }),
+  (table) => [
+    index('devotions_topic_idx').on(table.topic),
+    index('devotions_created_at_idx').on(table.createdAt),
+    index('devotions_failed_idx').on(table.failed),
+  ],
 );
 
 export const devotionsRelations = relations(devotions, ({ one, many }) => ({
@@ -564,15 +543,12 @@ export const devotionReactions = sqliteTable(
     reaction: text('reaction', { enum: ['LIKE', 'DISLIKE'] }).notNull(),
     comment: text('comment'),
   },
-  (table) => ({
-    devotionReactionsUniqueUserIdx: uniqueIndex('devotion_reactions_unique_user_idx').on(
-      table.devotionId,
-      table.userId,
-    ),
-    devotionIdIdx: index('devotion_reactions_devotion_id_idx').on(table.devotionId),
-    userIdIdx: index('devotion_reactions_user_id_idx').on(table.userId),
-    reactionIdx: index('devotion_reactions_reaction_idx').on(table.reaction),
-  }),
+  (table) => [
+    uniqueIndex('devotion_reactions_unique_user_idx').on(table.devotionId, table.userId),
+    index('devotion_reactions_devotion_id_idx').on(table.devotionId),
+    index('devotion_reactions_user_id_idx').on(table.userId),
+    index('devotion_reactions_reaction_idx').on(table.reaction),
+  ],
 );
 
 export const devotionReactionsRelations = relations(devotionReactions, ({ one }) => ({
@@ -598,10 +574,10 @@ export const devotionImages = sqliteTable(
     negativePrompt: text('negative_prompt'),
     caption: text('caption'),
   },
-  (table) => ({
-    devotionIdIdx: index('devotion_images_devotion_id_idx').on(table.devotionId),
-    captionIdx: index('devotion_images_caption_idx').on(table.caption),
-  }),
+  (table) => [
+    index('devotion_images_devotion_id_idx').on(table.devotionId),
+    index('devotion_images_caption_idx').on(table.caption),
+  ],
 );
 
 export const devotionImagesRelations = relations(devotionImages, ({ one }) => ({
@@ -627,15 +603,13 @@ export const devotionsToSourceDocuments = sqliteTable(
       .notNull()
       .default('cosine'),
   },
-  (table) => ({
-    devotionSourceDocumentKey: primaryKey({
+  (table) => [
+    primaryKey({
       columns: [table.devotionId, table.sourceDocumentId],
     }),
-    devotionIdIdx: index('devotions_to_source_documents_devotion_id_idx').on(table.devotionId),
-    sourceDocumentIdIdx: index('devotions_to_source_documents_source_document_id_idx').on(
-      table.sourceDocumentId,
-    ),
-  }),
+    index('devotions_to_source_documents_devotion_id_idx').on(table.devotionId),
+    index('devotions_to_source_documents_source_document_id_idx').on(table.sourceDocumentId),
+  ],
 );
 
 export const devotionsToSourceDocumentsRelations = relations(
@@ -667,13 +641,13 @@ export const dataSources = sqliteTable(
     lastManualSync: timestamp('last_manual_sync', { withTimezone: true }),
     lastAutomaticSync: timestamp('last_automatic_sync', { withTimezone: true }),
   },
-  (table) => ({
-    nameKey: uniqueIndex('data_sources_name_key').on(table.name),
-    typeIdx: index('data_sources_type_idx').on(table.type),
-    metadataIdx: index('data_sources_metadata_idx').on(table.metadata),
-    lastManualSyncIdx: index('data_sources_last_manual_sync_idx').on(table.lastManualSync),
-    lastAutomaticSyncIdx: index('data_sources_last_automatic_sync_idx').on(table.lastAutomaticSync),
-  }),
+  (table) => [
+    uniqueIndex('data_sources_name_key').on(table.name),
+    index('data_sources_type_idx').on(table.type),
+    index('data_sources_metadata_idx').on(table.metadata),
+    index('data_sources_last_manual_sync_idx').on(table.lastManualSync),
+    index('data_sources_last_automatic_sync_idx').on(table.lastAutomaticSync),
+  ],
 );
 
 export const dataSourcesRelations = relations(dataSources, ({ many }) => ({
@@ -691,17 +665,13 @@ export const dataSourcesToSourceDocuments = sqliteTable(
       .notNull()
       .references(() => sourceDocuments.id),
   },
-  (table) => ({
-    dataSourceSourceDocumentKey: primaryKey({
+  (table) => [
+    primaryKey({
       columns: [table.dataSourceId, table.sourceDocumentId],
     }),
-    dataSourceIdIdx: index('data_sources_to_source_documents_data_source_id_idx').on(
-      table.dataSourceId,
-    ),
-    sourceDocumentIdIdx: index('data_sources_to_source_documents_source_document_id_idx').on(
-      table.sourceDocumentId,
-    ),
-  }),
+    index('data_sources_to_source_documents_data_source_id_idx').on(table.dataSourceId),
+    index('data_sources_to_source_documents_source_document_id_idx').on(table.sourceDocumentId),
+  ],
 );
 
 export const dataSourcesToSourceDocumentsRelations = relations(
@@ -727,11 +697,11 @@ export const indexOperations = sqliteTable(
     metadata: text('metadata', { mode: 'json' }).notNull().default({}).$type<Metadata>(),
     errorMessages: text('error_messages', { mode: 'json' }).notNull().default([]).$type<string[]>(),
   },
-  (table) => ({
-    dataSourceIdIdx: index('index_operation_data_source_id_idx').on(table.dataSourceId),
-    statusIdx: index('index_operation_status_idx').on(table.status),
-    metadataIdx: index('index_operation_metadata_idx').on(table.metadata),
-  }),
+  (table) => [
+    index('index_operation_data_source_id_idx').on(table.dataSourceId),
+    index('index_operation_status_idx').on(table.status),
+    index('index_operation_metadata_idx').on(table.metadata),
+  ],
 );
 
 export const indexOperationsRelations = relations(indexOperations, ({ one }) => ({
@@ -752,12 +722,12 @@ export const bibles = sqliteTable(
     description: text('description').notNull(),
     copyrightStatement: text('copyright_statement').notNull(),
   },
-  (table) => ({
-    abbreviationIdx: uniqueIndex('bibles_abbreviation_idx').on(table.abbreviation),
-    abbreviationLocalIdx: index('bibles_abbreviation_local_idx').on(table.abbreviationLocal),
-    nameIdx: index('bibles_name_idx').on(table.name),
-    nameLocalIdx: index('bibles_name_local_idx').on(table.nameLocal),
-  }),
+  (table) => [
+    uniqueIndex('bibles_abbreviation_idx').on(table.abbreviation),
+    index('bibles_abbreviation_local_idx').on(table.abbreviationLocal),
+    index('bibles_name_idx').on(table.name),
+    index('bibles_name_local_idx').on(table.nameLocal),
+  ],
 );
 
 export const biblesRelations = relations(bibles, ({ many }) => ({
@@ -786,13 +756,13 @@ export const bibleLanguages = sqliteTable(
     rod: integer('rod'),
     numerals: text('numerals').notNull(),
   },
-  (table) => ({
-    isoIdx: uniqueIndex('bible_languages_iso_idx').on(table.iso),
-    nameIdx: index('bible_languages_name_idx').on(table.name),
-    nameLocalIdx: index('bible_languages_name_local_idx').on(table.nameLocal),
-    scriptCodeIdx: index('bible_languages_script_code_idx').on(table.scriptCode),
-    scriptDirectionIdx: index('bible_languages_script_direction_idx').on(table.scriptDirection),
-  }),
+  (table) => [
+    uniqueIndex('bible_languages_iso_idx').on(table.iso),
+    index('bible_languages_name_idx').on(table.name),
+    index('bible_languages_name_local_idx').on(table.nameLocal),
+    index('bible_languages_script_code_idx').on(table.scriptCode),
+    index('bible_languages_script_direction_idx').on(table.scriptDirection),
+  ],
 );
 
 export const bibleLanguagesRelations = relations(bibleLanguages, ({ many }) => ({
@@ -809,11 +779,11 @@ export const biblesToLanguages = sqliteTable(
       .references(() => bibleLanguages.id, { onDelete: 'cascade' })
       .notNull(),
   },
-  (table) => ({
-    primaryKey: primaryKey({ columns: [table.bibleId, table.languageId] }),
-    bibleIdIdx: index('bibles_to_languages_bible_id_idx').on(table.bibleId),
-    languageIdIdx: index('bibles_to_languages_language_id_idx').on(table.languageId),
-  }),
+  (table) => [
+    primaryKey({ columns: [table.bibleId, table.languageId] }),
+    index('bibles_to_languages_bible_id_idx').on(table.bibleId),
+    index('bibles_to_languages_language_id_idx').on(table.languageId),
+  ],
 );
 
 export const biblesToLanguagesRelations = relations(biblesToLanguages, ({ one }) => ({
@@ -834,9 +804,7 @@ export const bibleCountries = sqliteTable(
     iso: text('iso').notNull(),
     name: text('name').notNull(),
   },
-  (table) => ({
-    isoIdx: uniqueIndex('bible_countries_iso_idx').on(table.iso),
-  }),
+  (table) => [uniqueIndex('bible_countries_iso_idx').on(table.iso)],
 );
 
 export const bibleCountriesRelations = relations(bibleCountries, ({ many }) => ({
@@ -853,11 +821,11 @@ export const biblesToCountries = sqliteTable(
       .references(() => bibleCountries.id, { onDelete: 'cascade' })
       .notNull(),
   },
-  (table) => ({
-    primaryKey: primaryKey({ columns: [table.bibleId, table.countryId] }),
-    bibleIdIdx: index('bibles_to_countries_bible_id_idx').on(table.bibleId),
-    countryIdIdx: index('bibles_to_countries_country_id_idx').on(table.countryId),
-  }),
+  (table) => [
+    primaryKey({ columns: [table.bibleId, table.countryId] }),
+    index('bibles_to_countries_bible_id_idx').on(table.bibleId),
+    index('bibles_to_countries_country_id_idx').on(table.countryId),
+  ],
 );
 
 export const biblesToCountriesRelations = relations(biblesToCountries, ({ one }) => ({
@@ -881,10 +849,10 @@ export const bibleRightsHolders = sqliteTable(
     abbr: text('abbr').notNull(),
     url: text('url').notNull(),
   },
-  (table) => ({
-    uidIdx: uniqueIndex('bible_rights_holders_uid_idx').on(table.uid),
-    abbrIdx: index('bible_rights_holders_abbr_idx').on(table.abbr),
-  }),
+  (table) => [
+    uniqueIndex('bible_rights_holders_uid_idx').on(table.uid),
+    index('bible_rights_holders_abbr_idx').on(table.abbr),
+  ],
 );
 
 export const bibleRightsHoldersRelations = relations(bibleRightsHolders, ({ many }) => ({
@@ -901,15 +869,13 @@ export const biblesToRightsHolders = sqliteTable(
       .references(() => bibleRightsHolders.id, { onDelete: 'cascade' })
       .notNull(),
   },
-  (table) => ({
-    primaryKey: primaryKey({
+  (table) => [
+    primaryKey({
       columns: [table.bibleId, table.rightsHolderId],
     }),
-    bibleIdIdx: index('bibles_to_rights_holders_bible_id_idx').on(table.bibleId),
-    rightsHolderIdIdx: index('bibles_to_rights_holders_rights_holder_id_idx').on(
-      table.rightsHolderId,
-    ),
-  }),
+    index('bibles_to_rights_holders_bible_id_idx').on(table.bibleId),
+    index('bibles_to_rights_holders_rights_holder_id_idx').on(table.rightsHolderId),
+  ],
 );
 
 export const biblesToRightsHoldersRelations = relations(biblesToRightsHolders, ({ one }) => ({
@@ -931,9 +897,7 @@ export const bibleRightsAdmins = sqliteTable(
     name: text('name').notNull(),
     url: text('url'),
   },
-  (table) => ({
-    uidIdx: uniqueIndex('bible_rights_admins_uid_idx').on(table.uid),
-  }),
+  (table) => [uniqueIndex('bible_rights_admins_uid_idx').on(table.uid)],
 );
 
 export const bibleRightsAdminsRelations = relations(bibleRightsAdmins, ({ many }) => ({
@@ -950,13 +914,13 @@ export const biblesToRightsAdmins = sqliteTable(
       .references(() => bibleRightsAdmins.id, { onDelete: 'cascade' })
       .notNull(),
   },
-  (table) => ({
-    primaryKey: primaryKey({
+  (table) => [
+    primaryKey({
       columns: [table.bibleId, table.rightsAdminId],
     }),
-    bibleIdIdx: index('bibles_to_rights_admins_bible_id_idx').on(table.bibleId),
-    rightsAdminIdIdx: index('bibles_to_rights_admins_rights_admin_id_idx').on(table.rightsAdminId),
-  }),
+    index('bibles_to_rights_admins_bible_id_idx').on(table.bibleId),
+    index('bibles_to_rights_admins_rights_admin_id_idx').on(table.rightsAdminId),
+  ],
 );
 
 export const biblesToRightsAdminsRelations = relations(biblesToRightsAdmins, ({ one }) => ({
@@ -982,9 +946,7 @@ export const bibleContributors = sqliteTable(
     finance: integer('finance', { mode: 'boolean' }).notNull().default(false),
     qa: integer('qa', { mode: 'boolean' }).notNull().default(false),
   },
-  (table) => ({
-    uidIdx: uniqueIndex('bible_contributors_uid_idx').on(table.uid),
-  }),
+  (table) => [uniqueIndex('bible_contributors_uid_idx').on(table.uid)],
 );
 
 export const bibleContributorsRelations = relations(bibleContributors, ({ many }) => ({
@@ -1001,13 +963,13 @@ export const biblesToContributors = sqliteTable(
       .references(() => bibleContributors.id, { onDelete: 'cascade' })
       .notNull(),
   },
-  (table) => ({
-    primaryKey: primaryKey({
+  (table) => [
+    primaryKey({
       columns: [table.bibleId, table.contributorId],
     }),
-    bibleIdIdx: index('bibles_to_contributors_bible_id_idx').on(table.bibleId),
-    contributorIdIdx: index('bibles_to_contributors_contributor_id_idx').on(table.contributorId),
-  }),
+    index('bibles_to_contributors_bible_id_idx').on(table.bibleId),
+    index('bibles_to_contributors_contributor_id_idx').on(table.contributorId),
+  ],
 );
 
 export const biblesToContributorsRelations = relations(biblesToContributors, ({ one }) => ({
@@ -1036,14 +998,14 @@ export const books = sqliteTable(
     shortName: text('short_name').notNull(),
     longName: text('long_name').notNull(),
   },
-  (table) => ({
-    bibleIdIdx: index('books_bible_id_idx').on(table.bibleId),
-    previousIdIdx: index('books_previous_id_idx').on(table.previousId),
-    nextIdIdx: index('books_next_id_idx').on(table.nextId),
-    numberIdx: index('books_number_idx').on(table.number),
-    codeIdx: index('books_code_idx').on(table.code),
-    abbreviationIdx: index('books_abbreviation_idx').on(table.abbreviation),
-  }),
+  (table) => [
+    index('books_bible_id_idx').on(table.bibleId),
+    index('books_previous_id_idx').on(table.previousId),
+    index('books_next_id_idx').on(table.nextId),
+    index('books_number_idx').on(table.number),
+    index('books_code_idx').on(table.code),
+    index('books_abbreviation_idx').on(table.abbreviation),
+  ],
 );
 
 export const booksRelations = relations(books, ({ one, many }) => ({
@@ -1082,15 +1044,15 @@ export const chapters = sqliteTable(
     number: integer('number').notNull(),
     content: text('content', { mode: 'json' }).notNull().$type<Content[]>(),
   },
-  (table) => ({
-    bibleIdIdx: index('chapters_bible_id_idx').on(table.bibleId),
-    bookIdIdx: index('chapters_book_id_idx').on(table.bookId),
-    previousIdIdx: index('chapters_previous_id_idx').on(table.previousId),
-    nextIdIdx: index('chapters_next_id_idx').on(table.nextId),
-    codeIdx: index('chapters_code_idx').on(table.code),
-    nameIdx: index('chapters_name_idx').on(table.name),
-    numberIdx: index('chapters_number_idx').on(table.number),
-  }),
+  (table) => [
+    index('chapters_bible_id_idx').on(table.bibleId),
+    index('chapters_book_id_idx').on(table.bookId),
+    index('chapters_previous_id_idx').on(table.previousId),
+    index('chapters_next_id_idx').on(table.nextId),
+    index('chapters_code_idx').on(table.code),
+    index('chapters_name_idx').on(table.name),
+    index('chapters_number_idx').on(table.number),
+  ],
 );
 
 export const chaptersRelations = relations(chapters, ({ one, many }) => ({
@@ -1129,14 +1091,11 @@ export const chapterBookmarks = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
   },
-  (table) => ({
-    uniqueUserChapter: uniqueIndex('chapter_bookmarks_unique_user_chapter_idx').on(
-      table.chapterId,
-      table.userId,
-    ),
-    chapterIdIdx: index('chapter_bookmarks_chapter_id_idx').on(table.chapterId),
-    userIdIdx: index('chapter_bookmarks_user_id_idx').on(table.userId),
-  }),
+  (table) => [
+    uniqueIndex('chapter_bookmarks_unique_user_chapter_idx').on(table.chapterId, table.userId),
+    index('chapter_bookmarks_chapter_id_idx').on(table.chapterId),
+    index('chapter_bookmarks_user_id_idx').on(table.userId),
+  ],
 );
 
 export const chapterBookmarksRelations = relations(chapterBookmarks, ({ one }) => ({
@@ -1162,10 +1121,10 @@ export const chapterNotes = sqliteTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     content: text('content').notNull(),
   },
-  (table) => ({
-    chapterIdIdx: index('chapter_notes_chapter_id_idx').on(table.chapterId),
-    userIdIdx: index('chapter_notes_user_id_idx').on(table.userId),
-  }),
+  (table) => [
+    index('chapter_notes_chapter_id_idx').on(table.chapterId),
+    index('chapter_notes_user_id_idx').on(table.userId),
+  ],
 );
 
 export const chapterNotesRelations = relations(chapterNotes, ({ one }) => ({
@@ -1189,15 +1148,13 @@ export const chaptersToSourceDocuments = sqliteTable(
       .notNull()
       .references(() => sourceDocuments.id),
   },
-  (table) => ({
-    primaryKey: primaryKey({
+  (table) => [
+    primaryKey({
       columns: [table.chapterId, table.sourceDocumentId],
     }),
-    chapterIdIdx: index('chapters_to_source_documents_chapter_id_idx').on(table.chapterId),
-    sourceDocumentIdIdx: index('chapters_to_source_documents_source_document_id_idx').on(
-      table.sourceDocumentId,
-    ),
-  }),
+    index('chapters_to_source_documents_chapter_id_idx').on(table.chapterId),
+    index('chapters_to_source_documents_source_document_id_idx').on(table.sourceDocumentId),
+  ],
 );
 
 export const chaptersToSourceDocumentsRelations = relations(
@@ -1220,11 +1177,11 @@ export const readingSessions = sqliteTable(
     startTime: timestamp('start_time').notNull(),
     endTime: timestamp('end_time'),
   },
-  (table) => ({
-    userIdIdx: index('reading_sessions_user_id_idx').on(table.userId),
-    startTimeIdx: index('reading_sessions_start_time_idx').on(table.startTime),
-    endTimeIdx: index('reading_sessions_end_time_idx').on(table.endTime),
-  }),
+  (table) => [
+    index('reading_sessions_user_id_idx').on(table.userId),
+    index('reading_sessions_start_time_idx').on(table.startTime),
+    index('reading_sessions_end_time_idx').on(table.endTime),
+  ],
 );
 
 export const readingSessionsRelations = relations(readingSessions, ({ one }) => ({
@@ -1254,16 +1211,16 @@ export const verses = sqliteTable(
     number: integer('number').notNull(),
     content: text('content', { mode: 'json' }).notNull().$type<Content[]>(),
   },
-  (table) => ({
-    bibleIdIdx: index('verses_bible_id_idx').on(table.bibleId),
-    bookIdIdx: index('verses_book_id_idx').on(table.bookId),
-    chapterIdIdx: index('verses_chapter_id_idx').on(table.chapterId),
-    previousIdIdx: index('verses_previous_id_idx').on(table.previousId),
-    nextIdIdx: index('verses_next_id_idx').on(table.nextId),
-    codeIdx: index('verses_code_idx').on(table.code),
-    nameIdx: index('verses_name_idx').on(table.name),
-    numberIdx: index('verses_number_idx').on(table.number),
-  }),
+  (table) => [
+    index('verses_bible_id_idx').on(table.bibleId),
+    index('verses_book_id_idx').on(table.bookId),
+    index('verses_chapter_id_idx').on(table.chapterId),
+    index('verses_previous_id_idx').on(table.previousId),
+    index('verses_next_id_idx').on(table.nextId),
+    index('verses_code_idx').on(table.code),
+    index('verses_name_idx').on(table.name),
+    index('verses_number_idx').on(table.number),
+  ],
 );
 
 export const versesRelations = relations(verses, ({ one, many }) => ({
@@ -1306,14 +1263,11 @@ export const verseHighlights = sqliteTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     color: text('color').notNull(),
   },
-  (table) => ({
-    uniqueUserVerse: uniqueIndex('verse_highlights_unique_user_verse_idx').on(
-      table.userId,
-      table.verseId,
-    ),
-    verseIdIdx: index('verse_highlights_verse_id_idx').on(table.verseId),
-    userIdIdx: index('verse_highlights_user_id_idx').on(table.userId),
-  }),
+  (table) => [
+    uniqueIndex('verse_highlights_unique_user_verse_idx').on(table.userId, table.verseId),
+    index('verse_highlights_verse_id_idx').on(table.verseId),
+    index('verse_highlights_user_id_idx').on(table.userId),
+  ],
 );
 
 export const verseHighlightsRelations = relations(verseHighlights, ({ one }) => ({
@@ -1338,14 +1292,11 @@ export const verseBookmarks = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
   },
-  (table) => ({
-    uniqueUserVerse: uniqueIndex('verse_bookmarks_unique_user_verse_idx').on(
-      table.userId,
-      table.verseId,
-    ),
-    verseIdIdx: index('verse_bookmarks_verse_id_idx').on(table.verseId),
-    userIdIdx: index('verse_bookmarks_user_id_idx').on(table.userId),
-  }),
+  (table) => [
+    uniqueIndex('verse_bookmarks_unique_user_verse_idx').on(table.userId, table.verseId),
+    index('verse_bookmarks_verse_id_idx').on(table.verseId),
+    index('verse_bookmarks_user_id_idx').on(table.userId),
+  ],
 );
 
 export const verseBookmarksRelations = relations(verseBookmarks, ({ one }) => ({
@@ -1371,10 +1322,10 @@ export const verseNotes = sqliteTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     content: text('content').notNull(),
   },
-  (table) => ({
-    verseIdIdx: index('verse_notes_verse_id_idx').on(table.verseId),
-    userIdIdx: index('verse_notes_user_id_idx').on(table.userId),
-  }),
+  (table) => [
+    index('verse_notes_verse_id_idx').on(table.verseId),
+    index('verse_notes_user_id_idx').on(table.userId),
+  ],
 );
 
 export const verseNotesRelations = relations(verseNotes, ({ one }) => ({
