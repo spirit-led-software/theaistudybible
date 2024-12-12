@@ -11,7 +11,7 @@ import { EditProfileDialog } from './update-dialog';
 export const InfoCard = () => {
   const { user } = useAuth();
   return (
-    <Card class='w-full max-w-lg'>
+    <Card class='h-full w-full'>
       <CardHeader>
         <GradientH1 class='text-center text-3xl sm:text-4xl md:text-5xl'>Profile</GradientH1>
       </CardHeader>

@@ -1,15 +1,24 @@
+import { SignedIn, SignedOut } from '@/www/components/auth/control';
 import { InfoCard } from '@/www/components/auth/profile/info-card';
 import { PasskeysCard } from '@/www/components/auth/profile/passkeys-card';
+import { SettingsCard } from '@/www/components/auth/profile/settings-card';
 import { Meta, Title } from '@solidjs/meta';
+import { Navigate } from '@solidjs/router';
 
 export default function Profile() {
   return (
     <>
-      <MetaTags />
-      <div class='container flex flex-col items-center justify-center gap-4 p-4 sm:p-6 md:p-10'>
-        <InfoCard />
-        <PasskeysCard />
-      </div>
+      <SignedIn>
+        <MetaTags />
+        <div class='container flex flex-col items-center justify-center gap-4 p-4 sm:p-6 md:grid md:grid-cols-2 md:p-10'>
+          <InfoCard />
+          <PasskeysCard />
+          <SettingsCard />
+        </div>
+      </SignedIn>
+      <SignedOut>
+        <Navigate href='/sign-in' />
+      </SignedOut>
     </>
   );
 }

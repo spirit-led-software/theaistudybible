@@ -20,7 +20,8 @@ import { DevotionProvider } from './contexts/devotion';
 import { PosthogProvider } from './contexts/posthog';
 import { getColorModeCookie } from './server/cookie';
 
-import '@fontsource/goldman';
+import '@fontsource/goldman/400.css';
+import '@fontsource/goldman/700.css';
 import '@fontsource-variable/inter';
 import './app.css';
 

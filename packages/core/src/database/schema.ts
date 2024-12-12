@@ -42,6 +42,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   sessions: many(sessions),
   passkeyCredentials: many(passkeyCredentials),
   userCredits: many(userCredits),
+  userSettings: one(userSettings),
   usersToRoles: many(usersToRoles),
   chats: many(chats),
   messages: many(messages),
@@ -170,6 +171,25 @@ export const userCredits = sqliteTable(
 export const userCreditsRelations = relations(userCredits, ({ one }) => ({
   user: one(users, {
     fields: [userCredits.userId],
+    references: [users.id],
+  }),
+}));
+
+export const userSettings = sqliteTable(
+  'user_settings',
+  {
+    ...baseModel,
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    emailNotifications: integer('email_notifications', { mode: 'boolean' }).notNull().default(true),
+  },
+  (table) => [uniqueIndex('user_settings_user_id_idx').on(table.userId)],
+);
+
+export const userSettingsRelations = relations(userSettings, ({ one }) => ({
+  user: one(users, {
+    fields: [userSettings.userId],
     references: [users.id],
   }),
 }));

@@ -12,7 +12,7 @@ deadLetterQueue.subscribe({
 
 emailQueue.subscribe(
   {
-    handler: 'apps/functions/src/queues/subscribers/email/index.handler',
+    handler: 'apps/functions/src/queues/subscribers/email.handler',
     memory: '2 GB',
   },
   { batch: { partialResponses: true } },

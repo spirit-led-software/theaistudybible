@@ -9,6 +9,8 @@
       "@/schemas/*": ["../schemas/src/*"],
       "@/ai": ["../ai/src"],
       "@/ai/*": ["../ai/src/*"],
+      "@/email": ["../email/src"],
+      "@/email/*": ["../email/src/*"],
       "@/www": ["../../apps/www/src"],
       "@/www/*": ["../../apps/www/src/*"],
       "@/functions": ["../../apps/functions/src"],

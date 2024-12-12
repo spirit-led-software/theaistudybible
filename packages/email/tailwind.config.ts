@@ -1,10 +1,12 @@
 import type { Config } from 'tailwindcss';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import tailwindcssSafeArea from 'tailwindcss-safe-area';
-import plugin from 'tailwindcss/plugin';
 
 export default {
-  darkMode: ['variant', ['.dark &', '[data-kb-theme="dark"] &']],
+  darkMode: [
+    'variant',
+    ['@media (prefers-color-scheme: dark) { &:not(.light *) }', '&:is(.dark *)'],
+  ],
   content: ['./src/**/*.{ts,tsx,js,jsx,mdx,html}'],
   theme: {
     container: {
@@ -17,7 +19,7 @@ export default {
     extend: {
       fontFamily: {
         goldman: ['Goldman', 'system-ui'],
-        inter: ['Inter Variable', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -107,11 +109,5 @@ export default {
       },
     },
   },
-  plugins: [
-    tailwindcssAnimate,
-    tailwindcssSafeArea,
-    plugin(({ addVariant }) => {
-      addVariant('standalone', '@media (display-mode: standalone)');
-    }),
-  ],
+  plugins: [tailwindcssAnimate, tailwindcssSafeArea],
 } satisfies Config;

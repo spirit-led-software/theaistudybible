@@ -1,9 +1,10 @@
 import { ses } from '@/core/email';
+import { EmailQueueRecordSchema } from '@/email/schemas';
+import { getEmailHtml } from '@/email/utils/render';
 import { SendEmailCommand } from '@aws-sdk/client-ses';
 import { wrapHandler } from '@sentry/aws-serverless';
 import type { SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
 import { Resource } from 'sst';
-import { EmailQueueRecordSchema } from './schemas';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
   console.log('Processing email event:', JSON.stringify(event, null, 2));
@@ -12,6 +13,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
   for (const r of event.Records) {
     try {
       const record = EmailQueueRecordSchema.parse(JSON.parse(r.body));
+      const html = await getEmailHtml(record.body);
       const result = await ses.send(
         new SendEmailCommand({
           Source: `admin@${Resource.Email.sender}`,
@@ -22,11 +24,13 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
           },
           Message: {
             Subject: {
+              Charset: 'UTF-8',
               Data: record.subject,
             },
             Body: {
               Html: {
-                Data: record.html,
+                Charset: 'UTF-8',
+                Data: html,
               },
             },
           },

@@ -1,16 +1,18 @@
 {
   "extends": "@theaistudybible/tsconfig",
   "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "baseUrl": "./",
     "paths": {
-      "@/schemas": ["./src"],
-      "@/schemas/*": ["./src/*"],
+      "@/email": ["./src"],
+      "@/email/*": ["./src/*"],
+      "@/schemas": ["../schemas/src"],
+      "@/schemas/*": ["../schemas/src/*"],
       "@/core": ["../core/src"],
       "@/core/*": ["../core/src/*"],
       "@/ai": ["../ai/src"],
       "@/ai/*": ["../ai/src/*"],
-      "@/email": ["../email/src"],
-      "@/email/*": ["../email/src/*"],
       "@/www": ["../../apps/www/src"],
       "@/www/*": ["../../apps/www/src/*"],
       "@/functions": ["../../apps/functions/src"],

@@ -19,6 +19,8 @@
       "@/core/*": ["../../packages/core/src/*"],
       "@/ai": ["../../packages/ai/src"],
       "@/ai/*": ["../../packages/ai/src/*"],
+      "@/email": ["../../packages/email/src"],
+      "@/email/*": ["../../packages/email/src/*"],
       "@/functions": ["../functions/src"],
       "@/functions/*": ["../functions/src/*"],
       "@/workers": ["../workers/src"],

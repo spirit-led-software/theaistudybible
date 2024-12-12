@@ -248,7 +248,7 @@ export function PasskeysCard() {
   }));
 
   return (
-    <Card class='w-full max-w-lg'>
+    <Card class='h-full w-full'>
       <CardHeader>
         <CardTitle>Passkeys</CardTitle>
         <CardDescription>Manage your passkeys for passwordless authentication</CardDescription>

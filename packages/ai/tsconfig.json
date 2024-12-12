@@ -10,6 +10,8 @@
       "@/schemas/*": ["../schemas/src/*"],
       "@/core": ["../core/src"],
       "@/core/*": ["../core/src/*"],
+      "@/email": ["../email/src"],
+      "@/email/*": ["../email/src/*"],
       "@/www": ["../../apps/www/src"],
       "@/www/*": ["../../apps/www/src/*"],
       "@/functions": ["../../apps/functions/src"],
