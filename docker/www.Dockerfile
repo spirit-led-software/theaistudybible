@@ -17,6 +17,7 @@ COPY --link ./apps/workers/package.json ./apps/workers/package.json
 COPY --link ./apps/www/package.json ./apps/www/package.json
 COPY --link ./packages/ai/package.json ./packages/ai/package.json
 COPY --link ./packages/core/package.json ./packages/core/package.json
+COPY --link ./packages/email/package.json ./packages/email/package.json
 COPY --link ./packages/schemas/package.json ./packages/schemas/package.json
 COPY --link ./tools/scripts/package.json ./tools/scripts/package.json
 COPY --link ./tools/tsconfig/package.json ./tools/tsconfig/package.json
