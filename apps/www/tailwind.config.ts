@@ -1,7 +1,8 @@
+import type { Config } from 'tailwindcss';
 import tailwindcssAnimate from 'tailwindcss-animate';
 import tailwindcssSafeArea from 'tailwindcss-safe-area';
+import plugin from 'tailwindcss/plugin';
 
-/** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['variant', ['.dark &', '[data-kb-theme="dark"] &']],
   content: ['./src/**/*.{ts,tsx,js,jsx,mdx,html}'],
@@ -106,5 +107,11 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate, tailwindcssSafeArea],
-};
+  plugins: [
+    tailwindcssAnimate,
+    tailwindcssSafeArea,
+    plugin(({ addVariant }) => {
+      addVariant('standalone', '@media (display-mode: standalone)');
+    }),
+  ],
+} satisfies Config;

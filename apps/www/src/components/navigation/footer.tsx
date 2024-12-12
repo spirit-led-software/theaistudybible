@@ -8,7 +8,7 @@ import { Copyright } from 'lucide-solid';
 
 export const NavigationFooter = () => {
   return (
-    <footer class='bg-muted/30 py-8 text-muted-foreground sm:py-12'>
+    <footer class='standalone:hidden bg-muted/30 py-8 text-muted-foreground sm:py-12'>
       <div class='container mx-auto px-4'>
         <div class='mb-6 flex flex-col items-center sm:mb-8'>
           <Logo class='mb-4 h-8 sm:h-12' />
