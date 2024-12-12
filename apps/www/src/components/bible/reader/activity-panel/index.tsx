@@ -79,7 +79,7 @@ export const ActivityPanelSelectedTitle = () => {
   return (
     <Show when={brStore.selectedIds.length}>
       <Button
-        class='-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-2 z-50 w-fit text-nowrap rounded-full bg-foreground/80 p-2 text-background text-xs backdrop-blur-sm hover:bg-foreground/95'
+        class='-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-2 z-50 w-fit text-nowrap rounded-full bg-background/90 p-2 text-foreground text-sm shadow-md backdrop-blur-sm hover:bg-background hover:shadow-lg'
         onClick={() => setIsMenuOpen(true)}
       >
         {brStore.selectedTitle}

@@ -2,15 +2,14 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGroq } from '@ai-sdk/groq';
 import { createOpenAI } from '@ai-sdk/openai';
 import { experimental_createProviderRegistry as createProviderRegistry } from 'ai';
-import OpenAI from 'openai';
 import { Resource } from 'sst';
 
-export const openai = new OpenAI({
-  apiKey: Resource.OpenAiApiKey.value,
-});
+export const openai = createOpenAI({ apiKey: Resource.OpenAiApiKey.value });
+export const anthropic = createAnthropic({ apiKey: Resource.AnthropicApiKey.value });
+export const groq = createGroq({ apiKey: Resource.GroqApiKey.value });
 
 export const registry = createProviderRegistry({
-  anthropic: createAnthropic({ apiKey: Resource.AnthropicApiKey.value }),
-  openai: createOpenAI({ apiKey: Resource.OpenAiApiKey.value }),
-  groq: createGroq({ apiKey: Resource.GroqApiKey.value }),
+  openai,
+  anthropic,
+  groq,
 });

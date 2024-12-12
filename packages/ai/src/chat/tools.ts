@@ -10,6 +10,7 @@ import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/cr
 import { createId } from '@/core/utils/id';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { tool } from 'ai';
+import { experimental_generateImage as generateImage } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { openai } from '../provider-registry';
@@ -319,28 +320,20 @@ export const generateImageTool = (input: { userId: string }) =>
       }
 
       try {
-        const generateImageResponse = await openai.images.generate({
+        const { image } = await generateImage({
           prompt,
-          model: 'dall-e-3',
+          model: openai.image('dall-e-3'),
           size,
         });
 
-        const getImageResponse = await fetch(generateImageResponse.data[0].url!);
-        if (!getImageResponse.ok) {
-          return {
-            status: 'error',
-            message: 'Could not download generated image. Please try again later.',
-          } as const;
-        }
-
         const id = createId();
         const key = `${id}.png`;
-        const image = Buffer.from(await getImageResponse.arrayBuffer());
+        const imageBuffer = Buffer.from(image.uint8Array);
         const putObjectResult = await s3.send(
           new PutObjectCommand({
             Bucket: Resource.GeneratedImagesBucket.name,
             Key: key,
-            Body: image,
+            Body: imageBuffer,
           }),
         );
         if (putObjectResult.$metadata.httpStatusCode !== 200) {
@@ -356,7 +349,6 @@ export const generateImageTool = (input: { userId: string }) =>
             id,
             url: `${Resource.Cdn.url}/generated-images/${key}`,
             userPrompt: prompt,
-            prompt: generateImageResponse.data[0].revised_prompt,
             userId: input.userId,
           })
           .returning();

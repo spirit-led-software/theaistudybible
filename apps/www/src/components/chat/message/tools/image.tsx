@@ -71,7 +71,7 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
                               <Image.Root>
                                 <Image.Img
                                   src={successResult.image.url!}
-                                  alt={successResult.image.prompt ?? 'Generated Image'}
+                                  alt={successResult.image.prompt ?? successResult.image.userPrompt}
                                   loading='lazy'
                                   width={128}
                                   class='h-auto w-full rounded-md'
@@ -95,7 +95,9 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
                                 <Image.Root>
                                   <Image.Img
                                     src={successResult.image.url!}
-                                    alt={successResult.image.prompt ?? 'Generated Image'}
+                                    alt={
+                                      successResult.image.prompt ?? successResult.image.userPrompt
+                                    }
                                     loading='lazy'
                                     class='h-auto w-full rounded-md'
                                   />
@@ -109,9 +111,13 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
                             </DialogContent>
                           </Dialog>
                         </div>
-                        <p class='text-xs'>
-                          <strong>Revised Prompt:</strong> {successResult.image.prompt!}
-                        </p>
+                        <Show when={successResult.image.prompt} keyed>
+                          {(prompt) => (
+                            <p class='text-xs'>
+                              <strong>Revised Prompt:</strong> {prompt}
+                            </p>
+                          )}
+                        </Show>
                       </div>
                     )}
                   </Show>

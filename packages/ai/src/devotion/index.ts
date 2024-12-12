@@ -5,6 +5,7 @@ import { createId } from '@/core/utils/id';
 import type { Devotion } from '@/schemas/devotions/types';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { Output, generateText } from 'ai';
+import { experimental_generateImage as generateAiImage } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { advancedChatModels } from '../models';
@@ -193,25 +194,20 @@ export const generateImage = async ({
   prompt: string;
   devotionId: string;
 }) => {
-  const generateImageResponse = await openai.images.generate({
+  const { image } = await generateAiImage({
     prompt,
-    model: 'dall-e-3',
-    size: '1024x1024',
+    model: openai.image('dall-e-3'),
+    size: '1792x1024',
   });
-
-  const getImageResponse = await fetch(generateImageResponse.data[0].url!);
-  if (!getImageResponse.ok) {
-    throw new Error('Could not download generated image. Please try again later.');
-  }
 
   const id = createId();
   const key = `${id}.png`;
-  const image = Buffer.from(await getImageResponse.arrayBuffer());
+  const imageBuffer = Buffer.from(image.uint8Array);
   const putObjectResult = await s3.send(
     new PutObjectCommand({
       Bucket: Resource.DevotionImagesBucket.name,
       Key: key,
-      Body: image,
+      Body: imageBuffer,
     }),
   );
   if (putObjectResult.$metadata.httpStatusCode !== 200) {
