@@ -26,21 +26,25 @@ export type CharContent = BaseContent & {
   verseId: string;
   verseNumber: number;
 };
-export const CharContentSchema: z.ZodType<CharContent> = BaseContentSchema.extend({
-  type: z.literal('char'),
-  contents: z.lazy(() => ContentSchema.array()),
-  verseId: z.string(),
-  verseNumber: z.number(),
-});
+export const CharContentSchema: z.ZodType<CharContent> = z.lazy(() =>
+  BaseContentSchema.extend({
+    type: z.literal('char'),
+    contents: ContentSchema.array(),
+    verseId: z.string(),
+    verseNumber: z.number(),
+  }),
+);
 
 export type ParaContent = BaseContent & {
   type: 'para';
   contents: Content[];
 };
-export const ParaContentSchema: z.ZodType<ParaContent> = BaseContentSchema.extend({
-  type: z.literal('para'),
-  contents: z.lazy(() => ContentSchema.array()),
-});
+export const ParaContentSchema: z.ZodType<ParaContent> = z.lazy(() =>
+  BaseContentSchema.extend({
+    type: z.literal('para'),
+    contents: ContentSchema.array(),
+  }),
+);
 
 export type NoteContent = BaseContent & {
   type: 'note';
@@ -48,19 +52,21 @@ export type NoteContent = BaseContent & {
   verseId: string;
   verseNumber: number;
 };
-export const NoteContentSchema = BaseContentSchema.extend({
-  type: z.literal('note'),
-  contents: z.lazy(() => ContentSchema.array()),
-  verseId: z.string(),
-  verseNumber: z.number(),
-});
-
-export type OwningContent = CharContent | ParaContent | NoteContent;
-export const OwningContentSchema: z.ZodType<OwningContent> = z.lazy(() =>
-  z.union([CharContentSchema, ParaContentSchema, NoteContentSchema]),
+export const NoteContentSchema: z.ZodType<NoteContent> = z.lazy(() =>
+  BaseContentSchema.extend({
+    type: z.literal('note'),
+    contents: ContentSchema.array(),
+    verseId: z.string(),
+    verseNumber: z.number(),
+  }),
 );
 
-export type Content = CharContent | VerseContent | TextContent | ParaContent | NoteContent;
-export const ContentSchema: z.ZodType<Content> = z.lazy(() =>
-  z.union([OwningContentSchema, VerseContentSchema, TextContentSchema]),
-);
+export const OwningContentSchema = z.union([
+  CharContentSchema,
+  ParaContentSchema,
+  NoteContentSchema,
+]);
+export type OwningContent = z.infer<typeof OwningContentSchema>;
+
+export const ContentSchema = z.union([OwningContentSchema, VerseContentSchema, TextContentSchema]);
+export type Content = z.infer<typeof ContentSchema>;
