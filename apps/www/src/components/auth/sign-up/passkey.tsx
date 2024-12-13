@@ -7,7 +7,7 @@ import {
   verifyWebAuthnChallenge,
 } from '@/core/auth/providers/webauthn';
 import { db } from '@/core/database';
-import { users } from '@/core/database/schema';
+import { userSettings, users } from '@/core/database/schema';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { bigEndian } from '@oslojs/binary';
 import { ECDSAPublicKey, p256 } from '@oslojs/crypto/ecdsa';
@@ -103,6 +103,7 @@ const signUpWithPasskeyAction = action(
     }
 
     const [user] = await db.insert(users).values({ email: input.email }).returning();
+    await db.insert(userSettings).values({ userId: user.id });
 
     let credential: WebAuthnUserCredential;
     if (authenticatorData.credential.publicKey.algorithm() === coseAlgorithmES256) {

@@ -65,5 +65,8 @@ export default defineConfig({
         },
       }),
     ],
+    optimizeDeps: {
+      include: ['solid-markdown > debug', 'solid-marked > extend'],
+    },
   },
 });

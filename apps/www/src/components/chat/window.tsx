@@ -35,12 +35,12 @@ export const ChatWindow = (props: ChatWindowProps) => {
     id,
     input,
     setInput,
-    handleSubmit,
+    handleSubmit: handleSubmitBase,
     isLoading,
     error,
     messages,
     messagesQuery,
-    append,
+    append: appendBase,
     stop,
     addToolResult,
     chatQuery,
@@ -72,6 +72,18 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const [setAnimateRef] = createAutoAnimate();
   const { isAtBottom, scrollToBottom, setScrollRef, setBottomRef, setTopOfLastMessageRef } =
     createChatScrollAnchor(() => ({ isLoading: isLoading() }));
+
+  const append = (...args: Parameters<typeof appendBase>) => {
+    const result = appendBase(...args);
+    scrollToBottom();
+    return result;
+  };
+
+  const handleSubmit = (...args: Parameters<typeof handleSubmitBase>) => {
+    const result = handleSubmitBase(...args);
+    scrollToBottom();
+    return result;
+  };
 
   const [searchParams, setSearchParams] = useSearchParams();
   createEffect(
@@ -166,7 +178,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                       message={message}
                       nextMessage={messages()[idx() + 1]}
                       addToolResult={addToolResult}
-                      isLoading={isLoading}
+                      isLoading={isLoading()}
                     />
                   </>
                 )}

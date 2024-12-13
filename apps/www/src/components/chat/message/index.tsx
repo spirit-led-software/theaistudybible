@@ -1,5 +1,4 @@
 import { allChatModels } from '@/ai/models';
-import { Markdown } from '@/www/components/ui/markdown';
 import { cn } from '@/www/lib/utils';
 import { getMessageId } from '@/www/utils/message';
 import type { useChat } from '@ai-sdk/solid';
@@ -7,11 +6,13 @@ import type { Message as AIMessage } from '@ai-sdk/solid';
 import { writeClipboard } from '@solid-primitives/clipboard';
 import { A } from '@solidjs/router';
 import { Copy } from 'lucide-solid';
-import { type Accessor, Match, Show, Switch } from 'solid-js';
+import { Match, Show, Switch } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { UserAvatar } from '../../auth/user-avatar';
 import { Icon } from '../../branding/icon';
+import { AnimatedMarkdown } from '../../ui/animated-markdown';
 import { Button } from '../../ui/button';
+import { Markdown } from '../../ui/markdown';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { MessageReactionButtons } from './reaction-buttons';
 import { Tools } from './tools';
@@ -21,7 +22,7 @@ export type MessageProps = {
   nextMessage?: AIMessage;
   message: AIMessage;
   addToolResult: ReturnType<typeof useChat>['addToolResult'];
-  isLoading: Accessor<boolean>;
+  isLoading: boolean;
 };
 
 export const Message = (props: MessageProps) => {
@@ -61,7 +62,16 @@ export const Message = (props: MessageProps) => {
         </Show>
       </div>
       <div class='flex w-full flex-col'>
-        <Show when={props.message.content}>{(content) => <Markdown>{content()}</Markdown>}</Show>
+        <Show when={props.message.content}>
+          {(content) => (
+            <Show
+              when={props.isLoading && props.message.role === 'assistant' && !props.nextMessage}
+              fallback={<Markdown>{content()}</Markdown>}
+            >
+              <AnimatedMarkdown>{content()}</AnimatedMarkdown>
+            </Show>
+          )}
+        </Show>
         <Show
           when={Boolean(props.message.toolInvocations?.length) && props.message.toolInvocations}
         >
@@ -69,7 +79,7 @@ export const Message = (props: MessageProps) => {
             <Tools
               toolInvocations={toolInvocations()}
               addToolResult={props.addToolResult}
-              isLoading={props.isLoading() && !props.nextMessage}
+              isLoading={props.isLoading && !props.nextMessage}
             />
           )}
         </Show>

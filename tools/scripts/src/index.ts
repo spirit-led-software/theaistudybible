@@ -75,6 +75,17 @@ await yargs(hideBin(process.argv))
         },
       ),
   )
+  .command('users', 'User commands', (yargs) =>
+    yargs.command(
+      'create-default-settings',
+      'Create default user settings for all users',
+      (yargs) => yargs,
+      async () => {
+        const { createUserSettings } = await import('./one-off/create-user-settings');
+        await createUserSettings();
+      },
+    ),
+  )
   .showHelpOnFail(true)
   .help('h')
   .alias('h', 'help')

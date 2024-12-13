@@ -17,7 +17,7 @@
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/webauthn": "^1.0.0",
     "@paralleldrive/cuid2": "^2.2.2",
-    "@sentry/node": "^8.44.0",
+    "@sentry/node": "^8.45.0",
     "@theaistudybible/schemas": "workspace:*",
     "ohash": "^1.1.4",
     "oslo": "^1.2.1",

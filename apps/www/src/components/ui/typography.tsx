@@ -226,12 +226,27 @@ export const ListItem = (props: ComponentProps<'li'>) => {
   );
 };
 
+export const CodeBlock = (props: ComponentProps<'code'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <code
+      class={cn(
+        'rounded-md bg-muted px-[0.3rem] py-[0.2rem] font-mono font-semibold text-sm',
+        local.class,
+      )}
+      {...rest}
+    >
+      {local.children}
+    </code>
+  );
+};
+
 export const InlineCode = (props: ComponentProps<'code'>) => {
   const [local, rest] = splitProps(props, ['class', 'children']);
   return (
     <code
       class={cn(
-        'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono font-semibold text-sm',
+        'relative inline-block rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono font-semibold text-sm',
         local.class,
       )}
       {...rest}
@@ -265,5 +280,14 @@ export const Strong = (props: ComponentProps<'strong'>) => {
     <strong class={cn('font-bold', local.class)} {...rest}>
       {local.children}
     </strong>
+  );
+};
+
+export const Emphasis = (props: ComponentProps<'em'>) => {
+  const [local, rest] = splitProps(props, ['class', 'children']);
+  return (
+    <em class={cn('font-semibold', local.class)} {...rest}>
+      {local.children}
+    </em>
   );
 };

@@ -1,144 +1,208 @@
+import { cn } from '@/www/lib/utils';
 import { Image } from '@kobalte/core';
 import { A } from '@solidjs/router';
-import { Show, createMemo, splitProps } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
-import SolidMarkedMarkdown from 'solid-marked/component';
-import { Button } from './button';
+import {
+  type Accessor,
+  type ComponentProps,
+  Show,
+  children,
+  createMemo,
+  splitProps,
+} from 'solid-js';
+import { SolidMarkdown, type SolidMarkdownOptions } from 'solid-markdown';
+import { buttonVariants } from './button';
 import { Checkbox } from './checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './dialog';
 import { Spinner } from './spinner';
 import * as Typography from './typography';
 
-export const Markdown = (props: { children: string }) => {
-  const children = createMemo(() => props.children);
+export type MarkdownProps = ComponentProps<'div'> & {
+  children: string;
+  renderingStrategy?: 'memo' | 'reconcile';
+  components?: SolidMarkdownOptions['components'];
+};
+
+export const Markdown = (props: MarkdownProps) => {
+  const [local, rest] = splitProps(props, ['class', 'components', 'renderingStrategy', 'children']);
+
+  const components: Accessor<SolidMarkdownOptions['components']> = createMemo(() => ({
+    h1: (props) => {
+      const [local, rest] = splitProps(props, ['id', 'children']);
+      const memoizedChildren = children(() => local.children);
+      return (
+        <Typography.H1 id={local.id} {...rest}>
+          <A href={`#${local.id}`}>{memoizedChildren()}</A>
+        </Typography.H1>
+      );
+    },
+    h2: (props) => {
+      const [local, rest] = splitProps(props, ['id', 'children']);
+      const memoizedChildren = children(() => local.children);
+      return (
+        <Typography.H2 id={local.id} {...rest}>
+          <A href={`#${local.id}`}>{memoizedChildren()}</A>
+        </Typography.H2>
+      );
+    },
+    h3: (props) => {
+      const [local, rest] = splitProps(props, ['id', 'children']);
+      const memoizedChildren = children(() => local.children);
+      return (
+        <Typography.H3 id={local.id} {...rest}>
+          <A href={`#${local.id}`}>{memoizedChildren()}</A>
+        </Typography.H3>
+      );
+    },
+    h4: (props) => {
+      const [local, rest] = splitProps(props, ['id', 'children']);
+      const memoizedChildren = children(() => local.children);
+      return (
+        <Typography.H4 id={local.id} {...rest}>
+          <A href={`#${local.id}`}>{memoizedChildren()}</A>
+        </Typography.H4>
+      );
+    },
+    h5: (props) => {
+      const [local, rest] = splitProps(props, ['id', 'children']);
+      const memoizedChildren = children(() => local.children);
+      return (
+        <Typography.H5 id={local.id} {...rest}>
+          <A href={`#${local.id}`}>{memoizedChildren()}</A>
+        </Typography.H5>
+      );
+    },
+    h6: (props) => {
+      const [local, rest] = splitProps(props, ['id', 'children']);
+      const memoizedChildren = children(() => local.children);
+      return (
+        <Typography.H6 id={local.id} {...rest}>
+          <A href={`#${local.id}`}>{memoizedChildren()}</A>
+        </Typography.H6>
+      );
+    },
+    p: (props) => {
+      const [local, rest] = splitProps(props, ['children']);
+      const memoizedChildren = children(() => local.children);
+      return (
+        <Typography.P class='group-[.is-list]:inline' {...rest}>
+          {memoizedChildren()}
+        </Typography.P>
+      );
+    },
+    a: (props) => {
+      const [local, rest] = splitProps(props, ['href', 'class', 'children']);
+      const memoizedChildren = children(() => local.children);
+      return (
+        <A
+          href={local.href ?? '#'}
+          class={cn(buttonVariants({ variant: 'link' }), 'p-0', local.class)}
+          {...rest}
+        >
+          {memoizedChildren()}
+        </A>
+      );
+    },
+    blockquote: (props) => {
+      const [local, rest] = splitProps(props, ['children']);
+      const memoizedChildren = children(() => local.children);
+      return (
+        <Typography.Blockquote class='group-[.is-list]:inline' {...rest}>
+          {memoizedChildren()}
+        </Typography.Blockquote>
+      );
+    },
+    img: (props) => {
+      const [local, rest] = splitProps(props, ['src', 'alt', 'title']);
+      return (
+        <Dialog>
+          <DialogTrigger>
+            <Image.Root>
+              <Image.Img
+                src={local.src}
+                alt={local.alt ?? local.title ?? 'Generated Image'}
+                loading='lazy'
+                class='h-auto w-full rounded-md'
+                {...rest}
+              />
+              <Image.Fallback>
+                <div class='flex h-full min-h-52 w-full items-center justify-center rounded-md bg-muted'>
+                  <Spinner size='sm' />
+                </div>
+              </Image.Fallback>
+            </Image.Root>
+          </DialogTrigger>
+          <DialogContent class='max-w-screen-lg'>
+            <DialogHeader>
+              <DialogTitle>Generated Image</DialogTitle>
+            </DialogHeader>
+            <A href={local.src ?? '#'} target='_blank' rel='noopener noreferrer'>
+              <Image.Root>
+                <Image.Img
+                  src={local.src}
+                  alt={local.alt ?? local.title ?? 'Generated Image'}
+                  loading='lazy'
+                  class='h-auto w-full rounded-md'
+                  {...rest}
+                />
+                <Image.Fallback>
+                  <div class='flex h-full min-h-52 w-full items-center justify-center rounded-md bg-muted'>
+                    <Spinner size='sm' />
+                  </div>
+                </Image.Fallback>
+              </Image.Root>
+            </A>
+          </DialogContent>
+        </Dialog>
+      );
+    },
+    ul: (props) => {
+      const [local, rest] = splitProps(props, ['children']);
+      const memoizedChildren = children(() => local.children);
+      return <Typography.List {...rest}>{memoizedChildren()}</Typography.List>;
+    },
+    ol: (props) => {
+      const [local, rest] = splitProps(props, ['children']);
+      const memoizedChildren = children(() => local.children);
+      return <Typography.OrderedList {...rest}>{memoizedChildren()}</Typography.OrderedList>;
+    },
+    li: (props) => {
+      const [local, rest] = splitProps(props, ['children', 'checked']);
+      const memoizedChildren = children(() => local.children);
+      return (
+        <Typography.ListItem class='is-list group' {...rest}>
+          <Show when={local.checked != null}>
+            <Checkbox checked={local.checked ?? undefined} />
+          </Show>
+          {memoizedChildren()}
+        </Typography.ListItem>
+      );
+    },
+    code: (props) => {
+      const [local, rest] = splitProps(props, ['children']);
+      const memoizedChildren = children(() => local.children);
+      return <Typography.CodeBlock {...rest}>{memoizedChildren()}</Typography.CodeBlock>;
+    },
+    strong: (props) => {
+      const [local, rest] = splitProps(props, ['children']);
+      const memoizedChildren = children(() => local.children);
+      return <Typography.Strong {...rest}>{memoizedChildren()}</Typography.Strong>;
+    },
+    em: (props) => {
+      const [local, rest] = splitProps(props, ['children']);
+      const memoizedChildren = children(() => local.children);
+      return <Typography.Emphasis {...rest}>{memoizedChildren()}</Typography.Emphasis>;
+    },
+    ...props.components,
+  }));
+
   return (
-    <SolidMarkedMarkdown
-      builtins={{
-        Root: (props) => {
-          const [local, rest] = splitProps(props, ['children']);
-          return (
-            <div class='whitespace-pre-wrap' {...rest}>
-              {local.children}
-            </div>
-          );
-        },
-        Heading: (props) => {
-          const [local, rest] = splitProps(props, ['depth', 'id', 'children']);
-          return (
-            <Dynamic component={Typography[`H${local.depth}`]} id={local.id} {...rest}>
-              <A href={`#${local.id}`}>{local.children}</A>
-            </Dynamic>
-          );
-        },
-        Paragraph: (props) => {
-          const [local, rest] = splitProps(props, ['children']);
-          return (
-            <Typography.P class='group-[.is-list]:inline' {...rest}>
-              {local.children}
-            </Typography.P>
-          );
-        },
-        Blockquote: (props) => {
-          const [local, rest] = splitProps(props, ['children']);
-          return (
-            <Typography.Blockquote class='group-[.is-list]:inline' {...rest}>
-              {local.children}
-            </Typography.Blockquote>
-          );
-        },
-        Image: (props) => {
-          const [local, rest] = splitProps(props, ['url', 'alt', 'title']);
-          return (
-            <Dialog>
-              <DialogTrigger>
-                <Image.Root>
-                  <Image.Img
-                    src={local.url}
-                    alt={local.alt ?? local.title ?? 'Generated Image'}
-                    loading='lazy'
-                    class='h-auto w-full rounded-md'
-                    {...rest}
-                  />
-                  <Image.Fallback>
-                    <div class='flex h-full min-h-52 w-full items-center justify-center rounded-md bg-muted'>
-                      <Spinner size='sm' />
-                    </div>
-                  </Image.Fallback>
-                </Image.Root>
-              </DialogTrigger>
-              <DialogContent class='max-w-screen-lg'>
-                <DialogHeader>
-                  <DialogTitle>Generated Image</DialogTitle>
-                </DialogHeader>
-                <A href={local.url} target='_blank' rel='noopener noreferrer'>
-                  <Image.Root>
-                    <Image.Img
-                      src={local.url}
-                      alt={local.alt ?? local.title ?? 'Generated Image'}
-                      loading='lazy'
-                      class='h-auto w-full rounded-md'
-                      {...rest}
-                    />
-                    <Image.Fallback>
-                      <div class='flex h-full min-h-52 w-full items-center justify-center rounded-md bg-muted'>
-                        <Spinner size='sm' />
-                      </div>
-                    </Image.Fallback>
-                  </Image.Root>
-                </A>
-              </DialogContent>
-            </Dialog>
-          );
-        },
-        List: (props) => {
-          const [local, rest] = splitProps(props, ['children', 'ordered', 'start']);
-          return (
-            <Dynamic
-              component={local.ordered ? Typography.OrderedList : Typography.List}
-              start={local.start ?? undefined}
-              {...rest}
-            >
-              {local.children}
-            </Dynamic>
-          );
-        },
-        ListItem: (props) => {
-          const [local, rest] = splitProps(props, ['children', 'checked']);
-          return (
-            <Typography.ListItem class='is-list group' {...rest}>
-              <Show when={local.checked != null}>
-                <Checkbox checked={local.checked ?? undefined} />
-              </Show>
-              {local.children}
-            </Typography.ListItem>
-          );
-        },
-        Link: (props) => {
-          const [local, rest] = splitProps(props, ['url', 'title', 'children']);
-          return (
-            <Button
-              as={A}
-              href={local.url}
-              title={local.title ?? undefined}
-              variant='link'
-              class='p-0'
-              {...rest}
-            >
-              {local.children}
-            </Button>
-          );
-        },
-        InlineCode: (props) => {
-          const [local, rest] = splitProps(props, ['children']);
-          return <Typography.InlineCode {...rest}>{local.children}</Typography.InlineCode>;
-        },
-        Strong: (props) => {
-          const [local, rest] = splitProps(props, ['children']);
-          return <Typography.Strong {...rest}>{local.children}</Typography.Strong>;
-        },
-      }}
-    >
-      {children()}
-    </SolidMarkedMarkdown>
+    <div class={cn('whitespace-pre-wrap', local.class)} {...rest}>
+      <SolidMarkdown
+        renderingStrategy={local.renderingStrategy ?? 'memo'}
+        components={components()}
+      >
+        {local.children}
+      </SolidMarkdown>
+    </div>
   );
 };

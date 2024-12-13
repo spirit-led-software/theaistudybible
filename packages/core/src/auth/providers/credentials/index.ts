@@ -1,7 +1,7 @@
 import { lucia } from '@/core/auth';
 import { AuthError } from '@/core/auth/errors';
 import { db } from '@/core/database';
-import { forgottenPasswordCodes, passwords, users } from '@/core/database/schema';
+import { forgottenPasswordCodes, passwords, userSettings, users } from '@/core/database/schema';
 import { queueEmail } from '@/core/utils/email';
 import { eq } from 'drizzle-orm';
 import type { z } from 'zod';
@@ -55,10 +55,15 @@ export async function signUp(credentials: z.infer<typeof signUpSchema>) {
       email: validated.email,
     })
     .returning();
-  await db.insert(passwords).values({
-    userId: user.id,
-    hash,
-  });
+  await Promise.all([
+    db.insert(passwords).values({
+      userId: user.id,
+      hash,
+    }),
+    db.insert(userSettings).values({
+      userId: user.id,
+    }),
+  ]);
 
   const session = await lucia.createSession(user.id, {});
   const sessionCookie = lucia.createSessionCookie(session.id);

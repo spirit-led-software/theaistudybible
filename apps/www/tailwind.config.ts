@@ -97,6 +97,18 @@ export default {
           '0%,70%,100%': { opacity: '1' },
           '20%,50%': { opacity: '0' },
         },
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        'blur-in': {
+          from: { opacity: '0', filter: 'blur(5px)' },
+          to: { opacity: '1', filter: 'blur(0px)' },
+        },
+        typewriter: {
+          from: { width: '0', overflow: 'hidden' },
+          to: { width: 'fit-content' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -104,6 +116,9 @@ export default {
         'content-show': 'content-show 0.2s ease-out',
         'content-hide': 'content-hide 0.2s ease-out',
         'caret-blink': 'caret-blink 1.25s ease-out infinite',
+        'fade-in': 'fade-in 0.2s ease-in-out',
+        'blur-in': 'blur-in 0.2s ease-in-out',
+        typewriter: 'typewriter 0.2s ease-in-out',
       },
     },
   },

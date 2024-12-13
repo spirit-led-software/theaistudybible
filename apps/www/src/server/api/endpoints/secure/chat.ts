@@ -10,7 +10,7 @@ import type { Bindings, Variables } from '@/www/server/api/types';
 import { getDefaultModelId, getValidMessages, validateModelId } from '@/www/server/api/utils/chat';
 import { getMessageId } from '@/www/utils/message';
 import { zValidator } from '@hono/zod-validator';
-import { createDataStream } from 'ai';
+import { createDataStream, smoothStream } from 'ai';
 import { parseISO } from 'date-fns';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
@@ -239,8 +239,9 @@ const app = new Hono<{
                 properties: { modelId, event },
               });
             },
-            experimental_toolCallStreaming: true,
             abortSignal: getRequestEvent()?.request.signal,
+            experimental_toolCallStreaming: true,
+            experimental_transform: smoothStream(),
           });
 
           const result = streamText(messages);
