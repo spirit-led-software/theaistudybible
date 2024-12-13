@@ -1,8 +1,10 @@
 import { cn } from '@/www/lib/utils';
-import { type Accessor, For, createEffect, createMemo } from 'solid-js';
+import { type Accessor, For, type JSX, createEffect, createMemo } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import type { SolidMarkdownOptions } from 'solid-markdown';
 import { Markdown } from './markdown';
+
+type Separator = 'word' | 'char';
 
 const animationClasses = {
   'fade-in': 'animate-fade-in',
@@ -15,6 +17,7 @@ type Animation = keyof typeof animationClasses;
 type AnimatedMarkdownProps = {
   children: string;
   components?: SolidMarkdownOptions['components'];
+  separator?: Separator;
   animation?: Animation;
   animationDurationMs?: number;
 };
@@ -23,9 +26,12 @@ export const AnimatedMarkdown = (props: AnimatedMarkdownProps) => {
   const components: Accessor<SolidMarkdownOptions['components']> = createMemo(() => ({
     text: (textProps) => {
       return (
-        <TokenizedText animation={props.animation} animationDurationMs={props.animationDurationMs}>
-          {textProps.node.value}
-        </TokenizedText>
+        <TokenizedText
+          sep={props.separator}
+          animation={props.animation}
+          animationDurationMs={props.animationDurationMs}
+          input={textProps.node.value}
+        />
       );
     },
     ...props.components,
@@ -38,29 +44,46 @@ export const AnimatedMarkdown = (props: AnimatedMarkdownProps) => {
   );
 };
 
-const getTokens = (input: string) => {
-  return input.match(/\S+|\s+/g)?.filter((token) => token.length > 0) ?? [];
+const getTokens = (input: JSX.Element, sep: 'word' | 'char') => {
+  if (typeof input === 'undefined' || input === null) return [];
+  if (typeof input === 'string') {
+    let splitRegex: RegExp;
+    if (sep === 'word') {
+      splitRegex = /(\s+)/;
+    } else if (sep === 'char') {
+      splitRegex = /(.)/;
+    } else {
+      throw new Error('Invalid separator');
+    }
+    return input.split(splitRegex).filter((token) => token.length > 0);
+  }
+  return [input];
 };
 
-export type TokenizedTextProps = {
-  children: string;
+type TokenizedTextProps = {
+  input: JSX.Element;
+  sep?: Separator;
   animation?: Animation;
   animationDurationMs?: number;
 };
 
-export const TokenizedText = (props: TokenizedTextProps) => {
-  const [tokens, setTokens] = createStore(getTokens(props.children));
+const TokenizedText = (props: TokenizedTextProps) => {
+  const sep = createMemo(() => props.sep ?? 'word');
+  const [tokens, setTokens] = createStore(getTokens(props.input, sep()));
   createEffect(() => {
-    setTokens(reconcile(getTokens(props.children), { merge: true }));
+    setTokens(reconcile(getTokens(props.input, sep())));
   });
 
   return (
     <For each={tokens}>
       {(token) => (
         <span
-          class={cn('inline', animationClasses[props.animation ?? 'fade-in'])}
+          class={cn(
+            'inline-block whitespace-pre-wrap',
+            animationClasses[props.animation ?? 'fade-in'],
+          )}
           style={{
-            'animation-duration': `${props.animationDurationMs ?? 200}ms`,
+            'animation-duration': `${props.animationDurationMs ?? 500}ms`,
             'animation-iteration-count': '1',
           }}
         >

@@ -26,40 +26,26 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
             | ReturnType<typeof bookmarkVerseTool>['parameters']
           >
         }
+        keyed
       >
         {(toolArgs) => (
           <Switch>
-            <Match
-              when={
-                'chapterNumbers' in toolArgs() &&
-                (toolArgs() as { bibleAbbr: string; bookName: string; chapterNumbers: number[] })
-              }
-            >
+            <Match when={'chapterNumbers' in toolArgs && toolArgs} keyed>
               {(toolArgs) => (
-                <For each={toolArgs().chapterNumbers}>
+                <For each={toolArgs.chapterNumbers}>
                   {(chapterNumber) => (
                     <span class='text-sm'>
-                      {toolArgs().bookName} {chapterNumber}
+                      {toolArgs.bookName} {chapterNumber}
                     </span>
                   )}
                 </For>
               )}
             </Match>
-            <Match
-              when={
-                'verseNumbers' in toolArgs() &&
-                (toolArgs() as {
-                  bibleAbbr: string;
-                  bookName: string;
-                  chapterNumber: number;
-                  verseNumbers: number[];
-                })
-              }
-            >
+            <Match when={'verseNumbers' in toolArgs && toolArgs} keyed>
               {(toolArgs) => (
                 <span class='text-sm'>
-                  {toolArgs().bookName} {toolArgs().chapterNumber}:
-                  {formNumberSequenceString(toolArgs().verseNumbers)}
+                  {toolArgs.bookName} {toolArgs.chapterNumber}:
+                  {formNumberSequenceString(toolArgs.verseNumbers)}
                 </span>
               )}
             </Match>

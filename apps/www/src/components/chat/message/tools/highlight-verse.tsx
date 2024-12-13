@@ -24,17 +24,18 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
         when={
           props.toolInvocation.args as z.infer<ReturnType<typeof highlightVerseTool>['parameters']>
         }
+        keyed
       >
         {(toolArgs) => (
           <div class='flex items-center space-x-2 text-sm'>
             <span>
-              {toolArgs().bookName} {toolArgs().chapterNumber}:
-              {formNumberSequenceString(toolArgs().verseNumbers)} ({toolArgs().bibleAbbr})
+              {toolArgs.bookName} {toolArgs.chapterNumber}:
+              {formNumberSequenceString(toolArgs.verseNumbers)} ({toolArgs.bibleAbbr})
             </span>
             <div
               class='h-4 w-4 shrink-0 rounded-full'
               style={{
-                'background-color': toolArgs().color || '#FFD700',
+                'background-color': toolArgs.color || '#FFD700',
               }}
             />
           </div>

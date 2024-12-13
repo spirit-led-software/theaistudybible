@@ -9,11 +9,10 @@ import { buttonVariants } from '@/www/components/ui/button';
 import { Spinner } from '@/www/components/ui/spinner';
 import { H5, H6 } from '@/www/components/ui/typography';
 import { cn } from '@/www/lib/utils';
-import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { A } from '@solidjs/router';
 import type { ToolInvocation } from 'ai';
-import { ArrowUpRightFromSquare, BookOpenIcon, Search } from 'lucide-solid';
-import { For, Match, Show, Switch } from 'solid-js';
+import { Search } from 'lucide-solid';
+import { For, Show } from 'solid-js';
 import type { z } from 'zod';
 
 export type VectorStoreToolProps = {
@@ -28,24 +27,24 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
         <Search class='mr-2' size={18} />
         Search for Sources
       </H5>
-      <Show when={props.toolInvocation.args as z.infer<(typeof vectorStoreTool)['parameters']>}>
-        {(toolArgs) => {
-          const [container] = createAutoAnimate();
-          return (
-            <div class='flex w-full flex-col'>
-              <H6 class='font-goldman font-normal'>Queries</H6>
-              <div ref={container} class='flex flex-wrap gap-2 px-2 py-1'>
-                <For each={toolArgs().terms}>
-                  {(term) => (
-                    <div class='rounded-full bg-primary px-2 py-1 text-primary-foreground text-xs'>
-                      {term}
-                    </div>
-                  )}
-                </For>
-              </div>
-            </div>
-          );
-        }}
+      <Show
+        when={props.toolInvocation.args as z.infer<(typeof vectorStoreTool)['parameters']>}
+        keyed
+      >
+        {(toolArgs) => (
+          <Accordion multiple={false} collapsible class='w-full text-sm'>
+            <AccordionItem value='terms'>
+              <AccordionTrigger>Queries</AccordionTrigger>
+              <AccordionContent>
+                <ul class='list-inside list-none'>
+                  <For each={toolArgs.terms}>
+                    {(term) => <li class='list-item text-xs'>{term}</li>}
+                  </For>
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        )}
       </Show>
       <Show when={props.isLoading && !('result' in props.toolInvocation)}>
         <div class='mt-2 flex w-full flex-col'>
@@ -65,28 +64,20 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
             <AccordionItem value='results'>
               <AccordionTrigger>Results ({result.length})</AccordionTrigger>
               <AccordionContent>
-                <div class='flex flex-wrap gap-2'>
+                <ul class='list-inside list-disc'>
                   <For each={result}>
                     {(doc) => (
-                      <A
-                        href={doc.metadata?.url ?? ''}
-                        class={cn(
-                          buttonVariants({ variant: 'outline' }),
-                          'flex h-fit w-fit items-center rounded-full px-2 py-1 text-xs',
-                        )}
-                      >
-                        <span class='mr-1 inline-block'>
-                          <Switch fallback={<ArrowUpRightFromSquare size={12} />}>
-                            <Match when={doc.metadata?.type === 'bible'}>
-                              <BookOpenIcon size={12} />
-                            </Match>
-                          </Switch>
-                        </span>
-                        {doc.metadata?.name ?? doc.metadata?.title ?? doc.metadata?.url ?? ''}
-                      </A>
+                      <li class='list-item'>
+                        <A
+                          href={doc.metadata?.url ?? ''}
+                          class={cn(buttonVariants({ variant: 'link' }), 'h-fit p-0 text-xs')}
+                        >
+                          {doc.metadata?.name ?? doc.metadata?.title ?? doc.metadata?.url ?? ''}
+                        </A>
+                      </li>
                     )}
                   </For>
-                </div>
+                </ul>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
