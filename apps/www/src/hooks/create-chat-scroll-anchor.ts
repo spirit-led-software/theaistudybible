@@ -28,7 +28,7 @@ export const createChatScrollAnchor = (input?: Accessor<CreateChatScrollAnchorIn
       if (scrollRef && bottomRef) {
         const observer = new IntersectionObserver(
           ([entry]) => setIsAtBottom(entry.isIntersecting),
-          { root: scrollRef, threshold: 0.2 },
+          { root: scrollRef, threshold: 0.75 },
         );
         observer.observe(bottomRef);
         onCleanup(() => observer.disconnect());

@@ -27,7 +27,7 @@ export const Markdown = (props: MarkdownProps) => {
 
   const components: Accessor<SolidMarkdownOptions['components']> = createMemo(() => ({
     h1: (props) => {
-      const [local, rest] = splitProps(props, ['id', 'children']);
+      const [local, rest] = splitProps(props, ['id', 'children', 'node']);
       const memoizedChildren = children(() => local.children);
       return (
         <Typography.H1 id={local.id} {...rest}>
@@ -36,7 +36,7 @@ export const Markdown = (props: MarkdownProps) => {
       );
     },
     h2: (props) => {
-      const [local, rest] = splitProps(props, ['id', 'children']);
+      const [local, rest] = splitProps(props, ['id', 'children', 'node']);
       const memoizedChildren = children(() => local.children);
       return (
         <Typography.H2 id={local.id} {...rest}>
@@ -45,7 +45,7 @@ export const Markdown = (props: MarkdownProps) => {
       );
     },
     h3: (props) => {
-      const [local, rest] = splitProps(props, ['id', 'children']);
+      const [local, rest] = splitProps(props, ['id', 'children', 'node']);
       const memoizedChildren = children(() => local.children);
       return (
         <Typography.H3 id={local.id} {...rest}>
@@ -54,7 +54,7 @@ export const Markdown = (props: MarkdownProps) => {
       );
     },
     h4: (props) => {
-      const [local, rest] = splitProps(props, ['id', 'children']);
+      const [local, rest] = splitProps(props, ['id', 'children', 'node']);
       const memoizedChildren = children(() => local.children);
       return (
         <Typography.H4 id={local.id} {...rest}>
@@ -63,7 +63,7 @@ export const Markdown = (props: MarkdownProps) => {
       );
     },
     h5: (props) => {
-      const [local, rest] = splitProps(props, ['id', 'children']);
+      const [local, rest] = splitProps(props, ['id', 'children', 'node']);
       const memoizedChildren = children(() => local.children);
       return (
         <Typography.H5 id={local.id} {...rest}>
@@ -72,7 +72,7 @@ export const Markdown = (props: MarkdownProps) => {
       );
     },
     h6: (props) => {
-      const [local, rest] = splitProps(props, ['id', 'children']);
+      const [local, rest] = splitProps(props, ['id', 'children', 'node']);
       const memoizedChildren = children(() => local.children);
       return (
         <Typography.H6 id={local.id} {...rest}>
@@ -81,16 +81,16 @@ export const Markdown = (props: MarkdownProps) => {
       );
     },
     p: (props) => {
-      const [local, rest] = splitProps(props, ['children']);
+      const [local, rest] = splitProps(props, ['children', 'node']);
       const memoizedChildren = children(() => local.children);
       return (
-        <Typography.P class='group-[.is-list]:inline' {...rest}>
+        <Typography.P class='group-[.is-list]:inline group-[.is-quote]:inline' {...rest}>
           {memoizedChildren()}
         </Typography.P>
       );
     },
     a: (props) => {
-      const [local, rest] = splitProps(props, ['href', 'class', 'children']);
+      const [local, rest] = splitProps(props, ['href', 'class', 'children', 'node']);
       const memoizedChildren = children(() => local.children);
       return (
         <A
@@ -103,16 +103,16 @@ export const Markdown = (props: MarkdownProps) => {
       );
     },
     blockquote: (props) => {
-      const [local, rest] = splitProps(props, ['children']);
+      const [local, rest] = splitProps(props, ['class', 'children', 'node']);
       const memoizedChildren = children(() => local.children);
       return (
-        <Typography.Blockquote class='group-[.is-list]:inline' {...rest}>
+        <Typography.Blockquote class={cn('is-quote group', local.class)} {...rest}>
           {memoizedChildren()}
         </Typography.Blockquote>
       );
     },
     img: (props) => {
-      const [local, rest] = splitProps(props, ['src', 'alt', 'title']);
+      const [local, rest] = splitProps(props, ['src', 'alt', 'title', 'node']);
       return (
         <Dialog>
           <DialogTrigger>
@@ -156,17 +156,17 @@ export const Markdown = (props: MarkdownProps) => {
       );
     },
     ul: (props) => {
-      const [local, rest] = splitProps(props, ['children']);
+      const [local, rest] = splitProps(props, ['children', 'node']);
       const memoizedChildren = children(() => local.children);
       return <Typography.List {...rest}>{memoizedChildren()}</Typography.List>;
     },
     ol: (props) => {
-      const [local, rest] = splitProps(props, ['children']);
+      const [local, rest] = splitProps(props, ['children', 'node']);
       const memoizedChildren = children(() => local.children);
       return <Typography.OrderedList {...rest}>{memoizedChildren()}</Typography.OrderedList>;
     },
     li: (props) => {
-      const [local, rest] = splitProps(props, ['children', 'checked']);
+      const [local, rest] = splitProps(props, ['children', 'checked', 'node']);
       const memoizedChildren = children(() => local.children);
       return (
         <Typography.ListItem class='is-list group' {...rest}>
@@ -178,17 +178,17 @@ export const Markdown = (props: MarkdownProps) => {
       );
     },
     code: (props) => {
-      const [local, rest] = splitProps(props, ['children']);
+      const [local, rest] = splitProps(props, ['children', 'node']);
       const memoizedChildren = children(() => local.children);
       return <Typography.CodeBlock {...rest}>{memoizedChildren()}</Typography.CodeBlock>;
     },
     strong: (props) => {
-      const [local, rest] = splitProps(props, ['children']);
+      const [local, rest] = splitProps(props, ['children', 'node']);
       const memoizedChildren = children(() => local.children);
       return <Typography.Strong {...rest}>{memoizedChildren()}</Typography.Strong>;
     },
     em: (props) => {
-      const [local, rest] = splitProps(props, ['children']);
+      const [local, rest] = splitProps(props, ['children', 'node']);
       const memoizedChildren = children(() => local.children);
       return <Typography.Emphasis {...rest}>{memoizedChildren()}</Typography.Emphasis>;
     },

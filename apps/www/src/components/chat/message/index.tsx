@@ -83,12 +83,12 @@ export const Message = (props: MessageProps) => {
             />
           )}
         </Show>
-        <div class='flex items-center gap-1 py-2' role='toolbar' aria-label='Message actions'>
-          <Show
-            when={
-              props.message.role === 'assistant' && props.message.role !== props.nextMessage?.role
-            }
-          >
+        <Show
+          when={
+            props.message.role === 'assistant' && props.message.role !== props.nextMessage?.role
+          }
+        >
+          <div class='flex items-center gap-1 py-2' role='toolbar' aria-label='Message actions'>
             <Show
               when={
                 props.message.annotations?.find(
@@ -138,8 +138,8 @@ export const Message = (props: MessageProps) => {
               <Copy size={15} aria-hidden='true' />
             </Button>
             <MessageReactionButtons messageId={getMessageId(props.message)} />
-          </Show>
-        </div>
+          </div>
+        </Show>
       </div>
     </article>
   );

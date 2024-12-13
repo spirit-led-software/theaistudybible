@@ -1,4 +1,5 @@
 import type { generateImageTool } from '@/ai/chat/tools';
+import { TokenizedText } from '@/www/components/ui/animated-markdown';
 import {
   Dialog,
   DialogContent,
@@ -31,11 +32,10 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
         when={
           props.toolInvocation.args as z.infer<ReturnType<typeof generateImageTool>['parameters']>
         }
-        keyed
       >
         {(toolArgs) => (
-          <div class='flex items-center space-x-2 text-sm'>
-            <span>{toolArgs.prompt}</span>
+          <div class='flex items-center text-sm'>
+            <TokenizedText>{toolArgs().prompt}</TokenizedText>
           </div>
         )}
       </Show>
@@ -60,7 +60,7 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
             <Show
               when={result.status === 'error' && result}
               fallback={
-                <div class='flex flex-col text-sm'>
+                <div class='flex w-full flex-col text-sm'>
                   <Show when={result.status === 'success' && result} keyed>
                     {(successResult) => (
                       <div class='flex w-full flex-col gap-2'>
