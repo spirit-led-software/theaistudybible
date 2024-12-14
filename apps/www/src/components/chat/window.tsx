@@ -1,3 +1,4 @@
+import { useBibleStore } from '@/www/contexts/bible';
 import { createChatScrollAnchor } from '@/www/hooks/create-chat-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
@@ -30,6 +31,7 @@ export type ChatWindowProps = {
 export const ChatWindow = (props: ChatWindowProps) => {
   const location = useLocation();
   const [chatStore, setChatStore] = useChatStore();
+  const [bibleStore] = useBibleStore();
 
   const {
     id,
@@ -50,6 +52,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
     body: {
       additionalContext: props.additionalContext,
       modelId: chatStore.modelId,
+      bibleId: bibleStore.bible?.id,
     },
   }));
   createEffect(() => {

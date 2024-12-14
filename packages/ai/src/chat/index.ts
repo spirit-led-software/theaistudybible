@@ -68,8 +68,9 @@ export type CreateChatChainOptions = Omit<
   Parameters<typeof streamText<ReturnType<typeof tools>>>[0],
   'model' | 'system' | 'messages' | 'tools'
 > & {
-  modelId: string;
   chatId: string;
+  modelId: string;
+  bibleId?: string | null;
   userMessageId: string;
   userId: string;
   dataStream: DataStreamWriter;
@@ -84,7 +85,11 @@ export const createChatChain = (options: CreateChatChainOptions) => {
   // });
   const model = registry.languageModel(options.modelId);
   return (messages: Pick<Message, 'role' | 'content'>[]) => {
-    const resolvedTools = tools({ userId: options.userId });
+    const resolvedTools = tools({
+      dataStream: options.dataStream,
+      userId: options.userId,
+      bibleId: options.bibleId,
+    });
     return streamText({
       ...options,
       model,

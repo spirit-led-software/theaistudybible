@@ -28,7 +28,11 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
         <Search class='mr-2' size={18} />
         Search for Sources
       </H5>
-      <Show when={props.toolInvocation.args as z.infer<(typeof vectorStoreTool)['parameters']>}>
+      <Show
+        when={
+          props.toolInvocation.args as z.infer<ReturnType<typeof vectorStoreTool>['parameters']>
+        }
+      >
         {(toolArgs) => {
           const [container] = createAutoAnimate();
           return (
@@ -56,7 +60,9 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
       <Show
         when={
           'result' in props.toolInvocation &&
-          (props.toolInvocation.result as Awaited<ReturnType<(typeof vectorStoreTool)['execute']>>)
+          (props.toolInvocation.result as Awaited<
+            ReturnType<ReturnType<typeof vectorStoreTool>['execute']>
+          >)
         }
         keyed
       >

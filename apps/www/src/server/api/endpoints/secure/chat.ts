@@ -57,6 +57,7 @@ const app = new Hono<{
         ),
         chatId: z.string().nullish(),
         modelId: z.string().nullish(),
+        bibleId: z.string().nullish(),
         additionalContext: z.string().nullish(),
       }),
     ),
@@ -127,6 +128,15 @@ const app = new Hono<{
           .returning();
       }
       console.timeEnd('getChat');
+
+      console.time('validateBibleId');
+      if (input.bibleId) {
+        const bible = await db.query.bibles.findFirst({
+          where: (bibles, { eq }) => eq(bibles.id, input.bibleId!),
+        });
+        if (!bible) return c.json({ message: 'Bible not found' }, 400);
+      }
+      console.timeEnd('validateBibleId');
 
       const lastMessage = input.messages.at(-1);
       if (!lastMessage) {
@@ -212,8 +222,9 @@ const app = new Hono<{
           }
 
           const streamText = createChatChain({
-            modelId,
             chatId: chat.id,
+            modelId,
+            bibleId: input.bibleId,
             userMessageId: getMessageId(lastUserMessage),
             userId: c.var.user!.id,
             dataStream: dataStream,

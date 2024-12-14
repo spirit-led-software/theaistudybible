@@ -9,21 +9,22 @@ import { s3 } from '@/core/storage';
 import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
 import { createId } from '@/core/utils/id';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { tool } from 'ai';
+import { type DataStreamWriter, tool } from 'ai';
 import { experimental_generateImage as generateImage } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { openai } from '../provider-registry';
 import { vectorStore } from '../vector-store';
 
-export const askForHighlightColorTool = tool({
-  description: 'Ask for Highlight Color: Ask which color to use when highlighting a verse.',
-  parameters: z.object({
-    message: z.string().describe('A polite message to ask the user for a highlight color.'),
-  }),
-});
+export const askForHighlightColorTool = (_input: { dataStream: DataStreamWriter }) =>
+  tool({
+    description: 'Ask for Highlight Color: Ask which color to use when highlighting a verse.',
+    parameters: z.object({
+      message: z.string().describe('A polite message to ask the user for a highlight color.'),
+    }),
+  });
 
-export const highlightVerseTool = (options: { userId: string }) =>
+export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId: string }) =>
   tool({
     description:
       'Highlight Verse: Highlight a verse in the Bible. You must always ask the user for the highlight color using the "Ask for Highlight Color" tool before using this tool.',
@@ -85,7 +86,7 @@ export const highlightVerseTool = (options: { userId: string }) =>
         .insert(verseHighlights)
         .values(
           verses.map((verse) => ({
-            userId: options.userId,
+            userId: input.userId,
             verseId: verse.id,
             color: color ?? '#FFD700',
           })),
@@ -108,7 +109,7 @@ export const highlightVerseTool = (options: { userId: string }) =>
     },
   });
 
-export const bookmarkVerseTool = (options: { userId: string }) =>
+export const bookmarkVerseTool = (input: { dataStream: DataStreamWriter; userId: string }) =>
   tool({
     description: 'Bookmark Verse: Bookmark a verse in the Bible.',
     parameters: z.object({
@@ -176,7 +177,7 @@ export const bookmarkVerseTool = (options: { userId: string }) =>
         .insert(verseBookmarks)
         .values(
           verses.map((verse) => ({
-            userId: options.userId,
+            userId: input.userId,
             verseId: verse.id,
           })),
         )
@@ -193,7 +194,7 @@ export const bookmarkVerseTool = (options: { userId: string }) =>
     },
   });
 
-export const bookmarkChapterTool = (options: { userId: string }) =>
+export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userId: string }) =>
   tool({
     description: 'Bookmark Chapter: Bookmark a chapter in the Bible.',
     parameters: z.object({
@@ -250,7 +251,7 @@ export const bookmarkChapterTool = (options: { userId: string }) =>
         .insert(chapterBookmarks)
         .values(
           chapters.map((chapter) => ({
-            userId: options.userId,
+            userId: input.userId,
             chapterId: chapter.id,
           })),
         )
@@ -266,33 +267,35 @@ export const bookmarkChapterTool = (options: { userId: string }) =>
     },
   });
 
-export const vectorStoreTool = tool({
-  description: 'Vector Store: Fetch relevant resources for your answer.',
-  parameters: z.object({
-    terms: z
-      .array(z.string())
-      .describe('1 to 6 search terms or phrases that will be used to find relevant resources.'),
-  }),
-  execute: async ({ terms }) => {
-    return await Promise.all(
-      terms.map((term) =>
-        vectorStore.searchDocuments(term, {
-          limit: 12,
-          withMetadata: true,
-          withEmbedding: false,
-        }),
-      ),
-    ).then((docs) =>
-      docs
-        .flat()
-        .filter((doc, index, self) => self.findIndex((d) => d.id === doc.id) === index)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 8),
-    );
-  },
-});
+export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?: string | null }) =>
+  tool({
+    description: 'Vector Store: Fetch relevant resources for your answer.',
+    parameters: z.object({
+      terms: z
+        .array(z.string())
+        .describe('1 to 6 search terms or phrases that will be used to find relevant resources.'),
+    }),
+    execute: async ({ terms }) => {
+      return await Promise.all(
+        terms.map((term) =>
+          vectorStore.searchDocuments(term, {
+            limit: 12,
+            withMetadata: true,
+            withEmbedding: false,
+            filter: input.bibleId ? `bibleId = "${input.bibleId}" or type != "bible"` : undefined,
+          }),
+        ),
+      ).then((docs) =>
+        docs
+          .flat()
+          .filter((doc, index, self) => self.findIndex((d) => d.id === doc.id) === index)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 8),
+      );
+    },
+  });
 
-export const generateImageTool = (input: { userId: string }) =>
+export const generateImageTool = (input: { dataStream: DataStreamWriter; userId: string }) =>
   tool({
     description:
       'Generate Image: Generate an image from a text prompt. You must use the "Vector Store" tool to fetch relevant resources to make your prompt more detailed.',
@@ -369,19 +372,15 @@ export const generateImageTool = (input: { userId: string }) =>
     },
   });
 
-export const tools = (input: { userId: string }) => ({
-  askForHighlightColor: askForHighlightColorTool,
-  highlightVerse: highlightVerseTool({
-    userId: input.userId,
-  }),
-  bookmarkVerse: bookmarkVerseTool({
-    userId: input.userId,
-  }),
-  bookmarkChapter: bookmarkChapterTool({
-    userId: input.userId,
-  }),
-  generateImage: generateImageTool({
-    userId: input.userId,
-  }),
-  vectorStore: vectorStoreTool,
+export const tools = (input: {
+  dataStream: DataStreamWriter;
+  userId: string;
+  bibleId?: string | null;
+}) => ({
+  askForHighlightColor: askForHighlightColorTool({ dataStream: input.dataStream }),
+  highlightVerse: highlightVerseTool({ dataStream: input.dataStream, userId: input.userId }),
+  bookmarkVerse: bookmarkVerseTool({ dataStream: input.dataStream, userId: input.userId }),
+  bookmarkChapter: bookmarkChapterTool({ dataStream: input.dataStream, userId: input.userId }),
+  generateImage: generateImageTool({ dataStream: input.dataStream, userId: input.userId }),
+  vectorStore: vectorStoreTool({ dataStream: input.dataStream, bibleId: input.bibleId }),
 });
