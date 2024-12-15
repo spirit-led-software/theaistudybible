@@ -1,4 +1,5 @@
 import { stripe } from '@/core/stripe';
+import { SignedIn } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
@@ -6,7 +7,13 @@ import { Skeleton } from '@/www/components/ui/skeleton';
 import { H1, P } from '@/www/components/ui/typography';
 import { requireAuth } from '@/www/server/auth';
 import { Meta, Title } from '@solidjs/meta';
-import { type RouteDefinition, action, useAction, useSearchParams } from '@solidjs/router';
+import {
+  Navigate,
+  type RouteDefinition,
+  action,
+  useAction,
+  useSearchParams,
+} from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { loadStripe } from '@stripe/stripe-js';
 import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-query';
@@ -98,7 +105,9 @@ export default function CreditPurchasePage() {
   }));
 
   return (
-    <>
+    <SignedIn
+      fallback={<Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/credits')}`} />}
+    >
       <MetaTags />
       <div class='container flex h-full w-full overflow-y-auto'>
         <div class='container flex max-w-2xl flex-1 flex-col px-4 py-8'>
@@ -173,7 +182,7 @@ export default function CreditPurchasePage() {
           </div>
         </div>
       </div>
-    </>
+    </SignedIn>
   );
 }
 

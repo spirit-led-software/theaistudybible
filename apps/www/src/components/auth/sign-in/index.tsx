@@ -6,6 +6,7 @@ import { Button } from '../../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { EmailPasswordForm } from './email-password';
 import { PasskeyButton } from './passkey';
+
 export type SignInProps = {
   redirectUrl?: string;
 };
@@ -23,7 +24,12 @@ export const SignIn = (props: SignInProps) => {
         <CardContent class='space-y-4 px-4 sm:px-6'>
           <div class='flex items-center justify-center space-x-2'>
             <span class='text-gray-500 text-sm'>Don't have an account?</span>
-            <Button as={A} variant='link' href='/sign-up' class='p-0 text-xs sm:text-sm'>
+            <Button
+              as={A}
+              variant='link'
+              href={`/sign-up?redirectUrl=${encodeURIComponent(props.redirectUrl ?? '/')}`}
+              class='p-0 text-xs sm:text-sm'
+            >
               Sign Up
             </Button>
           </div>

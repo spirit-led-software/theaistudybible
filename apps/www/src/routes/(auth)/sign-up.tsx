@@ -1,11 +1,14 @@
 import { SignUp } from '@/www/components/auth/sign-up';
 import { Meta, Title } from '@solidjs/meta';
+import { useSearchParams } from '@solidjs/router';
 
 export default function SignUpPage() {
+  const [searchParams] = useSearchParams();
+
   return (
     <>
       <MetaTags />
-      <SignUp />
+      <SignUp redirectUrl={searchParams.redirectUrl as string | undefined} />
     </>
   );
 }

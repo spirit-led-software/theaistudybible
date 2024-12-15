@@ -16,7 +16,6 @@ import {
   Shield,
 } from 'lucide-solid';
 import { Show } from 'solid-js';
-import { SignedIn } from '../auth/control';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -155,17 +154,15 @@ export const Menu = (props: MenuProps) => {
             </NavigationMenuLabel>
             <NavigationMenuDescription>View today's devotion</NavigationMenuDescription>
           </NavigationMenuLink>
-          <SignedIn>
-            <NavigationMenuLink as={A} href='/credits'>
-              <NavigationMenuLabel class='flex items-center gap-2'>
-                <HandCoins />
-                Credits
-              </NavigationMenuLabel>
-              <NavigationMenuDescription>
-                Purchase credits to use on AI actions
-              </NavigationMenuDescription>
-            </NavigationMenuLink>
-          </SignedIn>
+          <NavigationMenuLink as={A} href='/credits'>
+            <NavigationMenuLabel class='flex items-center gap-2'>
+              <HandCoins />
+              Credits
+            </NavigationMenuLabel>
+            <NavigationMenuDescription>
+              Purchase credits to use on AI actions
+            </NavigationMenuDescription>
+          </NavigationMenuLink>
         </NavigationMenuContent>
       </NavigationMenuItem>
       <Show when={isAdmin()}>

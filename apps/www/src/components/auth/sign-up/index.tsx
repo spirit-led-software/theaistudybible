@@ -46,7 +46,12 @@ export function SignUp(props: SignUpProps) {
         <CardContent class='space-y-4 px-4 sm:px-6'>
           <div class='flex items-center justify-center space-x-2'>
             <span class='text-gray-500 text-sm'>Already have an account?</span>
-            <Button as={A} variant='link' href='/sign-in' class='p-0 text-xs sm:text-sm'>
+            <Button
+              as={A}
+              variant='link'
+              href={`/sign-in?redirectUrl=${encodeURIComponent(props.redirectUrl ?? '/')}`}
+              class='p-0 text-xs sm:text-sm'
+            >
               Sign In
             </Button>
           </div>
