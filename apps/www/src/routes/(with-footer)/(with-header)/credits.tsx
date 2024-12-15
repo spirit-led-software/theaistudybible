@@ -1,5 +1,5 @@
 import { stripe } from '@/core/stripe';
-import { SignedIn } from '@/www/components/auth/control';
+import { Protected } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
@@ -105,8 +105,10 @@ export default function CreditPurchasePage() {
   }));
 
   return (
-    <SignedIn
-      fallback={<Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/credits')}`} />}
+    <Protected
+      signedOutFallback={
+        <Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/credits')}`} />
+      }
     >
       <MetaTags />
       <div class='container flex h-full w-full overflow-y-auto'>
@@ -182,7 +184,7 @@ export default function CreditPurchasePage() {
           </div>
         </div>
       </div>
-    </SignedIn>
+    </Protected>
   );
 }
 

@@ -6,13 +6,17 @@ import {
   userGeneratedImagesToSourceDocuments,
 } from '@/core/database/schema';
 import type { Message } from '@/schemas/chats/messages/types';
+import type { Chat } from '@/schemas/chats/types';
 import type { DataStreamWriter } from 'ai';
 import { Output, generateText, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
+import type { User } from 'lucia';
 import { z } from 'zod';
-import { defaultChatModel } from '../models';
+import { type ChatModelInfo, defaultChatModel } from '../models';
 import { registry } from '../provider-registry';
-import { messagesToString } from '../utils';
+import { messagesToString, numTokensFromString } from '../utils';
+import { getValidMessages } from '../utils/get-valid-messages';
+import { systemPrompt } from './system-prompt';
 import { tools } from './tools';
 
 export const renameChat = async ({
@@ -64,118 +68,118 @@ What's the new title?`,
   return chat;
 };
 
+const maxResponseTokens = 4096;
+
 export type CreateChatChainOptions = Omit<
   Parameters<typeof streamText<ReturnType<typeof tools>>>[0],
-  'model' | 'system' | 'messages' | 'tools'
+  'model' | 'system' | 'messages' | 'tools' | 'maxTokens'
 > & {
-  chatId: string;
-  modelId: string;
+  chat: Chat;
+  modelInfo: ChatModelInfo;
   bibleId?: string | null;
-  userMessageId: string;
-  userId: string;
+  user: User;
   dataStream: DataStreamWriter;
   additionalContext?: string | null;
 };
 
-export const createChatChain = (options: CreateChatChainOptions) => {
+export const createChatChain = async (options: CreateChatChainOptions) => {
+  const pendingPromises: Promise<unknown>[] = [];
+
+  const system = systemPrompt({ additionalContext: options.additionalContext, user: options.user });
+  const systemTokens = numTokensFromString({ text: system });
+
+  console.time('getValidMessages');
+  const messages = await getValidMessages({
+    userId: options.user.id,
+    chatId: options.chat.id,
+    maxTokens: options.modelInfo.contextSize - systemTokens - maxResponseTokens,
+    mustStartWithUserMessage: options.modelInfo.host === 'anthropic',
+  });
+  console.timeEnd('getValidMessages');
+
+  const lastUserMessage = messages.find((m) => m.role === 'user')!;
+
+  if (!options.chat.customName) {
+    pendingPromises.push(
+      renameChat({
+        chatId: options.chat.id,
+        messages,
+        additionalContext: options.additionalContext,
+      }),
+    );
+  } else {
+    pendingPromises.push(
+      db
+        .update(chats)
+        .set({ updatedAt: new Date() })
+        .where(eq(chats.id, options.chat.id))
+        .execute(),
+    );
+  }
+
+  const resolvedTools = tools({
+    dataStream: options.dataStream,
+    userId: options.user.id,
+    bibleId: options.bibleId,
+  });
+
   // TODO: Uncomment this once bun fixes this issue: https://github.com/oven-sh/bun/issues/13072
   // const model = wrapLanguageModel({
   //   model: registry.languageModel(options.modelId),
   //   middleware: cacheMiddleware,
   // });
-  const model = registry.languageModel(options.modelId);
-  return (messages: Pick<Message, 'role' | 'content'>[]) => {
-    const resolvedTools = tools({
-      dataStream: options.dataStream,
-      userId: options.userId,
-      bibleId: options.bibleId,
-    });
+  const model = registry.languageModel(`${options.modelInfo.host}:${options.modelInfo.id}`);
+  return () => {
     return streamText({
       ...options,
       model,
-      system: `You are an expert on Christian faith and theology. Your goal is to answer questions about the Christian faith. You may also be provided with additional context to help you answer the question.
-
-Here are some additional rules for you to follow:
-- You are not allowed to use any of your pre-trained knowledge to answer the query.
-- You must use the 'Vector Store' tool to fetch relevant information for your answer.
-- If you have been provided with additional context, you must use it to answer the question. You can also fetch additional information if necessary.
-- You must use the 'Save Context' tool to save additional context (if provided) to the conversation history.
-- You must be concise and to the point, unless the user asks for a more verbose answer.
-- If you don't know the answer, say: "I don't know" or an equivalent phrase. Do not, for any reason, make up an answer.
-- You must format your response in valid markdown syntax.
-${
-  options.additionalContext
-    ? `- You must take into account the following additional context (delimited by triple dashes):
----
-${options.additionalContext}
----`
-    : ''
-}`,
+      system,
       // @ts-expect-error - Messages are not typed correctly
       messages,
       tools: resolvedTools,
       maxSteps: options.maxSteps ?? 5,
       onStepFinish: async (step) => {
-        const [response] = await db
-          .insert(messagesTable)
-          .values({
-            role: 'assistant',
-            content: step.text,
-            toolInvocations: step.toolCalls?.map((t) => ({
-              ...t,
-              state: 'execute' in resolvedTools[t.toolName] ? 'call' : 'partial-call',
-            })),
-            annotations: [{ modelId: options.modelId }],
-            finishReason: step.finishReason,
-            originMessageId: options.userMessageId,
-            userId: options.userId,
-            chatId: options.chatId,
-          })
-          .returning();
-
-        options.dataStream.writeMessageAnnotation({
-          dbId: response.id,
-        });
-
-        if (step.toolResults?.length) {
-          await db
-            .update(messagesTable)
-            .set({
-              toolInvocations: step.toolResults.map((t) => ({
+        const onStepFinish = async () => {
+          const [response] = await db
+            .insert(messagesTable)
+            .values({
+              role: 'assistant',
+              content: step.text,
+              toolInvocations: step.toolCalls?.map((t) => ({
                 ...t,
-                state: 'result',
+                state: 'execute' in resolvedTools[t.toolName] ? 'call' : 'partial-call',
               })),
+              annotations: [{ modelId: `${options.modelInfo.host}:${options.modelInfo.id}` }],
+              finishReason: step.finishReason,
+              originMessageId: lastUserMessage.id,
+              userId: options.user.id,
+              chatId: options.chat.id,
             })
-            .where(eq(messagesTable.id, response.id))
             .returning();
 
-          for (const toolResult of step.toolResults) {
-            if (toolResult.toolName === 'vectorStore') {
-              await db
-                .insert(messagesToSourceDocuments)
-                .values(
-                  toolResult.result.map((d) => ({
-                    messageId: response.id,
-                    sourceDocumentId: d.id,
-                    distance: 1 - d.score,
-                    distanceMetric: 'cosine' as const,
-                  })),
-                )
-                // In case there are multiple results with the same document
-                .onConflictDoNothing();
+          options.dataStream.writeMessageAnnotation({
+            dbId: response.id,
+          });
 
-              const generateImageToolResult = step.toolResults.find(
-                (t) => t.toolName === 'generateImage',
-              );
-              if (generateImageToolResult && generateImageToolResult.result.status === 'success') {
-                options.dataStream.writeMessageAnnotation({
-                  generatedImageId: generateImageToolResult.result.image.id,
-                });
+          if (step.toolResults?.length) {
+            await db
+              .update(messagesTable)
+              .set({
+                toolInvocations: step.toolResults.map((t) => ({
+                  ...t,
+                  state: 'result',
+                })),
+              })
+              .where(eq(messagesTable.id, response.id))
+              .returning();
+
+            for (const toolResult of step.toolResults) {
+              if (toolResult.toolName === 'vectorStore') {
                 await db
-                  .insert(userGeneratedImagesToSourceDocuments)
+                  .insert(messagesToSourceDocuments)
                   .values(
                     toolResult.result.map((d) => ({
-                      userGeneratedImageId: generateImageToolResult.result.image!.id,
+                      messageId: response.id,
                       sourceDocumentId: d.id,
                       distance: 1 - d.score,
                       distanceMetric: 'cosine' as const,
@@ -183,13 +187,39 @@ ${options.additionalContext}
                   )
                   // In case there are multiple results with the same document
                   .onConflictDoNothing();
+
+                const generateImageToolResult = step.toolResults.find(
+                  (t) => t.toolName === 'generateImage',
+                );
+                if (
+                  generateImageToolResult &&
+                  generateImageToolResult.result.status === 'success'
+                ) {
+                  options.dataStream.writeMessageAnnotation({
+                    generatedImageId: generateImageToolResult.result.image.id,
+                  });
+                  await db
+                    .insert(userGeneratedImagesToSourceDocuments)
+                    .values(
+                      toolResult.result.map((d) => ({
+                        userGeneratedImageId: generateImageToolResult.result.image!.id,
+                        sourceDocumentId: d.id,
+                        distance: 1 - d.score,
+                        distanceMetric: 'cosine' as const,
+                      })),
+                    )
+                    // In case there are multiple results with the same document
+                    .onConflictDoNothing();
+                }
               }
             }
           }
-        }
-        return await options.onStepFinish?.(step);
+        };
+        await Promise.all([onStepFinish(), options.onStepFinish?.(step)]);
       },
-      onFinish: (event) => options.onFinish?.(event),
+      onFinish: async (event) => {
+        await Promise.all([...pendingPromises, options.onFinish?.(event)]);
+      },
     });
   };
 };

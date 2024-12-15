@@ -1,24 +1,16 @@
 import { useBibleStore } from '@/www/contexts/bible';
 import { createChatScrollAnchor } from '@/www/hooks/create-chat-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
-import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
-import { ChevronDown, ChevronUp, Send, StopCircle } from 'lucide-solid';
-import { For, Show, createEffect, createMemo, on } from 'solid-js';
+import { ArrowUp, ChevronDown, ChevronUp, Shuffle, StopCircle } from 'lucide-solid';
+import { For, Show, createEffect, createMemo, createSignal, on } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '../ui/carousel';
 import { Spinner } from '../ui/spinner';
 import { TextField, TextFieldTextArea } from '../ui/text-field';
-import { H6 } from '../ui/typography';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { EmptyWindow } from './empty-window';
 import { ChatMenu } from './menu';
 import { Message } from './message';
@@ -63,7 +55,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
       setChatStore('chat', chatQuery.data.chat);
     }
   });
-
   createEffect(
     on(error, (error) => {
       if (error) {
@@ -72,9 +63,19 @@ export const ChatWindow = (props: ChatWindowProps) => {
     }),
   );
 
-  const [setAnimateRef] = createAutoAnimate();
   const { isAtBottom, scrollToBottom, setScrollRef, setBottomRef, setTopOfLastMessageRef } =
     createChatScrollAnchor(() => ({ isLoading: isLoading() }));
+
+  const [currentSuggestionIndex, setCurrentSuggestionIndex] = createSignal(0);
+  const currentSuggestion = createMemo(() => {
+    return followUpSuggestionsQuery.data?.[currentSuggestionIndex()] ?? 'Type a message';
+  });
+
+  const shuffleSuggestion = () => {
+    if (followUpSuggestionsQuery.data?.length) {
+      setCurrentSuggestionIndex((prev) => (prev + 1) % followUpSuggestionsQuery.data.length);
+    }
+  };
 
   const append = (...args: Parameters<typeof appendBase>) => {
     const result = appendBase(...args);
@@ -83,6 +84,15 @@ export const ChatWindow = (props: ChatWindowProps) => {
   };
 
   const handleSubmit = (...args: Parameters<typeof handleSubmitBase>) => {
+    args?.[0]?.preventDefault?.();
+    if (!input()) {
+      if (!currentSuggestion()) {
+        toast.error('Please type a message');
+        return;
+      }
+      append({ role: 'user', content: currentSuggestion() });
+      return;
+    }
     const result = handleSubmitBase(...args);
     scrollToBottom();
     return result;
@@ -145,7 +155,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           aria-live='polite'
           aria-label='Chat messages'
         >
-          <div ref={setAnimateRef} class='flex w-full flex-1 flex-col items-center justify-end'>
+          <div class='flex w-full flex-1 flex-col items-center justify-end'>
             <div class='flex w-full items-start justify-center'>
               <Show when={messagesQuery.status === 'success' && messagesQuery.hasNextPage}>
                 <div class='flex flex-col items-center justify-center'>
@@ -187,50 +197,12 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 )}
               </For>
             </div>
-            <Show
-              when={
-                !isLoading() &&
-                !followUpSuggestionsQuery.isFetching &&
-                (followUpSuggestionsQuery.data?.length ?? 0) > 0
-              }
-            >
-              <section
-                class='flex w-full max-w-2xl flex-col gap-2'
-                aria-label='Follow-up suggestions'
-              >
-                <H6 class='text-center'>Follow-up Questions</H6>
-                <Carousel data-corvu-no-drag class='mx-16 overflow-x-visible'>
-                  <CarouselContent>
-                    <For each={followUpSuggestionsQuery.data}>
-                      {(suggestion, idx) => (
-                        <CarouselItem data-index={idx()} class='flex justify-center'>
-                          <Button
-                            class='mx-2 h-full w-full text-wrap rounded-full'
-                            onClick={() => append({ role: 'user', content: suggestion })}
-                            aria-label={`Ask follow-up question: ${suggestion}`}
-                          >
-                            {suggestion}
-                          </Button>
-                        </CarouselItem>
-                      )}
-                    </For>
-                  </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </Carousel>
-              </section>
-            </Show>
             <div ref={setBottomRef} class='h-10 w-full shrink-0' />
           </div>
         </div>
         <form
           class='relative flex w-full flex-col items-center justify-center gap-2 border-t px-2 py-2'
           onSubmit={(e) => {
-            e.preventDefault();
-            if (!input()) {
-              toast.error('Please type a message');
-              return;
-            }
             handleSubmit(e);
           }}
           aria-label='Message input form'
@@ -239,7 +211,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             <SelectModelButton />
             <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>
               <TextFieldTextArea
-                placeholder='Type a message'
+                placeholder={!isLoading() ? currentSuggestion() : 'Type a message'}
                 class='flex max-h-24 min-h-fit w-full resize-none items-center justify-center border-none bg-transparent px-2 py-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
                 rows={1}
                 minlength={1}
@@ -249,31 +221,36 @@ export const ChatWindow = (props: ChatWindowProps) => {
               />
             </TextField>
             <Show
-              when={isLoading()}
-              fallback={
-                <Button
-                  type='submit'
-                  size='icon'
-                  variant='outline'
-                  class='rounded-full'
-                  disabled={isLoading()}
-                  aria-label='Send message'
-                >
-                  <Send size={20} />
-                </Button>
-              }
+              when={(followUpSuggestionsQuery.data?.length ?? 0) > 1 && !isLoading() && !input()}
             >
-              <Button
-                type='button'
-                size='icon'
-                variant='outline'
-                class='rounded-full'
-                aria-label='Stop generating response'
-                onClick={stop}
-              >
-                <StopCircle size={20} />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger
+                  as={Button}
+                  type='button'
+                  size='icon'
+                  variant='ghost'
+                  class='rounded-full'
+                  onClick={shuffleSuggestion}
+                  aria-label='Shuffle suggestion'
+                >
+                  <Shuffle size={16} />
+                </TooltipTrigger>
+                <TooltipContent>Shuffle suggestion</TooltipContent>
+              </Tooltip>
             </Show>
+            <Button
+              type='submit'
+              size='icon'
+              variant='outline'
+              class='rounded-full'
+              disabled={isLoading()}
+              aria-label={isLoading() ? 'Stop generating response' : 'Send message'}
+              onClick={() => isLoading() && stop()}
+            >
+              <Show when={isLoading()} fallback={<ArrowUp size={20} />}>
+                <StopCircle size={20} />
+              </Show>
+            </Button>
           </div>
         </form>
       </div>

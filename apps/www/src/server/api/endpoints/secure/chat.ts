@@ -1,13 +1,12 @@
-import { createChatChain, renameChat } from '@/ai/chat';
+import { createChatChain } from '@/ai/chat';
 import { allChatModels } from '@/ai/models';
-import { numTokensFromString } from '@/ai/utils';
 import { db } from '@/core/database';
 import { chats, messages as messagesTable } from '@/core/database/schema';
 import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
 import { createId } from '@/core/utils/id';
 import { MessageSchema } from '@/schemas/chats';
 import type { Bindings, Variables } from '@/www/server/api/types';
-import { getDefaultModelId, getValidMessages, validateModelId } from '@/www/server/api/utils/chat';
+import { getDefaultModelId, validateModelId } from '@/www/server/api/utils/chat';
 import { getMessageId } from '@/www/utils/message';
 import { zValidator } from '@hono/zod-validator';
 import { createDataStream, smoothStream } from 'ai';
@@ -17,8 +16,6 @@ import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
 import { getRequestEvent } from 'solid-js/web';
 import { z } from 'zod';
-
-const maxResponseTokens = 4096;
 
 const app = new Hono<{
   Bindings: Bindings;
@@ -181,39 +178,9 @@ const app = new Hono<{
       }
       console.timeEnd('saveMessage');
 
-      let additionalContextTokens = 0;
-      if (input.additionalContext) {
-        additionalContextTokens = numTokensFromString({ text: input.additionalContext });
-      }
-
-      console.time('getValidMessages');
-      const messages = await getValidMessages({
-        userId: c.var.user!.id,
-        chatId: chat.id,
-        maxTokens: modelInfo.contextSize - additionalContextTokens - maxResponseTokens,
-        mustStartWithUserMessage: modelInfo.host === 'anthropic',
-      });
-      console.timeEnd('getValidMessages');
-
-      if (!chat.customName) {
-        pendingPromises.push(
-          renameChat({
-            chatId: chat.id,
-            messages,
-            additionalContext: input.additionalContext,
-          }),
-        );
-      } else {
-        pendingPromises.push(
-          db.update(chats).set({ updatedAt: new Date() }).where(eq(chats.id, chat.id)).execute(),
-        );
-      }
-
-      const lastUserMessage = messages.find((m) => m.role === 'user')!;
-
       let pingInterval: Timer | undefined;
       const dataStream = createDataStream({
-        execute: (dataStream) => {
+        execute: async (dataStream) => {
           // Ping the stream every 200ms to avoid idle connection timeout
           pingInterval = setInterval(() => dataStream.writeData('ping'), 200);
 
@@ -221,15 +188,13 @@ const app = new Hono<{
             dataStream.writeData({ chatId: chat.id });
           }
 
-          const streamText = createChatChain({
-            chatId: chat.id,
-            modelId,
+          const streamText = await createChatChain({
+            chat,
+            modelInfo,
             bibleId: input.bibleId,
-            userMessageId: getMessageId(lastUserMessage),
-            userId: c.var.user!.id,
+            user: c.var.user!,
             dataStream: dataStream,
             additionalContext: input.additionalContext,
-            maxTokens: maxResponseTokens,
             onStepFinish: (step) => {
               dataStream.writeMessageAnnotation({ modelId });
               globalThis.posthog?.capture({
@@ -255,7 +220,7 @@ const app = new Hono<{
             experimental_transform: smoothStream(),
           });
 
-          const result = streamText(messages);
+          const result = streamText();
           result.mergeIntoDataStream(dataStream);
         },
         onError: (error) => {

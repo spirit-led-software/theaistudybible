@@ -1,10 +1,10 @@
 import { defaultChatModel } from '@/ai/models';
 import { registry } from '@/ai/provider-registry';
+import { getValidMessages } from '@/ai/utils/get-valid-messages';
 import { messagesToString } from '@/ai/utils/messages-to-string';
 import { db } from '@/core/database';
 import type { Prettify } from '@/core/types/util';
 import { createId } from '@/core/utils/id';
-import { getValidMessages } from '@/www/server/api/utils/chat';
 import type { UseChatOptions } from '@ai-sdk/solid';
 import { useChat as useAIChat } from '@ai-sdk/solid';
 import { captureException as captureSentryException } from '@sentry/solidstart';
@@ -91,7 +91,9 @@ const getChatSuggestions = GET(async (chatId: string) => {
                 'A follow up question the user may ask given the chat history. Questions must be short and concise.',
               ),
           )
-          .length(3),
+          .describe('A list of 3-6 follow up questions that the user may ask.')
+          .min(3)
+          .max(6),
       }),
     }),
     system: `You must generate a list of follow up questions that the user may ask a chatbot that is an expert on Christian faith and theology, given the messages provided. 

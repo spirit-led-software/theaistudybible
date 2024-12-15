@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { verseHighlights } from '@/core/database/schema';
-import { SignedIn, SignedOut } from '@/www/components/auth/control';
+import { SignedIn } from '@/www/components/auth/control';
 import { SignInButton } from '@/www/components/auth/sign-in-button';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
@@ -93,7 +93,25 @@ export const HighlightCard = () => {
 
   return (
     <Card>
-      <SignedIn>
+      <SignedIn
+        fallback={
+          <>
+            <CardHeader />
+            <CardContent class='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
+              <div class='flex h-full w-full flex-col place-items-center justify-center'>
+                <P class='text-lg'>
+                  Please <Button as={SignInButton} /> to highlight
+                </P>
+              </div>
+            </CardContent>
+            <CardFooter class='flex justify-end'>
+              <DrawerClose as={Button} variant='outline'>
+                Close
+              </DrawerClose>
+            </CardFooter>
+          </>
+        }
+      >
         <CardHeader>
           <CardTitle>Highlight</CardTitle>
         </CardHeader>
@@ -145,21 +163,6 @@ export const HighlightCard = () => {
           </Button>
         </CardFooter>
       </SignedIn>
-      <SignedOut>
-        <CardHeader />
-        <CardContent class='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
-          <div class='flex h-full w-full flex-col place-items-center justify-center'>
-            <P class='text-lg'>
-              Please <Button as={SignInButton} /> to highlight
-            </P>
-          </div>
-        </CardContent>
-        <CardFooter class='flex justify-end'>
-          <DrawerClose as={Button} variant='outline'>
-            Close
-          </DrawerClose>
-        </CardFooter>
-      </SignedOut>
     </Card>
   );
 };

@@ -36,3 +36,15 @@ export const SignedOut = (props: { children: JSX.Element; fallback?: JSX.Element
     </Show>
   );
 };
+
+export const Protected = (props: {
+  children: JSX.Element;
+  loadingFallback?: JSX.Element;
+  signedOutFallback?: JSX.Element;
+}) => {
+  return (
+    <AuthLoaded fallback={props.loadingFallback}>
+      <SignedIn fallback={props.signedOutFallback}>{props.children}</SignedIn>
+    </AuthLoaded>
+  );
+};

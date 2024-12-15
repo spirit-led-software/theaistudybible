@@ -1,4 +1,4 @@
-import { SignedIn } from '@/www/components/auth/control';
+import { Protected } from '@/www/components/auth/control';
 import { getChatsQueryOptions } from '@/www/components/chat/sidebar';
 import { ChatWindow } from '@/www/components/chat/window';
 import { useChatStore } from '@/www/contexts/chat';
@@ -30,14 +30,14 @@ export default function ChatPage() {
   });
 
   return (
-    <SignedIn
-      fallback={
+    <Protected
+      signedOutFallback={
         <Navigate
           href={`/sign-in?redirectUrl=${encodeURIComponent(`/chat/${params.id}${location.search}`)}`}
         />
       }
     >
       <ChatWindow />
-    </SignedIn>
+    </Protected>
   );
 }

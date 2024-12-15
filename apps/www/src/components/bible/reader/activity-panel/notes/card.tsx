@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import type { Prettify } from '@/core/types/util';
-import { SignedIn, SignedOut } from '@/www/components/auth/control';
+import { SignedIn } from '@/www/components/auth/control';
 import { SignInButton } from '@/www/components/auth/sign-in-button';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
@@ -104,7 +104,25 @@ export const NotesCard = () => {
 
   return (
     <Card class='flex w-full flex-1 flex-col overflow-y-auto'>
-      <SignedIn>
+      <SignedIn
+        fallback={
+          <>
+            <CardHeader />
+            <CardContent class='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
+              <div class='flex h-full w-full flex-col place-items-center justify-center'>
+                <P class='text-lg'>
+                  Please <Button as={SignInButton} /> to take notes
+                </P>
+              </div>
+            </CardContent>
+            <CardFooter class='flex justify-end'>
+              <DrawerClose as={Button} variant='outline'>
+                Close
+              </DrawerClose>
+            </CardFooter>
+          </>
+        }
+      >
         <CardHeader class='flex flex-row items-center justify-between border-b shadow-sm'>
           <CardTitle>Notes</CardTitle>
           <Tooltip>
@@ -149,21 +167,6 @@ export const NotesCard = () => {
           </DrawerClose>
         </CardFooter>
       </SignedIn>
-      <SignedOut>
-        <CardHeader />
-        <CardContent class='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
-          <div class='flex h-full w-full flex-col place-items-center justify-center'>
-            <P class='text-lg'>
-              Please <Button as={SignInButton} /> to take notes
-            </P>
-          </div>
-        </CardContent>
-        <CardFooter class='flex justify-end'>
-          <DrawerClose as={Button} variant='outline'>
-            Close
-          </DrawerClose>
-        </CardFooter>
-      </SignedOut>
     </Card>
   );
 };

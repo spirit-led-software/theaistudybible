@@ -1,5 +1,5 @@
 import { A } from '@solidjs/router';
-import { AuthLoaded, AuthLoading, SignedIn, SignedOut } from '../auth/control';
+import { AuthLoaded, SignedIn } from '../auth/control';
 import { SignInButton } from '../auth/sign-in-button';
 import { UserButton } from '../auth/user-button';
 import { Logo } from '../branding/logo';
@@ -38,18 +38,12 @@ export function NavigationHeader() {
       </div>
       <div class='flex items-center justify-end gap-2'>
         <ThemeToggleButton />
-        <AuthLoaded>
-          <SignedIn>
+        <AuthLoaded fallback={<Spinner size='sm' />}>
+          <SignedIn fallback={<Button as={SignInButton} />}>
             <CreditDisplay />
             <UserButton />
           </SignedIn>
-          <SignedOut>
-            <Button as={SignInButton} />
-          </SignedOut>
         </AuthLoaded>
-        <AuthLoading>
-          <Spinner size='sm' />
-        </AuthLoading>
       </div>
     </nav>
   );

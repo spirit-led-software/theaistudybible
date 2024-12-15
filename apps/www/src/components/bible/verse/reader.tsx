@@ -270,7 +270,7 @@ export function VerseReader(props: VerseReaderProps) {
                           as={A}
                           class={cn(
                             buttonVariants(),
-                            '-translate-y-1/2 fixed top-1/2 left-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 md:left-safe-offset-2 md:size-12 lg:left-[15%] lg:size-14',
+                            'sm:-translate-y-1/2 fixed bottom-safe-offset-1 left-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:left-safe-offset-2 md:size-12 lg:left-[12%] lg:size-14',
                             isRouting() && 'pointer-events-none opacity-50',
                           )}
                           href={previousVerseRoute}
@@ -293,7 +293,7 @@ export function VerseReader(props: VerseReaderProps) {
                           as={A}
                           class={cn(
                             buttonVariants(),
-                            '-translate-y-1/2 fixed top-1/2 right-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 md:right-safe-offset-2 md:size-12 lg:right-[15%] lg:size-14',
+                            'sm:-translate-y-1/2 fixed right-safe-offset-1 bottom-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:right-safe-offset-2 md:size-12 lg:right-[12%] lg:size-14',
                             isRouting() && 'pointer-events-none opacity-50',
                           )}
                           href={nextVerseRoute}

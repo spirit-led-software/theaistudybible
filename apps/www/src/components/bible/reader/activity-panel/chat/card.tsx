@@ -1,5 +1,5 @@
 import { contentsToText } from '@/core/utils/bible';
-import { SignedIn, SignedOut } from '@/www/components/auth/control';
+import { SignedIn } from '@/www/components/auth/control';
 import { SignInButton } from '@/www/components/auth/sign-in-button';
 import { ChatWindow } from '@/www/components/chat/window';
 import { Button } from '@/www/components/ui/button';
@@ -27,24 +27,27 @@ export const ChatCard = () => {
 
   return (
     <Card class='flex h-full w-full flex-1 flex-col overflow-hidden'>
-      <SignedIn>
+      <SignedIn
+        fallback={
+          <>
+            <CardHeader />
+            <CardContent class='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
+              <div class='flex h-full w-full flex-col place-items-center justify-center'>
+                <P>
+                  Please <Button as={SignInButton} /> to chat
+                </P>
+              </div>
+            </CardContent>
+            <CardFooter class='flex justify-end'>
+              <DrawerClose as={Button} variant='outline'>
+                Close
+              </DrawerClose>
+            </CardFooter>
+          </>
+        }
+      >
         <ChatWindow additionalContext={additionalContext()} />
       </SignedIn>
-      <SignedOut>
-        <CardHeader />
-        <CardContent class='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
-          <div class='flex h-full w-full flex-col place-items-center justify-center'>
-            <P>
-              Please <Button as={SignInButton} /> to chat
-            </P>
-          </div>
-        </CardContent>
-        <CardFooter class='flex justify-end'>
-          <DrawerClose as={Button} variant='outline'>
-            Close
-          </DrawerClose>
-        </CardFooter>
-      </SignedOut>
     </Card>
   );
 };

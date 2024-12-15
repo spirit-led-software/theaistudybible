@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/www/components/ui/dropdown-menu';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { cn } from '@/www/lib/utils';
+import { useWindowSize } from '@solid-primitives/resize-observer';
 import { useSearchParams } from '@solidjs/router';
 import { Highlighter, Image, MessageCircle, Notebook, Share, Sparkles, X } from 'lucide-solid';
 import {
@@ -79,10 +79,10 @@ export const ActivityPanelSelectedTitle = () => {
   return (
     <Show when={brStore.selectedIds.length}>
       <Button
-        class='-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-2 z-50 w-fit text-nowrap rounded-full bg-background/90 p-2 text-foreground text-sm shadow-md backdrop-blur-sm hover:bg-background hover:shadow-lg'
+        class='-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-16 z-50 w-fit text-nowrap rounded-full bg-background/90 p-2 text-foreground text-sm shadow-md backdrop-blur-sm hover:bg-background hover:shadow-lg sm:bottom-safe-offset-3'
         onClick={() => setIsMenuOpen(true)}
       >
-        {brStore.selectedTitle}
+        {brStore.selectedTitle.replace(/\(.*\)/, '')}
       </Button>
     </Show>
   );
@@ -92,42 +92,43 @@ export const ActivityPanelMenu = () => {
   const [, setSearchParams] = useSearchParams();
   const [brStore, setBrStore] = useBibleReaderStore();
   const { setValue, isMenuOpen, setIsMenuOpen } = useActivityPanel();
+  const window = useWindowSize();
 
   return (
     <DropdownMenu
       modal={false}
-      placement='top-end'
+      placement={window.width > 640 ? 'top-end' : 'top'}
       open={isMenuOpen()}
       onOpenChange={setIsMenuOpen}
     >
       <DropdownMenuTrigger
         as={Button}
         size='icon'
-        class='fixed right-safe-offset-1 bottom-safe-offset-2 size-12 rounded-full p-3 md:right-safe-offset-2 md:size-14 lg:right-[15%] lg:size-16'
+        class='-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 size-12 rounded-full p-3 sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 md:size-14 lg:right-[15%] lg:size-16'
       >
         <Sparkles fill='hsl(var(--primary-foreground))' />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         onInteractOutside={(e) => e.preventDefault()}
-        class={cn(
-          'bg-background/80 backdrop-blur-sm [&>*]:px-4 [&>*]:py-3 [&>*]:hover:cursor-pointer',
-          brStore.selectedIds.length && 'grid grid-cols-2',
-        )}
+        class='grid grid-cols-2 bg-background/80 backdrop-blur-sm [&>*]:px-4 [&>*]:py-3 [&>*]:hover:cursor-pointer'
       >
-        <Show
-          when={brStore.selectedIds.length}
-          fallback={
-            <DropdownMenuItem onSelect={() => setIsMenuOpen(false)}>
-              <X class='mr-3' />
-              Close
-            </DropdownMenuItem>
-          }
+        <DropdownMenuItem
+          class='flex max-w-40 items-center justify-between text-wrap'
+          onSelect={() => {
+            if (brStore.selectedIds.length) {
+              setBrStore('selectedVerseInfos', []);
+            }
+            setIsMenuOpen(false);
+          }}
         >
-          <DropdownMenuItem onSelect={() => setBrStore('selectedVerseInfos', [])}>
-            <X class='mr-3' />
-            Clear
-          </DropdownMenuItem>
-        </Show>
+          <div class='line-clamp-2'>
+            {(brStore.selectedTitle || brStore.verse?.name || brStore.chapter.name).replace(
+              /\(.*\)/, // Remove translation from the title
+              '',
+            )}
+          </div>
+          <X class='ml-1 size-4 shrink-0' />
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => setValue('chat')}>
           <MessageCircle class='mr-3' />
           Chat

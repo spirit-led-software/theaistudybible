@@ -37,6 +37,15 @@ export const Menu = (props: MenuProps) => {
   return (
     <NavigationMenu orientation={props.orientation} class='w-full'>
       <NavigationMenuItem>
+        <NavigationMenuLink
+          as={A}
+          href='/about/install'
+          class='bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90'
+        >
+          Install
+        </NavigationMenuLink>
+      </NavigationMenuItem>
+      <NavigationMenuItem>
         <NavigationMenuTrigger class='justify-between'>
           About
           <NavigationMenuIcon />

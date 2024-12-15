@@ -1,4 +1,4 @@
-import { SignedIn } from '@/www/components/auth/control';
+import { Protected } from '@/www/components/auth/control';
 import { InfoCard } from '@/www/components/auth/profile/info-card';
 import { PasskeysCard } from '@/www/components/auth/profile/passkeys-card';
 import { SettingsCard } from '@/www/components/auth/profile/settings-card';
@@ -7,8 +7,10 @@ import { Navigate } from '@solidjs/router';
 
 export default function Profile() {
   return (
-    <SignedIn
-      fallback={<Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/profile')}`} />}
+    <Protected
+      signedOutFallback={
+        <Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/profile')}`} />
+      }
     >
       <MetaTags />
       <div class='container flex flex-col items-center justify-center gap-4 p-4 sm:p-6 md:grid md:grid-cols-2 md:p-10'>
@@ -16,7 +18,7 @@ export default function Profile() {
         <PasskeysCard />
         <SettingsCard />
       </div>
-    </SignedIn>
+    </Protected>
   );
 }
 

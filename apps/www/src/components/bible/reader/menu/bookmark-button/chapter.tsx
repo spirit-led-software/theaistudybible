@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { chapterBookmarks } from '@/core/database/schema';
-import { SignedIn, SignedOut } from '@/www/components/auth/control';
+import { SignedIn } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
@@ -105,12 +105,9 @@ export const ChapterBookmarkButton = () => {
                 <Bookmark />
               </TooltipTrigger>
               <TooltipContent>
-                <SignedIn>
+                <SignedIn fallback={<p>Sign in to add bookmark</p>}>
                   <p>Add Bookmark</p>
                 </SignedIn>
-                <SignedOut>
-                  <p>Sign in to add bookmark</p>
-                </SignedOut>
               </TooltipContent>
             </Tooltip>
           }
