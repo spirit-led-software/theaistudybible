@@ -114,6 +114,7 @@ export const getChatSuggestionsQueryProps = (chatId: string) => ({
   queryKey: ['chat-suggestions', { chatId }],
   queryFn: () => getChatSuggestions(chatId),
   staleTime: Number.MAX_SAFE_INTEGER,
+  placeholderData: [],
 });
 
 export type UseChatProps = Prettify<
