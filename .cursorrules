@@ -1,33 +1,113 @@
-You are an expert in TypeScript, Node.js, SolidStart, SolidJS, Solid UI, Kobalte, Corvu, and Tailwind.
+# Technical Expertise
+Expert in:
+- TypeScript & Node.js
+- SolidStart & SolidJS ecosystem
+- UI libraries: Solid-UI, Kobalte, Corvu
+- Styling: Tailwind CSS
+- AI/ML integration patterns
+- LLM integration & prompt engineering
+- Vector databases & semantic search
+- WebSocket & real-time communication
 
-Code Style and Structure
+# Code Architecture
+- Favor functional and declarative programming
+- Prioritize pure functions and immutability
+- Structure components hierarchically:
+  1. Exported component
+  2. Subcomponents
+  3. Helper functions
+  4. Static content
+  5. Type definitions
+- Implement modular, DRY code patterns
+- Follow SolidJS conventions for data fetching, rendering, and routing
+- Separate concerns between UI, business logic, and data layers
+- Implement feature flags for gradual rollouts
+- Use dependency injection for better testability
 
-- Write concise, technical TypeScript code with accurate examples.
-- Use functional and declarative programming patterns; avoid classes.
-- Prefer iteration and modularization over code duplication.
-- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
-- Structure files: exported component, subcomponents, helpers, static content, types.
+# TypeScript Best Practices
+- Use strict TypeScript for all code
+- Prefer type aliases over interfaces
+- Avoid 'any'; use specific types or unknown
+- Replace enums with const maps/objects
+- Leverage discriminated unions where appropriate
+- Use type inference when obvious
+- Implement branded types for type-safe IDs
+- Use const assertions for literal types
+- Leverage utility types for DRY type definitions
+- Define strict return types for async functions
 
-Naming Conventions
+# AI Integration Patterns
+- Implement proper token counting and management
+- Structure system prompts for consistent outputs
+- Handle streaming responses efficiently
+- Implement proper error handling for AI calls
+- Cache AI responses when appropriate
+- Use vector embeddings for semantic search
+- Implement retry logic for API failures
 
-- Use lowercase with dashes for directories (e.g., components/auth-wizard).
-- Favor named exports for components.
+# Security Best Practices
+- Implement proper input sanitization
+- Use environment variables for sensitive data
+- Implement rate limiting for API endpoints
+- Validate user permissions at every level
+- Sanitize AI outputs before rendering
+- Implement proper CORS policies
+- Use Content Security Policy headers
 
-TypeScript Usage
+# Testing Strategy
+- Write unit tests for utility functions
+- Implement integration tests for API endpoints
+- Use component testing for UI elements
+- Implement E2E tests for critical paths
+- Mock external services in tests
+- Use proper test isolation
+- Implement proper error boundary testing
 
-- Use TypeScript for all code; prefer types over interfaces.
-- Avoid enums; use maps instead.
-- Use functional components with TypeScript interfaces.
-- Avoid using any; prefer more specific types.
+# Performance Optimization
+- Optimize component re-renders
+- Implement proper memo usage
+- Use lazy loading for routes/components
+- Follow SolidJS performance best practices
+- Consider bundle size impact
+- Implement proper caching strategies
+- Use proper indexing for database queries
+- Optimize API response sizes
+- Implement proper connection pooling
 
-Syntax and Formatting
+# Documentation
+- Document complex business logic
+- Add JSDoc comments for public APIs
+- Document environment setup requirements
+- Keep README files up to date
+- Document deployment procedures
+- Add inline comments for complex algorithms
+- Document AI prompt templates
 
-- Use the "function" keyword for pure functions.
-- Use declarative JSX.
+# Naming Conventions
+- Components: PascalCase
+- Functions: camelCase with auxiliary verbs (isLoading, hasError)
+- Directories: kebab-case (auth-wizard, user-settings)
+- Types: PascalCase with descriptive names
+- Constants: SCREAMING_SNAKE_CASE
+- Favor named exports over default exports
 
-UI and Styling
+# Component Patterns
+- Write functional components with explicit type definitions
+- Use the "function" keyword for component declarations
+- Implement proper prop typing
+- Handle loading and error states
+- Follow accessibility best practices
 
-- Use Solid UI, Kobalte, Corvu, and Tailwind for components and styling.
-- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+# UI/UX Implementation
+- Use Tailwind with mobile-first responsive design
+- Leverage Solid-UI, Kobalte, and Corvu components
+- Follow semantic HTML structure
+- Ensure keyboard navigation support
+- Implement proper loading states and transitions
 
-Follow SolidJS docs for Data Fetching, Rendering, and Routing.
+# State Management
+- Use signals for reactive state
+- Implement stores for global state
+- Handle side effects with createEffect
+- Use resource for data fetching
+- Implement proper error boundaries
