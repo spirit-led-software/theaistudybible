@@ -1,30 +1,31 @@
 import { db } from '@/core/database';
 import { userSettings } from '@/core/database/schema';
-import { UpdateUserSettingSchema } from '@/schemas/users/settings';
+import { UpdateUserSettingsSchema } from '@/schemas/users/settings';
+import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
-import { createForm, setValue, setValues, zodForm } from '@modular-forms/solid';
+import { createForm, setValue, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
-import { createEffect, createSignal } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { z } from 'zod';
 import { QueryBoundary } from '../../query-boundary';
 import { Button } from '../../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from '../../ui/switch';
 
-const getSettings = GET(async () => {
+const getBibles = GET(async () => {
   'use server';
-  const { user } = requireAuth();
-  const settings = await db.query.userSettings.findFirst({
-    where: (userSettings, { eq }) => eq(userSettings.userId, user.id),
+  const bibles = await db.query.bibles.findMany({
+    columns: { id: true, abbreviationLocal: true },
   });
-  return { settings };
+  return bibles;
 });
 
-const updateSettingsAction = action(async (values: z.infer<typeof UpdateUserSettingSchema>) => {
+const updateSettingsAction = action(async (values: z.infer<typeof UpdateUserSettingsSchema>) => {
   'use server';
   const { user } = requireAuth();
   const existingSettings = await db.query.userSettings.findFirst({
@@ -52,24 +53,21 @@ const updateSettingsAction = action(async (values: z.infer<typeof UpdateUserSett
 export function SettingsCard() {
   const updateSettings = useAction(updateSettingsAction);
 
-  const settingsQuery = createQuery(() => ({
-    queryKey: ['user-settings'],
-    queryFn: () => getSettings(),
+  const biblesQuery = createQuery(() => ({
+    queryKey: ['bibles'],
+    queryFn: () => getBibles(),
   }));
-  createEffect(() => {
-    if (settingsQuery.status === 'success') {
-      setValues(form, settingsQuery.data.settings || { emailNotifications: true });
-    }
-  });
 
-  const [form, { Form, Field }] = createForm<z.infer<typeof UpdateUserSettingSchema>>({
-    validate: zodForm(UpdateUserSettingSchema),
-    initialValues: settingsQuery.data?.settings || { emailNotifications: true },
+  const { settings, invalidate } = useAuth();
+
+  const [form, { Form, Field }] = createForm<z.infer<typeof UpdateUserSettingsSchema>>({
+    validate: zodForm(UpdateUserSettingsSchema),
+    initialValues: settings() || { emailNotifications: true },
   });
 
   const [toastId, setToastId] = createSignal<string | number>();
   const handleSubmit = createMutation(() => ({
-    mutationFn: (values: z.infer<typeof UpdateUserSettingSchema>) => updateSettings(values),
+    mutationFn: (values: z.infer<typeof UpdateUserSettingsSchema>) => updateSettings(values),
     onMutate: () => {
       setToastId(toast.loading('Updating settings...', { duration: Number.POSITIVE_INFINITY }));
     },
@@ -81,44 +79,73 @@ export function SettingsCard() {
       toast.dismiss(toastId());
       toast.error(error.message);
     },
-    onSettled: () => settingsQuery.refetch(),
+    onSettled: () => invalidate(),
   }));
 
   return (
-    <Card class='h-full w-full'>
+    <Card class='flex h-full w-full flex-col'>
       <CardHeader>
         <CardTitle>Settings</CardTitle>
         <CardDescription>Manage your account settings and preferences.</CardDescription>
       </CardHeader>
-      <CardContent>
-        <QueryBoundary query={settingsQuery}>
-          {() => (
-            <Form
-              class='flex flex-col gap-6'
-              onSubmit={(values) => handleSubmit.mutateAsync(values)}
-            >
-              <Field name='emailNotifications' type='boolean'>
-                {(field, props) => (
-                  <Switch
-                    checked={field.value}
-                    onChange={(v) => {
-                      setValue(form, field.name, v);
-                    }}
-                    class='flex items-center gap-2'
-                  >
-                    <SwitchControl {...props}>
-                      <SwitchThumb />
-                    </SwitchControl>
-                    <SwitchLabel>Email Notifications</SwitchLabel>
-                  </Switch>
-                )}
-              </Field>
-              <Button type='submit' disabled={form.submitting || form.validating}>
-                Save
-              </Button>
-            </Form>
-          )}
-        </QueryBoundary>
+      <CardContent class='flex h-full w-full flex-1 flex-col'>
+        <Form
+          class='flex flex-grow flex-col gap-6'
+          onSubmit={(values) => handleSubmit.mutateAsync(values)}
+        >
+          <div class='flex h-full flex-1 flex-col gap-6'>
+            <Field name='emailNotifications' type='boolean'>
+              {(field, props) => (
+                <Switch
+                  checked={field.value}
+                  onChange={(v) => {
+                    setValue(form, field.name, v);
+                  }}
+                  class='flex items-center gap-2'
+                >
+                  <SwitchControl {...props}>
+                    <SwitchThumb />
+                  </SwitchControl>
+                  <SwitchLabel>Email Notifications</SwitchLabel>
+                </Switch>
+              )}
+            </Field>
+            <QueryBoundary query={biblesQuery}>
+              {(bibles) => (
+                <Field name='preferredBibleId'>
+                  {(field, props) => (
+                    <div class='flex flex-col gap-2'>
+                      <Select
+                        value={bibles.find((bible) => bible.id === field.value)}
+                        onChange={(v) => setValue(form, field.name, v?.id)}
+                        options={bibles}
+                        optionValue={(bible) => bible.id}
+                        itemComponent={(props) => (
+                          <SelectItem item={props.item}>
+                            {props.item.rawValue.abbreviationLocal}
+                          </SelectItem>
+                        )}
+                        placeholder='Select a Bible'
+                      >
+                        <SelectTrigger class='w-fit min-w-24' {...props}>
+                          <SelectValue<(typeof bibles)[number]>>
+                            {(props) => props.selectedOption()?.abbreviationLocal}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent />
+                      </Select>
+                    </div>
+                  )}
+                </Field>
+              )}
+            </QueryBoundary>
+          </div>
+          <div class='flex justify-end'>
+            <Button type='submit' disabled={form.submitting || form.validating}>
+              Save
+            </Button>
+          </div>
+        </Form>
       </CardContent>
     </Card>
   );

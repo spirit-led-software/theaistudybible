@@ -15,8 +15,8 @@ export default function Profile() {
       <MetaTags />
       <div class='container flex flex-col items-center justify-center gap-4 p-4 sm:p-6 md:grid md:grid-cols-2 md:p-10'>
         <InfoCard />
-        <PasskeysCard />
         <SettingsCard />
+        <PasskeysCard />
       </div>
     </Protected>
   );

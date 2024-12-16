@@ -4,6 +4,7 @@ import { db } from '@/core/database';
 import { chats, messages as messagesTable } from '@/core/database/schema';
 import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
 import { createId } from '@/core/utils/id';
+import type { Bible } from '@/schemas/bibles/types';
 import { MessageSchema } from '@/schemas/chats';
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { getDefaultModelId, validateModelId } from '@/www/server/api/utils/chat';
@@ -127,11 +128,16 @@ const app = new Hono<{
       console.timeEnd('getChat');
 
       console.time('validateBibleId');
+      let bible: Bible | undefined;
       if (input.bibleId) {
-        const bible = await db.query.bibles.findFirst({
+        bible = await db.query.bibles.findFirst({
           where: (bibles, { eq }) => eq(bibles.id, input.bibleId!),
         });
-        if (!bible) return c.json({ message: 'Bible not found' }, 400);
+        if (!bible) return c.json({ message: 'Invalid Bible ID' }, 400);
+      } else if (c.var.settings?.preferredBibleId) {
+        bible = await db.query.bibles.findFirst({
+          where: (bibles, { eq }) => eq(bibles.id, c.var.settings!.preferredBibleId!),
+        });
       }
       console.timeEnd('validateBibleId');
 
@@ -191,10 +197,10 @@ const app = new Hono<{
           const streamText = await createChatChain({
             chat,
             modelInfo,
-            bibleId: input.bibleId,
             user: c.var.user!,
             dataStream: dataStream,
             additionalContext: input.additionalContext,
+            bible,
             onStepFinish: (step) => {
               dataStream.writeMessageAnnotation({ modelId });
               globalThis.posthog?.capture({

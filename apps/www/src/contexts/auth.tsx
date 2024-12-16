@@ -1,4 +1,5 @@
 import type { Role } from '@/schemas/roles/types';
+import type { UserSettings } from '@/schemas/users/types';
 import { auth } from '@/www/server/auth';
 import { setUser as setSentryUser } from '@sentry/solidstart';
 import { GET } from '@solidjs/start';
@@ -19,12 +20,14 @@ export type AuthContextType = {
   session: Accessor<Session | null | undefined>;
   user: Accessor<User | null | undefined>;
   roles: Accessor<Role[] | null | undefined>;
+  settings: Accessor<UserSettings | null | undefined>;
 };
 
 export const AuthContext = createContext<AuthContextType>({
   session: () => undefined,
   user: () => undefined,
   roles: () => undefined,
+  settings: () => undefined,
 });
 
 export const useAuth = () => {
@@ -40,6 +43,7 @@ export const useAuth = () => {
       () =>
         context.session() !== undefined &&
         context.user() !== undefined &&
+        context.settings() !== undefined &&
         context.roles() !== undefined,
     ),
     isSignedIn: createMemo(() => context.session() !== null && context.user() !== null),
@@ -73,6 +77,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
     : {
         session: undefined,
         user: undefined,
+        settings: undefined,
         roles: undefined,
       };
 
@@ -84,6 +89,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
   const session = createMemo(() => query.data?.session);
   const user = createMemo(() => query.data?.user);
   const roles = createMemo(() => query.data?.roles);
+  const settings = createMemo(() => query.data?.settings);
 
   createEffect(() => {
     const currentUser = user();
@@ -94,6 +100,8 @@ export const AuthProvider = (props: AuthProviderProps) => {
   });
 
   return (
-    <AuthContext.Provider value={{ session, user, roles }}>{props.children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ session, user, settings, roles }}>
+      {props.children}
+    </AuthContext.Provider>
   );
 };

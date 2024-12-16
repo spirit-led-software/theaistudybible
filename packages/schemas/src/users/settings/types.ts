@@ -1,6 +1,6 @@
 import type { z } from 'zod';
-import type { CreateUserSettingSchema, UpdateUserSettingSchema, UserSettingSchema } from '.';
+import type { CreateUserSettingsSchema, UpdateUserSettingsSchema, UserSettingsSchema } from '.';
 
-export type UserSetting = z.infer<typeof UserSettingSchema>;
-export type CreateUserSetting = z.infer<typeof CreateUserSettingSchema>;
-export type UpdateUserSetting = z.infer<typeof UpdateUserSettingSchema>;
+export type UserSettings = z.infer<typeof UserSettingsSchema>;
+export type CreateUserSettings = z.infer<typeof CreateUserSettingsSchema>;
+export type UpdateUserSettings = z.infer<typeof UpdateUserSettingsSchema>;

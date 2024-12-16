@@ -1,4 +1,5 @@
 import type { Role } from '@/schemas/roles/types';
+import type { UserSettings } from '@/schemas/users/types';
 import type { Session, User } from 'lucia';
 import { getRequestEvent } from 'solid-js/web';
 
@@ -10,6 +11,7 @@ export const auth = () => {
   return {
     session: event.locals.session,
     user: event.locals.user,
+    settings: event.locals.settings,
     roles: event.locals.roles,
   };
 };
@@ -22,6 +24,7 @@ export const requireAuth = (message?: string) => {
   return authObj as {
     session: Session;
     user: User;
+    settings: UserSettings;
     roles: Role[];
   };
 };

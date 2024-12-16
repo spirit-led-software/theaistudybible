@@ -1,7 +1,8 @@
 /// <reference types="@solidjs/start/env" />
 /// <reference types="@solidjs/start/server" />
 
-import type { Role } from '@/schemas/roles';
+import type { Role } from '@/schemas/roles/types';
+import type { UserSettings } from '@/schemas/users/types';
 import type { Session, User } from 'lucia';
 import type { PostHog } from 'posthog-node';
 
@@ -10,6 +11,7 @@ declare module '@solidjs/start/server' {
     requestId: string;
     session: Session | null;
     user: User | null;
+    settings: UserSettings | null;
     roles: Role[] | null;
   }
 }

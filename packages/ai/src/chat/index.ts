@@ -5,6 +5,7 @@ import {
   messagesToSourceDocuments,
   userGeneratedImagesToSourceDocuments,
 } from '@/core/database/schema';
+import type { Bible } from '@/schemas/bibles/types';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { Chat } from '@/schemas/chats/types';
 import type { DataStreamWriter } from 'ai';
@@ -76,16 +77,20 @@ export type CreateChatChainOptions = Omit<
 > & {
   chat: Chat;
   modelInfo: ChatModelInfo;
-  bibleId?: string | null;
   user: User;
   dataStream: DataStreamWriter;
   additionalContext?: string | null;
+  bible?: Bible;
 };
 
 export const createChatChain = async (options: CreateChatChainOptions) => {
   const pendingPromises: Promise<unknown>[] = [];
 
-  const system = systemPrompt({ additionalContext: options.additionalContext, user: options.user });
+  const system = systemPrompt({
+    additionalContext: options.additionalContext,
+    user: options.user,
+    bible: options.bible,
+  });
   const systemTokens = numTokensFromString({ text: system });
 
   console.time('getValidMessages');
@@ -120,7 +125,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
   const resolvedTools = tools({
     dataStream: options.dataStream,
     userId: options.user.id,
-    bibleId: options.bibleId,
+    bibleId: options.bible?.id,
   });
 
   // TODO: Uncomment this once bun fixes this issue: https://github.com/oven-sh/bun/issues/13072

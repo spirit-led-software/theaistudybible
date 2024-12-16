@@ -16,30 +16,20 @@ export const app = new Hono<{
 }>()
   .basePath('/api')
   .use('*', async (c, next) => {
-    const { session, user, roles } = auth();
+    const { session, user, settings, roles } = auth();
     c.set('session', session);
     c.set('user', user);
+    c.set('settings', settings);
     c.set('roles', roles);
     await next();
   })
   .notFound((c) => {
     console.error('Route not found');
-    return c.json(
-      {
-        message: 'Route not found',
-      },
-      404,
-    );
+    return c.json({ message: 'Route not found' }, 404);
   })
   .onError((e, c) => {
     console.error(e);
-    return c.json(
-      {
-        message: 'Internal server error',
-        data: e,
-      },
-      500,
-    );
+    return c.json({ message: 'Internal server error', data: e }, 500);
   })
   .route('/bibles', bibles)
   .route('/data-sources', dataSources)

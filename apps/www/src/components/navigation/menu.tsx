@@ -46,7 +46,7 @@ export const Menu = (props: MenuProps) => {
         </NavigationMenuLink>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <NavigationMenuTrigger class='justify-between'>
+        <NavigationMenuTrigger class='bg-transparent'>
           About
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
@@ -108,7 +108,7 @@ export const Menu = (props: MenuProps) => {
         </NavigationMenuContent>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <NavigationMenuTrigger class='justify-between'>
+        <NavigationMenuTrigger class='bg-transparent'>
           Bible
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
@@ -144,7 +144,7 @@ export const Menu = (props: MenuProps) => {
         </NavigationMenuContent>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <NavigationMenuTrigger class='justify-between'>
+        <NavigationMenuTrigger class='bg-transparent'>
           AI
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
@@ -176,9 +176,9 @@ export const Menu = (props: MenuProps) => {
       </NavigationMenuItem>
       <Show when={isAdmin()}>
         <NavigationMenuItem>
-          <NavigationMenuTrigger disabled as={A} href='/admin' class='justify-start'>
+          <NavigationMenuLink as={A} href='/admin' class='bg-transparent'>
             Admin
-          </NavigationMenuTrigger>
+          </NavigationMenuLink>
         </NavigationMenuItem>
       </Show>
     </NavigationMenu>

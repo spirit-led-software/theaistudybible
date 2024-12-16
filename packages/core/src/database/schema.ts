@@ -27,12 +27,10 @@ export const users = sqliteTable(
     lastName: text('last_name'),
     image: text('image'),
     stripeCustomerId: text('stripe_customer_id'),
-    preferredBibleId: text('preferred_bible_id').references(() => bibles.id),
   },
   (table) => [
     uniqueIndex('users_email_idx').on(table.email),
     index('users_stripe_customer_id_idx').on(table.stripeCustomerId),
-    index('users_preferred_bible_id_idx').on(table.preferredBibleId),
   ],
 );
 
@@ -50,10 +48,6 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   userGeneratedImages: many(userGeneratedImages),
   userGeneratedImagesReactions: many(userGeneratedImagesReactions),
   devotionReactions: many(devotionReactions),
-  preferredBible: one(bibles, {
-    fields: [users.preferredBibleId],
-    references: [bibles.id],
-  }),
   chapterBookmarks: many(chapterBookmarks),
   chapterNotes: many(chapterNotes),
   verseHighlights: many(verseHighlights),
@@ -183,14 +177,24 @@ export const userSettings = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     emailNotifications: integer('email_notifications', { mode: 'boolean' }).notNull().default(true),
+    preferredBibleId: text('preferred_bible_id').references(() => bibles.id, {
+      onDelete: 'cascade',
+    }),
   },
-  (table) => [uniqueIndex('user_settings_user_id_idx').on(table.userId)],
+  (table) => [
+    uniqueIndex('user_settings_user_id_idx').on(table.userId),
+    index('user_settings_preferred_bible_id_idx').on(table.preferredBibleId),
+  ],
 );
 
 export const userSettingsRelations = relations(userSettings, ({ one }) => ({
   user: one(users, {
     fields: [userSettings.userId],
     references: [users.id],
+  }),
+  preferredBible: one(bibles, {
+    fields: [userSettings.preferredBibleId],
+    references: [bibles.id],
   }),
 }));
 
@@ -751,7 +755,7 @@ export const bibles = sqliteTable(
 );
 
 export const biblesRelations = relations(bibles, ({ many }) => ({
-  usersWhoPreferred: many(users),
+  usersWhoPreferred: many(userSettings),
   biblesToLanguages: many(biblesToLanguages),
   biblesToCountries: many(biblesToCountries),
   biblesToRightsHolders: many(biblesToRightsHolders),
