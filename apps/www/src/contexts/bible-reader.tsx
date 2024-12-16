@@ -1,4 +1,7 @@
-import { findTextContentByVerseIds } from '@/core/utils/bibles/find-by-verse-id';
+import {
+  findTextContentByVerseIds,
+  findTextContentByVerseNumbers,
+} from '@/core/utils/bibles/find-by-verse-id';
 import { formNumberSequenceString } from '@/core/utils/number';
 import type { Content } from '@/schemas/bibles/contents';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
@@ -48,32 +51,47 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getVerseInfosFromVerseIdsInSearchParams = () => {
-    if (!searchParams.verseId) {
-      return [];
-    }
-
-    const verseIds = Array.isArray(searchParams.verseId)
-      ? searchParams.verseId
-      : searchParams.verseId.split(',');
-    if (!verseIds.length) {
-      return [];
-    }
+  const getVerseInfosFromVerseSearchParams = () => {
+    if (!searchParams.verseId && !searchParams.verseNumber) return [];
 
     const content = others.verse ? others.verse.content : others.chapter.content;
-    if (!content || !content.length) {
-      return [];
+    if (!content || !content.length) return [];
+
+    if (searchParams.verseId) {
+      const verseIds = Array.isArray(searchParams.verseId)
+        ? searchParams.verseId
+        : searchParams.verseId.split(',');
+      if (verseIds.length) {
+        return verseIds.map((verseId) => {
+          const texts = findTextContentByVerseIds(content, [verseId]);
+          return {
+            id: verseId,
+            number: texts[0].verseNumber,
+            contentIds: texts.map((t) => t.id),
+            text: texts.map((t) => t.text).join(''),
+          } satisfies SelectedVerseInfo;
+        });
+      }
     }
 
-    return verseIds.map((verseId) => {
-      const texts = findTextContentByVerseIds(content, [verseId]);
-      return {
-        id: verseId,
-        number: texts[0].verseNumber,
-        contentIds: texts.map((t) => t.id),
-        text: texts.map((t) => t.text).join(''),
-      } satisfies SelectedVerseInfo;
-    });
+    if (searchParams.verseNumber) {
+      const verseNumbers = Array.isArray(searchParams.verseNumber)
+        ? searchParams.verseNumber
+        : searchParams.verseNumber.split(',');
+      if (verseNumbers.length) {
+        return verseNumbers.map(Number).map((verseNumber) => {
+          const texts = findTextContentByVerseNumbers(content, [verseNumber]);
+          return {
+            id: texts[0].verseId,
+            number: verseNumber,
+            contentIds: texts.map((t) => t.id),
+            text: texts.map((t) => t.text).join(''),
+          } satisfies SelectedVerseInfo;
+        });
+      }
+    }
+
+    return [];
   };
 
   const [store, setStore] = createStore<BibleReaderStore>({
@@ -81,7 +99,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     book: others.book,
     chapter: others.chapter,
     verse: others.verse ?? null,
-    selectedVerseInfos: others.selectedVerseInfos ?? getVerseInfosFromVerseIdsInSearchParams(),
+    selectedVerseInfos: others.selectedVerseInfos ?? getVerseInfosFromVerseSearchParams(),
     get selectedIds(): string[] {
       return this.selectedVerseInfos.flatMap((info: SelectedVerseInfo) => info.contentIds);
     },

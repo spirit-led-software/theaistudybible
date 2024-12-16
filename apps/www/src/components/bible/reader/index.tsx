@@ -2,6 +2,7 @@ import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth } from '@/www/server/auth';
+import { gatherElementIdsByVerseId, gatherElementIdsByVerseNumber } from '@/www/utils';
 import { Meta, Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
@@ -58,9 +59,7 @@ const getNotes = GET(async (chapterId: string) => {
         },
       },
     })
-    .then((chapter) => {
-      return chapter?.verses.flatMap((verse) => verse.notes) || [];
-    });
+    .then((chapter) => chapter?.verses.flatMap((verse) => verse.notes) || []);
 });
 
 export type ReaderContentProps = {
@@ -72,21 +71,31 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
   const [searchParams] = useSearchParams();
   onMount(() => {
-    if (!searchParams.verseId) {
-      return;
+    if (!searchParams.verseId && !searchParams.verseNumber) return;
+
+    if (searchParams.verseId) {
+      const verseIds = Array.isArray(searchParams.verseId)
+        ? searchParams.verseId
+        : searchParams.verseId.split(',');
+      if (!verseIds.length) return;
+
+      const ids = gatherElementIdsByVerseId(verseIds[0]);
+      if (ids.length) {
+        document.getElementById(ids[0])?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
-    const verseIds = Array.isArray(searchParams.verseId)
-      ? searchParams.verseId
-      : searchParams.verseId.split(',');
-    if (!verseIds.length) {
-      return;
-    }
+    if (searchParams.verseNumber) {
+      const verseNumbers = Array.isArray(searchParams.verseNumber)
+        ? searchParams.verseNumber
+        : searchParams.verseNumber.split(',');
+      if (!verseNumbers.length) return;
 
-    document.getElementById(verseIds[0])?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    });
+      const ids = gatherElementIdsByVerseNumber(Number(verseNumbers[0]));
+      if (ids.length) {
+        document.getElementById(ids[0])?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
   });
 
   const highlightsQuery = createQuery(() => ({
