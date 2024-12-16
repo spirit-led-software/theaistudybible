@@ -96,7 +96,7 @@ function processVerseChunk(
       chapterId: chapter.id,
       verseIds,
       name,
-      url: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}`,
+      url: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}?${verseIds.map((id) => `verseId=${encodeURIComponent(id)}`).join('&')}`,
       indexDate: new Date().toISOString(),
     },
   };
