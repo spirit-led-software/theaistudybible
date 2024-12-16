@@ -143,7 +143,7 @@ export type ChatContextValue = Prettify<
     setId: Setter<string | undefined>;
     modelId: Accessor<string | undefined>;
     setModelId: Setter<string | undefined>;
-    setOptions: Setter<UseChatOptions>;
+    setOptions: Setter<UseChatOptions | undefined>;
     chatQuery: CreateQueryResult<Awaited<ReturnType<typeof getChat>>>;
     messagesQuery: CreateInfiniteQueryResult<
       InfiniteData<Awaited<ReturnType<typeof getChatMessages>>>
@@ -165,14 +165,15 @@ export const ChatProvider = (props: ChatProviderProps) => {
 
   const qc = useQueryClient();
 
-  const [id, _setId] = makePersisted(
-    createWritableMemo(() => others.id ?? createId()),
+  const [_id, _setId] = makePersisted(
+    createWritableMemo(() => others.id),
     { name: 'chatId' },
   );
+  const id = createMemo(() => _id() ?? createId());
   const setId: Setter<string | undefined> = ((input) => {
     let idToSet: string | undefined;
     if (typeof input === 'function') {
-      idToSet = input(id());
+      idToSet = input(_id());
     } else {
       idToSet = input;
     }
@@ -184,27 +185,7 @@ export const ChatProvider = (props: ChatProviderProps) => {
     { name: 'modelId' },
   );
 
-  const [options, _setOptions] = createSignal<UseChatOptions>({
-    id: id(),
-    body: { modelId: modelId() },
-  });
-  const setOptions: Setter<UseChatOptions> = (opts) => {
-    let optsToSet: UseChatOptions;
-    if (typeof opts === 'function') {
-      optsToSet = opts(options());
-    } else {
-      optsToSet = opts;
-    }
-
-    _setOptions({
-      id: id(),
-      ...optsToSet,
-      body: {
-        modelId: modelId(),
-        ...optsToSet.body,
-      },
-    });
-  };
+  const [options, setOptions] = createSignal<UseChatOptions>();
 
   const chatQuery = createQuery(() => getChatQueryProps(id()));
 
@@ -234,25 +215,27 @@ export const ChatProvider = (props: ChatProviderProps) => {
   const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(id()));
 
   const useChatResult = useAIChat(() => ({
+    ...options?.(),
+    id: id(),
     api: '/api/chat',
     generateId: createId,
     sendExtraMessageFields: true,
-    ...options(),
+    maxToolRoundtrips: 0,
     body: {
+      ...options?.()?.body,
       chatId: id(),
       modelId: modelId(),
-      ...options().body,
     },
     onError: (err) => {
       captureSentryException(err);
-      return options().onError?.(err);
+      return options?.()?.onError?.(err);
     },
     onFinish: (event, opts) => {
       chatQuery.refetch();
       followUpSuggestionsQuery.refetch();
       qc.invalidateQueries({ queryKey: ['chats'] });
       qc.invalidateQueries({ queryKey: ['user-credits'] });
-      return options().onFinish?.(event, opts);
+      return options?.()?.onFinish?.(event, opts);
     },
   }));
 
@@ -298,20 +281,12 @@ export type UseChatResult = Prettify<Omit<ChatContextValue, 'setOptions'>>;
 
 export const useChat = (options?: Accessor<UseChatOptions>): UseChatResult => {
   const chatCtx = useContext(ChatContext);
-
   if (!chatCtx) {
     throw new Error('useChat must be used within a ChatProvider');
   }
 
-  const chatId = createMemo(() => options?.()?.id ?? createId());
-  createEffect(on(chatId, (id) => chatCtx.setId(id)));
-
-  createEffect(
-    on(
-      () => options?.(),
-      (opts) => chatCtx.setOptions(opts ?? {}),
-    ),
-  );
+  createEffect(() => chatCtx.setId(options?.()?.id ?? createId()));
+  createEffect(() => chatCtx.setOptions(options?.() ?? {}));
 
   const [, result] = splitProps(chatCtx, ['setOptions']);
   return result;
