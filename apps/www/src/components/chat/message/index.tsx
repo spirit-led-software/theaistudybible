@@ -88,7 +88,7 @@ export const Message = (props: MessageProps) => {
             props.message.role === 'assistant' && props.message.role !== props.nextMessage?.role
           }
         >
-          <div class='flex items-center gap-1 py-2' role='toolbar' aria-label='Message actions'>
+          <div class='mt-4 flex items-center gap-1' role='toolbar' aria-label='Message actions'>
             <Show
               when={
                 props.message.annotations?.find(

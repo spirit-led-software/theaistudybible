@@ -3,17 +3,17 @@ import { createChatScrollAnchor } from '@/www/hooks/create-chat-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
 import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
-import { ArrowUp, ChevronDown, ChevronUp, Shuffle, StopCircle } from 'lucide-solid';
-import { For, Show, createEffect, createMemo, createSignal, on } from 'solid-js';
+import { ArrowUp, ChevronDown, ChevronUp, StopCircle } from 'lucide-solid';
+import { For, Show, createEffect, createMemo, on } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 import { TextField, TextFieldTextArea } from '../ui/text-field';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { EmptyWindow } from './empty-window';
 import { ChatMenu } from './menu';
 import { Message } from './message';
+import { SuggestionsMessage } from './message/suggestions';
 import { SelectModelButton } from './select-model-button';
 
 export type ChatWindowProps = {
@@ -66,17 +66,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const { isAtBottom, scrollToBottom, setScrollRef, setBottomRef, setTopOfLastMessageRef } =
     createChatScrollAnchor(() => ({ isLoading: isLoading() }));
 
-  const [currentSuggestionIndex, setCurrentSuggestionIndex] = createSignal(0);
-  const currentSuggestion = createMemo(() => {
-    return followUpSuggestionsQuery.data?.[currentSuggestionIndex()] ?? 'Type a message';
-  });
-
-  const shuffleSuggestion = () => {
-    if (followUpSuggestionsQuery.data?.length) {
-      setCurrentSuggestionIndex((prev) => (prev + 1) % followUpSuggestionsQuery.data.length);
-    }
-  };
-
   const append = (...args: Parameters<typeof appendBase>) => {
     const result = appendBase(...args);
     scrollToBottom();
@@ -86,11 +75,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const handleSubmit = (...args: Parameters<typeof handleSubmitBase>) => {
     args?.[0]?.preventDefault?.();
     if (!input()) {
-      if (!currentSuggestion()) {
-        toast.error('Please type a message');
-        return;
-      }
-      append({ role: 'user', content: currentSuggestion() });
+      toast.error('Please type a message');
       return;
     }
     const result = handleSubmitBase(...args);
@@ -196,6 +181,19 @@ export const ChatWindow = (props: ChatWindowProps) => {
                   </>
                 )}
               </For>
+              <Show
+                when={
+                  !isLoading() &&
+                  !followUpSuggestionsQuery.isFetching &&
+                  followUpSuggestionsQuery.data
+                }
+              >
+                {(suggestions) => (
+                  <Show when={suggestions().length}>
+                    <SuggestionsMessage suggestions={suggestions()} append={append} />
+                  </Show>
+                )}
+              </Show>
             </div>
             <div ref={setBottomRef} class='h-10 w-full shrink-0' />
           </div>
@@ -211,8 +209,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
             <SelectModelButton />
             <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>
               <TextFieldTextArea
-                placeholder={!isLoading() ? currentSuggestion() : 'Type a message'}
-                class='flex max-h-24 min-h-fit w-full resize-none items-center justify-center border-none bg-transparent px-2 py-0 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
+                placeholder='Type a message'
+                class='flex max-h-24 min-h-fit w-full resize-none items-center justify-center border-none bg-transparent px-2 py-0 placeholder:text-wrap focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
                 rows={1}
                 minlength={1}
                 autoResize
@@ -220,24 +218,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 aria-label='Message input'
               />
             </TextField>
-            <Show
-              when={(followUpSuggestionsQuery.data?.length ?? 0) > 1 && !isLoading() && !input()}
-            >
-              <Tooltip>
-                <TooltipTrigger
-                  as={Button}
-                  type='button'
-                  size='icon'
-                  variant='ghost'
-                  class='rounded-full'
-                  onClick={shuffleSuggestion}
-                  aria-label='Shuffle suggestion'
-                >
-                  <Shuffle size={16} />
-                </TooltipTrigger>
-                <TooltipContent>Shuffle suggestion</TooltipContent>
-              </Tooltip>
-            </Show>
             <Button
               type='submit'
               size='icon'
