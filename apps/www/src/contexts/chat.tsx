@@ -26,6 +26,7 @@ import {
   createContext,
   createEffect,
   createMemo,
+  createSignal,
   mergeProps,
   on,
   splitProps,
@@ -138,11 +139,11 @@ export const getChatSuggestionsQueryProps = (chatId: string) => ({
 
 export type ChatContextValue = Prettify<
   ReturnType<typeof useAIChat> & {
-    setOptions: Setter<Omit<UseChatOptions, 'id' | 'modelId'>>;
     id: Accessor<string>;
     setId: Setter<string | undefined>;
     modelId: Accessor<string | undefined>;
     setModelId: Setter<string | undefined>;
+    setOptions: Setter<UseChatOptions | undefined>;
     chatQuery: CreateQueryResult<Awaited<ReturnType<typeof getChat>>>;
     messagesQuery: CreateInfiniteQueryResult<
       InfiniteData<Awaited<ReturnType<typeof getChatMessages>>>
@@ -153,38 +154,38 @@ export type ChatContextValue = Prettify<
 
 export const ChatContext = createContext<ChatContextValue>();
 
-export type UseChatOptions = Prettify<
-  Omit<
-    BaseUseChatOptions,
-    'api' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'
-  > & {
-    modelId?: string;
-  }
->;
-
-export type ChatProviderProps = Prettify<
-  UseChatOptions & {
-    children: JSXElement;
-  }
->;
+export type ChatProviderProps = {
+  id?: string;
+  modelId?: string;
+  children: JSXElement;
+};
 
 export const ChatProvider = (props: ChatProviderProps) => {
-  const [local, others] = splitProps(props, ['id', 'modelId', 'children']);
+  const [local, others] = splitProps(props, ['children']);
 
   const qc = useQueryClient();
 
-  const [options, setOptions] = createWritableMemo(() => others);
-
-  const [_id, setId] = makePersisted(
-    createWritableMemo(() => local.id),
+  const [_id, _setId] = makePersisted(
+    createWritableMemo(() => others.id),
     { name: 'chatId' },
   );
   const id = createMemo(() => _id() ?? createId());
+  const setId: Setter<string | undefined> = ((input) => {
+    let idToSet: string | undefined;
+    if (typeof input === 'function') {
+      idToSet = input(_id());
+    } else {
+      idToSet = input;
+    }
+    _setId(idToSet ?? createId());
+  }) as Setter<string | undefined>;
 
   const [modelId, setModelId] = makePersisted(
-    createWritableMemo(() => local.modelId),
+    createWritableMemo(() => others.modelId),
     { name: 'modelId' },
   );
+
+  const [options, setOptions] = createSignal<UseChatOptions>();
 
   const chatQuery = createQuery(() => getChatQueryProps(id()));
 
@@ -272,23 +273,20 @@ export const ChatProvider = (props: ChatProviderProps) => {
   );
 };
 
+export type UseChatOptions = Prettify<
+  Omit<BaseUseChatOptions, 'api' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'>
+>;
+
 export type UseChatResult = Prettify<Omit<ChatContextValue, 'setOptions'>>;
 
 export const useChat = (options?: Accessor<UseChatOptions>): UseChatResult => {
   const chatCtx = useContext(ChatContext);
-  if (!chatCtx) throw new Error('useChat must be used within a ChatProvider');
+  if (!chatCtx) {
+    throw new Error('useChat must be used within a ChatProvider');
+  }
 
-  createEffect(
-    on(
-      () => options?.(),
-      (options) => {
-        const { id, modelId, ...rest } = options ?? {};
-        chatCtx.setId(id);
-        chatCtx.setModelId(modelId);
-        chatCtx.setOptions(rest);
-      },
-    ),
-  );
+  createEffect(() => chatCtx.setId(options?.()?.id ?? createId()));
+  createEffect(() => chatCtx.setOptions(options?.() ?? {}));
 
   const [, result] = splitProps(chatCtx, ['setOptions']);
   return result;
