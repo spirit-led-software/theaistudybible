@@ -36,16 +36,22 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
       () => location.pathname,
       (pathname) => {
         if (previousPathname() !== pathname) {
-          posthogClient()?.capture('$pageview');
+          const url = `${window?.origin}${pathname}${location.search}`;
+          posthogClient()?.capture('$pageview', {
+            $current_url: url,
+          });
         }
         setPreviousPathname(pathname);
       },
     ),
   );
 
-  useBeforeLeave((options) => {
-    if (options.from.pathname !== options.to) {
-      posthogClient()?.capture('$pageleave');
+  useBeforeLeave(({ from, to }) => {
+    if (from.pathname !== to) {
+      const url = `${window?.origin}${from.pathname}${from.search}`;
+      posthogClient()?.capture('$pageleave', {
+        $current_url: url,
+      });
     }
   });
 
@@ -58,7 +64,6 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
         ui_host: import.meta.env.PUBLIC_POSTHOG_UI_HOST,
         person_profiles: 'always',
         capture_pageview: false,
-        capture_pageleave: true,
       });
       setPosthogClient(posthogClient);
     }
