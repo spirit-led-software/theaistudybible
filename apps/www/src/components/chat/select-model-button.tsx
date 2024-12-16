@@ -1,18 +1,18 @@
 import { allChatModels, defaultChatModel } from '@/ai/models';
 import { Button } from '@/www/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
-import { useChatStore } from '@/www/contexts/chat';
+import { useChat } from '@/www/contexts/chat';
 import { cn } from '@/www/lib/utils';
 import { For, Match, Switch, createMemo, createSignal } from 'solid-js';
 import { Anthropic, Meta, Mistral, OpenAI } from '../ui/brand-icons';
 
 export const SelectModelButton = () => {
-  const [store, setStore] = useChatStore();
+  const { modelId, setModelId } = useChat();
 
   const [open, setOpen] = createSignal(false);
 
   const selectedModel = createMemo(() => {
-    const model = allChatModels.find((m) => m.id === store.modelId?.split(':')[1]);
+    const model = allChatModels.find((m) => m.id === modelId()?.split(':')[1]);
     return model ?? defaultChatModel;
   });
 
@@ -48,10 +48,10 @@ export const SelectModelButton = () => {
                 variant='ghost'
                 class={cn(
                   'h-fit w-full justify-start px-5 py-3',
-                  store.modelId === `${model.host}:${model.id}` && 'bg-accent',
+                  modelId() === `${model.host}:${model.id}` && 'bg-accent',
                 )}
                 onClick={() => {
-                  setStore('modelId', `${model.host}:${model.id}`);
+                  setModelId(`${model.host}:${model.id}`);
                   setOpen(false);
                 }}
               >

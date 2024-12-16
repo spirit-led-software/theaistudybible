@@ -73,6 +73,18 @@ export const ReaderContent = (props: ReaderContentProps) => {
   onMount(() => {
     if (!searchParams.verseId && !searchParams.verseNumber) return;
 
+    if (searchParams.verseNumber) {
+      const verseNumbers = Array.isArray(searchParams.verseNumber)
+        ? searchParams.verseNumber
+        : searchParams.verseNumber.split(',');
+      if (!verseNumbers.length) return;
+
+      const ids = gatherElementIdsByVerseNumber(Number(verseNumbers.sort()[0]));
+      if (ids.length) {
+        document.getElementById(ids[0])?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
     if (searchParams.verseId) {
       const verseIds = Array.isArray(searchParams.verseId)
         ? searchParams.verseId
@@ -80,18 +92,6 @@ export const ReaderContent = (props: ReaderContentProps) => {
       if (!verseIds.length) return;
 
       const ids = gatherElementIdsByVerseId(verseIds[0]);
-      if (ids.length) {
-        document.getElementById(ids[0])?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
-
-    if (searchParams.verseNumber) {
-      const verseNumbers = Array.isArray(searchParams.verseNumber)
-        ? searchParams.verseNumber
-        : searchParams.verseNumber.split(',');
-      if (!verseNumbers.length) return;
-
-      const ids = gatherElementIdsByVerseNumber(Number(verseNumbers[0]));
       if (ids.length) {
         document.getElementById(ids[0])?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }

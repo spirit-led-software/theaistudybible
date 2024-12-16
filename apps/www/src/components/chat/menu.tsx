@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from '@solidjs/router';
 import { PenBox } from 'lucide-solid';
 import { createMemo } from 'solid-js';
-import { useChatStore } from '../../contexts/chat';
+import { useChat } from '../../contexts/chat';
 import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { H6 } from '../ui/typography';
@@ -10,9 +10,9 @@ import { ChatSidebar } from './sidebar';
 export const ChatMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [chatStore, setChatStore] = useChatStore();
+  const { chatQuery, setId } = useChat();
 
-  const chatName = createMemo(() => chatStore.chat?.name ?? 'New Chat');
+  const chatName = createMemo(() => chatQuery.data?.chat?.name ?? 'New Chat');
 
   return (
     <div
@@ -31,7 +31,7 @@ export const ChatMenu = () => {
               size='icon'
               variant='ghost'
               onClick={() => {
-                setChatStore('chatId', null);
+                setId(undefined);
                 if (location.pathname.startsWith('/chat')) {
                   navigate('/chat');
                 }

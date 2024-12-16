@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from '@/www/components/ui/dialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
-import { useChatStore } from '@/www/contexts/chat';
+import { useChat } from '@/www/contexts/chat';
 import { requireAuth } from '@/www/server/auth';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
 import { action, useAction, useLocation, useNavigate } from '@solidjs/router';
@@ -36,13 +36,13 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
-  const [chatStore, setChatStore] = useChatStore();
+  const { id: chatId, setId: setChatId } = useChat();
 
   const deleteChatMutation = createMutation(() => ({
     mutationFn: () => deleteChat(props.chat.id),
     onSettled: () => {
-      if (chatStore.chatId === props.chat.id) {
-        setChatStore('chatId', null);
+      if (chatId() === props.chat.id) {
+        setChatId(undefined);
         if (location.pathname.startsWith('/chat')) {
           navigate('/chat');
         }
@@ -76,8 +76,8 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
           <Button
             variant='destructive'
             onClick={() => {
-              if (chatStore.chatId === props.chat.id) {
-                setChatStore('chatId', null);
+              if (chatId() === props.chat.id) {
+                setChatId(undefined);
                 if (location.pathname.startsWith('/chat')) {
                   navigate('/chat');
                 }

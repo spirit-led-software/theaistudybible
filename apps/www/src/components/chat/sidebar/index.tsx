@@ -1,4 +1,5 @@
 import { db } from '@/core/database';
+import { useChat } from '@/www/contexts/chat';
 import { cn } from '@/www/lib/utils';
 import { requireAuth } from '@/www/server/auth';
 import { useLocation, useNavigate } from '@solidjs/router';
@@ -8,7 +9,6 @@ import { formatDate } from 'date-fns';
 import { Clock, X } from 'lucide-solid';
 import { For, Show, createEffect } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
-import { useChatStore } from '../../../contexts/chat';
 import { QueryBoundary } from '../../query-boundary';
 import { Button, buttonVariants } from '../../ui/button';
 import {
@@ -51,7 +51,7 @@ export const ChatSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [chatStore, setChatStore] = useChatStore();
+  const { id: chatId, setId: setChatId } = useChat();
 
   const chatsQuery = createInfiniteQuery(() => getChatsQueryOptions());
 
@@ -103,14 +103,14 @@ export const ChatSidebar = () => {
                           data-index={idx()}
                           class={cn(
                             'group flex h-fit w-full items-center justify-between gap-2 overflow-hidden rounded-lg p-2 hover:bg-accent',
-                            chatStore.chat?.id === chat.id && 'bg-muted',
+                            chatId() === chat.id && 'bg-muted',
                           )}
                         >
                           <SheetClose
                             as={Button}
                             variant='ghost'
                             onClick={() => {
-                              setChatStore('chatId', chat.id);
+                              setChatId(chat.id);
                               if (location.pathname.startsWith('/chat')) {
                                 navigate(`/chat/${chat.id}`);
                               }

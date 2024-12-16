@@ -1,12 +1,11 @@
 import { useBibleStore } from '@/www/contexts/bible';
+import { useChat } from '@/www/contexts/chat';
 import { createChatScrollAnchor } from '@/www/hooks/create-chat-scroll-anchor';
-import { useChat } from '@/www/hooks/use-chat';
 import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
 import { ArrowUp, ChevronDown, ChevronUp, StopCircle } from 'lucide-solid';
 import { For, Show, createEffect, createMemo, on } from 'solid-js';
 import { toast } from 'solid-sonner';
-import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 import { TextField, TextFieldTextArea } from '../ui/text-field';
@@ -17,44 +16,33 @@ import { SuggestionsMessage } from './message/suggestions';
 import { SelectModelButton } from './select-model-button';
 
 export type ChatWindowProps = {
+  id?: string;
   additionalContext?: string;
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
   const location = useLocation();
-  const [chatStore, setChatStore] = useChatStore();
   const [bibleStore] = useBibleStore();
 
   const {
-    id,
     input,
     setInput,
-    handleSubmit: handleSubmitBase,
-    isLoading,
-    error,
     messages,
-    messagesQuery,
+    error,
+    isLoading,
+    handleSubmit: handleSubmitBase,
     append: appendBase,
     stop,
     addToolResult,
-    chatQuery,
+    messagesQuery,
     followUpSuggestionsQuery,
   } = useChat(() => ({
-    id: chatStore.chatId ?? undefined,
+    id: props.id,
     body: {
       additionalContext: props.additionalContext,
-      modelId: chatStore.modelId,
       bibleId: bibleStore.bible?.id,
     },
   }));
-  createEffect(() => {
-    setChatStore('chatId', id() ?? null);
-  });
-  createEffect(() => {
-    if (chatQuery.status === 'success') {
-      setChatStore('chat', chatQuery.data.chat);
-    }
-  });
   createEffect(
     on(error, (error) => {
       if (error) {
@@ -162,9 +150,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             <div class='flex w-full flex-1 flex-col items-center justify-end'>
               <For
                 each={messages()}
-                fallback={
-                  <EmptyWindow append={append} additionalContext={props.additionalContext} />
-                }
+                fallback={<EmptyWindow additionalContext={props.additionalContext} />}
               >
                 {(message, idx) => (
                   <>
@@ -239,8 +225,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
 };
 
 const MetaTags = () => {
-  const [chatStore] = useChatStore();
-  const chatName = createMemo(() => chatStore.chat?.name ?? 'New Chat');
+  const { chatQuery } = useChat();
+  const chatName = createMemo(() => chatQuery.data?.chat?.name ?? 'New Chat');
   const title = createMemo(
     () => `${chatName()} | The AI Study Bible - AI Bible Study Chat Assistant`,
   );

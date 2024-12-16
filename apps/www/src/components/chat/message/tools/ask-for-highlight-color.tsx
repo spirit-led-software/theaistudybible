@@ -3,17 +3,18 @@ import { ColorItem } from '@/www/components/bible/reader/activity-panel/highligh
 import { Button } from '@/www/components/ui/button';
 import { ToggleGroup } from '@/www/components/ui/toggle-group';
 import { H5 } from '@/www/components/ui/typography';
-import type { useChat } from '@/www/hooks/use-chat';
+import { useChat } from '@/www/contexts/chat';
 import type { ToolInvocation } from 'ai';
 import { Palette } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
 export type AskForHighlightColorToolProps = {
   toolInvocation: ToolInvocation;
-  addToolResult: ReturnType<typeof useChat>['addToolResult'];
 };
 
 export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) => {
+  const { addToolResult } = useChat();
+
   const [tgValue, setTgValue] = createSignal<string | undefined>();
 
   return (
@@ -46,7 +47,7 @@ export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) =
               <Button
                 variant='outline'
                 onClick={() =>
-                  props.addToolResult({
+                  addToolResult({
                     toolCallId: props.toolInvocation.toolCallId,
                     result: {
                       status: 'canceled',
@@ -58,7 +59,7 @@ export const AskForHighlightColorTool = (props: AskForHighlightColorToolProps) =
               </Button>
               <Button
                 onClick={() =>
-                  props.addToolResult({
+                  addToolResult({
                     toolCallId: props.toolInvocation.toolCallId,
                     result: {
                       status: 'confirmed',

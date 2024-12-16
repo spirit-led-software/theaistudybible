@@ -29,7 +29,7 @@ export const systemPrompt = (options: {
     - Links to Bible passages should be formatted as ${Resource.WebAppUrl.value}/bible/[abbreviation]/[book-code]/[chapter-number]/[verse-number]
     - Book codes are universally accepted by all translations. They are specified by the Universal Scripture XML (USX) standard.
     - When using verse number as a path parameter, you cannot use a range (e.g. 1-3) or a list (e.g. 1,2,3). You must use a single verse number.
-    - If you want to use a range of verses, you can pass the verse numbers as search parameters to the chapter URL (e.g. ${Resource.WebAppUrl.value}/bible/[abbreviation]/[book-code]/[chapter-number]?verseNumber=1&verseNumber=2&verseNumber=3).
+    - If you want to use a range of verses, you can pass the verse numbers as search parameters to the chapter URL (e.g. If you want verses 1-4, you can use ${Resource.WebAppUrl.value}/bible/[abbreviation]/[book-code]/[chapter-number]?verseNumber=1&verseNumber=2&verseNumber=3&verseNumber=4).
     - You must never link to any other sources outside of ${Resource.WebAppUrl.value}, unless it was fetched by the "Vector Store" tool.
 
 - **Date Awareness**: Today's date is ${formatDate(new Date(), 'yyyy-MM-dd')}. Use this for time-sensitive information.

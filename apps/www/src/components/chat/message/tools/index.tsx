@@ -36,10 +36,7 @@ export const Tools = (props: ToolsProps) => {
               }
             >
               <Match when={toolInvocation.toolName === 'askForHighlightColor'}>
-                <AskForHighlightColorTool
-                  toolInvocation={toolInvocation}
-                  addToolResult={local.addToolResult}
-                />
+                <AskForHighlightColorTool toolInvocation={toolInvocation} />
               </Match>
               <Match when={toolInvocation.toolName === 'highlightVerse'}>
                 <HighlightVerseTool toolInvocation={toolInvocation} />

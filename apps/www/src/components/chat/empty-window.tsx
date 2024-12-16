@@ -1,15 +1,16 @@
-import type { useChat } from '@/www/hooks/use-chat';
+import { useChat } from '@/www/contexts/chat';
 import { Book, Globe, Heart, Image, Lightbulb, Wrench } from 'lucide-solid';
 import { For } from 'solid-js';
 import { Button } from '../ui/button';
 import { GradientH3 } from '../ui/typography';
 
 export type EmptyWindowProps = {
-  append: ReturnType<typeof useChat>['append'];
   additionalContext?: string;
 };
 
 export const EmptyWindow = (props: EmptyWindowProps) => {
+  const { append } = useChat();
+
   const questions = [
     {
       icon: Lightbulb,
@@ -64,7 +65,7 @@ export const EmptyWindow = (props: EmptyWindowProps) => {
             <Button
               variant='outline'
               class='h-auto w-full py-3 text-left'
-              onClick={() => props.append({ role: 'user', content: query })}
+              onClick={() => append({ role: 'user', content: query })}
               aria-label={`Ask: ${text}`}
             >
               <Icon class='mr-3 inline-block size-5 shrink-0 sm:size-6' aria-hidden='true' />

@@ -57,23 +57,6 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     const content = others.verse ? others.verse.content : others.chapter.content;
     if (!content || !content.length) return [];
 
-    if (searchParams.verseId) {
-      const verseIds = Array.isArray(searchParams.verseId)
-        ? searchParams.verseId
-        : searchParams.verseId.split(',');
-      if (verseIds.length) {
-        return verseIds.map((verseId) => {
-          const texts = findTextContentByVerseIds(content, [verseId]);
-          return {
-            id: verseId,
-            number: texts[0].verseNumber,
-            contentIds: texts.map((t) => t.id),
-            text: texts.map((t) => t.text).join(''),
-          } satisfies SelectedVerseInfo;
-        });
-      }
-    }
-
     if (searchParams.verseNumber) {
       const verseNumbers = Array.isArray(searchParams.verseNumber)
         ? searchParams.verseNumber
@@ -84,6 +67,23 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
           return {
             id: texts[0].verseId,
             number: verseNumber,
+            contentIds: texts.map((t) => t.id),
+            text: texts.map((t) => t.text).join(''),
+          } satisfies SelectedVerseInfo;
+        });
+      }
+    }
+
+    if (searchParams.verseId) {
+      const verseIds = Array.isArray(searchParams.verseId)
+        ? searchParams.verseId
+        : searchParams.verseId.split(',');
+      if (verseIds.length) {
+        return verseIds.map((verseId) => {
+          const texts = findTextContentByVerseIds(content, [verseId]);
+          return {
+            id: verseId,
+            number: texts[0].verseNumber,
             contentIds: texts.map((t) => t.id),
             text: texts.map((t) => t.text).join(''),
           } satisfies SelectedVerseInfo;
@@ -175,7 +175,10 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     on(
       () => store.selectedVerseInfos,
       (verseInfos) => {
-        setSearchParams({ verseId: verseInfos.map((info) => info.id) });
+        setSearchParams({
+          verseNumber: Array.from(new Set(verseInfos.map((info) => info.number))).sort(),
+          verseId: null, // Default to verseNumber for more human-readable URLs
+        });
       },
     ),
   );
