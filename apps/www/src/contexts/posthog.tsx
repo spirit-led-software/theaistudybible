@@ -29,15 +29,24 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
     }),
   );
 
+  const [previousPathname, setPreviousPathname] = createSignal<string>();
   const location = useLocation();
   createEffect(
-    on([posthogClient, () => location.pathname], ([posthogClient]) => {
-      posthogClient?.capture('$pageview');
-    }),
+    on(
+      () => location.pathname,
+      (pathname) => {
+        if (previousPathname() !== pathname) {
+          posthogClient()?.capture('$pageview');
+        }
+        setPreviousPathname(pathname);
+      },
+    ),
   );
 
-  useBeforeLeave(() => {
-    posthogClient()?.capture('$pageleave');
+  useBeforeLeave((options) => {
+    if (options.from.pathname !== options.to) {
+      posthogClient()?.capture('$pageleave');
+    }
   });
 
   onMount(async () => {
@@ -47,7 +56,7 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
       const posthogClient = posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
         api_host: import.meta.env.PUBLIC_POSTHOG_API_HOST,
         ui_host: import.meta.env.PUBLIC_POSTHOG_UI_HOST,
-        person_profiles: 'identified_only',
+        person_profiles: 'always',
         capture_pageview: false,
         capture_pageleave: true,
       });
