@@ -96,7 +96,7 @@ export function PushNotificationToggle(props: PushNotificationToggleProps) {
         const { publicKey } = await getVapidPublicKey();
         subscription = await currentRegistration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: publicKey,
+          applicationServerKey: urlBase64ToUint8Array(publicKey),
         });
       }
       console.log('Subscription:', subscription);
@@ -165,7 +165,19 @@ export function PushNotificationToggle(props: PushNotificationToggleProps) {
       <SwitchControl>
         <SwitchThumb />
       </SwitchControl>
-      <SwitchLabel>Enable Push Notifications</SwitchLabel>
+      <SwitchLabel>Push Notifications</SwitchLabel>
     </Switch>
   );
 }
+
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
