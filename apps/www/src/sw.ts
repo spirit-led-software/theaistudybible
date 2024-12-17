@@ -26,8 +26,8 @@ self.addEventListener('push', (event) => {
 
   const data = event.data.json();
   const options: NotificationOptions = {
-    data: data.url,
     body: data.body,
+    data: data.url || '/',
     icon: data.icon || '/pwa/512x512.png',
     badge: data.badge || '/pwa/512x512.png',
     tag: data.tag || 'default',
