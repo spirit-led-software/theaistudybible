@@ -41,6 +41,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   passkeyCredentials: many(passkeyCredentials),
   userCredits: many(userCredits),
   userSettings: one(userSettings),
+  pushSubscriptions: many(pushSubscriptions),
   usersToRoles: many(usersToRoles),
   chats: many(chats),
   messages: many(messages),
@@ -196,6 +197,30 @@ export const userSettingsRelations = relations(userSettings, ({ one }) => ({
   preferredBible: one(bibles, {
     fields: [userSettings.preferredBibleId],
     references: [bibles.id],
+  }),
+}));
+
+export const pushSubscriptions = sqliteTable(
+  'push_subscriptions',
+  {
+    ...baseModel,
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    endpoint: text('endpoint').notNull(),
+    p256dh: text('p256dh').notNull(),
+    auth: text('auth').notNull(),
+  },
+  (table) => [
+    uniqueIndex('push_subscriptions_endpoint_idx').on(table.endpoint),
+    index('push_subscriptions_user_id_idx').on(table.userId),
+  ],
+);
+
+export const pushSubscriptionsRelations = relations(pushSubscriptions, ({ one }) => ({
+  user: one(users, {
+    fields: [pushSubscriptions.userId],
+    references: [users.id],
   }),
 }));
 

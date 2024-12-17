@@ -38,6 +38,7 @@
     "@types/aws-lambda": "^8.10.146",
     "@types/bun": "^1.1.14",
     "@types/node": "^22.10.2",
+    "@types/web-push": "^3.6.4",
     "cypress": "^13.16.1",
     "cypress-wait-until": "^3.0.2",
     "drizzle-kit": "^0.30.1",
@@ -63,6 +64,7 @@
     "lucia": "^3.2.2",
     "sst": "3.4.16",
     "stripe": "^17.4.0",
+    "web-push": "^3.6.7",
     "zod": "^3.24.1"
   },
   "packageManager": "bun@1.1.38",

@@ -11,6 +11,7 @@ import { eq } from 'drizzle-orm';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { z } from 'zod';
+import { PushNotificationToggle } from '../../push-notification-toggle';
 import { QueryBoundary } from '../../query-boundary';
 import { Button } from '../../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
@@ -101,6 +102,7 @@ export function SettingsCard() {
           onSubmit={(values) => handleSubmit.mutateAsync(values)}
         >
           <div class='flex h-full flex-1 flex-col gap-6'>
+            <PushNotificationToggle />
             <Field name='emailNotifications' type='boolean'>
               {(field, props) => (
                 <Switch

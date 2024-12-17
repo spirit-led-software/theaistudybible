@@ -26,9 +26,10 @@ export default function AdminLayout(props: { children: JSX.Element }) {
                 navigate(`/admin/${value}`);
               }}
             >
-              <TabsList class='grid w-full grid-cols-2'>
+              <TabsList class='grid w-full grid-cols-3'>
                 <TabsTrigger value='devotions'>Devotions</TabsTrigger>
                 <TabsTrigger value='bibles'>Bibles</TabsTrigger>
+                <TabsTrigger value='push-notification'>Push Notification</TabsTrigger>
               </TabsList>
             </Tabs>
             {props.children}

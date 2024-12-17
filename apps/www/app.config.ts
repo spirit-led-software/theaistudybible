@@ -18,7 +18,10 @@ export default defineConfig({
       tsconfigPaths(),
       solidDevTools({ autoname: true }),
       VitePWA({
-        includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon-180x180.png'],
+        strategies: 'injectManifest',
+        srcDir: 'src',
+        filename: 'sw.ts',
+        registerType: 'autoUpdate',
         manifest: {
           name: 'The AI Study Bible',
           short_name: 'The AI Study Bible',
@@ -50,6 +53,19 @@ export default defineConfig({
             },
           ],
           start_url: '/',
+        },
+        includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon-180x180.png'],
+        injectManifest: {
+          globPatterns: [
+            '**/*.{js,css,html,png,svg,ico,wasm,webp,woff,woff2,ttf,eot,json,jpg,jpeg,gif,mp3,mp4,wav,avif}',
+          ],
+        },
+        devOptions: {
+          enabled: true,
+          suppressWarnings: true,
+          navigateFallback: '/',
+          navigateFallbackAllowlist: [/^\/$/],
+          type: 'module',
         },
       }),
       sentrySolidStartVite({

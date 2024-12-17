@@ -1,4 +1,5 @@
 // @refresh reload
+import { pwaInfo } from 'virtual:pwa-info';
 import { StartServer, createHandler } from '@solidjs/start/server';
 
 export default createHandler(() => (
@@ -14,7 +15,13 @@ export default createHandler(() => (
           <link rel='icon' href='/favicon.ico' sizes='48x48' />
           <link rel='icon' href='/icon.svg' sizes='any' type='image/svg+xml' />
           {/* PWA */}
-          <link rel='manifest' href='/_build/manifest.webmanifest' />
+          {pwaInfo?.webManifest && (
+            <link
+              rel='manifest'
+              href={pwaInfo.webManifest.href}
+              crossOrigin={pwaInfo.webManifest.useCredentials ? 'use-credentials' : undefined}
+            />
+          )}
           <link rel='apple-touch-icon' href='/apple-touch-icon-180x180.png' />
           <link
             rel='apple-touch-startup-image'

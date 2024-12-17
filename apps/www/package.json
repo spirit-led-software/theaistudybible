@@ -29,7 +29,12 @@
     "vite-plugin-cjs-interop": "^2.1.6",
     "vite-plugin-pwa": "^0.21.1",
     "vite-plugin-solid": "^2.11.0",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "workbox-build": "^7.3.0",
+    "workbox-core": "^7.3.0",
+    "workbox-precaching": "^7.3.0",
+    "workbox-routing": "^7.3.0",
+    "workbox-window": "^7.3.0"
   },
   "dependencies": {
     "@ai-sdk/solid": "^1.0.6",

@@ -34,3 +34,8 @@ export const POSTHOG_API_KEY = new Constant(
   'PostHogApiKey',
   'phc_z3PcZTeDMCT53dKzb0aqDXkrM1o3LpNcC9QlJDdG9sO',
 );
+
+export const VAPID_PUBLIC_KEY = new Constant(
+  'VapidPublicKey',
+  'BGmZN6BAKavVbsy9Q8h3YKqcD4ucyGjPFdElfzCrlodH8jVacq0K5n3QbAF1LBHS49rL5KyjEHIcOf-8VDuiWKA',
+);

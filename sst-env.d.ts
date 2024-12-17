@@ -141,6 +141,14 @@ declare module "sst" {
       "restUrl": string
       "type": "upstash.index/vectorIndex.VectorIndex"
     }
+    "VapidPrivateKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "VapidPublicKey": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
       "value": string
