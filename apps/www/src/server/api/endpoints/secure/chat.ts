@@ -198,6 +198,7 @@ const app = new Hono<{
             chat,
             modelInfo,
             user: c.var.user!,
+            settings: c.var.settings,
             dataStream: dataStream,
             additionalContext: input.additionalContext,
             bible,

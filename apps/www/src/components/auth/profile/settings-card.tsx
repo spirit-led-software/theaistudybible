@@ -17,6 +17,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Label } from '../../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from '../../ui/switch';
+import {
+  TextField,
+  TextFieldDescription,
+  TextFieldLabel,
+  TextFieldTextArea,
+} from '../../ui/text-field';
 
 const getBibles = GET(async () => {
   'use server';
@@ -141,6 +147,21 @@ export function SettingsCard() {
                 </Field>
               )}
             </QueryBoundary>
+            <Field name='aiInstructions'>
+              {(field, props) => (
+                <TextField
+                  value={field.value ?? undefined}
+                  onChange={(v) => setValue(form, field.name, v)}
+                  validationState={field.error ? 'invalid' : 'valid'}
+                >
+                  <TextFieldLabel>Added AI Instructions</TextFieldLabel>
+                  <TextFieldDescription>
+                    These instructions will be added to the AI's system prompt.
+                  </TextFieldDescription>
+                  <TextFieldTextArea {...props} rows={4} class='resize-none' />
+                </TextField>
+              )}
+            </Field>
           </div>
           <div class='flex justify-end'>
             <Button type='submit' disabled={form.submitting || form.validating}>

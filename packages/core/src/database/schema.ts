@@ -176,10 +176,11 @@ export const userSettings = sqliteTable(
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    emailNotifications: integer('email_notifications', { mode: 'boolean' }).notNull().default(true),
     preferredBibleId: text('preferred_bible_id').references(() => bibles.id, {
       onDelete: 'cascade',
     }),
+    emailNotifications: integer('email_notifications', { mode: 'boolean' }).notNull().default(true),
+    aiInstructions: text('ai_instructions'),
   },
   (table) => [
     uniqueIndex('user_settings_user_id_idx').on(table.userId),

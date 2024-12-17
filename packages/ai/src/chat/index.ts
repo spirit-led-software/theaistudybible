@@ -8,6 +8,7 @@ import {
 import type { Bible } from '@/schemas/bibles/types';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { Chat } from '@/schemas/chats/types';
+import type { UserSettings } from '@/schemas/users/types';
 import type { DataStreamWriter } from 'ai';
 import { Output, generateText, streamText } from 'ai';
 import { eq } from 'drizzle-orm';
@@ -78,6 +79,7 @@ export type CreateChatChainOptions = Omit<
   chat: Chat;
   modelInfo: ChatModelInfo;
   user: User;
+  settings?: UserSettings | null;
   dataStream: DataStreamWriter;
   additionalContext?: string | null;
   bible?: Bible;
@@ -89,6 +91,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
   const system = systemPrompt({
     additionalContext: options.additionalContext,
     user: options.user,
+    settings: options.settings,
     bible: options.bible,
   });
   const systemTokens = numTokensFromString({ text: system });
