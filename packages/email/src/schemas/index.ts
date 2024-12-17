@@ -5,7 +5,11 @@ import { DeadLetterEmailSchema } from './dead-letter';
 
 export const EmailBodySchema = z.union([
   z.string(),
-  z.union([ForgotPasswordEmailSchema, DeadLetterEmailSchema, DailyDevotionEmailSchema]),
+  z.discriminatedUnion('type', [
+    ForgotPasswordEmailSchema,
+    DeadLetterEmailSchema,
+    DailyDevotionEmailSchema,
+  ]),
 ]);
 
 export const EmailQueueRecordSchema = z.object({

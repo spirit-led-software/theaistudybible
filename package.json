@@ -65,7 +65,7 @@
     "stripe": "^17.4.0",
     "zod": "^3.24.1"
   },
-  "packageManager": "bun@1.1.37",
+  "packageManager": "bun@1.1.38",
   "workspaces": ["apps/*", "packages/*", "tools/*"],
   "trustedDependencies": [
     "@biomejs/biome",
