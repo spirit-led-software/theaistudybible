@@ -14,6 +14,7 @@ import type { z } from 'zod';
 import { QueryBoundary } from '../../query-boundary';
 import { Button } from '../../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
+import { Label } from '../../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from '../../ui/switch';
 
@@ -115,6 +116,7 @@ export function SettingsCard() {
                 <Field name='preferredBibleId'>
                   {(field, props) => (
                     <div class='flex flex-col gap-2'>
+                      <Label>Preferred Bible</Label>
                       <Select
                         value={bibles.find((bible) => bible.id === field.value)}
                         onChange={(v) => setValue(form, field.name, v?.id)}
