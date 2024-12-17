@@ -46,7 +46,7 @@ export const Menu = (props: MenuProps) => {
         </NavigationMenuLink>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <NavigationMenuTrigger class='bg-transparent'>
+        <NavigationMenuTrigger class='justify-between bg-transparent'>
           About
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
@@ -108,7 +108,7 @@ export const Menu = (props: MenuProps) => {
         </NavigationMenuContent>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <NavigationMenuTrigger class='bg-transparent'>
+        <NavigationMenuTrigger class='justify-between bg-transparent'>
           Bible
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
@@ -144,7 +144,7 @@ export const Menu = (props: MenuProps) => {
         </NavigationMenuContent>
       </NavigationMenuItem>
       <NavigationMenuItem>
-        <NavigationMenuTrigger class='bg-transparent'>
+        <NavigationMenuTrigger class='justify-between bg-transparent'>
           AI
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
