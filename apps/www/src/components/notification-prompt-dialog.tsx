@@ -55,7 +55,7 @@ export function NotificationPromptDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <div class='py-4'>
+        <div class='flex flex-col gap-4'>
           <List>
             <ListItem class='flex items-center gap-2'>
               <Bell />
@@ -70,13 +70,13 @@ export function NotificationPromptDialog() {
               Receive timely reminders
             </ListItem>
           </List>
+          <PushNotificationToggle onSuccess={handleClose} />
         </div>
 
         <DialogFooter>
           <Button variant='outline' onClick={handleClose}>
             Maybe Later
           </Button>
-          <PushNotificationToggle onSuccess={handleClose} />
         </DialogFooter>
       </DialogContent>
     </Dialog>
