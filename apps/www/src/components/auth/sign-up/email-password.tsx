@@ -1,8 +1,12 @@
+import { signUp } from '@/core/auth/providers/credentials';
 import { signUpSchema } from '@/core/auth/providers/credentials/schemas';
 import { createForm, zodForm } from '@modular-forms/solid';
+import { action, redirect, useAction } from '@solidjs/router';
+import { createMutation } from '@tanstack/solid-query';
 import { Eye, EyeOff } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
 import { createSignal } from 'solid-js';
+import { toast } from 'solid-sonner';
 import type { z } from 'zod';
 import { Button } from '../../ui/button';
 import {
@@ -12,11 +16,20 @@ import {
   TextFieldLabel,
 } from '../../ui/text-field';
 
+const signUpAction = action(async (values: z.infer<typeof signUpSchema>, redirectUrl = '/') => {
+  'use server';
+  const cookie = await signUp(values);
+  throw redirect(redirectUrl, { headers: { 'Set-Cookie': cookie.serialize() } });
+});
+
 type EmailPasswordFormProps = {
-  onSubmit: (values: z.infer<typeof signUpSchema>) => Promise<void>;
+  redirectUrl?: string;
+  onSuccess: () => void;
 };
 
 export function EmailPasswordForm(props: EmailPasswordFormProps) {
+  const signUp = useAction(signUpAction);
+
   const [form, { Form, Field }] = createForm<z.infer<typeof signUpSchema>>({
     validate: zodForm(signUpSchema),
   });
@@ -24,8 +37,14 @@ export function EmailPasswordForm(props: EmailPasswordFormProps) {
   const [showPassword, setShowPassword] = createSignal(false);
   const [showConfirmPassword, setShowConfirmPassword] = createSignal(false);
 
+  const onSubmit = createMutation(() => ({
+    mutationFn: (values: z.infer<typeof signUpSchema>) => signUp(values, props.redirectUrl),
+    onSuccess: () => props.onSuccess(),
+    onError: (error) => toast.error(error.message),
+  }));
+
   return (
-    <Form onSubmit={props.onSubmit} class='space-y-4'>
+    <Form onSubmit={(values) => onSubmit.mutate(values)} class='space-y-4'>
       <Field name='email'>
         {(field, props) => (
           <TextField

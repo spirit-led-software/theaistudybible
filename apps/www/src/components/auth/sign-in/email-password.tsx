@@ -37,18 +37,14 @@ export const EmailPasswordForm = (props: EmailPasswordFormProps) => {
   const onSubmit = createMutation(() => ({
     mutationFn: (values: z.infer<typeof signInSchema>) =>
       signInWithEmailPassword(values, props.redirectUrl),
-    onSuccess: () => {
-      props.onSuccess();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
+    onSuccess: () => props.onSuccess(),
+    onError: (error) => toast.error(error.message),
   }));
 
   const [showPassword, setShowPassword] = createSignal(false);
 
   return (
-    <Form onSubmit={(values) => onSubmit.mutateAsync(values)} class='space-y-4'>
+    <Form onSubmit={(values) => onSubmit.mutate(values)} class='space-y-4'>
       <Field name='email'>
         {(field, props) => (
           <TextField

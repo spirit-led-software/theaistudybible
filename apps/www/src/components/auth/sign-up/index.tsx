@@ -1,10 +1,5 @@
-import { signUp } from '@/core/auth/providers/credentials';
-import type { signUpSchema } from '@/core/auth/providers/credentials/schemas';
 import { useAuth } from '@/www/contexts/auth';
-import { A, action, redirect, useAction } from '@solidjs/router';
-import { createMutation } from '@tanstack/solid-query';
-import { toast } from 'solid-sonner';
-import type { z } from 'zod';
+import { A } from '@solidjs/router';
 import { Logo } from '../../branding/logo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../ui/accordion';
 import { Button } from '../../ui/button';
@@ -16,25 +11,8 @@ export type SignUpProps = {
   redirectUrl?: string;
 };
 
-const signUpAction = action(async (values: z.infer<typeof signUpSchema>, redirectUrl = '/') => {
-  'use server';
-  const cookie = await signUp(values);
-  throw redirect(redirectUrl, { headers: { 'Set-Cookie': cookie.serialize() } });
-});
-
 export function SignUp(props: SignUpProps) {
-  const signUp = useAction(signUpAction);
   const { invalidate } = useAuth();
-
-  const onSubmit = createMutation(() => ({
-    mutationFn: (values: z.infer<typeof signUpSchema>) => signUp(values, props.redirectUrl),
-    onSuccess: () => {
-      invalidate();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  }));
 
   return (
     <div class='mx-auto w-full max-w-[90%] sm:max-w-md'>
@@ -65,7 +43,7 @@ export function SignUp(props: SignUpProps) {
             <AccordionItem value='email-password'>
               <AccordionTrigger>With Email & Password</AccordionTrigger>
               <AccordionContent>
-                <EmailPasswordForm onSubmit={(values) => onSubmit.mutateAsync(values)} />
+                <EmailPasswordForm redirectUrl={props.redirectUrl} onSuccess={() => invalidate()} />
               </AccordionContent>
             </AccordionItem>
           </Accordion>

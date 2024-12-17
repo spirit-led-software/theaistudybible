@@ -156,12 +156,8 @@ export const PasskeyButton = (props: PasskeyButtonProps) => {
         clientDataJSON: encodedClientDataJSON,
       });
     },
-    onSuccess: () => {
-      props.onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
+    onSuccess: () => props.onSuccess?.(),
+    onError: (error) => toast.error(error.message),
   }));
 
   return (

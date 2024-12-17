@@ -225,13 +225,8 @@ export function PasskeyForm(props: PasskeyFormProps) {
         props.redirectUrl,
       );
     },
-    onSuccess: () => {
-      props.onSuccess?.();
-    },
-    onError: (error) => {
-      console.error(error);
-      toast.error(error.message);
-    },
+    onSuccess: () => props.onSuccess?.(),
+    onError: (error) => toast.error(error.message),
   }));
 
   return (
