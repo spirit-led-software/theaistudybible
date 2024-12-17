@@ -36,7 +36,7 @@ export function NotificationPromptDialog() {
     if (hasShownPrompt) return;
 
     // Wait a bit before showing the prompt to not overwhelm the user immediately
-    setTimeout(() => setShowPrompt(true), 3000);
+    setTimeout(() => setShowPrompt(true), 10000);
   });
 
   const handleClose = () => {
@@ -55,7 +55,7 @@ export function NotificationPromptDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <div class='flex flex-col gap-4'>
+        <div class='flex flex-col items-center gap-4'>
           <List>
             <ListItem class='flex items-center gap-2'>
               <Bell />
