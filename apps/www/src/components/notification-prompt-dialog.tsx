@@ -1,7 +1,8 @@
+import { makePersisted } from '@solid-primitives/storage';
 import { BellRing } from 'lucide-solid';
 import { Bell } from 'lucide-solid';
 import { Bookmark } from 'lucide-solid';
-import { createSignal, onMount } from 'solid-js';
+import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import { useAuth } from '../contexts/auth';
 import { PushNotificationToggle } from './push-notification-toggle';
 import { Button } from './ui/button';
@@ -18,31 +19,31 @@ import { List, ListItem } from './ui/typography';
 const NOTIFICATION_PROMPT_SHOWN_KEY = 'notification-prompt-shown';
 
 export function NotificationPromptDialog() {
-  const { isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
+
+  const [isSupported, setIsSupported] = createSignal(false);
+  const [hasShownPrompt, setHasShownPrompt] = makePersisted(createSignal(false), {
+    name: NOTIFICATION_PROMPT_SHOWN_KEY,
+  });
   const [showPrompt, setShowPrompt] = createSignal(false);
 
-  onMount(async () => {
-    // Only show for signed-in users
-    if (!isSignedIn()) return;
-
-    // Check if notifications are supported
+  onMount(() => {
     if (!('Notification' in window)) return;
-
-    // Don't show prompt if permission was already granted or denied
     if (Notification.permission !== 'default') return;
+    setIsSupported(true);
+  });
 
-    // Check if we've shown the prompt before
-    const hasShownPrompt = localStorage.getItem(NOTIFICATION_PROMPT_SHOWN_KEY);
-    if (hasShownPrompt) return;
-
-    // Wait a bit before showing the prompt to not overwhelm the user immediately
-    setTimeout(() => setShowPrompt(true), 10000);
+  createEffect(() => {
+    if (!isLoaded() || !isSignedIn()) return;
+    if (!isSupported()) return;
+    if (hasShownPrompt()) return;
+    const timeout = setTimeout(() => setShowPrompt(true), 10000);
+    onCleanup(() => clearTimeout(timeout));
   });
 
   const handleClose = () => {
     setShowPrompt(false);
-    // Remember that we've shown the prompt
-    localStorage.setItem(NOTIFICATION_PROMPT_SHOWN_KEY, 'true');
+    setHasShownPrompt(true);
   };
 
   return (
