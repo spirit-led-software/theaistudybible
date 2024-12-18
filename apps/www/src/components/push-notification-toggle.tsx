@@ -22,7 +22,6 @@ const subscribeToPushNotificationsAction = action(
     keys: { p256dh: string; auth: string };
   }) => {
     'use server';
-    console.log('Subscribing to push notifications', input);
     const { user } = requireAuth();
     await db.insert(pushSubscriptions).values({
       userId: user.id,
@@ -86,20 +85,17 @@ export function PushNotificationToggle(props: PushNotificationToggleProps) {
       if (!currentRegistration) {
         throw new Error('No service worker registration found');
       }
-      console.log('Subscribing to push notifications');
 
       // Get the push subscription
       let subscription = await currentRegistration.pushManager.getSubscription();
       // If not subscribed, create a new subscription
       if (!subscription) {
-        console.log('No subscription found, creating a new one');
         const { publicKey } = await getVapidPublicKey();
         subscription = await currentRegistration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(publicKey),
         });
       }
-      console.log('Subscription:', subscription);
 
       const subscriptionJson = subscription.toJSON();
       if (!subscriptionJson.endpoint || !subscriptionJson.keys) {
@@ -120,7 +116,6 @@ export function PushNotificationToggle(props: PushNotificationToggleProps) {
       props.onSuccess?.();
     },
     onError: (error) => {
-      console.error('Error subscribing to push notifications:', error);
       toast.error(`Failed to subscribe to notifications: ${error.message}`);
     },
   }));
