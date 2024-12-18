@@ -23,12 +23,13 @@ export default defineConfig({
         srcDir: 'src',
         filename: 'sw.ts',
         registerType: 'autoUpdate',
-        base: '/',
         manifest: {
           name: 'The AI Study Bible',
           short_name: 'The AI Study Bible',
           description:
             'The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.',
+          scope: '/',
+          start_url: '/',
           theme_color: '#030527',
           icons: [
             {
