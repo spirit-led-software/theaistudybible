@@ -250,7 +250,7 @@ export function VerseReader(props: VerseReaderProps) {
                       {rightsHolder.nameLocal}
                     </Button>
                   </Muted>
-                  <div innerHTML={bible.copyrightStatement} class='text-muted-foreground' />
+                  <div innerHTML={bible.copyrightStatement} class='text-muted-foreground text-xs' />
                 </div>
                 <div class='flex w-full flex-col items-center'>
                   <Button

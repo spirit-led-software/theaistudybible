@@ -199,7 +199,7 @@ export function ChapterReader(props: ChapterReaderProps) {
                       {rightsHolder.nameLocal}
                     </Button>
                   </Muted>
-                  <div innerHTML={bible.copyrightStatement} class='text-muted-foreground' />
+                  <div innerHTML={bible.copyrightStatement} class='text-muted-foreground text-xs' />
                 </div>
                 <Show when={previousChapter} keyed>
                   {(previousChapter) => {
