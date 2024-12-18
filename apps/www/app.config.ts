@@ -1,3 +1,4 @@
+import { createId } from '@/core/utils/id';
 import { sentrySolidStartVite } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
 import solidDevTools from 'solid-devtools/vite';
@@ -22,13 +23,13 @@ export default defineConfig({
         srcDir: 'src',
         filename: 'sw.ts',
         registerType: 'autoUpdate',
+        base: '/',
         manifest: {
           name: 'The AI Study Bible',
           short_name: 'The AI Study Bible',
           description:
             'The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.',
           theme_color: '#030527',
-          scope: '/',
           icons: [
             {
               src: '/pwa/64x64.png',
@@ -52,12 +53,17 @@ export default defineConfig({
               purpose: 'maskable',
             },
           ],
-          start_url: '/',
         },
         includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon-180x180.png'],
         injectManifest: {
           globPatterns: [
             '**/*.{js,css,html,png,svg,ico,wasm,webp,woff,woff2,ttf,eot,json,jpg,jpeg,gif,mp3,mp4,wav,avif}',
+          ],
+          manifestTransforms: [
+            (manifest) => {
+              manifest.push({ url: '/', revision: createId(), size: 0 });
+              return { manifest, warnings: [] };
+            },
           ],
         },
         devOptions: {
@@ -65,7 +71,6 @@ export default defineConfig({
           suppressWarnings: true,
           navigateFallback: '/',
           navigateFallbackAllowlist: [/^\/$/],
-          type: 'module',
         },
       }),
       sentrySolidStartVite({
