@@ -32,7 +32,7 @@ export const ChatMenu = () => {
               variant='ghost'
               onClick={() => {
                 setChatStore('chatId', null);
-                if (location.pathname.startsWith('/chat')) {
+                if (location.pathname.startsWith('/chat/')) {
                   navigate('/chat');
                 }
               }}
