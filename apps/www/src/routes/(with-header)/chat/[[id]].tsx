@@ -23,10 +23,11 @@ export const route: RouteDefinition = {
 export default function ChatPage() {
   const params = useParams();
   const location = useLocation();
-
   const [, setChatStore] = useChatStore();
   createEffect(() => {
-    setChatStore('chatId', params.id ?? null);
+    if (params.id) {
+      setChatStore('chatId', params.id);
+    }
   });
 
   return (
