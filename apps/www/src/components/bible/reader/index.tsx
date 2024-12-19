@@ -8,12 +8,7 @@ import { useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { createMemo, onMount } from 'solid-js';
-import {
-  ActivityPanel,
-  ActivityPanelContent,
-  ActivityPanelMenu,
-  ActivityPanelSelectedTitle,
-} from './activity-panel';
+import { ActivityPanel, ActivityPanelContent, ActivityPanelMenu } from './activity-panel';
 import { Contents } from './contents';
 
 import './contents/contents.css';
@@ -127,7 +122,6 @@ export const ReaderContent = (props: ReaderContentProps) => {
         />
       </div>
       <ActivityPanel>
-        <ActivityPanelSelectedTitle />
         <ActivityPanelMenu />
         <ActivityPanelContent />
       </ActivityPanel>

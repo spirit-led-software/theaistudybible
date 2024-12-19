@@ -1,4 +1,4 @@
-import { createId } from '@/core/utils/id';
+import { createId } from '@paralleldrive/cuid2';
 import { sentrySolidStartVite } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
 import solidDevTools from 'solid-devtools/vite';
@@ -72,6 +72,7 @@ export default defineConfig({
           suppressWarnings: true,
           navigateFallback: '/',
           navigateFallbackAllowlist: [/^\/$/],
+          type: 'module',
         },
       }),
       sentrySolidStartVite({

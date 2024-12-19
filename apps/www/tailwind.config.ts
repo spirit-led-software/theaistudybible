@@ -109,6 +109,19 @@ export default {
           from: { width: '0', overflow: 'hidden' },
           to: { width: 'fit-content' },
         },
+        'nowrap-to-wrap': {
+          '0%': {
+            'white-space': 'nowrap',
+          },
+          '99%': {
+            'white-space': 'nowrap',
+          },
+          '100%': {
+            opacity: '1',
+            'white-space': 'normal',
+            'word-break': 'keep-all',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -119,6 +132,7 @@ export default {
         'fade-in': 'fade-in 0.2s ease-in-out',
         'blur-in': 'blur-in 0.2s ease-in-out',
         typewriter: 'typewriter 0.2s ease-in-out',
+        'nowrap-to-wrap': 'nowrap-to-wrap 0.3s ease-in-out',
       },
     },
   },
