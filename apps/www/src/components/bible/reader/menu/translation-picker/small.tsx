@@ -11,6 +11,7 @@ import {
   CommandList,
 } from '@/www/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
+import { Spinner } from '@/www/components/ui/spinner';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
@@ -49,14 +50,23 @@ export function SmallTranslationPicker() {
   });
 
   return (
-    <QueryBoundary query={query}>
+    <QueryBoundary
+      query={query}
+      loadingFallback={
+        <Button variant='outline' disabled class='flex items-center justify-center gap-2'>
+          <span>Loading</span>
+          <Spinner size='sm' />
+        </Button>
+      }
+    >
       {(bibles) => (
         <Popover>
           <PopoverTrigger
             as={Button}
             variant='outline'
+            // biome-ignore lint/a11y/useSemanticElements: Our select doesn't work like this
             role='combobox'
-            class='justify-between text-nowrap'
+            class='flex items-center justify-between text-nowrap'
           >
             {brStore.bible.abbreviationLocal}
             <ChevronsUpDown class='ml-2 h-4 w-4 shrink-0 opacity-50' />
