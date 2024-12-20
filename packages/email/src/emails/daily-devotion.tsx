@@ -36,7 +36,7 @@ export const DailyDevotionEmail = ({ devotion, devotionImage }: DailyDevotionEma
             />
             <Heading as='h1'>
               Today's Devotion:
-              <span className='ml-1 font-goldman text-accent-foreground'>
+              <span className='ml-2 font-goldman text-accent-foreground'>
                 {toTitleCase(devotion.topic)}
               </span>
             </Heading>
