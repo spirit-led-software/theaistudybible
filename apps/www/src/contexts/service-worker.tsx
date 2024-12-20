@@ -33,7 +33,7 @@ export const ServiceWorkerProvider = (props: ParentProps) => {
   createEffect(() => {
     const currentRegistration = registration();
     if (currentRegistration) {
-      const interval = setInterval(() => currentRegistration.update(), 1000 * 60 * 60 * 24); // check for updates every 24 hours
+      const interval = setInterval(() => currentRegistration.update(), 1000 * 60 * 60); // check for updates every hour
       onCleanup(() => clearInterval(interval));
     }
   });

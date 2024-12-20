@@ -43,6 +43,12 @@ export const DailyDevotionEmail = ({ devotion, devotionImage }: DailyDevotionEma
             <Text className='text-muted-foreground'>
               {formatDate(devotion.createdAt, 'MMMM d, yyyy')}
             </Text>
+            <Button
+              href={`${Resource.WebAppUrl.value}/devotion/${devotion.id}`}
+              className='w-fit rounded-full bg-primary p-4 text-primary-foreground hover:bg-primary/90'
+            >
+              Read on the App
+            </Button>
             {devotionImage.url && (
               <Img
                 src={devotionImage.url}

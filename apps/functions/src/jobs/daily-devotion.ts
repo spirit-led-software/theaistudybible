@@ -69,7 +69,7 @@ const sendPushNotifications = async (devotion: Devotion) => {
           JSON.stringify({
             title: `Today's Devotion: ${toTitleCase(devotion.topic)}`,
             body: devotion.bibleReading,
-            url: `${Resource.WebAppUrl.value}/devotions/${devotion.id}`,
+            url: `${Resource.WebAppUrl.value}/devotion/${devotion.id}`,
           }),
         )
         .catch(async (error) => {
