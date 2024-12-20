@@ -19,10 +19,12 @@ import {
   Show,
   Switch,
   createContext,
+  createEffect,
   createSignal,
   splitProps,
   useContext,
 } from 'solid-js';
+import { createStore } from 'solid-js/store';
 import { BookmarkMenuItem } from './bookmark/menu-item';
 import { ChatCard } from './chat/card';
 import { HighlightCard } from './highlight/card';
@@ -81,14 +83,23 @@ export const ActivityPanelMenu = () => {
 
   const [buttonRef, setButtonRef] = createSignal<HTMLButtonElement>();
   const [buttonContentRef, setButtonContentRef] = createSignal<HTMLDivElement>();
+  const [buttonContentSize, setButtonContentSize] = createStore({ height: 0, width: 0 });
+  createResizeObserver(buttonContentRef, (e) =>
+    setButtonContentSize({ height: e.height, width: e.width }),
+  );
 
-  createResizeObserver(buttonContentRef, (e) => {
+  createEffect(() => {
+    const minHeight = window.width >= 1024 ? 64 : window.width >= 768 ? 56 : 48;
+    const minWidth = brStore.selectedIds.length ? 140 : minHeight;
     const currentButton = buttonRef();
     if (currentButton) {
-      currentButton.style.setProperty('height', `${e.height + 32}px`);
+      currentButton.style.setProperty(
+        'height',
+        `${Math.max(buttonContentSize.height + 32, minHeight)}px`,
+      );
       currentButton.style.setProperty(
         'width',
-        `${Math.max(e.width + 32, brStore.selectedIds.length ? 150 : 0)}px`,
+        `${Math.max(buttonContentSize.width + 32, minWidth)}px`,
       );
     }
   });
@@ -104,8 +115,8 @@ export const ActivityPanelMenu = () => {
         as={Button}
         ref={setButtonRef}
         class={cn(
-          '-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 flex items-center justify-center rounded-full p-4 transition-all duration-200 ease-in-out sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 md:size-14 lg:right-[15%] lg:size-16',
-          brStore.selectedIds.length && 'w-40 md:w-40',
+          '-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 flex size-12 items-center justify-center rounded-full p-4 transition-all duration-200 ease-in-out sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 md:size-14 lg:right-[15%] lg:size-16',
+          brStore.selectedIds.length && 'w-32 md:w-32',
         )}
       >
         <div class='flex items-center gap-2' ref={setButtonContentRef}>
