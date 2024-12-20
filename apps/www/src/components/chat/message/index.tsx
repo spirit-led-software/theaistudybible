@@ -13,7 +13,6 @@ import { Icon } from '../../branding/icon';
 import { AnimatedMarkdown } from '../../ui/animated-markdown';
 import { Button } from '../../ui/button';
 import { Markdown } from '../../ui/markdown';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { MessageReactionButtons } from './reaction-buttons';
 import { Tools } from './tools';
 
@@ -38,30 +37,20 @@ export const Message = (props: MessageProps) => {
         <Show when={props.previousMessage?.role !== props.message.role}>
           <Switch>
             <Match when={props.message.role === 'user'}>
-              <Tooltip>
-                <TooltipTrigger as='div'>
-                  <UserAvatar aria-label='User avatar' />
-                </TooltipTrigger>
-                <TooltipContent>Me</TooltipContent>
-              </Tooltip>
+              <UserAvatar class='size-10 shrink-0' aria-label='User avatar' />
             </Match>
             <Match when={props.message.role === 'assistant'}>
-              <Tooltip>
-                <TooltipTrigger as='div'>
-                  <div
-                    class='flex h-10 w-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2'
-                    aria-label='AI assistant avatar'
-                  >
-                    <Icon width={300} height={300} class='flex-shrink-0' aria-hidden='true' />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>The AI Study Bible</TooltipContent>
-              </Tooltip>
+              <div
+                class='flex size-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2'
+                aria-label='AI assistant avatar'
+              >
+                <Icon width={300} height={300} class='flex-shrink-0' aria-hidden='true' />
+              </div>
             </Match>
           </Switch>
         </Show>
       </div>
-      <div class='flex w-full flex-col'>
+      <div class='flex w-full flex-col gap-4'>
         <Show when={props.message.content}>
           {(content) => (
             <Show
@@ -88,7 +77,7 @@ export const Message = (props: MessageProps) => {
             props.message.role === 'assistant' && props.message.role !== props.nextMessage?.role
           }
         >
-          <div class='mt-4 flex items-center gap-1' role='toolbar' aria-label='Message actions'>
+          <div class='flex items-center gap-1' role='toolbar' aria-label='Message actions'>
             <Show
               when={
                 props.message.annotations?.find(

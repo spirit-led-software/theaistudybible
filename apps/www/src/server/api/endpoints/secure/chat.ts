@@ -79,12 +79,7 @@ const app = new Hono<{
 
       const modelInfo = allChatModels.find((m) => m.id === modelId.split(':')[1]);
       if (!modelInfo) {
-        return c.json(
-          {
-            message: 'Invalid model provided',
-          },
-          400,
-        );
+        return c.json({ message: 'Invalid model provided' }, 400);
       }
 
       console.time('checkAndConsumeCredits');
@@ -109,12 +104,7 @@ const app = new Hono<{
       });
       if (chat) {
         if (chat.userId !== c.var.user!.id) {
-          return c.json(
-            {
-              message: 'You are not authorized to access this chat',
-            },
-            403,
-          );
+          return c.json({ message: 'You are not authorized to access this chat' }, 403);
         }
       } else {
         [chat] = await db
@@ -143,12 +133,7 @@ const app = new Hono<{
 
       const lastMessage = input.messages.at(-1);
       if (!lastMessage) {
-        return c.json(
-          {
-            message: 'You must provide at least one message',
-          },
-          400,
-        );
+        return c.json({ message: 'You must provide at least one message' }, 400);
       }
 
       console.time('saveMessage');
@@ -158,12 +143,7 @@ const app = new Hono<{
       });
       if (existingMessage) {
         if (existingMessage.userId !== c.var.user!.id || existingMessage.chatId !== chat.id) {
-          return c.json(
-            {
-              message: 'You are not authorized to access this message',
-            },
-            403,
-          );
+          return c.json({ message: 'You are not authorized to access this message' }, 403);
         }
         await db
           .update(messagesTable)

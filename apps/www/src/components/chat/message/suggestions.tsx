@@ -3,7 +3,7 @@ import { ArrowUp, ChevronLeft, ChevronRight, Lightbulb } from 'lucide-solid';
 import { createSignal } from 'solid-js';
 import { Button } from '../../ui/button';
 import { Markdown } from '../../ui/markdown';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
+import { H5 } from '../../ui/typography';
 
 export type SuggestionsMessageProps = {
   suggestions: string[];
@@ -19,21 +19,14 @@ export const SuggestionsMessage = (props: SuggestionsMessageProps) => {
       aria-label='Follow-up suggestions'
     >
       <div class='mt-2 flex h-full w-10 shrink-0 items-start'>
-        <Tooltip>
-          <TooltipTrigger
-            as='div'
-            class='flex size-10 items-center justify-center rounded-full border'
-          >
-            <Lightbulb />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Follow-up suggestions</p>
-          </TooltipContent>
-        </Tooltip>
+        <div class='flex size-10 items-center justify-center rounded-full border'>
+          <Lightbulb />
+        </div>
       </div>
-      <div class='flex w-full flex-col'>
+      <div class='flex w-full flex-col gap-4'>
+        <H5>Follow-up suggestions</H5>
         <Markdown>{props.suggestions[currentSuggestion()]}</Markdown>
-        <div class='mt-4 flex w-full items-center gap-2'>
+        <div class='flex w-full items-center gap-2'>
           <div class='flex items-center justify-between'>
             <Button
               variant='ghost'
