@@ -119,13 +119,13 @@ export const ActivityPanelMenu = () => {
           brStore.selectedIds.length && 'w-32 md:w-32',
         )}
       >
-        <div ref={setButtonContentRef} class='flex items-center justify-center gap-2 p-2 transition-all duration-300 ease-in-out'>
+        <div ref={setButtonContentRef} class='flex items-center justify-center gap-2 p-4 transition-all duration-300 ease-in-out'>
           <Sparkles
             class='size-5 shrink-0 transition-all duration-300 ease-in-out'
             fill='hsl(var(--primary-foreground))'
           />
           <Show when={brStore.selectedIds.length}>
-            <span class='line-clamp-2 animate-nowrap-to-wrap text-sm transition-all duration-500 ease-in-out'>
+            <span class='line-clamp-2 animate-nowrap-to-wrap text-sm transition-all duration-400 ease-in-out'>
               {brStore.selectedTitle.replace(/\(.*\)/, '')}
             </span>
           </Show>
