@@ -11,7 +11,6 @@ import { getDefaultModelId, validateModelId } from '@/www/server/api/utils/chat'
 import { getMessageId } from '@/www/utils/message';
 import { zValidator } from '@hono/zod-validator';
 import { createDataStream, smoothStream } from 'ai';
-import { parseISO } from 'date-fns';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
@@ -24,12 +23,7 @@ const app = new Hono<{
 }>()
   .use('/*', async (c, next) => {
     if (!c.var.user?.id) {
-      return c.json(
-        {
-          message: 'You must be logged in to access this resource.',
-        },
-        401,
-      );
+      return c.json({ message: 'You must be logged in to access this resource.' }, 401);
     }
     await next();
   })
@@ -39,13 +33,7 @@ const app = new Hono<{
       'json',
       z.object({
         messages: z.array(
-          MessageSchema.merge(
-            z.object({
-              createdAt: z.string().datetime(),
-              updatedAt: z.string().datetime(),
-            }),
-          )
-            .partial()
+          MessageSchema.partial()
             .required({
               id: true,
               role: true,
@@ -156,7 +144,6 @@ const app = new Hono<{
       } else {
         await db.insert(messagesTable).values({
           ...lastMessage,
-          createdAt: lastMessage.createdAt ? parseISO(lastMessage.createdAt) : undefined,
           updatedAt: new Date(),
           chatId: chat.id,
           userId: c.var.user!.id,

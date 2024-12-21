@@ -1,4 +1,5 @@
 import { useRegisterSW } from 'virtual:pwa-register/solid';
+import { captureException as captureSentryException } from '@sentry/solidstart';
 import {
   type Accessor,
   type ParentProps,
@@ -8,7 +9,6 @@ import {
   onCleanup,
   useContext,
 } from 'solid-js';
-import { toast } from 'solid-sonner';
 
 type ServiceWorkerContextType = {
   registration: Accessor<ServiceWorkerRegistration | undefined>;
@@ -20,14 +20,8 @@ export const ServiceWorkerProvider = (props: ParentProps) => {
   const [registration, setRegistration] = createSignal<ServiceWorkerRegistration>();
 
   useRegisterSW({
-    onOfflineReady: () => toast.info('App is ready to work offline!'),
-    onRegisteredSW: (swUrl, registration) => {
-      console.log('Service worker registered:', swUrl);
-      if (registration) setRegistration(registration);
-    },
-    onRegisterError: (error) => {
-      console.error('Service worker registration error:', error);
-    },
+    onRegisteredSW: (_, registration) => setRegistration(registration),
+    onRegisterError: (error) => captureSentryException(error),
   });
 
   createEffect(() => {
