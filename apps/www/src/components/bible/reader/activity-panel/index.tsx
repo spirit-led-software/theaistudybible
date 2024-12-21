@@ -92,8 +92,8 @@ export const ActivityPanelMenu = () => {
   );
 
   createEffect(() => {
-    const minHeight = window.width >= 1024 ? 64 : window.width >= 768 ? 56 : 48; // ! Match size-x below
-    const minWidth = brStore.selectedIds.length ? 160 : minHeight; // ! Match size-x and w-x below
+    const minHeight = window.width >= 1024 ? 64 : window.width >= 768 ? 56 : 48; // ! Match size-x below in pixels
+    const minWidth = brStore.selectedIds.length ? 160 : minHeight; // ! Match size-x and w-x below in pixels
     const currentButton = buttonRef();
     if (currentButton) {
       currentButton.style.setProperty(
