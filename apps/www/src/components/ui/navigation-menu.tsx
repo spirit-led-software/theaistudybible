@@ -128,20 +128,20 @@ const NavigationMenuContent = <T extends ValidComponent = 'ul'>(
 type NavigationMenuLinkProps<T extends ValidComponent = 'a'> =
   NavigationMenuPrimitive.NavigationMenuItemProps<T> & {
     class?: string | undefined;
-    doNavigate?: boolean;
+    // TODO: Remove this once this issue is fixed: https://github.com/kobaltedev/kobalte/issues/446
+    navigate?: (href: string) => void;
   };
 
 const NavigationMenuLink = <T extends ValidComponent = 'a'>(
   props: PolymorphicProps<T, NavigationMenuLinkProps<T>>,
 ) => {
-  const navigate = useNavigate();
   const [local, others] = splitProps(props as NavigationMenuLinkProps, [
     'class',
     'onSelect',
-    'doNavigate',
+    'navigate',
   ]);
 
-  const doNavigate = () => local.doNavigate ?? true;
+  const navigate = local.navigate ?? useNavigate();
 
   return (
     <NavigationMenuPrimitive.Item
@@ -150,9 +150,7 @@ const NavigationMenuLink = <T extends ValidComponent = 'a'>(
         local.class,
       )}
       onSelect={() => {
-        if (doNavigate()) {
-          navigate(props.href);
-        }
+        navigate(props.href);
         local.onSelect?.();
       }}
       {...others}

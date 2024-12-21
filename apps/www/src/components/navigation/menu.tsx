@@ -82,9 +82,7 @@ export const Menu = (props: MenuProps) => {
           <NavigationMenuLink
             as='a'
             href='mailto:support@theaistudybible.com'
-            target='_blank'
-            rel='noopener noreferrer'
-            doNavigate={false} // Let the anchor tag handle the navigation
+            navigate={(href) => window.open(href, '_blank', 'noopener,noreferrer')}
           >
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Mail />
@@ -95,9 +93,7 @@ export const Menu = (props: MenuProps) => {
           <NavigationMenuLink
             as='a'
             href='https://donate.stripe.com/cN23fc1mFdW2dXOcMM'
-            target='_blank'
-            rel='noopener noreferrer'
-            doNavigate={false} // Let the anchor tag handle the navigation
+            navigate={(href) => window.open(href, '_blank', 'noopener,noreferrer')}
           >
             <NavigationMenuLabel class='flex items-center gap-2'>
               <CreditCard />
