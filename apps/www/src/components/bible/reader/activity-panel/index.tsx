@@ -84,23 +84,23 @@ export const ActivityPanelMenu = () => {
   const [buttonRef, setButtonRef] = createSignal<HTMLButtonElement>();
   const [buttonContentRef, setButtonContentRef] = createSignal<HTMLDivElement>();
   const [buttonContentSize, setButtonContentSize] = createStore({ height: 0, width: 0 });
-  createResizeObserver(buttonContentRef, (e) =>
-    setButtonContentSize({ height: e.height, width: e.width }),
+  createResizeObserver(buttonContentRef, (_size, _element, entry) =>
+    setButtonContentSize({
+      height: entry.borderBoxSize[0].blockSize,
+      width: entry.borderBoxSize[0].inlineSize,
+    }),
   );
 
   createEffect(() => {
     const minHeight = window.width >= 1024 ? 64 : window.width >= 768 ? 56 : 48; // ! Match size-x below
-    const minWidth = brStore.selectedIds.length ? 140 : minHeight; // ! Match size-x and w-x below
+    const minWidth = brStore.selectedIds.length ? 160 : minHeight; // ! Match size-x and w-x below
     const currentButton = buttonRef();
     if (currentButton) {
       currentButton.style.setProperty(
         'height',
         `${Math.max(buttonContentSize.height, minHeight)}px`,
       );
-      currentButton.style.setProperty(
-        'width',
-        `${Math.max(buttonContentSize.width, minWidth)}px`,
-      );
+      currentButton.style.setProperty('width', `${Math.max(buttonContentSize.width, minWidth)}px`);
     }
   });
 
@@ -116,16 +116,19 @@ export const ActivityPanelMenu = () => {
         ref={setButtonRef}
         class={cn(
           '-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 flex size-12 items-center justify-center rounded-full transition-all duration-300 ease-in-out sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 md:size-14 lg:right-[15%] lg:size-16',
-          brStore.selectedIds.length && 'w-32 md:w-32',
+          brStore.selectedIds.length && 'w-40 md:w-40',
         )}
       >
-        <div ref={setButtonContentRef} class='flex items-center justify-center gap-2 p-4 transition-all duration-300 ease-in-out'>
+        <div
+          ref={setButtonContentRef}
+          class='flex items-center justify-center gap-2 p-2 transition-all duration-300 ease-in-out'
+        >
           <Sparkles
             class='size-5 shrink-0 transition-all duration-300 ease-in-out'
             fill='hsl(var(--primary-foreground))'
           />
           <Show when={brStore.selectedIds.length}>
-            <span class='line-clamp-2 animate-nowrap-to-wrap text-sm transition-all duration-400 ease-in-out'>
+            <span class='line-clamp-2 animate-nowrap-to-wrap text-sm transition-all duration-300 ease-in-out'>
               {brStore.selectedTitle.replace(/\(.*\)/, '')}
             </span>
           </Show>
