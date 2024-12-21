@@ -89,17 +89,18 @@ export const ActivityPanelMenu = () => {
   );
 
   createEffect(() => {
-    const minHeight = window.width >= 1024 ? 64 : window.width >= 768 ? 56 : 48;
-    const minWidth = brStore.selectedIds.length ? 140 : minHeight;
+    const padding = 8; // ! Match p-2 below
+    const minHeight = window.width >= 1024 ? 64 : window.width >= 768 ? 56 : 48; // ! Match size-x below
+    const minWidth = brStore.selectedIds.length ? 140 : minHeight; // ! Match size-x and w-x below
     const currentButton = buttonRef();
     if (currentButton) {
       currentButton.style.setProperty(
         'height',
-        `${Math.max(buttonContentSize.height + 32, minHeight)}px`,
+        `${Math.max(buttonContentSize.height, minHeight) + padding}px`,
       );
       currentButton.style.setProperty(
         'width',
-        `${Math.max(buttonContentSize.width + 32, minWidth)}px`,
+        `${Math.max(buttonContentSize.width, minWidth) + padding}px`,
       );
     }
   });
@@ -115,20 +116,20 @@ export const ActivityPanelMenu = () => {
         as={Button}
         ref={setButtonRef}
         class={cn(
-          '-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 flex size-12 items-center justify-center rounded-full p-4 transition-all duration-200 ease-in-out sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 md:size-14 lg:right-[15%] lg:size-16',
+          '-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 flex size-12 items-center justify-center rounded-full p-2 transition-all duration-300 ease-in-out sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 md:size-14 lg:right-[15%] lg:size-16',
           brStore.selectedIds.length && 'w-32 md:w-32',
         )}
       >
         <div class='flex items-center gap-2' ref={setButtonContentRef}>
+          <Sparkles
+            class='size-5 shrink-0 transition-all duration-500 ease-in-out'
+            fill='hsl(var(--primary-foreground))'
+          />
           <Show when={brStore.selectedIds.length}>
-            <span class='line-clamp-2 animate-nowrap-to-wrap text-sm transition-all duration-300 ease-in-out'>
+            <span class='line-clamp-2 animate-nowrap-to-wrap text-sm transition-all duration-500 ease-in-out'>
               {brStore.selectedTitle.replace(/\(.*\)/, '')}
             </span>
           </Show>
-          <Sparkles
-            class='size-5 shrink-0 transition-all duration-300 ease-in-out'
-            fill='hsl(var(--primary-foreground))'
-          />
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
