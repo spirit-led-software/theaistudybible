@@ -93,7 +93,7 @@ export const ActivityPanelMenu = () => {
 
   createEffect(() => {
     const minHeight = window.width >= 1024 ? 64 : window.width >= 768 ? 56 : 48; // ! Match size-x below in pixels
-    const minWidth = brStore.selectedIds.length ? 160 : minHeight; // ! Match size-x and w-x below in pixels
+    const minWidth = brStore.selectedIds.length ? 176 : minHeight; // ! Match size-x and w-x below in pixels
     const currentButton = buttonRef();
     if (currentButton) {
       currentButton.style.setProperty(
@@ -116,7 +116,7 @@ export const ActivityPanelMenu = () => {
         ref={setButtonRef}
         class={cn(
           '-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 flex size-12 items-center justify-center rounded-full transition-all duration-300 ease-in-out sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 md:size-14 lg:right-[15%] lg:size-16',
-          brStore.selectedIds.length && 'w-40 md:w-40',
+          brStore.selectedIds.length && 'w-44 md:w-44',
         )}
       >
         <div
