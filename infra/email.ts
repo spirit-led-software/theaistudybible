@@ -21,6 +21,7 @@ if (isProd) {
     type: 'MX',
     ttl: 300,
     records: ['10 feedback-smtp.us-east-1.amazonses.com'],
+    allowOverwrite: true,
   });
   new aws.route53.Record('MailFromTXT', {
     zoneId: AWS_HOSTED_ZONE.zoneId,
@@ -28,6 +29,7 @@ if (isProd) {
     type: 'TXT',
     ttl: 300,
     records: ['v=spf1 include:amazonses.com ~all'],
+    allowOverwrite: true,
   });
 
   // BIMI setup
@@ -37,6 +39,7 @@ if (isProd) {
     type: 'TXT',
     ttl: 300,
     records: [$interpolate`v=DMARC1;p=reject;rua=mailto:dmarcreports@${DOMAIN.value}`],
+    allowOverwrite: true,
   });
   new aws.route53.Record('BimiRecord', {
     zoneId: AWS_HOSTED_ZONE.zoneId,
@@ -44,5 +47,6 @@ if (isProd) {
     type: 'TXT',
     ttl: 300,
     records: [$interpolate`v=BIMI1;l=https://${DOMAIN.value}/icon.svg;a=self`],
+    allowOverwrite: true,
   });
 }
