@@ -27,7 +27,6 @@ const regions: RegionConfig[] = isProd
   ? [
       { region: 'iad', replicas: 4 },
       { region: 'fra', replicas: 4 },
-      { region: 'sin', replicas: 4 },
     ]
   : [{ region: 'iad', replicas: 1 }];
 

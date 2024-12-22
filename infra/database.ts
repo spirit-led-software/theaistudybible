@@ -25,7 +25,7 @@ function getDatabase() {
         {
           name: 'default',
           primary: 'iad' satisfies FlyRegion,
-          locations: ['iad', 'fra', 'sin'] satisfies FlyRegion[],
+          locations: ['iad', 'fra'] satisfies FlyRegion[],
         },
         { retainOnDelete: true },
       )
