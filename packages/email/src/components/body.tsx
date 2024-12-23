@@ -5,7 +5,10 @@ export type BodyProps = React.ComponentProps<typeof BodyBase>;
 
 export const Body = ({ children, className, ...props }: BodyProps) => {
   return (
-    <BodyBase className={cn('bg-background font-inter text-foreground', className)} {...props}>
+    <BodyBase
+      className={cn('whitespace-pre-wrap bg-background font-inter text-foreground', className)}
+      {...props}
+    >
       {children}
     </BodyBase>
   );
