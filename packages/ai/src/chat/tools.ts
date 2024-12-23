@@ -16,6 +16,22 @@ import { z } from 'zod';
 import { openai } from '../provider-registry';
 import { vectorStore } from '../vector-store';
 
+export const thinkingTool = (_input: { dataStream: DataStreamWriter }) =>
+  tool({
+    description: 'Thinking: Think about the question and jot down your thought process.',
+    parameters: z.object({
+      thoughts: z
+        .string()
+        .describe('Notes or thoughts about the question, formatted in valid markdown.'),
+    }),
+    execute: ({ thoughts }) =>
+      Promise.resolve({
+        status: 'success',
+        message: 'Thoughts recorded',
+        thoughts,
+      } as const),
+  });
+
 export const askForHighlightColorTool = (_input: { dataStream: DataStreamWriter }) =>
   tool({
     description: 'Ask for Highlight Color: Ask which color to use when highlighting a verse.',
@@ -39,73 +55,72 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
         .describe('The color of the highlight. Must be in valid hex format.'),
     }),
     execute: async ({ bibleAbbr, bookName, chapterNumber, verseNumbers, color }) => {
-      const queryResult = await db.query.bibles.findFirst({
-        columns: {
-          id: true,
-          abbreviation: true,
-        },
-        where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
-        with: {
-          books: {
-            columns: { id: true, code: true, abbreviation: true, shortName: true },
-            where: (books, { or, eq }) =>
-              or(
-                eq(books.shortName, bookName),
-                eq(books.code, bookName),
-                eq(books.abbreviation, bookName),
-              ),
-            with: {
-              chapters: {
-                columns: { id: true, number: true },
-                where: (chapters, { eq }) => eq(chapters.number, chapterNumber),
-                with: {
-                  verses: {
-                    columns: { id: true, number: true },
-                    where: (verses, { inArray }) => inArray(verses.number, verseNumbers),
+      try {
+        const queryResult = await db.query.bibles.findFirst({
+          columns: { id: true, abbreviation: true },
+          where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+          with: {
+            books: {
+              columns: { id: true, code: true, abbreviation: true, shortName: true },
+              where: (books, { or, eq }) =>
+                or(
+                  eq(books.shortName, bookName),
+                  eq(books.code, bookName),
+                  eq(books.abbreviation, bookName),
+                ),
+              with: {
+                chapters: {
+                  columns: { id: true, number: true },
+                  where: (chapters, { eq }) => eq(chapters.number, chapterNumber),
+                  with: {
+                    verses: {
+                      columns: { id: true, number: true },
+                      where: (verses, { inArray }) => inArray(verses.number, verseNumbers),
+                    },
                   },
                 },
               },
             },
           },
-        },
-      });
-
-      const bible = queryResult;
-      const book = bible?.books[0];
-      const chapter = book?.chapters[0];
-      const verses = chapter?.verses;
-
-      if (!verses?.length) {
-        return {
-          status: 'error',
-          message: 'Verse(s) not found',
-        } as const;
-      }
-
-      await db
-        .insert(verseHighlights)
-        .values(
-          verses.map((verse) => ({
-            userId: input.userId,
-            verseId: verse.id,
-            color: color ?? '#FFD700',
-          })),
-        )
-        .onConflictDoUpdate({
-          target: [verseHighlights.verseId],
-          set: {
-            color: color ?? '#FFD700',
-          },
         });
 
-      return {
-        status: 'success',
-        message: 'Verse highlighted',
-        bible: bible!,
-        book: book!,
-        chapter: chapter!,
-        verses: verses,
-      } as const;
+        const bible = queryResult;
+        const book = bible?.books[0];
+        const chapter = book?.chapters[0];
+        const verses = chapter?.verses;
+        if (!verses?.length) {
+          throw new Error('Verse(s) not found');
+        }
+
+        await db
+          .insert(verseHighlights)
+          .values(
+            verses.map((verse) => ({
+              userId: input.userId,
+              verseId: verse.id,
+              color: color ?? '#FFD700',
+            })),
+          )
+          .onConflictDoUpdate({
+            target: [verseHighlights.verseId],
+            set: { color: color ?? '#FFD700' },
+          });
+
+        return {
+          status: 'success',
+          message: 'Verse highlighted',
+          bible: bible!,
+          book: book!,
+          chapter: chapter!,
+          verses: verses,
+        } as const;
+      } catch (err) {
+        console.error('Error highlighting verse', err);
+        return {
+          status: 'error',
+          message: err instanceof Error ? err.message : 'An unknown error occurred',
+        } as const;
+      }
     },
   });
 
@@ -119,78 +134,68 @@ export const bookmarkVerseTool = (input: { dataStream: DataStreamWriter; userId:
       verseNumbers: z.array(z.number().describe('The number of the verse to bookmark.')),
     }),
     execute: async ({ bibleAbbr, bookName, chapterNumber, verseNumbers }) => {
-      const queryResult = await db.query.bibles.findFirst({
-        columns: {
-          id: true,
-          abbreviation: true,
-        },
-        where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
-        with: {
-          books: {
-            columns: {
-              id: true,
-              code: true,
-              abbreviation: true,
-              shortName: true,
-            },
-            where: (books, { or, eq }) =>
-              or(
-                eq(books.shortName, bookName),
-                eq(books.code, bookName),
-                eq(books.abbreviation, bookName),
-              ),
-            with: {
-              chapters: {
-                columns: {
-                  id: true,
-                  number: true,
-                },
-                where: (chapters, { eq }) => eq(chapters.number, chapterNumber),
-                with: {
-                  verses: {
-                    columns: {
-                      id: true,
-                      number: true,
+      try {
+        const queryResult = await db.query.bibles.findFirst({
+          columns: { id: true, abbreviation: true },
+          where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+          with: {
+            books: {
+              columns: { id: true, code: true, abbreviation: true, shortName: true },
+              where: (books, { or, eq }) =>
+                or(
+                  eq(books.shortName, bookName),
+                  eq(books.code, bookName),
+                  eq(books.abbreviation, bookName),
+                ),
+              with: {
+                chapters: {
+                  columns: { id: true, number: true },
+                  where: (chapters, { eq }) => eq(chapters.number, chapterNumber),
+                  with: {
+                    verses: {
+                      columns: { id: true, number: true },
+                      where: (verses, { inArray }) => inArray(verses.number, verseNumbers),
                     },
-                    where: (verses, { inArray }) => inArray(verses.number, verseNumbers),
                   },
                 },
               },
             },
           },
-        },
-      });
+        });
 
-      const bible = queryResult;
-      const book = bible?.books[0];
-      const chapter = book?.chapters[0];
-      const verses = chapter?.verses;
+        const bible = queryResult;
+        const book = bible?.books[0];
+        const chapter = book?.chapters[0];
+        const verses = chapter?.verses;
+        if (!verses?.length) {
+          throw new Error('Verse(s) not found');
+        }
 
-      if (!verses?.length) {
+        await db
+          .insert(verseBookmarks)
+          .values(
+            verses.map((verse) => ({
+              userId: input.userId,
+              verseId: verse.id,
+            })),
+          )
+          .onConflictDoNothing();
+
+        return {
+          status: 'success',
+          message: 'Verse bookmarked',
+          bible: bible!,
+          book: book!,
+          chapter: chapter!,
+          verses: verses,
+        } as const;
+      } catch (err) {
+        console.error('Error bookmarking verse', err);
         return {
           status: 'error',
-          message: 'Verse(s) not found',
+          message: err instanceof Error ? err.message : 'An unknown error occurred',
         } as const;
       }
-
-      await db
-        .insert(verseBookmarks)
-        .values(
-          verses.map((verse) => ({
-            userId: input.userId,
-            verseId: verse.id,
-          })),
-        )
-        .onConflictDoNothing();
-
-      return {
-        status: 'success',
-        message: 'Verse bookmarked',
-        bible: bible!,
-        book: book!,
-        chapter: chapter!,
-        verses: verses,
-      } as const;
     },
   });
 
@@ -203,67 +208,60 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
       chapterNumbers: z.array(z.number().describe('The number of the chapter the verse is from.')),
     }),
     execute: async ({ bibleAbbr, bookName, chapterNumbers }) => {
-      const queryResult = await db.query.bibles.findFirst({
-        columns: {
-          id: true,
-          abbreviation: true,
-        },
-        where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
-        with: {
-          books: {
-            columns: {
-              id: true,
-              code: true,
-              abbreviation: true,
-              shortName: true,
-            },
-            where: (books, { or, eq }) =>
-              or(
-                eq(books.shortName, bookName),
-                eq(books.code, bookName),
-                eq(books.abbreviation, bookName),
-              ),
-            with: {
-              chapters: {
-                columns: {
-                  id: true,
-                  number: true,
+      try {
+        const queryResult = await db.query.bibles.findFirst({
+          columns: { id: true, abbreviation: true },
+          where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+          with: {
+            books: {
+              columns: { id: true, code: true, abbreviation: true, shortName: true },
+              where: (books, { or, eq }) =>
+                or(
+                  eq(books.shortName, bookName),
+                  eq(books.code, bookName),
+                  eq(books.abbreviation, bookName),
+                ),
+              with: {
+                chapters: {
+                  columns: { id: true, number: true },
+                  where: (chapters, { inArray }) => inArray(chapters.number, chapterNumbers),
                 },
-                where: (chapters, { inArray }) => inArray(chapters.number, chapterNumbers),
               },
             },
           },
-        },
-      });
+        });
 
-      const bible = queryResult;
-      const book = bible?.books[0];
-      const chapters = book?.chapters;
+        const bible = queryResult;
+        const book = bible?.books[0];
+        const chapters = book?.chapters;
+        if (!chapters?.length) {
+          throw new Error('Chapter(s) not found');
+        }
 
-      if (!chapters?.length) {
+        await db
+          .insert(chapterBookmarks)
+          .values(
+            chapters.map((chapter) => ({
+              userId: input.userId,
+              chapterId: chapter.id,
+            })),
+          )
+          .onConflictDoNothing();
+
+        return {
+          status: 'success',
+          message: 'Chapter bookmarked',
+          bible: bible!,
+          book: book!,
+          chapters: chapters,
+        } as const;
+      } catch (err) {
+        console.error('Error bookmarking chapter', err);
         return {
           status: 'error',
-          message: 'Chapter(s) not found',
+          message: err instanceof Error ? err.message : 'An unknown error occurred',
         } as const;
       }
-
-      await db
-        .insert(chapterBookmarks)
-        .values(
-          chapters.map((chapter) => ({
-            userId: input.userId,
-            chapterId: chapter.id,
-          })),
-        )
-        .onConflictDoNothing();
-
-      return {
-        status: 'success',
-        message: 'Chapter bookmarked',
-        bible: bible!,
-        book: book!,
-        chapters: chapters,
-      } as const;
     },
   });
 
@@ -276,22 +274,35 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
         .describe('1 to 6 search terms or phrases that will be used to find relevant resources.'),
     }),
     execute: async ({ terms }) => {
-      return await Promise.all(
-        terms.map((term) =>
-          vectorStore.searchDocuments(term, {
-            limit: 12,
-            withMetadata: true,
-            withEmbedding: false,
-            filter: input.bibleId ? `bibleId = "${input.bibleId}" or type != "bible"` : undefined,
-          }),
-        ),
-      ).then((docs) =>
-        docs
-          .flat()
-          .filter((doc, index, self) => self.findIndex((d) => d.id === doc.id) === index)
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 8),
-      );
+      try {
+        const docs = await Promise.all(
+          terms.map((term) =>
+            vectorStore.searchDocuments(term, {
+              limit: 12,
+              withMetadata: true,
+              withEmbedding: false,
+              filter: input.bibleId ? `bibleId = "${input.bibleId}" or type != "bible"` : undefined,
+            }),
+          ),
+        ).then((docs) =>
+          docs
+            .flat()
+            .filter((doc, index, self) => self.findIndex((d) => d.id === doc.id) === index)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 8),
+        );
+
+        return {
+          status: 'success',
+          documents: docs,
+        } as const;
+      } catch (err) {
+        console.error('Error fetching vector store', err);
+        return {
+          status: 'error',
+          message: err instanceof Error ? err.message : 'An unknown error occurred',
+        } as const;
+      }
     },
   });
 
@@ -323,11 +334,7 @@ export const generateImageTool = (input: { dataStream: DataStreamWriter; userId:
       }
 
       try {
-        const { image } = await generateImage({
-          prompt,
-          model: openai.image('dall-e-3'),
-          size,
-        });
+        const { image } = await generateImage({ prompt, model: openai.image('dall-e-3'), size });
 
         const id = createId();
         const key = `${id}.png`;
@@ -362,7 +369,7 @@ export const generateImageTool = (input: { dataStream: DataStreamWriter; userId:
           image: generatedImage,
         } as const;
       } catch (error) {
-        console.error(JSON.stringify(error, null, 2));
+        console.error('Error generating image', error);
         await restoreCreditsOnFailure(input.userId, 'image');
         return {
           status: 'error',
@@ -377,6 +384,7 @@ export const tools = (input: {
   userId: string;
   bibleId?: string | null;
 }) => ({
+  thinking: thinkingTool({ dataStream: input.dataStream }),
   askForHighlightColor: askForHighlightColorTool({ dataStream: input.dataStream }),
   highlightVerse: highlightVerseTool({ dataStream: input.dataStream, userId: input.userId }),
   bookmarkVerse: bookmarkVerseTool({ dataStream: input.dataStream, userId: input.userId }),

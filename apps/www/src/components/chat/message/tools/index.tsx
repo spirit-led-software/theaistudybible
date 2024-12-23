@@ -6,6 +6,7 @@ import { AskForHighlightColorTool } from './ask-for-highlight-color';
 import { BookmarkTool } from './bookmark';
 import { HighlightVerseTool } from './highlight-verse';
 import { GenerateImageTool } from './image';
+import { ThinkingTool } from './thinking';
 import { VectorStoreTool } from './vector-store';
 
 export type ToolsProps = {
@@ -33,6 +34,9 @@ export const Tools = (props: ToolsProps) => {
               </div>
             }
           >
+            <Match when={toolInvocation.toolName === 'thinking'}>
+              <ThinkingTool toolInvocation={toolInvocation} isLoading={props.isLoading} />
+            </Match>
             <Match when={toolInvocation.toolName === 'askForHighlightColor'}>
               <AskForHighlightColorTool
                 toolInvocation={toolInvocation}

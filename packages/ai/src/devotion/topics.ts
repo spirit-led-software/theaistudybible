@@ -1,4 +1,4 @@
-import { getMonth } from 'date-fns';
+import { addDays, getDate, getDay, getMonth, getYear, isSameDay, subDays } from 'date-fns';
 
 // Meeus/Jones/Butcher algorithm to calculate Easter
 function calculateEaster(year: number): Date {
@@ -22,13 +22,11 @@ function calculateEaster(year: number): Date {
 
 function calculateAdvent(year: number): Date {
   const christmas = new Date(year, 11, 25);
-  const christmasDay = christmas.getDay();
+  const christmasDay = getDay(christmas);
 
   // Find the 4th Sunday before Christmas
   const daysToSubtract = christmasDay + 7 * 4;
-  const advent = new Date(year, 11, 25);
-  advent.setDate(advent.getDate() - daysToSubtract);
-  return advent;
+  return subDays(christmas, daysToSubtract);
 }
 
 // Calculate related dates based on Easter
@@ -36,39 +34,15 @@ function getMovableHolidayDates(year: number) {
   const easter = calculateEaster(year);
   const advent = calculateAdvent(year);
 
-  // Ash Wednesday (46 days before Easter)
-  const ashWednesday = new Date(easter);
-  ashWednesday.setDate(easter.getDate() - 46);
-
-  // Palm Sunday (7 days before Easter)
-  const palmSunday = new Date(easter);
-  palmSunday.setDate(easter.getDate() - 7);
-
-  // Good Friday (2 days before Easter)
-  const goodFriday = new Date(easter);
-  goodFriday.setDate(easter.getDate() - 2);
-
-  // Pentecost (50 days after Easter)
-  const pentecost = new Date(easter);
-  pentecost.setDate(easter.getDate() + 50);
-
-  // New dates
-  const maundyThursday = new Date(easter);
-  maundyThursday.setDate(easter.getDate() - 3);
-  const ascensionThursday = new Date(easter);
-  ascensionThursday.setDate(easter.getDate() + 39);
-  const trinitySunday = new Date(easter);
-  trinitySunday.setDate(easter.getDate() + 56);
-
   return {
     easter,
-    ashWednesday,
-    palmSunday,
-    goodFriday,
-    pentecost,
-    maundyThursday,
-    ascensionThursday,
-    trinitySunday,
+    ashWednesday: subDays(easter, 46),
+    palmSunday: subDays(easter, 7),
+    goodFriday: subDays(easter, 2),
+    pentecost: addDays(easter, 50),
+    maundyThursday: subDays(easter, 3),
+    ascensionThursday: addDays(easter, 39),
+    trinitySunday: addDays(easter, 56),
     advent,
   };
 }
@@ -119,15 +93,13 @@ const fixedHolidays = [
 
 export function getTodaysTopic() {
   const today = new Date();
-  const currentYear = today.getFullYear();
+  const currentYear = getYear(today);
   const month = getMonth(today);
-  const dayOfMonth = today.getDate();
+  const dayOfMonth = getDate(today);
 
   // Check fixed holidays first
   const fixedHoliday = fixedHolidays.find((h) => h.month === month && h.day === dayOfMonth);
-  if (fixedHoliday) {
-    return fixedHoliday.topic;
-  }
+  if (fixedHoliday) return fixedHoliday.topic;
 
   // Check movable holidays
   const movableHolidays = getMovableHolidayDates(currentYear);
@@ -147,9 +119,7 @@ export function getTodaysTopic() {
 
   // Check each movable holiday
   for (const { date, topic } of holidayChecks) {
-    if (month === date.getMonth() && dayOfMonth === date.getDate()) {
-      return topic;
-    }
+    if (isSameDay(today, date)) return topic;
   }
 
   // Fallback to generic topic

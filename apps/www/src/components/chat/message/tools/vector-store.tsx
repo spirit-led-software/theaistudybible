@@ -67,35 +67,43 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
         keyed
       >
         {(result) => (
-          <Accordion multiple={false} collapsible class='w-full text-sm'>
-            <AccordionItem value='results'>
-              <AccordionTrigger>Results ({result.length})</AccordionTrigger>
-              <AccordionContent>
-                <div class='flex flex-wrap gap-2'>
-                  <For each={result}>
-                    {(doc) => (
-                      <A
-                        href={doc.metadata?.url ?? ''}
-                        class={cn(
-                          buttonVariants({ variant: 'outline' }),
-                          'flex h-fit w-fit items-center rounded-full px-2 py-1 text-xs',
+          <Show
+            when={result.status === 'success' && result.documents}
+            fallback={<div class='text-muted-foreground text-sm'>Failed to fetch documents</div>}
+            keyed
+          >
+            {(docs) => (
+              <Accordion multiple={false} collapsible class='w-full text-sm'>
+                <AccordionItem value='results'>
+                  <AccordionTrigger>Results ({docs.length})</AccordionTrigger>
+                  <AccordionContent>
+                    <div class='flex flex-wrap gap-2'>
+                      <For each={docs}>
+                        {(doc) => (
+                          <A
+                            href={doc.metadata?.url ?? ''}
+                            class={cn(
+                              buttonVariants({ variant: 'outline' }),
+                              'flex h-fit w-fit items-center rounded-full px-2 py-1 text-xs',
+                            )}
+                          >
+                            <span class='mr-1 inline-block'>
+                              <Switch fallback={<ArrowUpRightFromSquare size={12} />}>
+                                <Match when={doc.metadata?.type === 'bible'}>
+                                  <BookOpenIcon size={12} />
+                                </Match>
+                              </Switch>
+                            </span>
+                            {doc.metadata?.name ?? doc.metadata?.title ?? doc.metadata?.url ?? ''}
+                          </A>
                         )}
-                      >
-                        <span class='mr-1 inline-block'>
-                          <Switch fallback={<ArrowUpRightFromSquare size={12} />}>
-                            <Match when={doc.metadata?.type === 'bible'}>
-                              <BookOpenIcon size={12} />
-                            </Match>
-                          </Switch>
-                        </span>
-                        {doc.metadata?.name ?? doc.metadata?.title ?? doc.metadata?.url ?? ''}
-                      </A>
-                    )}
-                  </For>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+                      </For>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            )}
+          </Show>
         )}
       </Show>
     </div>

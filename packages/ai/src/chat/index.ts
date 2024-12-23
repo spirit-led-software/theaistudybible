@@ -182,11 +182,11 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
               .returning();
 
             for (const toolResult of step.toolResults) {
-              if (toolResult.toolName === 'vectorStore') {
+              if (toolResult.toolName === 'vectorStore' && toolResult.result.status === 'success') {
                 await db
                   .insert(messagesToSourceDocuments)
                   .values(
-                    toolResult.result.map((d) => ({
+                    toolResult.result.documents.map((d) => ({
                       messageId: response.id,
                       sourceDocumentId: d.id,
                       distance: 1 - d.score,
@@ -209,7 +209,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
                   await db
                     .insert(userGeneratedImagesToSourceDocuments)
                     .values(
-                      toolResult.result.map((d) => ({
+                      toolResult.result.documents.map((d) => ({
                         userGeneratedImageId: generateImageToolResult.result.image!.id,
                         sourceDocumentId: d.id,
                         distance: 1 - d.score,
