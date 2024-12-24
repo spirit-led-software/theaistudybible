@@ -16,7 +16,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
       const html = await getEmailHtml(record.body);
       const result = await ses.send(
         new SendEmailCommand({
-          Source: `"The AI Study Bible" <no-reply@${Resource.Email.sender}>`,
+          Source: `"The AI Study Bible" <noreply@${Resource.Email.sender}>`,
           Destination: {
             ToAddresses: record.to,
             CcAddresses: record.cc,
