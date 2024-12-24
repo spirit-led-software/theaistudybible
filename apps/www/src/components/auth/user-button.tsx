@@ -27,9 +27,7 @@ export const UserButton = (props: UserButtonProps) => {
 
   const handleSignOut = createMutation(() => ({
     mutationFn: () => Promise.resolve(signOut()),
-    onSuccess: () => {
-      invalidate();
-    },
+    onSuccess: () => invalidate(),
     onError: (error) => {
       toast.error(error.message);
     },

@@ -86,32 +86,32 @@ export const DailyDevotionEmail = ({ devotion, devotionImage }: DailyDevotionEma
             <Text>
               <Markdown>{devotion.prayer}</Markdown>
             </Text>
-            <Container className='my-5 flex flex-col items-center'>
-              <Heading as='h2' className='text-center'>
-                Dive Deeper
-              </Heading>
-              <div className='flex justify-center'>
-                <div className='grid grid-cols-2 gap-2'>
-                  {devotion.diveDeeperQueries.map((query) => (
-                    <Button
-                      key={query}
-                      href={`${Resource.WebAppUrl.value}/chat?query=${query}`}
-                      className='w-fit rounded-full bg-primary p-4 text-primary-foreground hover:bg-primary/90'
-                    >
-                      {query}
-                    </Button>
-                  ))}
-                </div>
+          </Container>
+          <Container className='flex flex-col items-center pt-5'>
+            <Heading as='h2' className='text-center'>
+              Dive Deeper
+            </Heading>
+            <div className='flex justify-center'>
+              <div className='grid grid-cols-2 gap-2'>
+                {devotion.diveDeeperQueries.map((query) => (
+                  <Button
+                    key={query}
+                    href={`${Resource.WebAppUrl.value}/chat?query=${query}`}
+                    className='w-fit rounded-full bg-primary p-4 text-primary-foreground hover:bg-primary/90'
+                  >
+                    {query}
+                  </Button>
+                ))}
               </div>
-            </Container>
-            <Container>
-              <Text className='text-muted-foreground text-xs'>
-                If you have any questions or feedback, please reply to this email.
-                <br />
-                If you no longer wish to receive these emails, you can edit your settings{' '}
-                <Link href={`${Resource.WebAppUrl.value}/profile`}>here</Link>.
-              </Text>
-            </Container>
+            </div>
+          </Container>
+          <Container className='pt-10'>
+            <Text className='text-muted-foreground text-xs'>
+              If you have any questions or feedback, please reply to this email.
+              <br />
+              If you no longer wish to receive these emails, you can edit your settings{' '}
+              <Link href={`${Resource.WebAppUrl.value}/profile`}>here</Link>.
+            </Text>
           </Container>
         </Body>
       </Tailwind>

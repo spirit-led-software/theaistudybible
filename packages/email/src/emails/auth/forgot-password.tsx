@@ -16,7 +16,7 @@ export const ForgotPasswordEmail = ({ code }: ForgotPasswordEmailProps) => {
       </Head>
       <Tailwind>
         <Body>
-          <Container>
+          <Container className='pb-10'>
             <Img
               src={`${Resource.WebAppUrl.value}/logos/light.png`}
               alt='Logo'
@@ -37,7 +37,9 @@ export const ForgotPasswordEmail = ({ code }: ForgotPasswordEmailProps) => {
               </Link>
               to reset your password.
             </Text>
-            <Text className='text-muted-foreground'>
+          </Container>
+          <Container>
+            <Text className='text-muted-foreground text-xs'>
               Do not share this code with anyone. If you did not request a password reset, please
               ignore this email.
             </Text>
