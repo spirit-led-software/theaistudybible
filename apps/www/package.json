@@ -19,7 +19,7 @@
     "nitropack": "^2.10.4",
     "postcss": "^8.4.49",
     "sharp": "^0.33.5",
-    "solid-devtools": "^0.31.5",
+    "solid-devtools": "^0.31.6",
     "tailwind-variants": "^0.3.0",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
@@ -59,8 +59,8 @@
     "@solidjs/router": "^0.15.2",
     "@solidjs/start": "^1.0.10",
     "@stripe/stripe-js": "^5.4.0",
-    "@tanstack/solid-query": "^5.62.8",
-    "@tanstack/solid-query-devtools": "^5.62.8",
+    "@tanstack/solid-query": "^5.62.9",
+    "@tanstack/solid-query-devtools": "^5.62.9",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
@@ -78,7 +78,7 @@
     "solid-js": "^1.9.3",
     "solid-markdown": "^2.0.14",
     "solid-sonner": "^0.2.8",
-    "tailwind-merge": "^2.5.5"
+    "tailwind-merge": "^2.6.0"
   },
   "engines": {
     "node": ">=18",
