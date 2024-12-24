@@ -22,7 +22,7 @@ export const getBibleReading = async (topic: string) => {
 found in the vector store. 
 
 Your output will be the bible reading AS-IS in the format:
-"<text>" - <book> <chapter>:<verse> (<translation>)`,
+"<text>" - <book> <chapter>:<verse> (<bible translation abbreviation>)`,
     prompt: `Find a bible reading for the topic: "${topic}"`,
     tools: { vectorStore: bibleVectorStoreTool },
     maxSteps: 5,
@@ -42,7 +42,9 @@ export const generateSummary = async ({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     system: `You are an expert at summarizing Bible passages. You must search for relevant resources in the vector store to
 provide an accurate summary of the passage for the provided topic. You must only use the information from the vector store in your summary. 
-Your summary must be 500 words or less.`,
+Your summary must be 500 words or less.
+
+This summary should be formatted in markdown.`,
     prompt: `The topic is "${topic}".
 Summarize the following bible passage:
 ${bibleReading}`,
@@ -66,7 +68,9 @@ export const generateReflection = async ({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     system: `You are an expert at reflecting upon Bible passages. You must search for relevant resources in the vector store to
 provide a thought-provoking and accurate reflection of the passage for the provided topic. You must only use
-the information from the vector store in your reflection. Your reflection must be 500 words or less.`,
+the information from the vector store in your reflection. Your reflection must be 500 words or less.
+
+This reflection should be formatted in markdown.`,
     prompt: `The topic is "${topic}".
 
 Here is the Bible passage (delimited by triple dashes):
@@ -101,7 +105,9 @@ export const generatePrayer = async ({
   const { text: prayer } = await generateText({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     system: `You are an expert at writing Christian prayers. You must write a closing prayer for the provided devotional. 
-Your prayer must be 200 words or less.`,
+Your prayer must be 200 words or less.
+
+This prayer should be formatted in markdown.`,
     prompt: `Here is the devotional (delimited by triple dashes):
 ---
 Topic:

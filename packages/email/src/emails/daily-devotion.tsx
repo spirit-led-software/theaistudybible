@@ -5,17 +5,21 @@ import { Tailwind } from '@/email/components/tailwind';
 import type { DailyDevotionEmailSchema } from '@/email/schemas/daily-devotion';
 import {
   Button,
+  Column,
   Container,
   Heading,
   Html,
   Img,
   Link,
   Preview,
+  Row,
+  Section,
   Text,
 } from '@react-email/components';
 import { formatDate } from 'date-fns';
 import { Resource } from 'sst';
 import type { z } from 'zod';
+import { Markdown } from '../components/markdown';
 
 export type DailyDevotionEmailProps = Omit<z.infer<typeof DailyDevotionEmailSchema>, 'type'>;
 
@@ -34,37 +38,53 @@ export const DailyDevotionEmail = ({ devotion, devotionImage }: DailyDevotionEma
               width={512}
               className='w-1/2'
             />
-            <Heading as='h1'>
-              Today's Devotion:
-              <span className='ml-2 font-goldman text-accent-foreground'>
-                {toTitleCase(devotion.topic)}
-              </span>
-            </Heading>
-            <Text className='text-muted-foreground'>
-              {formatDate(devotion.createdAt, 'MMMM d, yyyy')}
-            </Text>
-            <Button
-              href={`${Resource.WebAppUrl.value}/devotion/${devotion.id}`}
-              className='w-fit rounded-full bg-primary p-4 text-primary-foreground hover:bg-primary/90'
-            >
-              Read on the App
-            </Button>
+            <Section>
+              <Heading as='h1' className='my-2'>
+                Today's Devotion:{' '}
+                <span className='font-goldman text-accent-foreground'>
+                  {toTitleCase(devotion.topic)}
+                </span>
+              </Heading>
+              <Row className='w-full'>
+                <Column>
+                  <Heading as='h3' className='my-2 text-muted-foreground'>
+                    {formatDate(devotion.createdAt, 'MMMM d, yyyy')}
+                  </Heading>
+                </Column>
+                <Column className='flex justify-end'>
+                  <Button
+                    href={`${Resource.WebAppUrl.value}/devotion/${devotion.id}`}
+                    className='w-fit rounded-full bg-primary px-2 py-1 text-primary-foreground text-sm hover:bg-primary/90'
+                  >
+                    Read on the Web
+                  </Button>
+                </Column>
+              </Row>
+            </Section>
             {devotionImage.url && (
               <Img
                 src={devotionImage.url}
                 alt={devotionImage.caption ?? 'Devotion Image'}
                 width={1024}
-                className='h-auto w-full rounded'
+                className='mt-2 h-auto w-full rounded'
               />
             )}
             <Heading as='h2'>Bible Reading</Heading>
-            <Text>{devotion.bibleReading}</Text>
+            <Text>
+              <Markdown>{devotion.bibleReading}</Markdown>
+            </Text>
             <Heading as='h2'>Summary</Heading>
-            <Text>{devotion.summary}</Text>
+            <Text>
+              <Markdown>{devotion.summary}</Markdown>
+            </Text>
             <Heading as='h2'>Reflection</Heading>
-            <Text>{devotion.reflection}</Text>
+            <Text>
+              <Markdown>{devotion.reflection}</Markdown>
+            </Text>
             <Heading as='h2'>Prayer</Heading>
-            <Text>{devotion.prayer}</Text>
+            <Text>
+              <Markdown>{devotion.prayer}</Markdown>
+            </Text>
             <Container className='my-5 flex flex-col items-center'>
               <Heading as='h2' className='text-center'>
                 Dive Deeper
@@ -84,7 +104,7 @@ export const DailyDevotionEmail = ({ devotion, devotionImage }: DailyDevotionEma
               </div>
             </Container>
             <Container>
-              <Text className='text-muted-foreground'>
+              <Text className='text-muted-foreground text-xs'>
                 If you have any questions or feedback, please reply to this email.
                 <br />
                 If you no longer wish to receive these emails, you can edit your settings{' '}
@@ -107,7 +127,11 @@ DailyDevotionEmail.PreviewProps = {
     topic: 'Love',
     bibleReading:
       '"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." - John 3:16',
-    summary: 'This is a summary',
+    summary: `# This is a summary
+
+## This is a subheading
+
+This is a paragraph`,
     reflection: 'This is a reflection',
     prayer: 'This is a prayer',
     diveDeeperQueries: ['What is love?', 'How do I love?'],
