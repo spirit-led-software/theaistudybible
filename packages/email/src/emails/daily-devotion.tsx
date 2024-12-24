@@ -70,10 +70,9 @@ export const DailyDevotionEmail = ({ devotion, devotionImage }: DailyDevotionEma
               />
             )}
             <Heading as='h2'>Bible Reading</Heading>
-            <Text>
-              <Markdown>{devotion.bibleReading}</Markdown>
-            </Text>
+            <Text>{devotion.bibleReading}</Text>
             <Heading as='h2'>Summary</Heading>
+            <Text>{devotion.summary}</Text>
             <Text>
               <Markdown>{devotion.summary}</Markdown>
             </Text>
