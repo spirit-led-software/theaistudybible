@@ -10,6 +10,14 @@ import { Resource } from 'sst';
 import { z } from 'zod';
 import { advancedChatModels } from '../models';
 import { openai, registry } from '../provider-registry';
+import {
+  bibleReadingSystemPrompt,
+  diveDeeperSystemPrompt,
+  imageSystemPrompt,
+  prayerSystemPrompt,
+  reflectionSystemPrompt,
+  summarySystemPrompt,
+} from './system-prompts';
 import { bibleVectorStoreTool, vectorStoreTool } from './tools';
 import { getTodaysTopic } from './topics';
 
@@ -18,11 +26,7 @@ const modelInfo = advancedChatModels[0];
 export const getBibleReading = async (topic: string) => {
   const { text: bibleReading } = await generateText({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
-    system: `Your goal is to search the vector store to find a bible reading for a given topic. You must only use Bible readings
-found in the vector store. 
-
-Your output will be the bible reading AS-IS in the format:
-"<text>" - <book> <chapter>:<verse> (<bible translation abbreviation>)`,
+    system: bibleReadingSystemPrompt,
     prompt: `Find a bible reading for the topic: "${topic}"`,
     tools: { vectorStore: bibleVectorStoreTool },
     maxSteps: 5,
@@ -40,11 +44,7 @@ export const generateSummary = async ({
 }) => {
   const { text: summary } = await generateText({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
-    system: `You are an expert at summarizing Bible passages. You must search for relevant resources in the vector store to
-provide an accurate summary of the passage for the provided topic. You must only use the information from the vector store in your summary. 
-Your summary must be 500 words or less.
-
-This summary should be formatted in markdown.`,
+    system: summarySystemPrompt,
     prompt: `The topic is "${topic}".
 Summarize the following bible passage:
 ${bibleReading}`,
@@ -66,11 +66,7 @@ export const generateReflection = async ({
 }) => {
   const { text: reflection } = await generateText({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
-    system: `You are an expert at reflecting upon Bible passages. You must search for relevant resources in the vector store to
-provide a thought-provoking and accurate reflection of the passage for the provided topic. You must only use
-the information from the vector store in your reflection. Your reflection must be 500 words or less.
-
-This reflection should be formatted in markdown.`,
+    system: reflectionSystemPrompt,
     prompt: `The topic is "${topic}".
 
 Here is the Bible passage (delimited by triple dashes):
@@ -104,10 +100,7 @@ export const generatePrayer = async ({
 }) => {
   const { text: prayer } = await generateText({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
-    system: `You are an expert at writing Christian prayers. You must write a closing prayer for the provided devotional. 
-Your prayer must be 200 words or less.
-
-This prayer should be formatted in markdown.`,
+    system: prayerSystemPrompt,
     prompt: `Here is the devotional (delimited by triple dashes):
 ---
 Topic:
@@ -148,21 +141,21 @@ export const generateDiveDeeperQueries = async ({
         queries: z.array(z.string()),
       }),
     }),
-    system: `You must generate follow-up queries to help the user dive deeper into the topic explored in the devotional. The queries must be posed
-as though you are the user.
-
-Here is an example query given the topic of "money":
-How can I best utilize my money for the Gospel?`,
+    system: diveDeeperSystemPrompt,
     prompt: `Here is the devotional (delimited by triple dashes):
 ---
 Topic:
 ${topic}
+
 Reading:
 ${bibleReading}
+
 Summary:
 ${summary}
+
 Reflection:
 ${reflection}
+
 Prayer:
 ${prayer}
 ---
@@ -176,15 +169,23 @@ Generate 1 to 4 follow-up queries to help the user dive deeper into the topic ex
 export const generateImagePrompt = async (devotion: Devotion) => {
   const { text: imagePrompt } = await generateText({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
-    system:
-      'You must generate a prompt that will generate an image to represent the devotional. Be creative and unique.',
+    system: imageSystemPrompt,
     prompt: `Here is the devotional (delimited by triple dashes):
 ---
-Topic: ${devotion.topic}
-Reading: ${devotion.bibleReading}
-Summary: ${devotion.summary}
-Reflection: ${devotion.reflection}
-Prayer: ${devotion.prayer}
+Topic:
+${devotion.topic}
+
+Reading:
+${devotion.bibleReading}
+
+Summary:
+${devotion.summary}
+
+Reflection:
+${devotion.reflection}
+
+Prayer:
+${devotion.prayer}
 ---
 
 Generate the prompt.`,
