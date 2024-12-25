@@ -75,9 +75,6 @@ export const DailyDevotionEmail = ({ devotion, devotionImage }: DailyDevotionEma
             <Text>
               <Markdown>{devotion.summary}</Markdown>
             </Text>
-            <Text>
-              <Markdown>{devotion.summary}</Markdown>
-            </Text>
             <Heading as='h2'>Reflection</Heading>
             <Text>
               <Markdown>{devotion.reflection}</Markdown>
