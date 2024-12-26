@@ -69,22 +69,24 @@ export const DailyDevotionEmail = ({ devotion, devotionImage }: DailyDevotionEma
                 className='mt-2 h-auto w-full rounded'
               />
             )}
-            <Heading as='h2'>Bible Reading</Heading>
-            <Text>{devotion.bibleReading}</Text>
-            <Heading as='h2'>Summary</Heading>
-            <Text>
+            <Section>
+              <Heading as='h2'>Bible Reading</Heading>
+              <Markdown>{devotion.bibleReading}</Markdown>
+            </Section>
+            <Section>
+              <Heading as='h2'>Summary</Heading>
               <Markdown>{devotion.summary}</Markdown>
-            </Text>
-            <Heading as='h2'>Reflection</Heading>
-            <Text>
+            </Section>
+            <Section>
+              <Heading as='h2'>Reflection</Heading>
               <Markdown>{devotion.reflection}</Markdown>
-            </Text>
-            <Heading as='h2'>Prayer</Heading>
-            <Text>
+            </Section>
+            <Section>
+              <Heading as='h2'>Prayer</Heading>
               <Markdown>{devotion.prayer}</Markdown>
-            </Text>
+            </Section>
           </Container>
-          <Container className='flex flex-col items-center pt-5'>
+          <Container className='pt-5'>
             <Heading as='h2' className='text-center'>
               Dive Deeper
             </Heading>

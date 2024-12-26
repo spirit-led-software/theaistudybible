@@ -1,15 +1,18 @@
+import { Anonymous } from '@/www/components/auth/control';
 import { SignUp } from '@/www/components/auth/sign-up';
 import { Meta, Title } from '@solidjs/meta';
-import { useSearchParams } from '@solidjs/router';
+import { Navigate, useSearchParams } from '@solidjs/router';
 
 export default function SignUpPage() {
   const [searchParams] = useSearchParams();
 
   return (
-    <>
+    <Anonymous
+      signedInFallback={<Navigate href={(searchParams.redirectUrl as string | undefined) ?? '/'} />}
+    >
       <MetaTags />
       <SignUp redirectUrl={searchParams.redirectUrl as string | undefined} />
-    </>
+    </Anonymous>
   );
 }
 

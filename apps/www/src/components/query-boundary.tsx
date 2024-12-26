@@ -22,7 +22,7 @@ export interface QueryBoundaryProps<T = unknown> {
   /**
    * Triggered when the query results in an error.
    */
-  errorFallback?: (err: Error, retry: () => void) => JSX.Element;
+  errorFallback?: (error: Error, retry: () => void) => JSX.Element;
 
   /**
    * Triggered when fetching is complete, and the returned data is not falsey.
@@ -35,58 +35,63 @@ export interface QueryBoundaryProps<T = unknown> {
  * children (as a render prop) in a type-safe way.
  */
 export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
-  return (
-    <Suspense
-      fallback={
-        props.loadingFallback ?? (
-          <div class='flex h-full w-full flex-1 items-center justify-center p-10'>
-            <Spinner />
-          </div>
-        )
-      }
-    >
-      <SentryErrorBoundary
-        fallback={(err, reset) =>
-          props.errorFallback ? (
-            props.errorFallback(err, async () => {
-              await props.query.refetch();
-              reset();
-            })
-          ) : (
-            <div class='flex h-full w-full items-center justify-center'>
-              <div class='flex w-full max-w-xl flex-col gap-3'>
-                <H1>Oops, something went wrong. Please contact support.</H1>
-                <H3>{err.message}</H3>
-                <Show when={err.stack} keyed>
-                  {(stack) => (
-                    <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
-                      {stack}
-                    </pre>
-                  )}
-                </Show>
-                <Show when={'cause' in err && err.cause instanceof Error && err.cause} keyed>
-                  {(cause) => <H3>{cause.message}</H3>}
-                </Show>
-                <Button
-                  onClick={async () => {
-                    await props.query.refetch();
-                    reset();
-                  }}
-                >
-                  Try again
-                </Button>
-              </div>
-            </div>
-          )
-        }
-      >
-        <Switch fallback={props.notFoundFallback}>
-          <Match when={!props.query.isFetching && !props.query.data}>
-            {props.notFoundFallback ?? (
-              <div class='flex h-full w-full flex-1 items-center justify-center'>
-                Data not found
-              </div>
+  const LoadingFallback = () =>
+    props.loadingFallback ?? (
+      <div class='flex h-full w-full flex-1 items-center justify-center p-10'>
+        <Spinner />
+      </div>
+    );
+
+  const ErrorFallback = (fallbackProps: { error: Error; reset: () => void }) =>
+    props.errorFallback ? (
+      props.errorFallback(fallbackProps.error, fallbackProps.reset)
+    ) : (
+      <div class='flex h-full w-full items-center justify-center'>
+        <div class='flex w-full max-w-xl flex-col gap-3'>
+          <H1>Oops, something went wrong. Please contact support.</H1>
+          <H3>{fallbackProps.error.message}</H3>
+          <Show when={fallbackProps.error.stack} keyed>
+            {(stack) => (
+              <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
+                {stack}
+              </pre>
             )}
+          </Show>
+          <Show
+            when={
+              'cause' in fallbackProps.error &&
+              fallbackProps.error.cause instanceof Error &&
+              fallbackProps.error.cause
+            }
+            keyed
+          >
+            {(cause) => <H3>{cause.message}</H3>}
+          </Show>
+          <Button
+            onClick={async () => {
+              await props.query.refetch();
+              fallbackProps.reset();
+            }}
+          >
+            Try again
+          </Button>
+        </div>
+      </div>
+    );
+
+  const NotFoundFallback = () =>
+    props.notFoundFallback ?? (
+      <div class='flex h-full w-full flex-1 items-center justify-center'>Data not found</div>
+    );
+
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <SentryErrorBoundary
+        fallback={(error, reset) => <ErrorFallback error={error} reset={reset} />}
+      >
+        <Switch fallback={<NotFoundFallback />}>
+          <Match when={!props.query.isFetching && !props.query.data}>
+            <NotFoundFallback />
           </Match>
           <Match when={props.query.data} keyed>
             {(data) => props.children(data as Exclude<T, null | false | undefined>)}

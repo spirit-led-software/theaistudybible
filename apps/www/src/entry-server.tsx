@@ -1,4 +1,5 @@
-// @refresh reload
+/* @refresh reload */
+
 import { pwaInfo } from 'virtual:pwa-info';
 import { StartServer, createHandler } from '@solidjs/start/server';
 

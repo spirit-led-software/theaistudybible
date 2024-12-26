@@ -4,6 +4,7 @@ import {
   getPasskeyCredential,
   verifyWebAuthnChallenge,
 } from '@/core/auth/providers/webauthn';
+import { useAuth } from '@/www/contexts/auth';
 import {
   decodePKIXECDSASignature,
   decodeSEC1PublicKey,
@@ -105,7 +106,7 @@ const signInWithPasskeyAction = action(
 
     const session = await lucia.createSession(credential.userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
-    throw redirect(redirectUrl, {
+    return redirect(redirectUrl, {
       headers: { 'Set-Cookie': sessionCookie.serialize() },
     });
   },
@@ -113,12 +114,13 @@ const signInWithPasskeyAction = action(
 
 export type PasskeyButtonProps = Omit<ButtonProps, 'onClick'> & {
   redirectUrl?: string;
-  onSuccess?: () => void;
 };
 
 export const PasskeyButton = (props: PasskeyButtonProps) => {
   const createChallenge = useAction(createChallengeAction);
   const signInWithPasskey = useAction(signInWithPasskeyAction);
+
+  const { invalidate } = useAuth();
 
   const onClick = createMutation(() => ({
     mutationFn: async () => {
@@ -156,7 +158,7 @@ export const PasskeyButton = (props: PasskeyButtonProps) => {
         clientDataJSON: encodedClientDataJSON,
       });
     },
-    onSuccess: () => props.onSuccess?.(),
+    onSuccess: () => invalidate(),
     onError: (error) => toast.error(error.message),
   }));
 

@@ -1,3 +1,5 @@
+/* @refresh reload */
+
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import { captureException as captureSentryException } from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
@@ -18,13 +20,13 @@ import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
 import { DevotionProvider } from './contexts/devotion';
 import { PosthogProvider } from './contexts/posthog';
+import { ServiceWorkerProvider } from './contexts/service-worker';
 import { getColorModeCookie } from './server/cookie';
 
 import '@fontsource/goldman/400.css';
 import '@fontsource/goldman/700.css';
 import '@fontsource-variable/inter';
 import './app.css';
-import { ServiceWorkerProvider } from './contexts/service-worker';
 
 export default function App() {
   const queryClient = new QueryClient({

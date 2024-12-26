@@ -48,3 +48,15 @@ export const Protected = (props: {
     </AuthLoaded>
   );
 };
+
+export const Anonymous = (props: {
+  children: JSX.Element;
+  loadingFallback?: JSX.Element;
+  signedInFallback?: JSX.Element;
+}) => {
+  return (
+    <AuthLoaded fallback={props.loadingFallback}>
+      <SignedOut fallback={props.signedInFallback}>{props.children}</SignedOut>
+    </AuthLoaded>
+  );
+};

@@ -1,5 +1,6 @@
 import { signIn } from '@/core/auth/providers/credentials';
 import { signInSchema } from '@/core/auth/providers/credentials/schemas';
+import { useAuth } from '@/www/contexts/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { A, action, redirect, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
@@ -19,17 +20,19 @@ const signInWithEmailPasswordAction = action(
   async (values: z.infer<typeof signInSchema>, redirectUrl = '/') => {
     'use server';
     const cookie = await signIn(values);
-    throw redirect(redirectUrl, { headers: { 'Set-Cookie': cookie.serialize() } });
+    return redirect(redirectUrl, { headers: { 'Set-Cookie': cookie.serialize() } });
   },
 );
 
 type EmailPasswordFormProps = {
   redirectUrl?: string;
-  onSuccess: () => void;
 };
 
 export const EmailPasswordForm = (props: EmailPasswordFormProps) => {
   const signInWithEmailPassword = useAction(signInWithEmailPasswordAction);
+
+  const { invalidate } = useAuth();
+
   const [form, { Form, Field }] = createForm<z.infer<typeof signInSchema>>({
     validate: zodForm(signInSchema),
   });
@@ -37,7 +40,7 @@ export const EmailPasswordForm = (props: EmailPasswordFormProps) => {
   const onSubmit = createMutation(() => ({
     mutationFn: (values: z.infer<typeof signInSchema>) =>
       signInWithEmailPassword(values, props.redirectUrl),
-    onSuccess: () => props.onSuccess(),
+    onSuccess: () => invalidate(),
     onError: (error) => toast.error(error.message),
   }));
 

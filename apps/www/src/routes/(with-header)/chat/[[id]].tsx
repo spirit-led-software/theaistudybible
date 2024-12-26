@@ -34,7 +34,7 @@ export default function ChatPage() {
     <Protected
       signedOutFallback={
         <Navigate
-          href={`/sign-in?redirectUrl=${encodeURIComponent(`/chat/${params.id}${location.search}`)}`}
+          href={`/sign-in?redirectUrl=${encodeURIComponent(`/chat${params.id ? `/${params.id}` : ''}${location.search}`)}`}
         />
       }
     >

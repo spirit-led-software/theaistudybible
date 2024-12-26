@@ -84,7 +84,7 @@ export default function DevotionPage() {
                       <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
                         Reading
                       </H2>
-                      <p>{devotion.bibleReading}</p>
+                      <Markdown>{devotion.bibleReading}</Markdown>
                     </div>
                     <div class='flex flex-col gap-2'>
                       <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>

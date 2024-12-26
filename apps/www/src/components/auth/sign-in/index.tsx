@@ -1,4 +1,3 @@
-import { useAuth } from '@/www/contexts/auth';
 import { A } from '@solidjs/router';
 import { Logo } from '../../branding/logo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../ui/accordion';
@@ -12,8 +11,6 @@ export type SignInProps = {
 };
 
 export const SignIn = (props: SignInProps) => {
-  const { invalidate } = useAuth();
-
   return (
     <div class='mx-auto w-full max-w-[90%] sm:max-w-md'>
       <Card class='w-full'>
@@ -37,17 +34,13 @@ export const SignIn = (props: SignInProps) => {
             <AccordionItem value='passkey'>
               <AccordionTrigger>With Passkey</AccordionTrigger>
               <AccordionContent>
-                <PasskeyButton
-                  redirectUrl={props.redirectUrl}
-                  onSuccess={() => invalidate()}
-                  class='w-full'
-                />
+                <PasskeyButton redirectUrl={props.redirectUrl} class='w-full' />
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value='email-password'>
               <AccordionTrigger>With Email & Password</AccordionTrigger>
               <AccordionContent>
-                <EmailPasswordForm redirectUrl={props.redirectUrl} onSuccess={() => invalidate()} />
+                <EmailPasswordForm redirectUrl={props.redirectUrl} />
               </AccordionContent>
             </AccordionItem>
           </Accordion>

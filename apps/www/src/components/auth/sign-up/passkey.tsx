@@ -8,6 +8,7 @@ import {
 } from '@/core/auth/providers/webauthn';
 import { db } from '@/core/database';
 import { userSettings, users } from '@/core/database/schema';
+import { useAuth } from '@/www/contexts/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { bigEndian } from '@oslojs/binary';
 import { ECDSAPublicKey, p256 } from '@oslojs/crypto/ecdsa';
@@ -157,12 +158,13 @@ const signUpWithPasskeyAction = action(
 
 export type PasskeyFormProps = {
   redirectUrl?: string;
-  onSuccess?: () => void;
 };
 
 export function PasskeyForm(props: PasskeyFormProps) {
   const createChallenge = useAction(createChallengeAction);
   const signUpWithPasskey = useAction(signUpWithPasskeyAction);
+
+  const { invalidate } = useAuth();
 
   const [form, { Form, Field }] = createForm<z.infer<typeof passkeySchema>>({
     validate: zodForm(passkeySchema),
@@ -225,7 +227,7 @@ export function PasskeyForm(props: PasskeyFormProps) {
         props.redirectUrl,
       );
     },
-    onSuccess: () => props.onSuccess?.(),
+    onSuccess: () => invalidate(),
     onError: (error) => toast.error(error.message),
   }));
 
