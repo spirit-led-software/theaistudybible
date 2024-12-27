@@ -25,10 +25,15 @@ export const ThinkingTool = (props: ThinkingToolProps) => {
         <AccordionItem value='thinking' disabled={!props.toolInvocation.args}>
           <AccordionTrigger>
             <div class='flex items-center'>
-              <Show 
-                  when={props.isLoading} 
-                  fallback={<><Lightbulb class='mr-2' size={18} />Thought</>}
-                >
+              <Show
+                when={props.isLoading}
+                fallback={
+                  <>
+                    <Lightbulb class='mr-2' size={18} />
+                    Thought about response
+                  </>
+                }
+              >
                 <Spinner size='sm' class='mr-2' />
                 Thinking
               </Show>

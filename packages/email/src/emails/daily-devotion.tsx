@@ -4,13 +4,13 @@ import { Head } from '@/email/components/head';
 import { Tailwind } from '@/email/components/tailwind';
 import type { DailyDevotionEmailSchema } from '@/email/schemas/daily-devotion';
 import {
-  Button,
   Column,
   Container,
   Heading,
   Html,
   Img,
   Link,
+  Markdown,
   Preview,
   Row,
   Section,
@@ -19,7 +19,6 @@ import {
 import { formatDate } from 'date-fns';
 import { Resource } from 'sst';
 import type { z } from 'zod';
-import { Markdown } from '../components/markdown';
 
 export type DailyDevotionEmailProps = Omit<z.infer<typeof DailyDevotionEmailSchema>, 'type'>;
 
@@ -51,13 +50,13 @@ export const DailyDevotionEmail = ({ devotion, devotionImage }: DailyDevotionEma
                     {formatDate(devotion.createdAt, 'MMMM d, yyyy')}
                   </Heading>
                 </Column>
-                <Column className='flex justify-end'>
-                  <Button
+                <Column className='flex items-center justify-end'>
+                  <Link
                     href={`${Resource.WebAppUrl.value}/devotion/${devotion.id}`}
-                    className='w-fit rounded-full bg-primary px-2 py-1 text-primary-foreground text-sm hover:bg-primary/90'
+                    className='h-fit w-fit p-0 text-xs'
                   >
                     Read on the Web
-                  </Button>
+                  </Link>
                 </Column>
               </Row>
             </Section>
@@ -91,15 +90,11 @@ export const DailyDevotionEmail = ({ devotion, devotionImage }: DailyDevotionEma
               Dive Deeper
             </Heading>
             <div className='flex justify-center'>
-              <div className='grid grid-cols-2 gap-2'>
+              <div className='flex flex-wrap gap-4'>
                 {devotion.diveDeeperQueries.map((query) => (
-                  <Button
-                    key={query}
-                    href={`${Resource.WebAppUrl.value}/chat?query=${query}`}
-                    className='w-fit rounded-full bg-primary p-4 text-primary-foreground hover:bg-primary/90'
-                  >
+                  <Link key={query} href={`${Resource.WebAppUrl.value}/chat?query=${query}`}>
                     {query}
-                  </Button>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -125,15 +120,16 @@ DailyDevotionEmail.PreviewProps = {
     updatedAt: new Date(),
     failed: false,
     topic: 'Love',
-    bibleReading:
-      '"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." - John 3:16',
-    summary: `# This is a summary
-
-## This is a subheading
-
+    bibleReading: `> For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life. 
+> 
+> John 3:16`,
+    summary: `### This is a summary
+#### This is a subheading
 This is a paragraph`,
-    reflection: 'This is a reflection',
-    prayer: 'This is a prayer',
+    reflection: `### This is a reflection
+Blah blah blah`,
+    prayer: `### This is a prayer
+Blah blah blah`,
     diveDeeperQueries: ['What is love?', 'How do I love?'],
   },
   devotionImage: {

@@ -18,11 +18,12 @@ import { vectorStore } from '../vector-store';
 
 export const thinkingTool = (_input: { dataStream: DataStreamWriter }) =>
   tool({
-    description: 'Thinking: Think about the question and jot down your thought process.',
+    description:
+      'Thinking: Share your concise step-by-step reasoning process. Keep it focused and brief while showing key logical steps.',
     parameters: z.object({
       thoughts: z
         .string()
-        .describe('Notes or thoughts about the question, formatted in valid markdown.'),
+        .describe('Brief step-by-step reasoning about the question, formatted in valid markdown.'),
     }),
     execute: ({ thoughts }) =>
       Promise.resolve({
