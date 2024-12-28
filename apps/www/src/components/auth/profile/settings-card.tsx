@@ -4,7 +4,6 @@ import { userSettings } from '@/core/database/schema';
 import { UpdateUserSettingsSchema } from '@/schemas/users/settings';
 import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
-import { SETTINGS_CACHE_TTL } from '@/www/server/middleware/auth';
 import { createForm, setValue, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
@@ -51,7 +50,7 @@ const updateSettingsAction = action(async (values: z.infer<typeof UpdateUserSett
       .values({ userId: user.id, ...values })
       .returning();
   }
-  await cache.set(`settings:${user.id}`, settings, { ex: SETTINGS_CACHE_TTL });
+  await cache.del(`settings:${user.id}`);
   return { settings };
 });
 

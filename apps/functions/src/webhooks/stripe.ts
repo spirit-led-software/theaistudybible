@@ -1,3 +1,4 @@
+import { cache } from '@/core/cache';
 import { db } from '@/core/database';
 import { userCredits, users } from '@/core/database/schema';
 import { stripe } from '@/core/stripe';
@@ -77,6 +78,7 @@ const app = new Hono().post('/', async (c) => {
           },
         })
         .returning();
+      await cache.del(`credits:${user.id}`);
 
       return c.json({ message: 'Checkout session completed' });
     }

@@ -9,9 +9,9 @@ import { add, isAfter } from 'date-fns';
 import { eq, sql } from 'drizzle-orm';
 import { authenticate } from '../auth';
 
-export const ROLES_CACHE_TTL = 60 * 60; // Cache for 1 hour
-export const SETTINGS_CACHE_TTL = 60 * 60; // Cache for 1 hour
-export const CREDITS_CACHE_TTL = 30 * 60; // Cache for 30 minutes
+const ROLES_CACHE_TTL = 60 * 60; // Cache for 1 hour
+const SETTINGS_CACHE_TTL = 60 * 60; // Cache for 1 hour
+const CREDITS_CACHE_TTL = 30 * 60; // Cache for 30 minutes
 
 export const authMiddleware = () => {
   return async ({ nativeEvent, locals }: FetchEvent) => {
