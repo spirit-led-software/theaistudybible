@@ -39,12 +39,14 @@ export function SmallTranslationPicker() {
 
   const uniqueLanguages = createMemo(() => {
     if (query.status === 'success') {
-      return query.data.reduce((acc, bible) => {
-        if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {
-          acc.push(bible.biblesToLanguages[0].language);
-        }
-        return acc;
-      }, [] as BibleLanguage[]);
+      return (
+        query.data?.reduce((acc, bible) => {
+          if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {
+            acc.push(bible.biblesToLanguages[0].language);
+          }
+          return acc;
+        }, [] as BibleLanguage[]) ?? []
+      );
     }
     return [];
   });
@@ -53,7 +55,7 @@ export function SmallTranslationPicker() {
     <QueryBoundary
       query={query}
       loadingFallback={
-        <Button variant='outline' disabled class='flex items-center justify-center gap-2'>
+        <Button variant='outline' disabled class='flex items-center gap-2'>
           <span>Loading</span>
           <Spinner size='sm' />
         </Button>

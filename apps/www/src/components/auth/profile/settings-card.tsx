@@ -1,8 +1,10 @@
+import { cache } from '@/core/cache';
 import { db } from '@/core/database';
 import { userSettings } from '@/core/database/schema';
 import { UpdateUserSettingsSchema } from '@/schemas/users/settings';
 import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
+import { SETTINGS_CACHE_TTL } from '@/www/server/middleware/auth';
 import { createForm, setValue, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
@@ -27,35 +29,30 @@ import {
 
 const getBibles = GET(async () => {
   'use server';
-  const bibles = await db.query.bibles.findMany({
-    columns: { id: true, abbreviationLocal: true },
-  });
+  const bibles = await db.query.bibles.findMany({ columns: { id: true, abbreviationLocal: true } });
   return bibles;
 });
 
 const updateSettingsAction = action(async (values: z.infer<typeof UpdateUserSettingsSchema>) => {
   'use server';
   const { user } = requireAuth();
-  const existingSettings = await db.query.userSettings.findFirst({
+  let settings = await db.query.userSettings.findFirst({
     where: (userSettings, { eq }) => eq(userSettings.userId, user.id),
   });
-  if (!existingSettings) {
-    const [newSettings] = await db
-      .insert(userSettings)
-      .values({
-        userId: user.id,
-        ...values,
-      })
+  if (settings) {
+    [settings] = await db
+      .update(userSettings)
+      .set(values)
+      .where(eq(userSettings.userId, user.id))
       .returning();
-    return { settings: newSettings };
+  } else {
+    [settings] = await db
+      .insert(userSettings)
+      .values({ userId: user.id, ...values })
+      .returning();
   }
-
-  const [updatedSettings] = await db
-    .update(userSettings)
-    .set({ ...existingSettings, ...values })
-    .where(eq(userSettings.userId, user.id))
-    .returning();
-  return { settings: updatedSettings };
+  await cache.set(`settings:${user.id}`, settings, { ex: SETTINGS_CACHE_TTL });
+  return { settings };
 });
 
 export function SettingsCard() {
@@ -119,12 +116,19 @@ export function SettingsCard() {
                 </Switch>
               )}
             </Field>
-            <QueryBoundary query={biblesQuery}>
-              {(bibles) => (
-                <Field name='preferredBibleId'>
-                  {(field, props) => (
-                    <div class='flex flex-col gap-2'>
-                      <Label>Preferred Bible</Label>
+            <Field name='preferredBibleId'>
+              {(field, props) => (
+                <div class='flex flex-col gap-2'>
+                  <Label>Preferred Bible</Label>
+                  <QueryBoundary
+                    query={biblesQuery}
+                    loadingFallback={
+                      <Button class='w-fit' disabled>
+                        Loading...
+                      </Button>
+                    }
+                  >
+                    {(bibles) => (
                       <Select
                         value={bibles.find((bible) => bible.id === field.value)}
                         onChange={(v) => setValue(form, field.name, v?.id)}
@@ -144,11 +148,11 @@ export function SettingsCard() {
                         </SelectTrigger>
                         <SelectContent />
                       </Select>
-                    </div>
-                  )}
-                </Field>
+                    )}
+                  </QueryBoundary>
+                </div>
               )}
-            </QueryBoundary>
+            </Field>
             <Field name='aiInstructions'>
               {(field, props) => (
                 <TextField

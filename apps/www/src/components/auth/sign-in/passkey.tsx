@@ -106,9 +106,7 @@ const signInWithPasskeyAction = action(
 
     const session = await lucia.createSession(credential.userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
-    return redirect(redirectUrl, {
-      headers: { 'Set-Cookie': sessionCookie.serialize() },
-    });
+    return redirect(redirectUrl, { headers: { 'Set-Cookie': sessionCookie.serialize() } });
   },
 );
 
@@ -151,12 +149,15 @@ export const PasskeyButton = (props: PasskeyButtonProps) => {
         new Uint8Array(credential.response.clientDataJSON),
       );
 
-      await signInWithPasskey({
-        rawId: encodedId,
-        sig: encodedSig,
-        authenticatorData: encodedAuthenticatorData,
-        clientDataJSON: encodedClientDataJSON,
-      });
+      await signInWithPasskey(
+        {
+          rawId: encodedId,
+          sig: encodedSig,
+          authenticatorData: encodedAuthenticatorData,
+          clientDataJSON: encodedClientDataJSON,
+        },
+        props.redirectUrl,
+      );
     },
     onSuccess: () => invalidate(),
     onError: (error) => toast.error(error.message),

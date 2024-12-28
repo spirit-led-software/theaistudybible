@@ -32,13 +32,11 @@ const requestUploadAction = action(
         Key: key,
         ContentType: props.contentType,
         ContentLength: props.size,
-        Metadata: {
-          'user-id': user.id,
-        },
+        Metadata: { 'user-id': user.id },
       }),
       { expiresIn: 3600 },
     );
-    return { presignedUrl };
+    return { presignedUrl, key };
   },
 );
 
@@ -59,17 +57,11 @@ export function UpdateAvatarDialog() {
         contentType: file.type,
         size: file.size,
       });
-      const response = await fetch(presignedUrl, {
-        method: 'PUT',
-        body: file,
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to upload avatar: ${response.statusText}`);
-      }
+      const response = await fetch(presignedUrl, { method: 'PUT', body: file });
+      if (!response.ok) throw new Error(`Failed to upload avatar: ${response.statusText}`);
     },
-    onMutate: () => {
-      setToastId(toast.loading('Updating avatar...', { duration: Number.POSITIVE_INFINITY }));
-    },
+    onMutate: () =>
+      setToastId(toast.loading('Updating avatar...', { duration: Number.POSITIVE_INFINITY })),
     onSuccess: () => {
       toast.dismiss(toastId());
       toast.success('Avatar updated successfully');

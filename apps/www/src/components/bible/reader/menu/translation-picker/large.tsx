@@ -29,10 +29,12 @@ export function LargeTranslationPicker() {
 
   const filteredBibles = createMemo(() => {
     if (query.status === 'success') {
-      return query.data.filter(
-        (bible) =>
-          bible.name.toLowerCase().includes(search().toLowerCase()) ||
-          bible.abbreviation.toLowerCase().includes(search().toLowerCase()),
+      return (
+        query.data?.filter(
+          (bible) =>
+            bible.name.toLowerCase().includes(search().toLowerCase()) ||
+            bible.abbreviation.toLowerCase().includes(search().toLowerCase()),
+        ) ?? []
       );
     }
     return [];
