@@ -32,27 +32,20 @@ export default defineConfig({
           start_url: '/',
           theme_color: '#030527',
           icons: [
-            {
-              src: '/pwa/64x64.png',
-              sizes: '64x64',
-              type: 'image/png',
-            },
-            {
-              src: '/pwa/192x192.png',
-              sizes: '192x192',
-              type: 'image/png',
-            },
-            {
-              src: '/pwa/512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-            },
+            { src: '/pwa/64x64.png', sizes: '64x64', type: 'image/png' },
+            { src: '/pwa/192x192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/pwa/512x512.png', sizes: '512x512', type: 'image/png' },
             {
               src: '/maskable-icon-512x512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable',
             },
+          ],
+          shortcuts: [
+            { name: 'Read the Bible', url: '/bible', short_name: 'Read' },
+            { name: 'Chat with AI', url: '/chat', short_name: 'Chat' },
+            { name: 'View Devotions', url: '/devotion', short_name: 'Devotions' },
           ],
         },
         includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon-180x180.png'],
@@ -88,8 +81,6 @@ export default defineConfig({
         },
       }),
     ],
-    optimizeDeps: {
-      include: ['solid-markdown > debug', 'solid-marked > extend'],
-    },
+    optimizeDeps: { include: ['solid-markdown > debug', 'solid-marked > extend'] },
   },
 });
