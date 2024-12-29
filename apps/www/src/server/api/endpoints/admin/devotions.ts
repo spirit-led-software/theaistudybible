@@ -143,7 +143,7 @@ export const app = new Hono<{
       {
         message: 'Devotion deleted',
       },
-      204,
+      200,
     );
   })
   .get('/:id/image', (c) => {

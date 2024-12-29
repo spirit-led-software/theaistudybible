@@ -90,7 +90,7 @@ export const app = new Hono<{
       {
         message: 'Index operation deleted',
       },
-      204,
+      200,
     );
   });
 
