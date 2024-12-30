@@ -1,8 +1,9 @@
+import { lucia } from '@/core/auth';
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
-import { action, useAction, useNavigate } from '@solidjs/router';
+import { action, redirect, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
 import { createSignal } from 'solid-js';
@@ -21,13 +22,13 @@ const deleteUserAction = action(async () => {
   'use server';
   const { user } = requireAuth();
   await db.delete(users).where(eq(users.id, user.id));
-  return { success: true };
+  const cookie = lucia.createBlankSessionCookie();
+  return redirect('/', { headers: { 'Set-Cookie': cookie.serialize() } });
 });
 
 export const DeleteProfileDialog = () => {
   const deleteUser = useAction(deleteUserAction);
 
-  const navigate = useNavigate();
   const { invalidate } = useAuth();
 
   const [toastId, setToastId] = createSignal<string | number>();
@@ -39,7 +40,6 @@ export const DeleteProfileDialog = () => {
       setToastId(toast.loading('Deleting profile...', { duration: Number.POSITIVE_INFINITY }));
     },
     onSuccess: () => {
-      navigate('/');
       invalidate();
       toast.dismiss(toastId());
       toast.success('Profile deleted');

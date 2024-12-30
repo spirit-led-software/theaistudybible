@@ -64,7 +64,7 @@ export function UpdateAvatarDialog() {
       setToastId(toast.loading('Updating avatar...', { duration: Number.POSITIVE_INFINITY })),
     onSuccess: () => {
       toast.dismiss(toastId());
-      toast.success('Avatar updated successfully');
+      toast.success('Avatar updated, please wait a few seconds for the change to take effect');
       setOpen(false);
       // Need to wait a few seconds for the
       // bucket function to update the user
