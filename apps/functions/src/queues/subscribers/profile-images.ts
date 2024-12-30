@@ -1,3 +1,4 @@
+import { cache } from '@/core/cache';
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { s3 } from '@/core/storage';
@@ -42,6 +43,10 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
           .update(users)
           .set({ image: `${Resource.Cdn.url}/profile-images/${s3EventRecord.s3.object.key}` })
           .where(eq(users.id, userId));
+
+        await db.query.sessions
+          .findMany({ where: (sessions, { eq }) => eq(sessions.userId, userId) })
+          .then((sessions) => cache.del(...sessions.map((session) => `auth:${session.id}`)));
 
         console.log(`Successfully processed ${key}`);
       }

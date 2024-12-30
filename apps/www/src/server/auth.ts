@@ -11,9 +11,7 @@ export const AUTH_CACHE_TTL = 60; // Cache for 1 minute
 
 export const authenticate = async (event: HTTPEvent) => {
   const sessionId = getCookie(event, lucia.sessionCookieName) ?? null;
-  if (!sessionId) {
-    return { session: null, user: null };
-  }
+  if (!sessionId) return { session: null, user: null };
 
   const cacheKey = `auth:${sessionId}`;
   const cached = await cache.get(cacheKey);
@@ -56,8 +54,9 @@ export const auth = () => {
 
 export const requireAuth = (message?: string) => {
   const authObj = auth();
-  if (!authObj.session || !authObj.user)
+  if (!authObj.session || !authObj.user) {
     throw new Error(message || 'You must be signed in to access this resource');
+  }
 
   return authObj as {
     session: Session;

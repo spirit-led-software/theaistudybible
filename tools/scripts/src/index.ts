@@ -13,6 +13,17 @@ await yargs(hideBin(process.argv))
       await upgradePackages();
     },
   )
+  .command('auth', 'Auth commands', (yargs) =>
+    yargs.command(
+      'cleanup-sessions',
+      'Cleanup expired sessions',
+      (yargs) => yargs,
+      async () => {
+        const { cleanupSessions } = await import('./auth/cleanup-sessions');
+        await cleanupSessions();
+      },
+    ),
+  )
   .command('db', 'Database commands', (yargs) =>
     yargs.command(
       'seed',
