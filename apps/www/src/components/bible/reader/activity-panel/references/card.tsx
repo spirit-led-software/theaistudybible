@@ -58,6 +58,7 @@ export const ReferencesCard = () => {
   const query = createQuery(() => ({
     queryKey: ['references', { text: brStore.selectedText, bibleId: brStore.bible.id }],
     queryFn: () => getReferences({ text: brStore.selectedText, bibleId: brStore.bible.id }),
+    staleTime: Number.POSITIVE_INFINITY,
   }));
 
   return (
