@@ -13,17 +13,17 @@ runs:
       uses: actions/cache@v4
       with:
         path: .turbo
-        key: ${{ runner.os }}-turbo-${{ github.sha }}
+        key: ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-turbo-
+          ${{ runner.os }}-${{ runner.arch }}-turbo-
 
     - name: Cache Docker Buildx from SST
       uses: actions/cache@v4
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        key: ${{ runner.os }}-${{ runner.arch }}-buildx-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-buildx-
+          ${{ runner.os }}-${{ runner.arch }}-buildx-
 
     - name: Install dependencies
       shell: bash
