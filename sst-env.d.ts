@@ -183,6 +183,22 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "WebAppBucket-1736180674922": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1736181107122": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1736182552644": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1736182950515": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
     "WebAppCdnLoggingBucket": {
       "name": string
       "type": "sst.aws.Bucket"
@@ -190,10 +206,12 @@ declare module "sst" {
     "WebAppService-eu-west-1": {
       "service": string
       "type": "sst.aws.Service"
+      "url": string
     }
     "WebAppService-us-east-1": {
       "service": string
       "type": "sst.aws.Service"
+      "url": string
     }
     "WebAppUrl": {
       "type": "asb.asb.Constant"

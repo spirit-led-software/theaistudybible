@@ -88,8 +88,8 @@ if (!$dev) {
       image: webAppImage.ref,
       loadBalancer: {
         rules: [
-          { listen: '80/http', forward: '8080/http' },
-          { listen: '443/https', forward: '8080/http' },
+          { listen: '80/tcp', forward: '8080/tcp' },
+          { listen: '443/tls', forward: '8080/tcp' },
         ],
         domain: {
           name: serverDomain,
@@ -307,8 +307,8 @@ if (!$dev) {
       cachedMethods: ['GET', 'HEAD'],
       compress: true,
       // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
-      // CloudFront's managed AllViewerExceptHostHeader policy
-      originRequestPolicyId: 'b689b0a8-53d0-40ab-baf2-68738e2966ac',
+      // CloudFront's managed AllViewer policy
+      originRequestPolicyId: '216adef6-5c7f-47e4-b989-5492eafa07d3',
       cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnServerCachePolicy', {
         maxTtl: 60 * 60 * 24 * 365, // 1 year
         minTtl: 0,
@@ -321,15 +321,6 @@ if (!$dev) {
           enableAcceptEncodingGzip: true,
         },
       }).id,
-      functionAssociations: [
-        {
-          eventType: 'viewer-request',
-          functionArn: new aws.cloudfront.Function('WebAppServerOriginCdnFn', {
-            runtime: 'cloudfront-js-2.0',
-            code: 'async function handler(event) { event.request.headers["x-forwarded-host"] = event.request.headers.host; return event.request; }',
-          }).arn,
-        },
-      ],
     };
     const assetsCacheBehavior: Omit<
       aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
