@@ -73,7 +73,12 @@ WORKDIR /build
 
 RUN apt-get -qq update && \
     apt-get -qq install -y git curl unzip && \
-    curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    case "$(uname -m)" in \
+        aarch64) ARCH="aarch64" ;; \
+        x86_64)  ARCH="x86_64" ;; \
+        *) echo "Unsupported architecture: $(uname -m)"; exit 1 ;; \
+    esac && \
+    curl -s "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o "awscliv2.zip" && \
     unzip -q awscliv2.zip && \
     ./aws/install && \
     rm -rf awscliv2.zip aws /var/lib/apt/lists/*

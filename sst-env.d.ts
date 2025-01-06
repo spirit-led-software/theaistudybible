@@ -18,6 +18,10 @@ declare module "sst" {
       "type": "sst.sst.Linkable"
       "url": string
     }
+    "AnalyticsApiRouter": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "AnthropicApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -148,6 +152,48 @@ declare module "sst" {
     "VapidPublicKey": {
       "type": "asb.asb.Constant"
       "value": string
+    }
+    "Vpc-eu-west-1": {
+      "type": "sst.aws.Vpc"
+    }
+    "Vpc-us-east-1": {
+      "type": "sst.aws.Vpc"
+    }
+    "WebAppApi-eu-west-1": {
+      "type": "sst.aws.ApiGatewayV2"
+      "url": string
+    }
+    "WebAppApi-us-east-1": {
+      "type": "sst.aws.ApiGatewayV2"
+      "url": string
+    }
+    "WebAppBucket-1736178140823": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1736179310658": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1736179645047": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1736180103001": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppCdnLoggingBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppService-eu-west-1": {
+      "service": string
+      "type": "sst.aws.Service"
+    }
+    "WebAppService-us-east-1": {
+      "service": string
+      "type": "sst.aws.Service"
     }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
