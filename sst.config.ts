@@ -4,12 +4,12 @@ export default $config({
     removal: 'remove',
     home: 'aws',
     providers: {
-      '@pulumiverse/sentry': '0.0.9',
-      '@upstash/pulumi': '0.3.14',
-      'docker-build': '0.0.8',
-      'pulumi-stripe': '0.0.24',
-      aws: { version: '6.66.2', region: 'us-east-1' },
-      turso: { version: '0.2.3', organization: process.env.TURSO_ORG! },
+      '@pulumiverse/sentry': true,
+      '@upstash/pulumi': true,
+      'docker-build': true,
+      'pulumi-stripe': true,
+      aws: { region: 'us-east-1' },
+      turso: { organization: process.env.TURSO_ORG! },
     },
   }),
   run: async () => {

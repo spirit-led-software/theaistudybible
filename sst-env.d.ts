@@ -199,6 +199,26 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "WebAppBucket-1736185322585": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1736186904363": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1736187453464": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1736188024248": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1736189350104": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
     "WebAppCdnLoggingBucket": {
       "name": string
       "type": "sst.aws.Bucket"
