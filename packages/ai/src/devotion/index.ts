@@ -24,9 +24,15 @@ import { getTodaysTopic } from './topics';
 const modelInfo = advancedChatModels[0];
 
 export const getBibleReading = async (topic: string) => {
+  const pastDevotions = await db.query.devotions.findMany({
+    columns: { id: true, bibleReading: true },
+    where: (devotions, { eq }) => eq(devotions.topic, topic),
+    orderBy: (devotions, { desc }) => [desc(devotions.createdAt)],
+    limit: 10,
+  });
   const { text: bibleReading } = await generateText({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
-    system: bibleReadingSystemPrompt,
+    system: bibleReadingSystemPrompt({ pastDevotions }),
     prompt: `Find a bible reading for the topic: "${topic}"`,
     tools: { vectorStore: bibleVectorStoreTool },
     maxSteps: 5,
@@ -136,11 +142,7 @@ export const generateDiveDeeperQueries = async ({
     experimental_output: { queries },
   } = await generateText({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
-    experimental_output: Output.object({
-      schema: z.object({
-        queries: z.array(z.string()),
-      }),
-    }),
+    experimental_output: Output.object({ schema: z.object({ queries: z.array(z.string()) }) }),
     system: diveDeeperSystemPrompt,
     prompt: `Here is the devotional (delimited by triple dashes):
 ---

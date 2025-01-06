@@ -9,7 +9,7 @@ import { wrapHandler } from '@sentry/aws-serverless';
 import { formatDate } from 'date-fns';
 import { eq } from 'drizzle-orm';
 import { Resource } from 'sst';
-import webPush from 'web-push';
+import webPush, { WebPushError } from 'web-push';
 
 webPush.setVapidDetails(
   'mailto:support@theaistudybible.com',
@@ -74,7 +74,7 @@ const sendPushNotifications = async (devotion: Devotion) => {
         )
         .catch(async (error) => {
           console.error(error);
-          if (error.statusCode === 410) {
+          if (error instanceof WebPushError && error.statusCode === 410) {
             await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, subscription.id));
           }
         }),

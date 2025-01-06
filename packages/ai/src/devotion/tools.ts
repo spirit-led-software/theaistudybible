@@ -15,7 +15,7 @@ export const bibleVectorStoreTool = tool({
     return await Promise.all(
       terms.map((term) =>
         vectorStore.searchDocuments(term, {
-          filter: 'type = "bible"',
+          filter: 'type = "bible" and translation = "FBV"',
           limit: 12,
           withMetadata: true,
           withEmbedding: false,
