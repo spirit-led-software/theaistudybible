@@ -79,6 +79,7 @@ export default defineConfig({
           excludeReplayShadowDom: true,
           excludeReplayWorker: true,
         },
+        sourceMapsUploadOptions: { filesToDeleteAfterUpload: ['**/*.map'] },
       }),
     ],
     optimizeDeps: { include: ['solid-markdown > debug', 'solid-marked > extend'] },

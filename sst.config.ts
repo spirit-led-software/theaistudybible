@@ -1,6 +1,7 @@
 export default $config({
-  app: () => ({
+  app: (input) => ({
     name: 'theaistudybible',
+    protected: input.stage === 'production',
     removal: 'remove',
     home: 'aws',
     providers: {

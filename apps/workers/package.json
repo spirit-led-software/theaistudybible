@@ -11,6 +11,6 @@
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@sentry/cloudflare": "^8.47.0"
+    "@sentry/cloudflare": "^8.48.0"
   }
 }

@@ -26,7 +26,7 @@ const baseEnv = $util
     POSTHOG_API_KEY.value,
     webAppSentryKey.dsnPublic,
     webAppSentryProject.organization,
-    webAppSentryProject.projectId.apply((id) => id.toString()),
+    webAppSentryProject.internalId.apply((id) => id.toString()),
     webAppSentryProject.name,
     SENTRY_AUTH_TOKEN.value,
   ])
@@ -117,11 +117,6 @@ if (!$dev) {
       },
       environment: baseEnv,
       link: allLinks,
-      transform: {
-        service: (args) => {
-          args.waitForSteadyState = true;
-        },
-      },
     });
     return { region, vpc, cluster, service };
   });

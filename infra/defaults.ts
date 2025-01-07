@@ -21,21 +21,21 @@ $transform(sst.aws.Function, (args) => {
     ...copyFiles,
     { from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' },
   ]);
-  args.runtime ??= 'nodejs20.x';
-  args.nodejs = $output(args.nodejs).apply((nodejs) => ({
+  args.runtime ||= 'nodejs20.x';
+  args.nodejs = $output(args.nodejs).apply((nodejs = {}) => ({
     ...nodejs,
-    install: $output([
-      ...(nodejs?.install ?? []),
+    install: [
+      ...(nodejs.install ?? []),
       '@libsql/client',
       'tiktoken',
       '@node-rs/argon2',
       '@node-rs/bcrypt',
       '@sentry/aws-serverless',
       'posthog-node',
-    ]),
+    ],
     esbuild: {
       external: [
-        ...(nodejs?.esbuild?.external ?? []),
+        ...(nodejs.esbuild?.external ?? []),
         '@libsql/client',
         'tiktoken',
         '@node-rs/argon2',
@@ -44,24 +44,41 @@ $transform(sst.aws.Function, (args) => {
         'posthog-node',
       ],
     },
+    plugins: nodejs.plugins || 'apps/functions/plugins.mjs',
   }));
-  args.memory ??= '512 MB';
+  args.memory ||= '512 MB';
   args.environment = $util
     .all([
       constants.POSTHOG_API_KEY.value,
       constants.POSTHOG_API_HOST.value,
+      webAppSentryKey.organization,
+      webAppSentryKey.project,
+      secrets.SENTRY_AUTH_TOKEN.value,
       webAppSentryKey.dsnPublic,
       args.environment,
     ])
-    .apply(([posthogApiKey, posthogApiHost, sentryDsnPublic, argsEnv]) => ({
-      STAGE: $app.stage,
-      NODE_OPTIONS: '--import ./instrument.mjs',
-      POSTHOG_API_KEY: posthogApiKey,
-      POSTHOG_API_HOST: posthogApiHost,
-      SENTRY_DSN: sentryDsnPublic,
-      SENTRY_TRACES_SAMPLE_RATE: ($dev ? 0 : isProd ? 1.0 : 0.5).toString(),
-      ...argsEnv,
-    }));
+    .apply(
+      ([
+        posthogApiKey,
+        posthogApiHost,
+        sentryOrg,
+        sentryProject,
+        sentryAuthToken,
+        sentryDsnPublic,
+        argsEnv,
+      ]) => ({
+        STAGE: $app.stage,
+        NODE_OPTIONS: '--import ./instrument.mjs',
+        POSTHOG_API_KEY: posthogApiKey,
+        POSTHOG_API_HOST: posthogApiHost,
+        SENTRY_ORG: sentryOrg,
+        SENTRY_PROJECT: sentryProject,
+        SENTRY_AUTH_TOKEN: sentryAuthToken,
+        SENTRY_DSN: sentryDsnPublic,
+        SENTRY_TRACES_SAMPLE_RATE: ($dev ? 0 : isProd ? 1.0 : 0.5).toString(),
+        ...argsEnv,
+      }),
+    );
   args.link = $util
     .all([args.link, allLinks])
     .apply(([links = [], allLinks]) => [...links, ...allLinks]);
