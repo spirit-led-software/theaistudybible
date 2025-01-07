@@ -87,7 +87,7 @@ if (!$dev) {
     const service = cluster.addService(`WebAppService-${region}`, {
       image: webAppImage.ref,
       loadBalancer: {
-        rules: [
+        ports: [
           { listen: '80/tcp', forward: '8080/tcp' },
           { listen: '443/tls', forward: '8080/tcp' },
         ],
