@@ -21,7 +21,7 @@ $transform(sst.aws.Function, (args) => {
     ...copyFiles,
     { from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' },
   ]);
-  args.runtime ||= 'nodejs20.x';
+  args.runtime ||= 'nodejs22.x';
   args.nodejs = $output(args.nodejs).apply((nodejs = {}) => ({
     ...nodejs,
     install: [
