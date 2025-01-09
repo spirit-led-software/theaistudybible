@@ -44,8 +44,8 @@ export function CharContent(props: CharContentProps) {
         <TooltipTrigger as='span'>{CharContent}</TooltipTrigger>
         <TooltipContent class='flex w-fit justify-center indent-0'>
           <div class='w-full text-center'>
-            <h6 class='font-bold'>Strong{"'"}s</h6>
-            <A href={strongsLink} class='hover:underline'>
+            <h6 class='font-bold'>Strong's</h6>
+            <A href={strongsLink} class='hover:underline' target='_blank' rel='noopener noreferrer'>
               {strongsNumber}
             </A>
           </div>
