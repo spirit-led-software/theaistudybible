@@ -21,7 +21,7 @@ $transform(sst.aws.Function, (args) => {
     ...copyFiles,
     { from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' },
   ]);
-  args.runtime ||= 'nodejs22.x';
+  args.runtime ??= 'nodejs22.x';
   args.nodejs = $output(args.nodejs).apply((nodejs = {}) => ({
     ...nodejs,
     install: [
@@ -44,9 +44,8 @@ $transform(sst.aws.Function, (args) => {
         'posthog-node',
       ],
     },
-    plugins: nodejs.plugins || 'apps/functions/plugins.mjs',
   }));
-  args.memory ||= '512 MB';
+  args.memory ??= '512 MB';
   args.environment = $util
     .all([
       constants.POSTHOG_API_KEY.value,

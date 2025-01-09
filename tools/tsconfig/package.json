@@ -4,6 +4,6 @@
   "private": true,
   "main": "tsconfig.json",
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.3"
   }
 }

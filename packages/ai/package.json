@@ -14,11 +14,11 @@
     "@ai-sdk/anthropic": "^1.0.7",
     "@ai-sdk/groq": "^1.0.10",
     "@ai-sdk/mistral": "^1.0.7",
-    "@ai-sdk/openai": "^1.0.14",
+    "@ai-sdk/openai": "^1.0.15",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
-    "@upstash/vector": "^1.1.7",
-    "openai": "^4.77.3",
+    "@upstash/vector": "^1.2.0",
+    "openai": "^4.77.4",
     "tiktoken": "^1.0.18"
   }
 }

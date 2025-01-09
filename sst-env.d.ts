@@ -2,8 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
-import "sst"
-export {}
+
 declare module "sst" {
   export interface Resource {
     "AdminEmail": {
@@ -159,107 +158,7 @@ declare module "sst" {
     "Vpc-us-east-1": {
       "type": "sst.aws.Vpc"
     }
-    "WebAppApi-eu-west-1": {
-      "type": "sst.aws.ApiGatewayV2"
-      "url": string
-    }
-    "WebAppApi-us-east-1": {
-      "type": "sst.aws.ApiGatewayV2"
-      "url": string
-    }
-    "WebAppBucket-1736178140823": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736179310658": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736179645047": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736180103001": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736180674922": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736181107122": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736182552644": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736182950515": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736185322585": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736186904363": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736187453464": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736188024248": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736189350104": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736191727450": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736194005972": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736194990332": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736272964229": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736273298388": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736273613787": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736275068237": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736276365612": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736277968426": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736279787598": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1736280014331": {
+    "WebAppBucket-1736441910236": {
       "name": string
       "type": "sst.aws.Bucket"
     }
@@ -292,3 +191,7 @@ declare module "sst" {
     }
   }
 }
+/// <reference path="sst-env.d.ts" />
+
+import "sst"
+export {}

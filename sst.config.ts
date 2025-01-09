@@ -1,3 +1,5 @@
+// import whyIsNodeRunning from 'why-is-node-running'; // For debugging
+
 export default $config({
   app: (input) => ({
     name: 'theaistudybible',
@@ -5,15 +7,18 @@ export default $config({
     removal: 'remove',
     home: 'aws',
     providers: {
-      '@pulumiverse/sentry': '0.0.9',
-      '@upstash/pulumi': '0.3.14',
-      'docker-build': '0.0.7',
-      'pulumi-stripe': '0.0.24',
-      aws: { version: '6.65.0', region: 'us-east-1' },
-      turso: { version: '0.2.3', organization: process.env.TURSO_ORG! },
+      '@pulumiverse/sentry': true,
+      '@upstash/pulumi': true,
+      'docker-build': true,
+      'pulumi-stripe': true,
+      aws: { region: 'us-east-1' },
+      turso: { organization: process.env.TURSO_ORG! },
     },
   }),
   run: async () => {
+    // For debugging
+    // setInterval(() => whyIsNodeRunning(), 1000 * 60); // Log out active node handles every 60 seconds
+
     // Linkable resources
     const { WEBAPP_URL } = await import('./infra/constants');
     await import('./infra/secrets');
