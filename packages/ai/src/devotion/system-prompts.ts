@@ -47,12 +47,12 @@ export const bibleReadingSystemPrompt = (input: {
   - Single verse: ${Resource.WebAppUrl.value}/bible/[abbreviation]/[usx-book-code]/[chapter-number]/[verse-number]
   - Multiple verses: ${Resource.WebAppUrl.value}/bible/[abbreviation]/[usx-book-code]/[chapter-number]?verseNumber=1&verseNumber=2&verseNumber=3
 - If verse requires broader context, include a "Context:" prefix with verse range
-- Here is an example of a properly formatted bible reading (delimited by <bible-reading/> xml tags):
-<bible-reading>
+- Here is an example of a properly formatted bible reading (delimited by triple backticks, you do not need to include the backticks in your output):
+\`\`\`
 > "For God so loved the world, that he gave his only begotten Son, that whoever believes in Him should not perish, but have everlasting life."
 >
 > - [John 3:16](${Resource.WebAppUrl.value}/bible/FBV/JHN/3/16)
-</bible-reading>
+\`\`\`
 
 Never deviate from the required output format. Your response should only contain the formatted Bible reading.`;
 
