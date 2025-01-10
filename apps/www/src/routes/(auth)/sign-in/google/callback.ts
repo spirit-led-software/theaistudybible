@@ -17,16 +17,25 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
   const state = url.searchParams.get('state');
 
   if (!storedState || !codeVerifier || !code || !state) {
-    return new Response('Missing required parameters.', { status: 400 });
+    return new Response('Missing required parameters.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
   if (storedState !== state) {
-    return new Response('Invalid state.', { status: 400 });
+    return new Response('Invalid state.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
   let tokens: OAuth2Tokens;
   try {
     tokens = await google.validateAuthorizationCode(code, codeVerifier);
   } catch {
-    return new Response('Invalid authorization code.', { status: 400 });
+    return new Response('Invalid authorization code.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
 
   const claims = decodeIdToken(tokens.idToken());
@@ -35,7 +44,10 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
   const googleId = claimsParser.getString('sub');
   const expirationDate = claimsParser.getNumber('exp');
   if (expirationDate < new Date().getTime()) {
-    return new Response('Token expired.', { status: 400 });
+    return new Response('Token expired.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
 
   const name = claimsParser.getString('name');
@@ -48,7 +60,7 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
   if (existingUserByEmail && existingUserByEmail.googleId !== googleId) {
     return new Response(
       'A user already exists with this email address. You may have signed up with a different method.',
-      { status: 400 },
+      { status: 400, headers: { 'Content-Type': 'text/plain' } },
     );
   }
 

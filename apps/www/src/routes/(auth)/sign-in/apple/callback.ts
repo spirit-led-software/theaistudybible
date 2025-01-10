@@ -16,17 +16,26 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   const state = url.searchParams.get('state');
 
   if (!storedState || !code || !state) {
-    return new Response('Missing required parameters.', { status: 400 });
+    return new Response('Missing required parameters.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
   if (storedState !== state) {
-    return new Response('Invalid state.', { status: 400 });
+    return new Response('Invalid state.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
 
   let tokens: OAuth2Tokens;
   try {
     tokens = await apple.validateAuthorizationCode(code);
   } catch {
-    return new Response('Invalid authorization code.', { status: 400 });
+    return new Response('Invalid authorization code.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
 
   const claims = decodeIdToken(tokens.idToken());
@@ -35,7 +44,10 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   const appleId = claimsParser.getString('sub');
   const expirationDate = claimsParser.getNumber('exp');
   if (expirationDate < new Date().getTime()) {
-    return new Response('Token expired.', { status: 400 });
+    return new Response('Token expired.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
 
   const body = await request.formData();
@@ -43,7 +55,10 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   const email = body.get('email') as string | null;
 
   if (!name || !email) {
-    return new Response('Missing required parameters.', { status: 400 });
+    return new Response('Missing required parameters.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
   }
 
   const existingUserByEmail = await db.query.users.findFirst({
@@ -52,7 +67,10 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   if (existingUserByEmail && existingUserByEmail.appleId !== appleId) {
     return new Response(
       'A user already exists with this email address. You may have signed up with a different method.',
-      { status: 400 },
+      {
+        status: 400,
+        headers: { 'Content-Type': 'text/plain' },
+      },
     );
   }
 
