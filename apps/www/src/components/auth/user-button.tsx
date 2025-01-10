@@ -1,5 +1,6 @@
 import { lucia } from '@/core/auth';
 import { useAuth } from '@/www/contexts/auth';
+import { requireAuth } from '@/www/server/auth';
 import { action, redirect, useAction, useNavigate } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { Show } from 'solid-js';
@@ -9,9 +10,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { H6 } from '../ui/typography';
 import { UserAvatar } from './user-avatar';
 
-const signOutAction = action(() => {
+const signOutAction = action(async () => {
   'use server';
-  const cookie = lucia.createBlankSessionCookie();
+  const { session } = requireAuth();
+  await lucia.sessions.invalidateSession(session.id);
+  const cookie = lucia.cookies.createBlankSessionCookie();
   throw redirect('/', { headers: { 'Set-Cookie': cookie.serialize() } });
 });
 

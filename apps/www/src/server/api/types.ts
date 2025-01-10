@@ -1,6 +1,5 @@
 import type { Role } from '@/schemas/roles/types';
-import type { UserSettings } from '@/schemas/users/types';
-import type { Session, User } from 'lucia';
+import type { Session, User, UserSettings } from '@/schemas/users/types';
 
 // biome-ignore lint/complexity/noBannedTypes: <explanation>
 export type Bindings = {

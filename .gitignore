@@ -21,3 +21,6 @@ node_modules
 
 # SSH key
 *key_rsa
+
+# Apple
+apple-auth-key.p8

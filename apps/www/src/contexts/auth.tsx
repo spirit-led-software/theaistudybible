@@ -1,10 +1,9 @@
 import type { Role } from '@/schemas/roles/types';
-import type { UserSettings } from '@/schemas/users/types';
+import type { Session, User, UserSettings } from '@/schemas/users/types';
 import { auth } from '@/www/server/auth';
 import { setUser as setSentryUser } from '@sentry/solidstart';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
-import type { Session, User } from 'lucia';
 import {
   type Accessor,
   type JSX,

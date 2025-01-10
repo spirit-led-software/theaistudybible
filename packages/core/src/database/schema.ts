@@ -27,10 +27,14 @@ export const users = sqliteTable(
     lastName: text('last_name'),
     image: text('image'),
     stripeCustomerId: text('stripe_customer_id'),
+    googleId: text('google_id'),
+    appleId: text('apple_id'),
   },
   (table) => [
     uniqueIndex('users_email_idx').on(table.email),
     index('users_stripe_customer_id_idx').on(table.stripeCustomerId),
+    index('users_google_id_idx').on(table.googleId),
+    index('users_apple_id_idx').on(table.appleId),
   ],
 );
 
@@ -110,7 +114,7 @@ export const sessions = sqliteTable(
     userId: text('userId')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    expiresAt: integer('expires_at').notNull(),
+    expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
   },
   (table) => [index('sessions_user_id_idx').on(table.userId)],
 );

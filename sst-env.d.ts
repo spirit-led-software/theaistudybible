@@ -21,6 +21,22 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "AppleAuthKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "AppleClientId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "AppleKeyId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "AppleTeamId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "BibleBucket": {
       "name": string
       "type": "sst.aws.Bucket"
@@ -67,6 +83,14 @@ declare module "sst" {
     "GeneratedImagesBucket": {
       "name": string
       "type": "sst.aws.Bucket"
+    }
+    "GoogleClientId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "GoogleClientSecret": {
+      "type": "sst.sst.Secret"
+      "value": string
     }
     "GroqApiKey": {
       "type": "sst.sst.Secret"

@@ -1,7 +1,7 @@
 import type { Bible } from '@/schemas/bibles/types';
 import type { UserSettings } from '@/schemas/users/types';
+import type { User } from '@/schemas/users/types';
 import { formatDate } from 'date-fns';
-import type { User } from 'lucia';
 import { Resource } from 'sst';
 
 export const systemPrompt = (options: {

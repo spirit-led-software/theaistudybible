@@ -51,7 +51,7 @@ export const bibleReadingSystemPrompt = (input: {
 \`\`\`
 > "For God so loved the world, that he gave his only begotten Son, that whoever believes in Him should not perish, but have everlasting life."
 >
-> - [John 3:16](${Resource.WebAppUrl.value}/bible/FBV/JHN/3/16)
+> [John 3:16](${Resource.WebAppUrl.value}/bible/FBV/JHN/3/16)
 \`\`\`
 
 Never deviate from the required output format. Your response should only contain the formatted Bible reading.`;

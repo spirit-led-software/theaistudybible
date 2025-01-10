@@ -62,7 +62,6 @@
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.38.3",
     "drizzle-zod": "0.5.1",
-    "lucia": "^3.2.2",
     "sst": "3.5.5",
     "stripe": "^17.5.0",
     "web-push": "^3.6.7",

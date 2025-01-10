@@ -33,8 +33,9 @@ export async function signIn(credentials: z.infer<typeof signInSchema>) {
     throw new AuthError('InvalidSignIn', 'Invalid password');
   }
 
-  const session = await lucia.createSession(existingUser.id, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
+  const sessionToken = lucia.sessions.generateSessionToken();
+  await lucia.sessions.createSession(sessionToken, existingUser.id);
+  const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
 
   return sessionCookie;
 }
@@ -65,8 +66,9 @@ export async function signUp(credentials: z.infer<typeof signUpSchema>) {
     }),
   ]);
 
-  const session = await lucia.createSession(user.id, {});
-  const sessionCookie = lucia.createSessionCookie(session.id);
+  const sessionToken = lucia.sessions.generateSessionToken();
+  await lucia.sessions.createSession(sessionToken, user.id);
+  const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
 
   return sessionCookie;
 }

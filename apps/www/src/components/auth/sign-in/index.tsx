@@ -1,6 +1,7 @@
 import { A } from '@solidjs/router';
 import { Logo } from '../../branding/logo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../ui/accordion';
+import { Apple, Google } from '../../ui/brand-icons';
 import { Button } from '../../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { EmailPasswordForm } from './email-password';
@@ -30,20 +31,45 @@ export const SignIn = (props: SignInProps) => {
               Sign Up
             </Button>
           </div>
-          <Accordion multiple={false} collapsible class='w-full' defaultValue={['passkey']}>
-            <AccordionItem value='passkey'>
-              <AccordionTrigger>With Passkey</AccordionTrigger>
-              <AccordionContent>
-                <PasskeyButton redirectUrl={props.redirectUrl} class='w-full' />
-              </AccordionContent>
-            </AccordionItem>
+          <div class='flex flex-wrap justify-center gap-2'>
+            <Button as='a' href='/sign-in/google' target='_blank' variant='outline'>
+              <Google class='mr-2 size-4' />
+              Google
+            </Button>
+            <Button as='a' href='/sign-in/apple' target='_blank' variant='outline'>
+              <Apple class='mr-2 size-4' />
+              Apple
+            </Button>
+            <PasskeyButton redirectUrl={props.redirectUrl} />
+          </div>
+          <Accordion multiple={false} collapsible class='w-full px-5' defaultValue={[]}>
             <AccordionItem value='email-password'>
-              <AccordionTrigger>With Email & Password</AccordionTrigger>
+              <AccordionTrigger>Email & Password</AccordionTrigger>
               <AccordionContent>
                 <EmailPasswordForm redirectUrl={props.redirectUrl} />
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+          <div class='flex flex-wrap items-baseline justify-center px-4 pb-4 text-center text-gray-500 text-xs sm:px-6'>
+            <span class='text-nowrap'>By continuing, you agree to our</span>
+            <Button
+              as={A}
+              variant='link'
+              href='/terms'
+              class='mx-1 inline-block h-fit w-fit text-nowrap p-0 text-xs'
+            >
+              Terms of Service
+            </Button>
+            <span class='text-nowrap'>and</span>
+            <Button
+              as={A}
+              variant='link'
+              href='/privacy'
+              class='mx-1 inline-block h-fit w-fit text-nowrap p-0 text-xs'
+            >
+              Privacy Policy
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

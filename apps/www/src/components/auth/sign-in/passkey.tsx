@@ -27,6 +27,7 @@ import {
 } from '@oslojs/webauthn';
 import { action, redirect, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
+import { KeyIcon } from 'lucide-solid';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 import { Button, type ButtonProps } from '../../ui/button';
@@ -104,8 +105,9 @@ const signInWithPasskeyAction = action(
       throw new Error('Invalid signature');
     }
 
-    const session = await lucia.createSession(credential.userId, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
+    const sessionToken = lucia.sessions.generateSessionToken();
+    await lucia.sessions.createSession(sessionToken, credential.userId);
+    const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
     return redirect(redirectUrl, { headers: { 'Set-Cookie': sessionCookie.serialize() } });
   },
 );
@@ -165,7 +167,8 @@ export const PasskeyButton = (props: PasskeyButtonProps) => {
 
   return (
     <Button onClick={() => onClick.mutate()} {...props}>
-      Sign In
+      <KeyIcon class='mr-2 size-4' />
+      Passkey
     </Button>
   );
 };

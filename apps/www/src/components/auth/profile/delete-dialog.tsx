@@ -22,7 +22,7 @@ const deleteUserAction = action(async () => {
   'use server';
   const { user } = requireAuth();
   await db.delete(users).where(eq(users.id, user.id));
-  const cookie = lucia.createBlankSessionCookie();
+  const cookie = lucia.cookies.createBlankSessionCookie();
   return redirect('/', { headers: { 'Set-Cookie': cookie.serialize() } });
 });
 

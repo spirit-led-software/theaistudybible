@@ -26,11 +26,21 @@ import {
 import { action, redirect, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
+import { KeyIcon } from 'lucide-solid';
 import { murmurHash } from 'ohash';
+import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { Button } from '../../ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../../ui/dialog';
 import {
   TextField,
   TextFieldErrorMessage,
@@ -145,13 +155,12 @@ const signUpWithPasskeyAction = action(
 
     createPasskeyCredential(credential);
 
-    const session = await lucia.createSession(user.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
+    const sessionToken = lucia.sessions.generateSessionToken();
+    await lucia.sessions.createSession(sessionToken, user.id);
+    const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
 
     return redirect(redirectUrl, {
-      headers: {
-        'Set-Cookie': sessionCookie.serialize(),
-      },
+      headers: { 'Set-Cookie': sessionCookie.serialize() },
     });
   },
 );
@@ -169,6 +178,8 @@ export function PasskeyForm(props: PasskeyFormProps) {
   const [form, { Form, Field }] = createForm<z.infer<typeof passkeySchema>>({
     validate: zodForm(passkeySchema),
   });
+
+  const [isOpen, setIsOpen] = createSignal(false);
 
   const onSubmit = createMutation(() => ({
     mutationFn: async ({ email }: z.infer<typeof passkeySchema>) => {
@@ -232,34 +243,51 @@ export function PasskeyForm(props: PasskeyFormProps) {
   }));
 
   return (
-    <Form onSubmit={(values) => onSubmit.mutate(values)} class='w-full space-y-4'>
-      <Field name='email'>
-        {(field, props) => (
-          <TextField
-            value={field.value}
-            validationState={field.error ? 'invalid' : 'valid'}
-            class='w-full'
-          >
-            <TextFieldLabel class='text-sm sm:text-base'>Email</TextFieldLabel>
-            <TextFieldInput
-              {...props}
-              type='email'
-              autocomplete='email'
-              class='w-full p-2 text-sm sm:text-base'
-            />
-            <TextFieldErrorMessage class='text-xs sm:text-sm'>{field.error}</TextFieldErrorMessage>
-          </TextField>
-        )}
-      </Field>
-      <div class='flex w-full flex-col items-center space-y-3'>
-        <Button
-          type='submit'
-          disabled={form.validating || form.submitting || onSubmit.isPending}
-          class='w-full'
-        >
-          Sign Up
-        </Button>
-      </div>
-    </Form>
+    <Dialog open={isOpen()} onOpenChange={setIsOpen}>
+      <DialogTrigger as={Button}>
+        <KeyIcon class='mr-2 size-4' />
+        Passkey
+      </DialogTrigger>
+      <DialogContent class='max-w-sm'>
+        <DialogHeader>
+          <DialogTitle>Sign Up with Passkey</DialogTitle>
+          <DialogDescription>Sign up using passwordless authentication.</DialogDescription>
+        </DialogHeader>
+        <Form onSubmit={(values) => onSubmit.mutate(values)} class='flex flex-col gap-4'>
+          <Field name='email'>
+            {(field, props) => (
+              <TextField
+                value={field.value}
+                validationState={field.error ? 'invalid' : 'valid'}
+                class='w-full'
+              >
+                <TextFieldLabel>Email</TextFieldLabel>
+                <TextFieldInput
+                  {...props}
+                  type='email'
+                  placeholder='your@email.com'
+                  autocomplete='email'
+                  class='p-2 text-sm sm:text-base'
+                />
+                <TextFieldErrorMessage class='text-xs sm:text-sm'>
+                  {field.error}
+                </TextFieldErrorMessage>
+              </TextField>
+            )}
+          </Field>
+          <div class='flex justify-end gap-2'>
+            <Button variant='outline' onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              type='submit'
+              disabled={form.validating || form.submitting || onSubmit.isPending}
+            >
+              Submit
+            </Button>
+          </div>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
