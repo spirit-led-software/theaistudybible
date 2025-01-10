@@ -6,22 +6,22 @@ import { ObjectParser } from '@pilcrowjs/object-parser';
 import type { APIHandler } from '@solidjs/start/server';
 import { decodeIdToken } from 'arctic';
 import type { OAuth2Tokens } from 'arctic';
+import { Resource } from 'sst';
 import { getCookie, setCookie } from 'vinxi/http';
 
 export const GET: APIHandler = async ({ nativeEvent, request }) => {
-  const storedState = getCookie(nativeEvent, 'google_oauth_state') ?? null;
-  const codeVerifier = getCookie(nativeEvent, 'google_code_verifier') ?? null;
+  const storedState = getCookie(nativeEvent, 'google_oauth_state');
+  const codeVerifier = getCookie(nativeEvent, 'google_code_verifier');
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
 
-  if (storedState === null || codeVerifier === null || code === null || state === null) {
+  if (!storedState || !codeVerifier || !code || !state) {
     return new Response('Invalid request. Please restart the process.', { status: 400 });
   }
   if (storedState !== state) {
     return new Response('Invalid request. Please restart the process.', { status: 400 });
   }
-
   let tokens: OAuth2Tokens;
   try {
     tokens = await google.validateAuthorizationCode(code, codeVerifier);
@@ -62,7 +62,7 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
     setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
     return new Response(null, {
       status: 302,
-      headers: { Location: '/' },
+      headers: { Location: `${Resource.WebAppUrl.value}/` },
     });
   }
 
@@ -82,6 +82,6 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
   setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
   return new Response(null, {
     status: 302,
-    headers: { Location: '/' },
+    headers: { Location: `${Resource.WebAppUrl.value}/` },
   });
 };

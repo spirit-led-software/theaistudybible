@@ -6,15 +6,16 @@ import { ObjectParser } from '@pilcrowjs/object-parser';
 import type { APIHandler } from '@solidjs/start/server';
 import { decodeIdToken } from 'arctic';
 import type { OAuth2Tokens } from 'arctic';
+import { Resource } from 'sst';
 import { getCookie, setCookie } from 'vinxi/http';
 
 export const POST: APIHandler = async ({ nativeEvent, request }) => {
-  const storedState = getCookie(nativeEvent, 'state') ?? null;
+  const storedState = getCookie(nativeEvent, 'state');
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
 
-  if (storedState === null || code === null || state === null) {
+  if (!storedState || !code || !state) {
     return new Response('Invalid request. Please restart the process.', { status: 400 });
   }
   if (storedState !== state) {
@@ -65,7 +66,7 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
     setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
     return new Response(null, {
       status: 302,
-      headers: { Location: '/' },
+      headers: { Location: `${Resource.WebAppUrl.value}/` },
     });
   }
 
@@ -84,6 +85,6 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
   return new Response(null, {
     status: 302,
-    headers: { Location: '/' },
+    headers: { Location: `${Resource.WebAppUrl.value}/` },
   });
 };
