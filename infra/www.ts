@@ -223,7 +223,6 @@ if (!$dev) {
       buildArgs,
       platforms: ['linux/amd64'],
       push: true,
-      network: 'host',
       cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
       cacheTo: [{ local: { dest: '/tmp/.buildx-cache-new', mode: 'max' } }],
     });
