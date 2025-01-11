@@ -26,11 +26,11 @@ export const UserButton = (props: UserButtonProps) => {
   const signOut = useAction(signOutAction);
 
   const navigate = useNavigate();
-  const { isLoaded, isSignedIn, user, invalidate } = useAuth();
+  const { isLoaded, isSignedIn, user, refetch } = useAuth();
 
   const handleSignOut = createMutation(() => ({
     mutationFn: () => Promise.resolve(signOut()),
-    onSuccess: () => invalidate(),
+    onSuccess: () => refetch(),
     onError: (error) => {
       toast.error(error.message);
     },

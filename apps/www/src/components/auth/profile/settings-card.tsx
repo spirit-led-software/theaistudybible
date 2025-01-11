@@ -62,7 +62,7 @@ export function SettingsCard() {
     queryFn: () => getBibles(),
   }));
 
-  const { settings, invalidate } = useAuth();
+  const { settings, refetch } = useAuth();
 
   const [form, { Form, Field }] = createForm<z.infer<typeof UpdateUserSettingsSchema>>({
     validate: zodForm(UpdateUserSettingsSchema),
@@ -83,7 +83,7 @@ export function SettingsCard() {
       toast.dismiss(toastId());
       toast.error(error.message);
     },
-    onSettled: () => invalidate(),
+    onSettled: () => refetch(),
   }));
 
   return (

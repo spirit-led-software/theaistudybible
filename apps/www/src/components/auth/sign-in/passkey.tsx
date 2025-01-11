@@ -120,7 +120,7 @@ export const PasskeyButton = (props: PasskeyButtonProps) => {
   const createChallenge = useAction(createChallengeAction);
   const signInWithPasskey = useAction(signInWithPasskeyAction);
 
-  const { invalidate } = useAuth();
+  const { refetch } = useAuth();
 
   const onClick = createMutation(() => ({
     mutationFn: async () => {
@@ -161,7 +161,7 @@ export const PasskeyButton = (props: PasskeyButtonProps) => {
         props.redirectUrl,
       );
     },
-    onSuccess: () => invalidate(),
+    onSuccess: () => refetch(),
     onError: (error) => toast.error(error.message),
   }));
 

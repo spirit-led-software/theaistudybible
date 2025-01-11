@@ -81,8 +81,7 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
   }
 
   let user = await db.query.users.findFirst({
-    where: (table, { eq, and, not }) =>
-      and(eq(table.email, email), not(eq(table.googleId, googleId))),
+    where: (table, { eq }) => eq(table.email, email),
   });
   if (user) {
     [user] = await db

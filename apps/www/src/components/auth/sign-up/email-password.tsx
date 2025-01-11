@@ -30,7 +30,7 @@ type EmailPasswordFormProps = {
 export function EmailPasswordForm(props: EmailPasswordFormProps) {
   const signUp = useAction(signUpAction);
 
-  const { invalidate } = useAuth();
+  const { refetch } = useAuth();
 
   const [form, { Form, Field }] = createForm<z.infer<typeof signUpSchema>>({
     validate: zodForm(signUpSchema),
@@ -41,7 +41,7 @@ export function EmailPasswordForm(props: EmailPasswordFormProps) {
 
   const onSubmit = createMutation(() => ({
     mutationFn: (values: z.infer<typeof signUpSchema>) => signUp(values, props.redirectUrl),
-    onSuccess: () => invalidate(),
+    onSuccess: () => refetch(),
     onError: (error) => toast.error(error.message),
   }));
 

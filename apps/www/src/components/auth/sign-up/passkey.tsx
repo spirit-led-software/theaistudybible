@@ -173,7 +173,7 @@ export function PasskeyForm(props: PasskeyFormProps) {
   const createChallenge = useAction(createChallengeAction);
   const signUpWithPasskey = useAction(signUpWithPasskeyAction);
 
-  const { invalidate } = useAuth();
+  const { refetch } = useAuth();
 
   const [form, { Form, Field }] = createForm<z.infer<typeof passkeySchema>>({
     validate: zodForm(passkeySchema),
@@ -238,7 +238,7 @@ export function PasskeyForm(props: PasskeyFormProps) {
         props.redirectUrl,
       );
     },
-    onSuccess: () => invalidate(),
+    onSuccess: () => refetch(),
     onError: (error) => toast.error(error.message),
   }));
 

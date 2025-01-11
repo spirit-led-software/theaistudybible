@@ -32,7 +32,7 @@ const updateUserAction = action(async (values: UpdateUser) => {
 export const EditProfileDialog = () => {
   const updateUser = useAction(updateUserAction);
 
-  const { user, invalidate } = useAuth();
+  const { user, refetch } = useAuth();
 
   const [toastId, setToastId] = createSignal<string | number>();
   const [open, setOpen] = createSignal(false);
@@ -52,10 +52,10 @@ export const EditProfileDialog = () => {
       setToastId(toast.loading('Updating profile...', { duration: Number.POSITIVE_INFINITY }));
     },
     onSuccess: () => {
-      invalidate();
       toast.dismiss(toastId());
       toast.success('Profile updated');
       setOpen(false);
+      return refetch();
     },
     onError: (error) => {
       toast.dismiss(toastId());

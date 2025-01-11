@@ -43,7 +43,7 @@ const requestUploadAction = action(
 export function UpdateAvatarDialog() {
   const requestUpload = useAction(requestUploadAction);
 
-  const { user, invalidate } = useAuth();
+  const { user, refetch } = useAuth();
 
   const [toastId, setToastId] = createSignal<string | number>();
   const [open, setOpen] = createSignal(false);
@@ -68,7 +68,7 @@ export function UpdateAvatarDialog() {
       setOpen(false);
       // Need to wait a few seconds for the
       // bucket function to update the user
-      setTimeout(() => invalidate(), 5000);
+      setTimeout(() => refetch(), 5000);
     },
     onError: (error) => {
       toast.dismiss(toastId());

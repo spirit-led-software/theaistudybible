@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '../../ui/card';
 import { GradientH1, H4 } from '../../ui/typography';
 import { UpdateAvatarDialog } from './avatar/update-dialog';
 import { DeleteProfileDialog } from './delete-dialog';
+import { LinkedAccounts } from './linked-accounts';
 import { EditProfileDialog } from './update-dialog';
 
 export const InfoCard = () => {
@@ -50,6 +51,9 @@ export const InfoCard = () => {
             <h4 class='truncate text-sm sm:text-base'>{user()?.email}</h4>
           </div>
         </div>
+        <Show when={user()?.googleId || user()?.appleId}>
+          <LinkedAccounts />
+        </Show>
       </CardContent>
       <CardFooter class='flex justify-center gap-2'>
         <EditProfileDialog />

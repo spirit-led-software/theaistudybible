@@ -29,7 +29,7 @@ const deleteUserAction = action(async () => {
 export const DeleteProfileDialog = () => {
   const deleteUser = useAction(deleteUserAction);
 
-  const { invalidate } = useAuth();
+  const { refetch } = useAuth();
 
   const [toastId, setToastId] = createSignal<string | number>();
   const [open, setOpen] = createSignal(false);
@@ -40,10 +40,10 @@ export const DeleteProfileDialog = () => {
       setToastId(toast.loading('Deleting profile...', { duration: Number.POSITIVE_INFINITY }));
     },
     onSuccess: () => {
-      invalidate();
       toast.dismiss(toastId());
       toast.success('Profile deleted');
       setOpen(false);
+      return refetch();
     },
     onError: (error) => {
       toast.dismiss(toastId());
@@ -53,7 +53,9 @@ export const DeleteProfileDialog = () => {
 
   return (
     <Dialog open={open()} onOpenChange={setOpen}>
-      <DialogTrigger as={Button}>Delete Profile</DialogTrigger>
+      <DialogTrigger as={Button} variant='destructive'>
+        Delete Profile
+      </DialogTrigger>
       <DialogContent>
         <DialogTitle>Delete Profile</DialogTitle>
         <DialogDescription>
