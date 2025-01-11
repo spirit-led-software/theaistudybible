@@ -24,9 +24,6 @@ export const GET: APIHandler = ({ nativeEvent }) => {
   });
 
   return Promise.resolve(
-    new Response(null, {
-      status: 302,
-      headers: { Location: url.toString() },
-    }),
+    new Response(null, { status: 302, headers: { Location: url.toString() } }),
   );
 };

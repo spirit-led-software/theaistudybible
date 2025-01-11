@@ -12,6 +12,7 @@ import { getCookie, setCookie } from 'vinxi/http';
 export const GET: APIHandler = async ({ nativeEvent, request }) => {
   const storedState = getCookie(nativeEvent, 'google_oauth_state');
   const codeVerifier = getCookie(nativeEvent, 'google_code_verifier');
+
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
@@ -42,13 +43,6 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
   const claimsParser = new ObjectParser(claims);
 
   const googleId = claimsParser.getString('sub');
-  const expirationDate = claimsParser.getNumber('exp');
-  if (expirationDate < new Date().getTime()) {
-    return new Response('Token expired.', {
-      status: 400,
-      headers: { 'Content-Type': 'text/plain' },
-    });
-  }
 
   const name = claimsParser.getString('name');
   const picture = claimsParser.getString('picture');

@@ -1,3 +1,4 @@
+import { useColorMode } from '@kobalte/core/color-mode';
 import type { ComponentProps } from 'solid-js';
 
 export const Chrome = (props: ComponentProps<'svg'>) => {
@@ -174,9 +175,10 @@ export const Google = (props: ComponentProps<'svg'>) => {
 };
 
 export const Apple = (props: ComponentProps<'svg'>) => {
+  const { colorMode } = useColorMode();
   return (
     <svg
-      fill='#000000'
+      fill={colorMode() === 'light' ? '#000000' : '#ffffff'}
       height='200px'
       width='200px'
       version='1.1'

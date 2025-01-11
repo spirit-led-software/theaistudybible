@@ -10,7 +10,8 @@ import { Resource } from 'sst';
 import { getCookie, setCookie } from 'vinxi/http';
 
 export const POST: APIHandler = async ({ nativeEvent, request }) => {
-  const storedState = getCookie(nativeEvent, 'state');
+  const storedState = getCookie(nativeEvent, 'apple_oauth_state');
+
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
@@ -42,13 +43,6 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   const claimsParser = new ObjectParser(claims);
 
   const appleId = claimsParser.getString('sub');
-  const expirationDate = claimsParser.getNumber('exp');
-  if (expirationDate < new Date().getTime()) {
-    return new Response('Token expired.', {
-      status: 400,
-      headers: { 'Content-Type': 'text/plain' },
-    });
-  }
 
   const body = await request.formData();
   const name = body.get('name') as { firstName: string; lastName: string } | null;
@@ -67,10 +61,7 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   if (existingUserByEmail && existingUserByEmail.appleId !== appleId) {
     return new Response(
       'A user already exists with this email address. You may have signed up with a different method.',
-      {
-        status: 400,
-        headers: { 'Content-Type': 'text/plain' },
-      },
+      { status: 400, headers: { 'Content-Type': 'text/plain' } },
     );
   }
 
@@ -97,10 +88,12 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
       lastName: name.lastName,
     })
     .returning();
+
   const sessionToken = lucia.sessions.generateSessionToken();
   await lucia.sessions.createSession(sessionToken, user.id);
   const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
   setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+
   return new Response(null, {
     status: 302,
     headers: { Location: `${Resource.WebAppUrl.value}/` },

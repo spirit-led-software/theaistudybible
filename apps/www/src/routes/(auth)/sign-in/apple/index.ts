@@ -8,7 +8,7 @@ export const GET: APIHandler = ({ nativeEvent }) => {
   const url = apple.createAuthorizationURL(state, ['name', 'email']);
   url.searchParams.set('response_mode', 'form_post');
 
-  setCookie(nativeEvent, 'state', state, {
+  setCookie(nativeEvent, 'apple_oauth_state', state, {
     httpOnly: true,
     maxAge: 60 * 10,
     secure: import.meta.env.PROD,
@@ -17,9 +17,6 @@ export const GET: APIHandler = ({ nativeEvent }) => {
   });
 
   return Promise.resolve(
-    new Response(null, {
-      status: 302,
-      headers: { Location: url.toString() },
-    }),
+    new Response(null, { status: 302, headers: { Location: url.toString() } }),
   );
 };

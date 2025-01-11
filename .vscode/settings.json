@@ -32,7 +32,8 @@
     "tailwindcss",
     "theaistudybible",
     "turso",
-    "upstash"
+    "upstash",
+    "vinxi"
   ],
   "editor.codeActionsOnSave": {
     "quickfix.biome": "explicit",
