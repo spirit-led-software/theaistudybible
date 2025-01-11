@@ -5,7 +5,7 @@ import { users } from '@/core/database/schema';
 import { ObjectParser } from '@pilcrowjs/object-parser';
 import type { APIHandler } from '@solidjs/start/server';
 import { decodeIdToken } from 'arctic';
-import type { OAuth2Tokens } from 'arctic';
+import { eq } from 'drizzle-orm';
 import { getCookie, setCookie } from 'vinxi/http';
 
 export const GET: APIHandler = async ({ nativeEvent, request }) => {
@@ -28,30 +28,33 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
       headers: { 'Content-Type': 'text/plain' },
     });
   }
-  let tokens: OAuth2Tokens;
+
+  let googleId: string;
+  let name: string | undefined;
+  let picture: string | undefined;
+  let email: string | undefined;
   try {
-    tokens = await google.validateAuthorizationCode(code, codeVerifier);
-  } catch {
-    return new Response('Invalid authorization code.', {
-      status: 400,
-      headers: { 'Content-Type': 'text/plain' },
-    });
-  }
+    const tokens = await google.validateAuthorizationCode(code, codeVerifier);
+    const claims = decodeIdToken(tokens.idToken());
+    const claimsParser = new ObjectParser(claims);
 
-  const claims = decodeIdToken(tokens.idToken());
-  const claimsParser = new ObjectParser(claims);
+    if (!claimsParser.has('sub')) {
+      throw new Error('Missing sub claim');
+    }
+    googleId = claimsParser.getString('sub');
 
-  const googleId = claimsParser.getString('sub');
-  const name = claimsParser.getString('name');
-  const picture = claimsParser.getString('picture');
-  const email = claimsParser.getString('email');
-
-  const existingUserByEmail = await db.query.users.findFirst({
-    where: (table, { eq }) => eq(table.email, email),
-  });
-  if (existingUserByEmail && existingUserByEmail.googleId !== googleId) {
+    if (claimsParser.has('name')) {
+      name = claimsParser.getString('name');
+    }
+    if (claimsParser.has('picture')) {
+      picture = claimsParser.getString('picture');
+    }
+    if (claimsParser.has('email')) {
+      email = claimsParser.getString('email');
+    }
+  } catch (e) {
     return new Response(
-      'A user already exists with this email address. You may have signed up with a different method.',
+      `Invalid authorization code. ${e instanceof Error ? e.message : 'Unknown error'}`,
       { status: 400, headers: { 'Content-Type': 'text/plain' } },
     );
   }
@@ -70,20 +73,46 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
     });
   }
 
-  const [user] = await db
-    .insert(users)
-    .values({
-      googleId,
-      email,
-      firstName: name.split(' ')[0],
-      lastName: name.split(' ')[1],
-      image: picture,
-    })
-    .returning();
+  if (!email) {
+    return new Response('Email address is required for sign-up.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
+  }
+
+  let user = await db.query.users.findFirst({
+    where: (table, { eq, and, not }) =>
+      and(eq(table.email, email), not(eq(table.googleId, googleId))),
+  });
+  if (user) {
+    [user] = await db
+      .update(users)
+      .set({
+        googleId,
+        firstName: name?.split(' ')[0],
+        lastName: name?.split(' ')[1],
+        image: picture,
+      })
+      .where(eq(users.id, user.id))
+      .returning();
+  } else {
+    [user] = await db
+      .insert(users)
+      .values({
+        googleId,
+        email,
+        firstName: name?.split(' ')[0],
+        lastName: name?.split(' ')[1],
+        image: picture,
+      })
+      .returning();
+  }
+
   const sessionToken = lucia.sessions.generateSessionToken();
   const session = await lucia.sessions.createSession(sessionToken, user.id);
   const sessionCookie = lucia.cookies.createSessionCookie(sessionToken, session);
   setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+
   return new Response(null, {
     status: 302,
     headers: { Location: '/' },

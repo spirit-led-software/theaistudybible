@@ -5,8 +5,10 @@ import { users } from '@/core/database/schema';
 import { ObjectParser } from '@pilcrowjs/object-parser';
 import type { APIHandler } from '@solidjs/start/server';
 import { decodeIdToken } from 'arctic';
-import type { OAuth2Tokens } from 'arctic';
+import { eq } from 'drizzle-orm';
 import { getCookie, setCookie } from 'vinxi/http';
+
+type AppleNameObject = { firstName?: string; lastName?: string };
 
 export const POST: APIHandler = async ({ nativeEvent, request }) => {
   const storedState = getCookie(nativeEvent, 'apple_oauth_state');
@@ -27,29 +29,29 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
     });
   }
 
-  let tokens: OAuth2Tokens;
+  let appleId: string;
+  let name: AppleNameObject | undefined;
+  let email: string | undefined;
   try {
-    tokens = await apple.validateAuthorizationCode(code);
-  } catch {
-    return new Response('Invalid authorization code.', {
-      status: 400,
-      headers: { 'Content-Type': 'text/plain' },
-    });
-  }
+    const tokens = await apple.validateAuthorizationCode(code);
+    const claims = decodeIdToken(tokens.idToken());
+    const claimsParser = new ObjectParser(claims);
 
-  const claims = decodeIdToken(tokens.idToken());
-  const claimsParser = new ObjectParser(claims);
+    if (!claimsParser.has('sub')) {
+      throw new Error('Missing sub claim');
+    }
+    appleId = claimsParser.getString('sub');
 
-  const appleId = claimsParser.getString('sub');
-  const name = claimsParser.getObject('name') as { firstName: string; lastName: string };
-  const email = claimsParser.getString('email');
+    if (claimsParser.has('name')) {
+      name = claimsParser.getObject('name') as AppleNameObject;
+    }
 
-  const existingUserByEmail = await db.query.users.findFirst({
-    where: (table, { eq }) => eq(table.email, email),
-  });
-  if (existingUserByEmail && existingUserByEmail.appleId !== appleId) {
+    if (claimsParser.has('email')) {
+      email = claimsParser.getString('email');
+    }
+  } catch (e) {
     return new Response(
-      'A user already exists with this email address. You may have signed up with a different method.',
+      `Invalid authorization code. ${e instanceof Error ? e.message : 'Unknown error'}`,
       { status: 400, headers: { 'Content-Type': 'text/plain' } },
     );
   }
@@ -68,15 +70,28 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
     });
   }
 
-  const [user] = await db
-    .insert(users)
-    .values({
-      appleId,
-      email,
-      firstName: name.firstName,
-      lastName: name.lastName,
-    })
-    .returning();
+  if (!email) {
+    return new Response('Email address is required for sign-up.', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' },
+    });
+  }
+
+  let user = await db.query.users.findFirst({
+    where: (table, { eq }) => eq(table.email, email),
+  });
+  if (user) {
+    [user] = await db
+      .update(users)
+      .set({ appleId, firstName: name?.firstName, lastName: name?.lastName })
+      .where(eq(users.id, user.id))
+      .returning();
+  } else {
+    [user] = await db
+      .insert(users)
+      .values({ appleId, email, firstName: name?.firstName, lastName: name?.lastName })
+      .returning();
+  }
 
   const sessionToken = lucia.sessions.generateSessionToken();
   const session = await lucia.sessions.createSession(sessionToken, user.id);
