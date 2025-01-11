@@ -50,12 +50,19 @@ export function BookPicker() {
 
   return (
     <Popover placement='bottom-start'>
-      <PopoverTrigger as={Button} variant='outline' class='justify-between text-nowrap'>
-        {brStore.book.shortName} {brStore.chapter.number}
+      <PopoverTrigger
+        as={Button}
+        variant='outline'
+        class='max-w-40 justify-between text-nowrap sm:max-w-[unset]'
+      >
+        <span class='truncate'>
+          {brStore.book.shortName} {brStore.chapter.number}
+          {brStore.verse ? `:${brStore.verse.number}` : ''}
+        </span>
         <ChevronsUpDown class='ml-2 h-4 w-4 shrink-0 opacity-50' />
       </PopoverTrigger>
       <PopoverContent class='w-[250px] p-0'>
-        <Command>
+        <Command value={brStore.book.shortName}>
           <CommandInput placeholder='Search books...' />
           <QueryBoundary query={query}>
             {({ books }) => (

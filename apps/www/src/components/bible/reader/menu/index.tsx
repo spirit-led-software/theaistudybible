@@ -8,7 +8,7 @@ import { SmallTranslationPicker } from './translation-picker/small';
 export const BibleReaderMenu = () => {
   const [brStore] = useBibleReaderStore();
   return (
-    <div class='flex w-full flex-wrap items-center gap-2'>
+    <div class='fixed top-20 flex flex-wrap items-center gap-2 rounded-br-lg bg-background/80 p-2 backdrop-blur-sm'>
       <BookPicker />
       <SmallTranslationPicker />
       <Switch>

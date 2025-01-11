@@ -175,7 +175,10 @@ export function VerseReader(props: VerseReaderProps) {
   );
 
   return (
-    <div class='flex max-w-3xl flex-col items-center px-8 py-5' ref={setContainerRef}>
+    <div
+      class='flex h-full w-full max-w-3xl flex-1 flex-col justify-center py-5'
+      ref={setContainerRef}
+    >
       <QueryBoundary
         query={query}
         notFoundFallback={
@@ -228,86 +231,79 @@ export function VerseReader(props: VerseReaderProps) {
           return (
             <BibleReaderProvider bible={bible} book={book} chapter={chapter} verse={verse}>
               <BibleReaderMenu />
-              <div class='mt-10'>
-                <div class='flex w-full justify-center'>
-                  <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                    {verse.name}
-                  </H1>
-                </div>
-                <div class='mt-10 mb-5'>
-                  <ReaderContent contents={verse.content} />
-                </div>
-                <div class='mb-20 flex flex-col items-center gap-2'>
-                  <Muted>
-                    Copyright
-                    <Copyright class='mx-2 inline-block size-4' />
-                    <Button
-                      as={A}
-                      variant='link'
-                      href={rightsHolder.url}
-                      class='p-0 text-muted-foreground'
-                    >
-                      {rightsHolder.nameLocal}
-                    </Button>
-                  </Muted>
-                  <div innerHTML={bible.copyrightStatement} class='text-muted-foreground text-xs' />
-                </div>
-                <div class='flex w-full flex-col items-center'>
+              <div class='mt-12 mb-5'>
+                <ReaderContent contents={verse.content} />
+              </div>
+              <div class='mb-20 flex flex-col items-center gap-2'>
+                <Muted>
+                  Copyright
+                  <Copyright class='mx-2 inline-block size-4' />
                   <Button
                     as={A}
-                    href={`/bible/${bible.abbreviation}/${book.code}/${chapter.number}`}
-                    variant='outline'
+                    variant='link'
+                    href={rightsHolder.url}
+                    class='p-0 text-muted-foreground'
                   >
-                    View all of <strong class='ml-1'>{chapter.name}</strong>
+                    {rightsHolder.nameLocal}
                   </Button>
-                </div>
-                <Show when={previousVerse} keyed>
-                  {(previousVerse) => {
-                    preload(previousVerseRoute, { preloadData: true });
-                    return (
-                      <Tooltip placement='right'>
-                        <TooltipTrigger
-                          as={A}
-                          class={cn(
-                            buttonVariants(),
-                            'sm:-translate-y-1/2 fixed bottom-safe-offset-1 left-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:left-safe-offset-2 md:size-12 lg:left-[12%] lg:size-14',
-                            isRouting() && 'pointer-events-none opacity-50',
-                          )}
-                          href={previousVerseRoute}
-                        >
-                          <ChevronLeft size={20} class='shrink-0' />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{previousVerse.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  }}
-                </Show>
-                <Show when={nextVerse} keyed>
-                  {(nextVerse) => {
-                    preload(nextVerseRoute, { preloadData: true });
-                    return (
-                      <Tooltip placement='left'>
-                        <TooltipTrigger
-                          as={A}
-                          class={cn(
-                            buttonVariants(),
-                            'sm:-translate-y-1/2 fixed right-safe-offset-1 bottom-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:right-safe-offset-2 md:size-12 lg:right-[12%] lg:size-14',
-                            isRouting() && 'pointer-events-none opacity-50',
-                          )}
-                          href={nextVerseRoute}
-                        >
-                          <ChevronRight size={20} class='shrink-0' />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{nextVerse.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  }}
-                </Show>
+                </Muted>
+                <div innerHTML={bible.copyrightStatement} class='text-muted-foreground text-xs' />
               </div>
+              <div class='flex w-full flex-col items-center'>
+                <Button
+                  as={A}
+                  href={`/bible/${bible.abbreviation}/${book.code}/${chapter.number}`}
+                  variant='outline'
+                >
+                  View all of <strong class='ml-1'>{chapter.name}</strong>
+                </Button>
+              </div>
+              <Show when={previousVerse} keyed>
+                {(previousVerse) => {
+                  preload(previousVerseRoute, { preloadData: true });
+                  return (
+                    <Tooltip placement='right'>
+                      <TooltipTrigger
+                        as={A}
+                        class={cn(
+                          buttonVariants(),
+                          'sm:-translate-y-1/2 fixed bottom-safe-offset-1 left-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:left-safe-offset-2 md:size-12 lg:left-[12%] lg:size-14',
+                          isRouting() && 'pointer-events-none opacity-50',
+                        )}
+                        href={previousVerseRoute}
+                      >
+                        <ChevronLeft size={20} class='shrink-0' />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{previousVerse.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                }}
+              </Show>
+              <Show when={nextVerse} keyed>
+                {(nextVerse) => {
+                  preload(nextVerseRoute, { preloadData: true });
+                  return (
+                    <Tooltip placement='left'>
+                      <TooltipTrigger
+                        as={A}
+                        class={cn(
+                          buttonVariants(),
+                          'sm:-translate-y-1/2 fixed right-safe-offset-1 bottom-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:right-safe-offset-2 md:size-12 lg:right-[12%] lg:size-14',
+                          isRouting() && 'pointer-events-none opacity-50',
+                        )}
+                        href={nextVerseRoute}
+                      >
+                        <ChevronRight size={20} class='shrink-0' />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{nextVerse.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                }}
+              </Show>
             </BibleReaderProvider>
           );
         }}

@@ -177,77 +177,70 @@ export function ChapterReader(props: ChapterReaderProps) {
           return (
             <BibleReaderProvider bible={bible} book={book} chapter={chapter}>
               <BibleReaderMenu />
-              <div class='mt-10 h-full w-full flex-1 overflow-y-auto sm:px-10'>
-                <div class='flex w-full justify-center'>
-                  <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                    {chapter.name}
-                  </H1>
-                </div>
-                <div class='mt-10 mb-5'>
-                  <ReaderContent contents={chapter.content} />
-                </div>
-                <div class='mb-20 flex flex-col items-center gap-2'>
-                  <Muted>
-                    Copyright
-                    <Copyright class='mx-2 inline-block size-4' />
-                    <Button
-                      as={A}
-                      variant='link'
-                      href={rightsHolder.url}
-                      class='p-0 text-muted-foreground'
-                    >
-                      {rightsHolder.nameLocal}
-                    </Button>
-                  </Muted>
-                  <div innerHTML={bible.copyrightStatement} class='text-muted-foreground text-xs' />
-                </div>
-                <Show when={previousChapter} keyed>
-                  {(previousChapter) => {
-                    preload(previousChapterRoute, { preloadData: true });
-                    return (
-                      <Tooltip placement='right'>
-                        <TooltipTrigger
-                          as={A}
-                          class={cn(
-                            buttonVariants(),
-                            'sm:-translate-y-1/2 fixed bottom-safe-offset-1 left-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:left-safe-offset-2 md:size-12 lg:left-[12%] lg:size-14',
-                            isRouting() && 'pointer-events-none opacity-50',
-                          )}
-                          href={previousChapterRoute}
-                        >
-                          <ChevronLeft />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{previousChapter.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  }}
-                </Show>
-                <Show when={nextChapter} keyed>
-                  {(nextChapter) => {
-                    preload(nextChapterRoute, { preloadData: true });
-                    return (
-                      <Tooltip placement='left'>
-                        <TooltipTrigger
-                          as={A}
-                          class={cn(
-                            buttonVariants(),
-                            'sm:-translate-y-1/2 fixed right-safe-offset-1 bottom-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:right-safe-offset-2 md:size-12 lg:right-[12%] lg:size-14',
-                            isRouting() && 'pointer-events-none opacity-50',
-                          )}
-                          href={nextChapterRoute}
-                        >
-                          <ChevronRight />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{nextChapter.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  }}
-                </Show>
+              <div class='mt-12 mb-5'>
+                <ReaderContent contents={chapter.content} />
               </div>
+              <div class='mb-20 flex flex-col items-center gap-2'>
+                <Muted>
+                  Copyright
+                  <Copyright class='mx-2 inline-block size-4' />
+                  <Button
+                    as={A}
+                    variant='link'
+                    href={rightsHolder.url}
+                    class='p-0 text-muted-foreground'
+                  >
+                    {rightsHolder.nameLocal}
+                  </Button>
+                </Muted>
+                <div innerHTML={bible.copyrightStatement} class='text-muted-foreground text-xs' />
+              </div>
+              <Show when={previousChapter} keyed>
+                {(previousChapter) => {
+                  preload(previousChapterRoute, { preloadData: true });
+                  return (
+                    <Tooltip placement='right'>
+                      <TooltipTrigger
+                        as={A}
+                        class={cn(
+                          buttonVariants(),
+                          'sm:-translate-y-1/2 fixed bottom-safe-offset-1 left-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:left-safe-offset-2 md:size-12 lg:left-[12%] lg:size-14',
+                          isRouting() && 'pointer-events-none opacity-50',
+                        )}
+                        href={previousChapterRoute}
+                      >
+                        <ChevronLeft />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{previousChapter.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                }}
+              </Show>
+              <Show when={nextChapter} keyed>
+                {(nextChapter) => {
+                  preload(nextChapterRoute, { preloadData: true });
+                  return (
+                    <Tooltip placement='left'>
+                      <TooltipTrigger
+                        as={A}
+                        class={cn(
+                          buttonVariants(),
+                          'sm:-translate-y-1/2 fixed right-safe-offset-1 bottom-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:right-safe-offset-2 md:size-12 lg:right-[12%] lg:size-14',
+                          isRouting() && 'pointer-events-none opacity-50',
+                        )}
+                        href={nextChapterRoute}
+                      >
+                        <ChevronRight />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{nextChapter.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                }}
+              </Show>
             </BibleReaderProvider>
           );
         }}
