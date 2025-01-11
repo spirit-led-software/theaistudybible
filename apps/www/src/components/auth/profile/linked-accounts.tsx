@@ -7,10 +7,10 @@ import { requireAuth } from '@/www/server/auth';
 import { action, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
-import { Apple, X } from 'lucide-solid';
+import { X } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
-import { Google } from '../../ui/brand-icons';
+import { Apple, Google } from '../../ui/brand-icons';
 import { Button } from '../../ui/button';
 import { GradientH3 } from '../../ui/typography';
 

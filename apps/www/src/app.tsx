@@ -62,6 +62,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <SolidQueryDevtools initialIsOpen={false} buttonPosition='top-left' />
       <SentryRouter
+        explicitLinks
         root={(props) => (
           <PosthogProvider>
             <MetaProvider>

@@ -32,11 +32,11 @@ export const SignIn = (props: SignInProps) => {
             </Button>
           </div>
           <div class='flex flex-wrap justify-center gap-2'>
-            <Button as='a' href='/sign-in/google' target='_blank' variant='outline'>
+            <Button as='a' href='/sign-in/google/authorize' variant='outline'>
               <Google class='mr-2 size-4' />
               Google
             </Button>
-            <Button as='a' href='/sign-in/apple' target='_blank' variant='outline'>
+            <Button as='a' href='/sign-in/apple/authorize' variant='outline'>
               <Apple class='mr-2 size-4' />
               Apple
             </Button>

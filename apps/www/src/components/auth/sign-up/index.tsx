@@ -32,11 +32,11 @@ export function SignUp(props: SignUpProps) {
             </Button>
           </div>
           <div class='flex flex-wrap justify-center gap-2'>
-            <Button as='a' href='/sign-up/google' target='_blank' variant='outline'>
+            <Button as='a' href='/sign-up/google/authorize' variant='outline'>
               <Google class='mr-2 size-4' />
               Google
             </Button>
-            <Button as='a' href='/sign-up/apple' target='_blank' variant='outline'>
+            <Button as='a' href='/sign-up/apple/authorize' variant='outline'>
               <Apple class='mr-2 size-4' />
               Apple
             </Button>
