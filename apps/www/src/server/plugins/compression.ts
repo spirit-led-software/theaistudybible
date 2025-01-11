@@ -85,8 +85,6 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
         readable = Readable.from(response.body);
       } else if (response.body instanceof ReadableStream) {
         readable = Readable.fromWeb(response.body);
-      } else if (typeof response.body === 'object') {
-        readable = Readable.from(JSON.stringify(response.body));
       } else {
         readable = Readable.fromWeb(
           // biome-ignore lint/suspicious/noExplicitAny: Any type is fine here
