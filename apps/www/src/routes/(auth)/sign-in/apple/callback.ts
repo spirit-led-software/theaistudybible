@@ -10,10 +10,9 @@ import { getCookie, setCookie } from 'vinxi/http';
 
 export const POST: APIHandler = async ({ nativeEvent, request }) => {
   const storedState = getCookie(nativeEvent, 'apple_oauth_state');
-
-  const url = new URL(request.url);
-  const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
+  const body = await request.formData();
+  const code = body.get('code') as string | null;
+  const state = body.get('state') as string | null;
 
   if (!storedState || !code || !state) {
     return new Response('Missing required parameters.', {
@@ -42,17 +41,8 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   const claimsParser = new ObjectParser(claims);
 
   const appleId = claimsParser.getString('sub');
-
-  const body = await request.formData();
-  const name = body.get('name') as { firstName: string; lastName: string } | null;
-  const email = body.get('email') as string | null;
-
-  if (!name || !email) {
-    return new Response('Invalid request body.', {
-      status: 400,
-      headers: { 'Content-Type': 'text/plain' },
-    });
-  }
+  const name = claimsParser.getObject('name') as { firstName: string; lastName: string };
+  const email = claimsParser.getString('email');
 
   const existingUserByEmail = await db.query.users.findFirst({
     where: (table, { eq }) => eq(table.email, email),

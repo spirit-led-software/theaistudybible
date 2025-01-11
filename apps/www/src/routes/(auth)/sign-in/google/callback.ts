@@ -42,7 +42,6 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
   const claimsParser = new ObjectParser(claims);
 
   const googleId = claimsParser.getString('sub');
-
   const name = claimsParser.getString('name');
   const picture = claimsParser.getString('picture');
   const email = claimsParser.getString('email');
