@@ -57,13 +57,7 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
     return;
   }
 
-  if (
-    typeof response.body === 'undefined' ||
-    (typeof response.body !== 'string' &&
-      !Buffer.isBuffer(response.body) &&
-      !(response.body instanceof ReadableStream) &&
-      !(response.body instanceof Readable))
-  ) {
+  if (typeof response.body === 'undefined' || response.body === null) {
     return;
   }
 
@@ -83,14 +77,22 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
     let readable: Readable | undefined;
 
     try {
-      const stream = (
-        response.body instanceof ReadableStream
-          ? response.body
-          : response.body instanceof Readable
-            ? ReadableStream.from(response.body)
-            : new Response(response.body).body!
-      ) as ReadableStream;
-      readable = Readable.fromWeb(stream);
+      if (response.body instanceof Readable) {
+        readable = response.body;
+      } else if (typeof response.body === 'string') {
+        readable = Readable.from(response.body);
+      } else if (Buffer.isBuffer(response.body)) {
+        readable = Readable.from(response.body);
+      } else if (response.body instanceof ReadableStream) {
+        readable = Readable.fromWeb(response.body);
+      } else if (typeof response.body === 'object') {
+        readable = Readable.from(JSON.stringify(response.body));
+      } else {
+        readable = Readable.fromWeb(
+          // biome-ignore lint/suspicious/noExplicitAny: Any type is fine here
+          new Response(response.body as any).body! as unknown as ReadableStream,
+        );
+      }
 
       readable.on('end', () => readable?.destroy());
       readable.on('close', () => readable?.destroy());
