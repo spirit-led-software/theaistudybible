@@ -44,9 +44,7 @@ export function SignUp(props: SignUpProps) {
           </div>
           <Accordion multiple={false} collapsible class='w-full' defaultValue={[]}>
             <AccordionItem value='email-password'>
-              <AccordionTrigger class='justify-center gap-4'>
-                With Email & Password
-              </AccordionTrigger>
+              <AccordionTrigger>With Email & Password</AccordionTrigger>
               <AccordionContent>
                 <EmailPasswordForm redirectUrl={props.redirectUrl} />
               </AccordionContent>
