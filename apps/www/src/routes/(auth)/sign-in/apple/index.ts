@@ -10,7 +10,7 @@ export const GET: APIHandler = ({ nativeEvent }) => {
 
   setCookie(nativeEvent, 'apple_oauth_state', state, {
     httpOnly: true,
-    maxAge: 60 * 10,
+    maxAge: 60 * 15,
     secure: import.meta.env.PROD,
     path: '/',
     sameSite: 'none',

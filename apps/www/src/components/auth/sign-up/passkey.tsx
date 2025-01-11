@@ -156,8 +156,8 @@ const signUpWithPasskeyAction = action(
     createPasskeyCredential(credential);
 
     const sessionToken = lucia.sessions.generateSessionToken();
-    await lucia.sessions.createSession(sessionToken, user.id);
-    const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
+    const session = await lucia.sessions.createSession(sessionToken, user.id);
+    const sessionCookie = lucia.cookies.createSessionCookie(sessionToken, session);
 
     return redirect(redirectUrl, {
       headers: { 'Set-Cookie': sessionCookie.serialize() },

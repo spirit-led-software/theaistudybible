@@ -10,14 +10,14 @@ export const GET: APIHandler = ({ nativeEvent }) => {
 
   setCookie(nativeEvent, 'google_oauth_state', state, {
     httpOnly: true,
-    maxAge: 60 * 10,
+    maxAge: 60 * 15,
     secure: import.meta.env.PROD,
     path: '/',
     sameSite: 'lax',
   });
   setCookie(nativeEvent, 'google_code_verifier', codeVerifier, {
     httpOnly: true,
-    maxAge: 60 * 10,
+    maxAge: 60 * 15,
     secure: import.meta.env.PROD,
     path: '/',
     sameSite: 'lax',

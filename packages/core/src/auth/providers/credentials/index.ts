@@ -34,8 +34,8 @@ export async function signIn(credentials: z.infer<typeof signInSchema>) {
   }
 
   const sessionToken = lucia.sessions.generateSessionToken();
-  await lucia.sessions.createSession(sessionToken, existingUser.id);
-  const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
+  const session = await lucia.sessions.createSession(sessionToken, existingUser.id);
+  const sessionCookie = lucia.cookies.createSessionCookie(sessionToken, session);
 
   return sessionCookie;
 }
@@ -67,8 +67,8 @@ export async function signUp(credentials: z.infer<typeof signUpSchema>) {
   ]);
 
   const sessionToken = lucia.sessions.generateSessionToken();
-  await lucia.sessions.createSession(sessionToken, user.id);
-  const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
+  const session = await lucia.sessions.createSession(sessionToken, user.id);
+  const sessionCookie = lucia.cookies.createSessionCookie(sessionToken, session);
 
   return sessionCookie;
 }

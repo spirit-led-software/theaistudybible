@@ -1,32 +1,28 @@
-class SessionCookie {
+import type { Session } from '@/schemas/users/types';
+import { type CookieSerializeOptions, serialize } from 'cookie';
+import { Resource } from 'sst';
+
+export class SessionCookie {
   constructor(
     public name: string,
     public value: string,
-    public attributes: {
-      path: string;
-      maxAge: number;
-      sameSite: 'lax' | 'strict' | 'none';
-      httpOnly: boolean;
-      secure: boolean;
-    },
+    public attributes: CookieSerializeOptions,
   ) {}
 
   serialize() {
-    return `${this.name}=${this.value}; ${Object.entries(this.attributes)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('; ')}`;
+    return serialize(this.name, this.value, this.attributes);
   }
 }
 
 export const sessionCookieName = 'auth_session';
 
-export function createSessionCookie(sessionToken: string): SessionCookie {
-  return new SessionCookie(sessionCookieName, sessionToken, {
+export function createSessionCookie(token: string, session: Session): SessionCookie {
+  return new SessionCookie(sessionCookieName, token, {
     path: '/',
-    maxAge: 0,
+    expires: session.expiresAt,
     sameSite: 'lax',
     httpOnly: true,
-    secure: true,
+    secure: Resource.Dev.value !== 'true',
   });
 }
 
@@ -36,6 +32,6 @@ export function createBlankSessionCookie(): SessionCookie {
     maxAge: 0,
     sameSite: 'lax',
     httpOnly: true,
-    secure: true,
+    secure: Resource.Dev.value !== 'true',
   });
 }

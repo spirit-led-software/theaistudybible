@@ -6,7 +6,6 @@ import { ObjectParser } from '@pilcrowjs/object-parser';
 import type { APIHandler } from '@solidjs/start/server';
 import { decodeIdToken } from 'arctic';
 import type { OAuth2Tokens } from 'arctic';
-import { Resource } from 'sst';
 import { getCookie, setCookie } from 'vinxi/http';
 
 export const POST: APIHandler = async ({ nativeEvent, request }) => {
@@ -49,7 +48,7 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   const email = body.get('email') as string | null;
 
   if (!name || !email) {
-    return new Response('Missing required parameters.', {
+    return new Response('Invalid request body.', {
       status: 400,
       headers: { 'Content-Type': 'text/plain' },
     });
@@ -70,12 +69,12 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   });
   if (existingUserByAppleId) {
     const sessionToken = lucia.sessions.generateSessionToken();
-    await lucia.sessions.createSession(sessionToken, existingUserByAppleId.id);
-    const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
+    const session = await lucia.sessions.createSession(sessionToken, existingUserByAppleId.id);
+    const sessionCookie = lucia.cookies.createSessionCookie(sessionToken, session);
     setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
     return new Response(null, {
       status: 302,
-      headers: { Location: `${Resource.WebAppUrl.value}/` },
+      headers: { Location: '/' },
     });
   }
 
@@ -90,12 +89,12 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
     .returning();
 
   const sessionToken = lucia.sessions.generateSessionToken();
-  await lucia.sessions.createSession(sessionToken, user.id);
-  const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
+  const session = await lucia.sessions.createSession(sessionToken, user.id);
+  const sessionCookie = lucia.cookies.createSessionCookie(sessionToken, session);
   setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
   return new Response(null, {
     status: 302,
-    headers: { Location: `${Resource.WebAppUrl.value}/` },
+    headers: { Location: '/' },
   });
 };

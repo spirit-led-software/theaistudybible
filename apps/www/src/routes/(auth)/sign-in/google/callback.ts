@@ -6,7 +6,6 @@ import { ObjectParser } from '@pilcrowjs/object-parser';
 import type { APIHandler } from '@solidjs/start/server';
 import { decodeIdToken } from 'arctic';
 import type { OAuth2Tokens } from 'arctic';
-import { Resource } from 'sst';
 import { getCookie, setCookie } from 'vinxi/http';
 
 export const GET: APIHandler = async ({ nativeEvent, request }) => {
@@ -63,12 +62,12 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
   });
   if (existingUserByGoogleId) {
     const sessionToken = lucia.sessions.generateSessionToken();
-    await lucia.sessions.createSession(sessionToken, existingUserByGoogleId.id);
-    const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
+    const session = await lucia.sessions.createSession(sessionToken, existingUserByGoogleId.id);
+    const sessionCookie = lucia.cookies.createSessionCookie(sessionToken, session);
     setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
     return new Response(null, {
       status: 302,
-      headers: { Location: `${Resource.WebAppUrl.value}/` },
+      headers: { Location: '/' },
     });
   }
 
@@ -83,11 +82,11 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
     })
     .returning();
   const sessionToken = lucia.sessions.generateSessionToken();
-  await lucia.sessions.createSession(sessionToken, user.id);
-  const sessionCookie = lucia.cookies.createSessionCookie(sessionToken);
+  const session = await lucia.sessions.createSession(sessionToken, user.id);
+  const sessionCookie = lucia.cookies.createSessionCookie(sessionToken, session);
   setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
   return new Response(null, {
     status: 302,
-    headers: { Location: `${Resource.WebAppUrl.value}/` },
+    headers: { Location: '/' },
   });
 };
