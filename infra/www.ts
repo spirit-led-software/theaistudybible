@@ -107,7 +107,7 @@ if (!$dev) {
       architecture: 'x86_64',
       cpu: '0.25 vCPU',
       memory: '0.5 GB',
-      scaling: { cpuUtilization: 90, memoryUtilization: 90, min: 1, max: isProd ? 4 : 1 },
+      scaling: { cpuUtilization: 90, memoryUtilization: 95, min: 1, max: isProd ? 4 : 1 },
       health: {
         command: ['CMD-SHELL', 'curl -f http://localhost:8080/health || exit 1'],
         interval: '10 seconds',
