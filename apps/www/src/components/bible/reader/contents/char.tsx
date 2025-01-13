@@ -17,7 +17,7 @@ export type CharContentProps = {
 };
 
 export function CharContent(props: CharContentProps) {
-  const CharContent = (
+  const CharContent = () => (
     <span
       id={props.content.id}
       data-type={props.content.type}
@@ -41,7 +41,7 @@ export function CharContent(props: CharContentProps) {
     const strongsLink = `https://biblehub.com/strongs/${language}/${number}.htm`;
     return (
       <Tooltip placement='bottom'>
-        <TooltipTrigger as='span' class='inline'>{CharContent}</TooltipTrigger>
+        <TooltipTrigger as={CharContent} />
         <TooltipContent class='flex w-fit justify-center indent-0'>
           <div class='w-full text-center'>
             <h6 class='font-bold'>Strong's</h6>
@@ -54,5 +54,5 @@ export function CharContent(props: CharContentProps) {
     );
   }
 
-  return CharContent;
+  return <CharContent />;
 }
