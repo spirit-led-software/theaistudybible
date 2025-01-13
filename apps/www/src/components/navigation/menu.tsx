@@ -4,9 +4,9 @@ import {
   BookOpen,
   Bookmark,
   CreditCard,
-  Download,
   FileText,
   HandCoins,
+  HelpCircle,
   Highlighter,
   Info,
   Lightbulb,
@@ -58,12 +58,12 @@ export const Menu = (props: MenuProps) => {
             </NavigationMenuLabel>
             <NavigationMenuDescription>Learn about our mission</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/about/install'>
+          <NavigationMenuLink as={A} href='/about/faq'>
             <NavigationMenuLabel class='flex items-center gap-2'>
-              <Download />
-              Install
+              <HelpCircle />
+              FAQ
             </NavigationMenuLabel>
-            <NavigationMenuDescription>Install this website as an app</NavigationMenuDescription>
+            <NavigationMenuDescription>Frequently asked questions</NavigationMenuDescription>
           </NavigationMenuLink>
           <NavigationMenuLink as={A} href='/privacy'>
             <NavigationMenuLabel class='flex items-center gap-2'>
