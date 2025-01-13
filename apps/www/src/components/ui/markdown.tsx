@@ -95,7 +95,7 @@ export const Markdown = (props: MarkdownProps) => {
       return (
         <A
           href={local.href ?? '#'}
-          class={cn(buttonVariants({ variant: 'link' }), 'p-0', local.class)}
+          class={cn(buttonVariants({ variant: 'link' }), 'inline h-fit w-fit p-0', local.class)}
           {...rest}
         >
           {memoizedChildren()}
