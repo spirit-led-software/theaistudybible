@@ -1,4 +1,5 @@
 import type { anthropic } from '@ai-sdk/anthropic';
+import type { deepseek } from '@ai-sdk/deepseek';
 import type { groq } from '@ai-sdk/groq';
 import type { mistral } from '@ai-sdk/mistral';
 import type { openai } from '@ai-sdk/openai';
@@ -11,15 +12,16 @@ export type ChatModelInfo = {
     | Parameters<typeof openai>[0]
     | Parameters<typeof anthropic>[0]
     | Parameters<typeof mistral>[0]
-    | Parameters<typeof groq>[0];
+    | Parameters<typeof groq>[0]
+    | Parameters<typeof deepseek>[0];
   /**
    * The provider of the model. (Who owns and created the model)
    */
-  provider: 'openai' | 'anthropic' | 'mistral' | 'meta' | 'groq';
+  provider: 'openai' | 'anthropic' | 'mistral' | 'meta' | 'groq' | 'deepseek';
   /**
    * Where the model is hosted.
    */
-  host: 'openai' | 'anthropic' | 'mistral' | 'groq';
+  host: 'openai' | 'anthropic' | 'mistral' | 'groq' | 'deepseek';
   /**
    * The name of the model.
    */
@@ -64,6 +66,16 @@ export const advancedChatModels: ChatModelInfo[] = [
     provider: 'openai',
     host: 'openai',
     link: 'https://openai.com/index/hello-gpt-4o/',
+    tier: 'advanced',
+  },
+  {
+    id: 'deepseek-chat',
+    name: 'DeepSeek v3',
+    description: 'A large language model trained by DeepSeek',
+    contextSize: 128_000,
+    provider: 'deepseek',
+    host: 'deepseek',
+    link: 'https://www.deepseek.com/',
     tier: 'advanced',
   },
   {

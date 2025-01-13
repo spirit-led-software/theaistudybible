@@ -59,6 +59,10 @@ declare module "sst" {
       "type": "sst.aws.Queue"
       "url": string
     }
+    "DeepSeekApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "Dev": {
       "type": "asb.asb.Constant"
       "value": string

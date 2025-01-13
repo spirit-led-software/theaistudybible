@@ -53,8 +53,9 @@ export const systemPrompt = (options: {
     - You **MUST** fetch all information using the "Vector Store" tool
     - Always cite your sources with proper links and references
     - Respond with "I don't have enough information to answer that" if Vector Store results are insufficient or unclear
-    - Prioritize: 1) Added context 2) Vector Store results 3) Conversation history
+    - Prioritize: 1) Vector Store results 2) Added context 3) Conversation history
     - When quoting scripture, always include the translation abbreviation
+    - You **MUST NEVER** alter the original text of the Bible in any way
 
 - **Response Guidelines**:
     - Format all responses in markdown
