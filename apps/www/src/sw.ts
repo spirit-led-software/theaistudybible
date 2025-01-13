@@ -44,14 +44,12 @@ self.addEventListener('notificationclick', (event) => {
     self.clients.matchAll({ type: 'window' }).then((windowClients) => {
       // Check if there is already a window/tab open with the target URL
       for (const client of windowClients) {
-        if (client.url === urlToOpen && 'focus' in client) {
+        if (client.url === urlToOpen) {
           return client.focus();
         }
+        return client.navigate(urlToOpen);
       }
-      // If no window/tab is open, open a new one
-      if (self.clients.openWindow) {
-        return self.clients.openWindow(urlToOpen);
-      }
+      return self.clients.openWindow(urlToOpen);
     }),
   );
 });
