@@ -72,8 +72,8 @@ export const ReferencesCard = () => {
                   <div class='flex w-full space-x-2'>
                     <span class='font-bold'>{idx() + 1}.</span>
                     <div class='flex w-full flex-col space-y-2'>
-                      <Skeleton height={16} radius={10} />
-                      <Skeleton height={100} radius={10} />
+                      <Skeleton height={24} radius={10} />
+                      <Skeleton height={120} radius={10} />
                     </div>
                   </div>
                 )}
@@ -95,7 +95,7 @@ export const ReferencesCard = () => {
                             .trim()}
                           :
                         </H6>
-                        <p class='line-clamp-3 truncate text-wrap'>
+                        <p class='line-clamp-5 truncate text-wrap'>
                           {reference.content.replace(`- ${reference.metadata!.name}`, '').trim()}
                         </p>
                       </div>
