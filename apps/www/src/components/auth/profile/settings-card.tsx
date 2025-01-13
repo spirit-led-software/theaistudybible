@@ -28,7 +28,9 @@ import {
 
 const getBibles = GET(async () => {
   'use server';
-  const bibles = await db.query.bibles.findMany({ columns: { id: true, abbreviationLocal: true } });
+  const bibles = await db.query.bibles.findMany({
+    columns: { id: true, abbreviationLocal: true, nameLocal: true },
+  });
   return bibles;
 });
 
@@ -135,7 +137,14 @@ export function SettingsCard() {
                         optionValue={(bible) => bible.id}
                         itemComponent={(props) => (
                           <SelectItem item={props.item}>
-                            {props.item.rawValue.abbreviationLocal}
+                            <div class='flex flex-col'>
+                              <span class='font-medium text-sm'>
+                                {props.item.rawValue.abbreviationLocal}
+                              </span>
+                              <span class='text-muted-foreground text-xs'>
+                                {props.item.rawValue.nameLocal}
+                              </span>
+                            </div>
                           </SelectItem>
                         )}
                         placeholder='Select a Bible'

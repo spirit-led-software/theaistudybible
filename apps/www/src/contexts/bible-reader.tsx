@@ -175,7 +175,9 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     on(
       () => store.selectedVerseInfos,
       (verseInfos) => {
-        setSearchParams({ verseId: verseInfos.map((info) => info.id) });
+        setSearchParams({
+          verseNumber: Array.from(new Set(verseInfos.map((info) => info.number))),
+        });
       },
     ),
   );

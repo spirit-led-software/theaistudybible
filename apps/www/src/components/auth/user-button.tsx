@@ -1,9 +1,9 @@
 import { lucia } from '@/core/auth';
 import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
-import { action, redirect, useAction, useNavigate } from '@solidjs/router';
+import { action, redirect, useAction, useBeforeLeave, useNavigate } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
-import { Show } from 'solid-js';
+import { Show, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Button } from '../ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
@@ -28,6 +28,8 @@ export const UserButton = (props: UserButtonProps) => {
   const navigate = useNavigate();
   const { isLoaded, isSignedIn, user, refetch } = useAuth();
 
+  const [isOpen, setIsOpen] = createSignal(false);
+
   const handleSignOut = createMutation(() => ({
     mutationFn: () => Promise.resolve(signOut()),
     onSuccess: () => refetch(),
@@ -36,9 +38,11 @@ export const UserButton = (props: UserButtonProps) => {
     },
   }));
 
+  useBeforeLeave(() => setIsOpen(false));
+
   return (
     <Show when={isLoaded() && isSignedIn()}>
-      <Popover>
+      <Popover open={isOpen()} onOpenChange={setIsOpen}>
         <PopoverTrigger
           as={Button}
           variant='ghost'

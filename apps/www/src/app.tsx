@@ -1,7 +1,6 @@
-/* @refresh reload */
+/** @refresh reload */
 
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
-import { captureException as captureSentryException } from '@sentry/solidstart';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
@@ -35,21 +34,6 @@ export default function App() {
         gcTime: 1000 * 60 * 60 * 24, // 24 hours
         staleTime: 1000 * 5, // Just enough to avoid refetching on the client
         experimental_prefetchInRender: true,
-        // This is just the default with added Sentry capture
-        // this seems to be the only way to capture errors in solid-query
-        // https://tanstack.com/query/latest/docs/framework/react/guides/suspense#throwonerror-default
-        throwOnError: (error, query) => {
-          captureSentryException(error, {
-            data: {
-              queryKey: query.queryKey,
-              queryHash: query.queryHash,
-              queryState: query.state,
-              queryOptions: query.options,
-              queryMeta: query.meta,
-            },
-          });
-          return query.state.data === undefined;
-        },
       },
     },
   });

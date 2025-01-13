@@ -103,7 +103,7 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
             })),
           )
           .onConflictDoUpdate({
-            target: [verseHighlights.verseId],
+            target: [verseHighlights.userId, verseHighlights.verseId],
             set: { color: color ?? '#FFD700' },
           });
 

@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@theaistudybible/tsconfig": "workspace:*",
-    "@types/react": "^19.0.4",
+    "@types/react": "^19.0.6",
     "react-email": "3.0.6"
   },
   "dependencies": {
@@ -18,7 +18,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.471.0",
+    "lucide-react": "^0.471.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-markdown": "^9.0.3",

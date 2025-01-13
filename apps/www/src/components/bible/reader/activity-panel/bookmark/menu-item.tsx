@@ -10,6 +10,7 @@ import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Bookmark } from 'lucide-solid';
+import { toast } from 'solid-sonner';
 
 const getSelectionBookmarked = GET(async (props: { verseIds: string[] }) => {
   'use server';
@@ -66,7 +67,7 @@ export const BookmarkMenuItem = (props: BookmarkMenuItemProps) => {
   const unbookmarkVerses = useAction(unbookmarkVersesAction);
 
   const { isSignedIn } = useAuth();
-  const [brStore] = useBibleReaderStore();
+  const [brStore, setBrStore] = useBibleReaderStore();
 
   const getSelectionBookmarkedQuery = createQuery(() => ({
     queryKey: ['verses-bookmarked', { verseIds: brStore.selectedVerseInfos.map((v) => v.id) }],
@@ -78,14 +79,23 @@ export const BookmarkMenuItem = (props: BookmarkMenuItemProps) => {
 
   const bookmarkVersesMutation = createMutation(() => ({
     mutationFn: () => bookmarkVerses({ verseIds: brStore.selectedVerseInfos.map((v) => v.id) }),
+    onSuccess: () => {
+      setBrStore('selectedVerseInfos', []);
+    },
+    onError: (err) => {
+      toast.error(`Failed to bookmark verses: ${err.message}`);
+    },
     onSettled: () => getSelectionBookmarkedQuery.refetch(),
   }));
 
   const unbookmarkVersesMutation = createMutation(() => ({
-    mutationFn: () =>
-      unbookmarkVerses({
-        verseIds: brStore.selectedVerseInfos.map((v) => v.id),
-      }),
+    mutationFn: () => unbookmarkVerses({ verseIds: brStore.selectedVerseInfos.map((v) => v.id) }),
+    onSuccess: () => {
+      setBrStore('selectedVerseInfos', []);
+    },
+    onError: (err) => {
+      toast.error(`Failed to unbookmark verses: ${err.message}`);
+    },
     onSettled: () => getSelectionBookmarkedQuery.refetch(),
   }));
 

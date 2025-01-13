@@ -21,11 +21,7 @@ const getReferences = GET(async ({ text, bibleId }: { text: string; bibleId: str
     experimental_output: { searchTerms },
   } = await generateText({
     model: registry.languageModel('openai:gpt-4o-mini'),
-    experimental_output: Output.object({
-      schema: z.object({
-        searchTerms: z.array(z.string()),
-      }),
-    }),
+    experimental_output: Output.object({ schema: z.object({ searchTerms: z.array(z.string()) }) }),
     prompt: `You are an expert in the bible. You will be given a passage and asked to find references to it in the bible. Return a list of search terms or phrases that could be used to find references to this verse in a vector similarity search engine. 
 
 Here are some rules for you to follow:

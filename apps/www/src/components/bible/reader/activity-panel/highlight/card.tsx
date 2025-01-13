@@ -6,14 +6,14 @@ import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { DrawerClose } from '@/www/components/ui/drawer';
 import { Spinner } from '@/www/components/ui/spinner';
-import { ToggleGroup } from '@/www/components/ui/toggle-group';
+import { ToggleGroup, ToggleGroupItem } from '@/www/components/ui/toggle-group';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { requireAuth } from '@/www/server/auth';
 import { action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
-import { Match, Switch, createSignal } from 'solid-js';
+import { Show, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { useActivityPanel } from '..';
 import { ColorItem } from './color-item';
@@ -55,14 +55,14 @@ export const HighlightCard = () => {
   const deleteHighlights = useAction(deleteHighlightsAction);
 
   const qc = useQueryClient();
-  const [brStore] = useBibleReaderStore();
+  const [brStore, setBrStore] = useBibleReaderStore();
   const { setValue } = useActivityPanel();
 
   const addHighlightsMutation = createMutation(() => ({
     mutationFn: ({ color = '#FFD700', verseIds }: { color?: string; verseIds: string[] }) =>
       updateHighlights({ verseIds, color }),
     onSuccess: () => {
-      toast.success('Highlights saved');
+      setBrStore('selectedVerseInfos', []);
       setValue(undefined);
     },
     onError: (err) => {
@@ -77,7 +77,7 @@ export const HighlightCard = () => {
   const deleteHighlightsMutation = createMutation(() => ({
     mutationFn: ({ verseIds }: { verseIds: string[] }) => deleteHighlights({ verseIds }),
     onSuccess: () => {
-      toast.success('Highlights deleted');
+      setBrStore('selectedVerseInfos', []);
       setValue(undefined);
     },
     onError: (err) => {
@@ -117,6 +117,12 @@ export const HighlightCard = () => {
         </CardHeader>
         <CardContent>
           <ToggleGroup class='grid grid-cols-4 grid-rows-2' onChange={(value) => setTgValue(value)}>
+            <ToggleGroupItem value='clear' class='flex justify-center sm:justify-start'>
+              <span class='flex items-center space-x-2'>
+                <span class='size-4 rounded-full border border-foreground' />
+                <span class='hidden sm:flex'>Clear</span>
+              </span>
+            </ToggleGroupItem>
             <ColorItem title='Pink' hex='#FFC0CB' />
             <ColorItem title='Blue' hex='#ADD8E6' />
             <ColorItem title='Green' hex='#90EE90' />
@@ -124,7 +130,6 @@ export const HighlightCard = () => {
             <ColorItem title='Orange' hex='#FFA500' />
             <ColorItem title='Purple' hex='#DDA0DD' />
             <ColorItem title='Red' hex='#FF6347' />
-            <ColorItem title='Cyan' hex='#00FFFF' />
           </ToggleGroup>
         </CardContent>
         <CardFooter class='flex justify-end gap-2'>
@@ -132,34 +137,25 @@ export const HighlightCard = () => {
             Close
           </DrawerClose>
           <Button
-            variant='destructive'
-            disabled={addHighlightsMutation.isPending || deleteHighlightsMutation.isPending}
-            onClick={() =>
-              deleteHighlightsMutation.mutate({
-                verseIds: brStore.selectedVerseInfos.map((v) => v.id),
-              })
+            disabled={
+              !tgValue() || addHighlightsMutation.isPending || deleteHighlightsMutation.isPending
             }
+            onClick={() => {
+              if (tgValue() === 'clear') {
+                deleteHighlightsMutation.mutate({
+                  verseIds: brStore.selectedVerseInfos.map((v) => v.id),
+                });
+              } else {
+                addHighlightsMutation.mutate({
+                  verseIds: brStore.selectedVerseInfos.map((v) => v.id),
+                  color: tgValue() || undefined,
+                });
+              }
+            }}
           >
-            <Switch fallback={'Remove'}>
-              <Match when={deleteHighlightsMutation.isPending}>
-                <Spinner size='sm' variant='destructive-foreground' />
-              </Match>
-            </Switch>
-          </Button>
-          <Button
-            disabled={!tgValue() || addHighlightsMutation.isPending}
-            onClick={() =>
-              addHighlightsMutation.mutate({
-                verseIds: brStore.selectedVerseInfos.map((v) => v.id),
-                color: tgValue() || undefined,
-              })
-            }
-          >
-            <Switch fallback={'Save'}>
-              <Match when={addHighlightsMutation.isPending}>
-                <Spinner size='sm' variant='primary-foreground' />
-              </Match>
-            </Switch>
+            <Show when={addHighlightsMutation.isPending} fallback={'Save'}>
+              <Spinner size='sm' variant='primary-foreground' />
+            </Show>
           </Button>
         </CardFooter>
       </SignedIn>

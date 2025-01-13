@@ -1,5 +1,5 @@
-export const formNumberSequenceString = (numbers: number[]) => {
-  if (numbers.length === 0) {
+export const formNumberSequenceString = (numbers?: number[]) => {
+  if (!numbers || numbers.length === 0) {
     return '';
   }
 
