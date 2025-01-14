@@ -223,7 +223,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
               size='icon'
               variant='outline'
               class='rounded-full'
-              disabled={isLoading()}
               aria-label={isLoading() ? 'Stop generating response' : 'Send message'}
               onClick={() => isLoading() && stop()}
             >
