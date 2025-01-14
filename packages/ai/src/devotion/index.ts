@@ -30,7 +30,7 @@ export const getBibleReading = async (topic: string) => {
     orderBy: (devotions, { desc }) => [desc(devotions.createdAt)],
     limit: 10,
   });
-  const { text: bibleReading } = await generateText({
+  const { text } = await generateText({
     model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
     system: bibleReadingSystemPrompt({ pastDevotions }),
     prompt: `Find a bible reading for the topic: "${topic}"`,
@@ -38,7 +38,11 @@ export const getBibleReading = async (topic: string) => {
     maxSteps: 5,
   });
 
-  return bibleReading;
+  if (text === 'ERROR') {
+    throw new Error('Could not find a bible reading for the topic. Please try again later.');
+  }
+
+  return text;
 };
 
 export const generateSummary = async ({

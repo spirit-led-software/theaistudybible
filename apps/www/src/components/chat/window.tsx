@@ -1,6 +1,7 @@
 import { useBibleStore } from '@/www/contexts/bible';
 import { createChatScrollAnchor } from '@/www/hooks/create-chat-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
+import { useWindowSize } from '@solid-primitives/resize-observer';
 import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
 import { ArrowUp, ChevronDown, ChevronUp, StopCircle } from 'lucide-solid';
@@ -22,6 +23,7 @@ export type ChatWindowProps = {
 
 export const ChatWindow = (props: ChatWindowProps) => {
   const location = useLocation();
+  const windowSize = useWindowSize();
   const [chatStore, setChatStore] = useChatStore();
   const [bibleStore] = useBibleStore();
 
@@ -200,8 +202,13 @@ export const ChatWindow = (props: ChatWindowProps) => {
         </div>
         <form
           class='relative flex w-full flex-col items-center justify-center gap-2 border-t px-2 py-2'
-          onSubmit={(e) => {
-            handleSubmit(e);
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            if (windowSize.width < 768) return;
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(e);
+            }
           }}
           aria-label='Message input form'
         >
