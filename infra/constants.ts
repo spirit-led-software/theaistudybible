@@ -39,3 +39,5 @@ export const VAPID_PUBLIC_KEY = new Constant(
   'VapidPublicKey',
   'BGmZN6BAKavVbsy9Q8h3YKqcD4ucyGjPFdElfzCrlodH8jVacq0K5n3QbAF1LBHS49rL5KyjEHIcOf-8VDuiWKA',
 );
+
+export const BRAIN_TRUST_PROJECT_NAME = new Constant('BrainTrustProjectName', 'The AI Study Bible');

@@ -12,7 +12,9 @@ import type { UserSettings } from '@/schemas/users/types';
 import type { User } from '@/schemas/users/types';
 import type { DataStreamWriter } from 'ai';
 import { Output, generateText, streamText } from 'ai';
+import { initLogger, wrapAISDKModel } from 'braintrust';
 import { eq } from 'drizzle-orm';
+import { Resource } from 'sst';
 import { z } from 'zod';
 import { type ChatModelInfo, defaultChatModel } from '../models';
 import { registry } from '../provider-registry';
@@ -20,6 +22,11 @@ import { messagesToString, numTokensFromString } from '../utils';
 import { getValidMessages } from '../utils/get-valid-messages';
 import { systemPrompt } from './system-prompt';
 import { tools } from './tools';
+
+initLogger({
+  projectName: Resource.BrainTrustProjectName.value,
+  apiKey: Resource.BrainTrustApiKey.value,
+});
 
 export const renameChat = async ({
   chatId,
@@ -136,7 +143,11 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
   //   model: registry.languageModel(options.modelId),
   //   middleware: cacheMiddleware,
   // });
-  const model = registry.languageModel(`${options.modelInfo.host}:${options.modelInfo.id}`);
+  let model = registry.languageModel(`${options.modelInfo.host}:${options.modelInfo.id}`);
+  if (Resource.Stage.value === 'production') {
+    model = wrapAISDKModel(model);
+  }
+
   return () => {
     return streamText({
       ...options,

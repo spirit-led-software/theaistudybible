@@ -41,6 +41,14 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "BrainTrustApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "BrainTrustProjectName": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
     "Cdn": {
       "type": "sst.aws.Router"
       "url": string

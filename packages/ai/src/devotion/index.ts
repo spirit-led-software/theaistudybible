@@ -6,6 +6,7 @@ import type { Devotion } from '@/schemas/devotions/types';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { Output, generateText } from 'ai';
 import { experimental_generateImage as generateAiImage } from 'ai';
+import { initLogger, wrapAISDKModel } from 'braintrust';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { advancedChatModels } from '../models';
@@ -21,7 +22,16 @@ import {
 import { bibleVectorStoreTool, vectorStoreTool } from './tools';
 import { getTodaysTopic } from './topics';
 
+initLogger({
+  projectName: Resource.BrainTrustProjectName.value,
+  apiKey: Resource.BrainTrustApiKey.value,
+});
+
 const modelInfo = advancedChatModels[0];
+let model = registry.languageModel(`${modelInfo.host}:${modelInfo.id}`);
+if (Resource.Stage.value === 'production') {
+  model = wrapAISDKModel(model);
+}
 
 export const getBibleReading = async (topic: string) => {
   const pastDevotions = await db.query.devotions.findMany({
@@ -31,7 +41,7 @@ export const getBibleReading = async (topic: string) => {
     limit: 10,
   });
   const { text } = await generateText({
-    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
+    model,
     system: bibleReadingSystemPrompt({ pastDevotions }),
     prompt: `Find a bible reading for the topic: "${topic}"`,
     tools: { vectorStore: bibleVectorStoreTool },
@@ -53,7 +63,7 @@ export const generateSummary = async ({
   bibleReading: string;
 }) => {
   const { text: summary } = await generateText({
-    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
+    model,
     system: summarySystemPrompt,
     prompt: `The topic is "${topic}".
 Summarize the following bible passage:
@@ -75,7 +85,7 @@ export const generateReflection = async ({
   summary: string;
 }) => {
   const { text: reflection } = await generateText({
-    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
+    model,
     system: reflectionSystemPrompt,
     prompt: `The topic is "${topic}".
 
@@ -109,7 +119,7 @@ export const generatePrayer = async ({
   reflection: string;
 }) => {
   const { text: prayer } = await generateText({
-    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
+    model,
     system: prayerSystemPrompt,
     prompt: `Here is the devotional (delimited by triple dashes):
 ---
@@ -145,7 +155,7 @@ export const generateDiveDeeperQueries = async ({
   const {
     experimental_output: { queries },
   } = await generateText({
-    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
+    model,
     experimental_output: Output.object({ schema: z.object({ queries: z.array(z.string()) }) }),
     system: diveDeeperSystemPrompt,
     prompt: `Here is the devotional (delimited by triple dashes):
@@ -174,7 +184,7 @@ Generate 1 to 4 follow-up queries to help the user dive deeper into the topic ex
 
 export const generateImagePrompt = async (devotion: Devotion) => {
   const { text: imagePrompt } = await generateText({
-    model: registry.languageModel(`${modelInfo.host}:${modelInfo.id}`),
+    model,
     system: imageSystemPrompt,
     prompt: `Here is the devotional (delimited by triple dashes):
 ---
