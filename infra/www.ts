@@ -105,8 +105,9 @@ if (!$dev) {
         },
       },
       architecture: 'x86_64',
-      cpu: isProd ? '0.5 vCPU' : '0.25 vCPU',
-      memory: isProd ? '1 GB' : '0.5 GB',
+      capacity: 'spot',
+      cpu: '0.25 vCPU',
+      memory: '0.5 GB',
       scaling: { cpuUtilization: 90, memoryUtilization: 95, min: 1, max: isProd ? 4 : 1 },
       health: {
         command: ['CMD-SHELL', 'curl -f http://localhost:8080/health || exit 1'],
