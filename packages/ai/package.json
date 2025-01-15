@@ -12,14 +12,14 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.0.8",
-    "@ai-sdk/deepseek": "^0.0.4",
+    "@ai-sdk/deepseek": "^0.0.5",
     "@ai-sdk/groq": "^1.0.11",
     "@ai-sdk/mistral": "^1.0.8",
-    "@ai-sdk/openai": "^1.0.18",
+    "@ai-sdk/openai": "^1.0.19",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
     "@upstash/vector": "^1.2.0",
-    "braintrust": "^0.0.181",
+    "braintrust": "^0.0.182",
     "openai": "^4.78.1",
     "tiktoken": "^1.0.18"
   }

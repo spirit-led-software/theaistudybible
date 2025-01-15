@@ -105,8 +105,8 @@ if (!$dev) {
         },
       },
       architecture: 'x86_64',
-      capacity: isProd ?
-          {
+      capacity: isProd
+        ? {
             fargate: { weight: 1, base: 1 },
             spot: { weight: 2 },
           }

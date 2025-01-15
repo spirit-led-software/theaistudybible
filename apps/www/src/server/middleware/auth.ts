@@ -5,8 +5,7 @@ import type { Role } from '@/schemas/roles/types';
 import type { UserCredits } from '@/schemas/users/credits/types';
 import type { UserSettings } from '@/schemas/users/settings/types';
 import type { FetchEvent } from '@solidjs/start/server';
-import { add, isAfter } from 'date-fns';
-import { eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { authenticate } from '../auth';
 
 const ROLES_CACHE_TTL = 60 * 60; // Cache for 1 hour
@@ -38,22 +37,17 @@ export const authMiddleware = () => {
 
     if (!settings) {
       dbOperations.push(
-        db.query.userSettings
-          .findFirst({ where: (userSettings, { eq }) => eq(userSettings.userId, user.id) })
-          .then(async (existingSettings) => {
-            if (!existingSettings) {
-              const [newSettings] = await db
-                .insert(userSettings)
-                .values({ userId: user.id, emailNotifications: true, preferredBibleId: null })
-                .onConflictDoUpdate({
-                  target: [userSettings.userId],
-                  set: { emailNotifications: true, preferredBibleId: null },
-                })
-                .returning();
-              settings = newSettings;
-            } else {
-              settings = existingSettings;
-            }
+        db
+          .insert(userSettings)
+          .values({ userId: user.id, emailNotifications: true, preferredBibleId: null })
+          .onConflictDoNothing()
+          .returning()
+          .then(async ([newSettings]) => {
+            settings =
+              newSettings ||
+              (await db.query.userSettings.findFirst({
+                where: (settings, { eq }) => eq(settings.userId, user.id),
+              }));
             cacheOperations.push(cache.set(settingsCacheKey, settings, { ex: SETTINGS_CACHE_TTL }));
           }),
       );
@@ -75,39 +69,28 @@ export const authMiddleware = () => {
 
     if (!credits) {
       dbOperations.push(
-        db.query.userCredits
-          .findFirst({ where: (userCredits, { eq }) => eq(userCredits.userId, user.id) })
-          .then(async (existingCredits) => {
-            const now = new Date();
-            if (existingCredits) {
-              const twentyFourHoursAfterLastCredit = add(
-                existingCredits.lastSignInCreditAt ?? now,
-                { hours: 24 },
-              );
-
-              if (
-                !existingCredits.lastSignInCreditAt ||
-                isAfter(now, twentyFourHoursAfterLastCredit)
-              ) {
-                const [updatedCredits] = await db
-                  .update(userCredits)
-                  .set({
-                    balance: sql`${userCredits.balance} + 5`,
-                    lastSignInCreditAt: now,
-                  })
-                  .where(eq(userCredits.userId, user.id))
-                  .returning();
-                credits = updatedCredits;
-              } else {
-                credits = existingCredits;
-              }
-            } else {
-              const [newCredits] = await db
-                .insert(userCredits)
-                .values({ userId: user.id, lastSignInCreditAt: now })
-                .returning();
-              credits = newCredits;
-            }
+        db
+          .insert(userCredits)
+          .values({ userId: user.id, lastSignInCreditAt: new Date() })
+          .onConflictDoUpdate({
+            target: [userCredits.userId],
+            set: {
+              lastSignInCreditAt: sql`CASE
+                WHEN ${userCredits.lastSignInCreditAt} IS NULL
+                  OR datetime(${userCredits.lastSignInCreditAt}, '+24 hours') <= CURRENT_TIMESTAMP 
+                THEN CURRENT_TIMESTAMP
+                ELSE ${userCredits.lastSignInCreditAt}
+              END`,
+              balance: sql`CASE 
+                WHEN ${userCredits.lastSignInCreditAt} IS NULL 
+                  OR datetime(${userCredits.lastSignInCreditAt}, '+24 hours') <= CURRENT_TIMESTAMP 
+                THEN ${userCredits.balance} + 5 
+                ELSE ${userCredits.balance} 
+              END`,
+            },
+          })
+          .returning()
+          .then(([credits]) => {
             cacheOperations.push(cache.set(creditsCacheKey, credits, { ex: CREDITS_CACHE_TTL }));
           }),
       );
@@ -115,7 +98,7 @@ export const authMiddleware = () => {
 
     // Wait for all database operations to complete
     if (dbOperations.length > 0) {
-      await Promise.all(dbOperations);
+      await Promise.all(dbOperations).catch(console.error);
     }
 
     // Fire and forget cache operations - no need to wait
