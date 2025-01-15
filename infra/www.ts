@@ -105,7 +105,12 @@ if (!$dev) {
         },
       },
       architecture: 'x86_64',
-      capacity: 'spot',
+      capacity: isProd ?
+          {
+            fargate: { weight: 1, base: 1 },
+            spot: { weight: 2 },
+          }
+        : 'spot',
       cpu: '0.25 vCPU',
       memory: '0.5 GB',
       scaling: { cpuUtilization: 90, memoryUtilization: 95, min: 1, max: isProd ? 4 : 1 },
