@@ -40,15 +40,16 @@ export const authMiddleware = () => {
         db
           .insert(userSettings)
           .values({ userId: user.id, emailNotifications: true, preferredBibleId: null })
-          .onConflictDoNothing()
+          .onConflictDoUpdate({
+            target: [userSettings.userId],
+            set: { id: sql`id` }, // No-op to return the existing row
+          })
           .returning()
-          .then(async ([newSettings]) => {
-            settings =
-              newSettings ||
-              (await db.query.userSettings.findFirst({
-                where: (settings, { eq }) => eq(settings.userId, user.id),
-              }));
-            cacheOperations.push(cache.set(settingsCacheKey, settings, { ex: SETTINGS_CACHE_TTL }));
+          .then(([newSettings]) => {
+            settings = newSettings;
+            cacheOperations.push(
+              cache.set(settingsCacheKey, newSettings, { ex: SETTINGS_CACHE_TTL }),
+            );
           }),
       );
     }
@@ -90,8 +91,9 @@ export const authMiddleware = () => {
             },
           })
           .returning()
-          .then(([credits]) => {
-            cacheOperations.push(cache.set(creditsCacheKey, credits, { ex: CREDITS_CACHE_TTL }));
+          .then(([newCredits]) => {
+            credits = newCredits;
+            cacheOperations.push(cache.set(creditsCacheKey, newCredits, { ex: CREDITS_CACHE_TTL }));
           }),
       );
     }
