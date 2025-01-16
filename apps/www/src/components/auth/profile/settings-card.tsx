@@ -9,9 +9,10 @@ import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
-import { createSignal } from 'solid-js';
+import { Show, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { z } from 'zod';
+import { BibleDownloadButton } from '../../bible/download-button';
 import { PushNotificationToggle } from '../../push-notification-toggle';
 import { QueryBoundary } from '../../query-boundary';
 import { Button } from '../../ui/button';
@@ -124,38 +125,43 @@ export function SettingsCard() {
                   <QueryBoundary
                     query={biblesQuery}
                     loadingFallback={
-                      <Button class='w-fit' disabled>
+                      <Button variant='outline' class='w-fit' disabled>
                         Loading...
                       </Button>
                     }
                   >
                     {(bibles) => (
-                      <Select
-                        value={bibles.find((bible) => bible.id === field.value)}
-                        onChange={(v) => setValue(form, field.name, v?.id)}
-                        options={bibles}
-                        optionValue={(bible) => bible.id}
-                        itemComponent={(props) => (
-                          <SelectItem item={props.item}>
-                            <div class='flex flex-col'>
-                              <span class='font-medium text-sm'>
-                                {props.item.rawValue.abbreviationLocal}
-                              </span>
-                              <span class='text-muted-foreground text-xs'>
-                                {props.item.rawValue.nameLocal}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        )}
-                        placeholder='Select a Bible'
-                      >
-                        <SelectTrigger class='w-fit min-w-24' {...props}>
-                          <SelectValue<(typeof bibles)[number]>>
-                            {(props) => props.selectedOption()?.abbreviationLocal}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent />
-                      </Select>
+                      <div class='flex gap-2'>
+                        <Select
+                          value={bibles.find((bible) => bible.id === field.value)}
+                          onChange={(v) => setValue(form, field.name, v?.id)}
+                          options={bibles}
+                          optionValue={(bible) => bible.id}
+                          itemComponent={(props) => (
+                            <SelectItem item={props.item}>
+                              <div class='flex flex-col'>
+                                <span class='font-medium text-sm'>
+                                  {props.item.rawValue.abbreviationLocal}
+                                </span>
+                                <span class='text-muted-foreground text-xs'>
+                                  {props.item.rawValue.nameLocal}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          )}
+                          placeholder='Select a Bible'
+                        >
+                          <SelectTrigger class='w-fit min-w-24' {...props}>
+                            <SelectValue<(typeof bibles)[number]>>
+                              {(props) => props.selectedOption()?.abbreviationLocal}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent />
+                        </Select>
+                        <Show when={field.value} keyed>
+                          {(bibleId) => <BibleDownloadButton bibleId={bibleId} />}
+                        </Show>
+                      </div>
                     )}
                   </QueryBoundary>
                 </div>

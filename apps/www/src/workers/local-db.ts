@@ -2,6 +2,8 @@ import * as schema from '@/core/database/schema';
 import { createClient } from '@libsql/client-wasm';
 import { drizzle } from 'drizzle-orm/libsql';
 
+console.log('Worker loaded');
+
 export function createLocalDb(options: {
   url: string;
   syncUrl?: string;

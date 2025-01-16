@@ -11,8 +11,16 @@ export default defineConfig({
   server: {
     preset: 'bun',
     serveStatic: false,
-    plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/opfs.ts'],
-    compatibilityDate: '2024-12-02',
+    plugins: ['./src/server/plugins/compression.ts'],
+    compatibilityDate: '2025-01-16',
+    routeRules: {
+      '/**': {
+        headers: {
+          'Cross-Origin-Opener-Policy': 'same-origin',
+          'Cross-Origin-Embedder-Policy': 'require-corp',
+        },
+      },
+    },
   },
   vite: {
     envPrefix: 'PUBLIC_',
@@ -23,6 +31,7 @@ export default defineConfig({
       VitePWA({
         strategies: 'injectManifest',
         srcDir: 'src',
+        outDir: '.output/public',
         filename: 'sw.ts',
         registerType: 'autoUpdate',
         manifest: {
@@ -55,6 +64,7 @@ export default defineConfig({
           globPatterns: [
             '**/*.{js,css,html,png,svg,ico,wasm,webp,woff,woff2,ttf,eot,json,jpg,jpeg,gif,mp3,mp4,wav,avif}',
           ],
+          maximumFileSizeToCacheInBytes: 1024 * 1024 * 4, // 4MB
           manifestTransforms: [
             (manifest) => {
               manifest.push({ url: '/', revision: createId(), size: 0 });
@@ -89,6 +99,6 @@ export default defineConfig({
       include: ['solid-markdown > debug', 'solid-marked > extend'],
       exclude: ['@libsql/client-wasm'],
     },
-    worker: { format: 'es', plugins: () => [comlink()] },
+    worker: { format: 'es', plugins: () => [tsconfigPaths(), comlink()] },
   },
 });

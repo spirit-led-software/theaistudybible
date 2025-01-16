@@ -5,7 +5,14 @@ import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import { murmurHash } from 'ohash';
-import { createContext, createEffect, createSignal, onCleanup } from 'solid-js';
+import {
+  createContext,
+  createEffect,
+  createSignal,
+  onCleanup,
+  onMount,
+  useContext,
+} from 'solid-js';
 import type { Accessor, ParentProps } from 'solid-js';
 import { Resource } from 'sst';
 import { requireAuth } from '../server/auth';
@@ -74,28 +81,59 @@ export const LocalDbProvider = (props: ParentProps) => {
     staleTime: 1000 * 60 * 60 * 24,
   }));
 
+  onMount(() => {
+    if (session()) {
+      navigator.storage.persist();
+    }
+  });
+
   createEffect(async () => {
     const currentSession = session();
-    if (!currentSession) return;
+    if (!currentSession) {
+      console.log('No session');
+      return;
+    }
 
-    const { createLocalDb } = new ComlinkWorker<typeof import('../workers/local-db')>(
-      new URL('../workers/local-db', import.meta.url),
-    );
-    if (dbQuery.status === 'success') {
-      const { client, db } = await createLocalDb({
-        url: 'file:local.db?vfs=opfs',
-        syncUrl: dbQuery.data.url,
-        token: dbQuery.data.token,
-        encryptionKey: currentSession.id,
-      });
-      setClient(client);
-      setDb(db);
-    } else {
-      const { client, db } = await createLocalDb({
-        url: 'file:local.db?vfs=opfs',
-      });
-      setClient(client);
-      setDb(db);
+    console.log('Creating local db');
+    try {
+      const { createLocalDb } = new ComlinkWorker<typeof import('../workers/local-db')>(
+        new URL('../workers/local-db', import.meta.url),
+        { type: 'module' },
+      );
+
+      if (dbQuery.status === 'success') {
+        console.log('Creating local db with dbQuery', {
+          syncUrl: dbQuery.data.url,
+        });
+
+        const result = await Promise.race([
+          createLocalDb({
+            url: 'file:local.db?vfs=opfs',
+            syncUrl: dbQuery.data.url,
+            token: dbQuery.data.token,
+            encryptionKey: currentSession.id,
+          }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('createLocalDb timeout')), 10000),
+          ),
+        ]);
+
+        const { client, db } = result as Awaited<ReturnType<typeof createLocalDb>>;
+        setClient(client);
+        setDb(db);
+        console.log('Created local db successfully');
+      } else {
+        console.log('Creating local db without dbQuery');
+        const { client, db } = await createLocalDb({
+          url: 'file:local.db?vfs=opfs',
+        });
+        setClient(client);
+        setDb(db);
+        console.log('Created local db');
+      }
+    } catch (error) {
+      console.error('Failed to create local db:', error);
+      // Optionally implement retry logic here
     }
   });
 
@@ -108,4 +146,12 @@ export const LocalDbProvider = (props: ParentProps) => {
   });
 
   return <LocalDbContext.Provider value={{ db, client }}>{props.children}</LocalDbContext.Provider>;
+};
+
+export const useLocalDb = () => {
+  const context = useContext(LocalDbContext);
+  if (!context) {
+    throw new Error('useLocalDb must be used within a LocalDbProvider');
+  }
+  return context;
 };
