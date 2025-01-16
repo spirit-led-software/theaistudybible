@@ -19,19 +19,19 @@ export async function verifyWebAuthnChallenge(challenge: Uint8Array) {
 }
 
 export async function getUserPasskeyCredentials(userId: string) {
-  return await db.query.passkeyCredentials.findMany({
+  return await db().query.passkeyCredentials.findMany({
     where: (passkeyCreds, { eq }) => eq(passkeyCreds.userId, userId),
   });
 }
 
 export async function getPasskeyCredential(credentialId: Uint8Array) {
-  return await db.query.passkeyCredentials.findFirst({
+  return await db().query.passkeyCredentials.findFirst({
     where: (passkeyCreds, { eq }) => eq(passkeyCreds.id, Buffer.from(credentialId)),
   });
 }
 
 export async function getUserPasskeyCredential(userId: string, credentialId: Uint8Array) {
-  return await db.query.passkeyCredentials.findFirst({
+  return await db().query.passkeyCredentials.findFirst({
     where: (passkeyCreds, { and, eq }) =>
       and(eq(passkeyCreds.id, Buffer.from(credentialId)), eq(passkeyCreds.userId, userId)),
   });
@@ -39,7 +39,7 @@ export async function getUserPasskeyCredential(userId: string, credentialId: Uin
 
 export async function createPasskeyCredential(credential: WebAuthnUserCredential) {
   return (
-    await db
+    await db()
       .insert(passkeyCredentials)
       .values({
         ...credential,
@@ -51,7 +51,7 @@ export async function createPasskeyCredential(credential: WebAuthnUserCredential
 }
 
 export async function deleteUserPasskeyCredential(userId: string, credentialId: Uint8Array) {
-  const result = await db
+  const result = await db()
     .delete(passkeyCredentials)
     .where(
       and(

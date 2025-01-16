@@ -8,7 +8,7 @@ export const GET: APIHandler = async () => {
     attributeNamePrefix: '$',
   });
 
-  const devotions = await db.query.devotions.findMany({
+  const devotions = await db().query.devotions.findMany({
     columns: { id: true },
   });
 

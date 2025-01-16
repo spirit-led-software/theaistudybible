@@ -1,15 +1,43 @@
 import * as schema from '@/core/database/schema';
-import { createClient } from '@libsql/client';
+import { type Client, createClient } from '@libsql/client';
 import * as Sentry from '@sentry/node';
-import { drizzle } from 'drizzle-orm/libsql';
+import { type LibSQLDatabase, drizzle } from 'drizzle-orm/libsql';
 import { libsqlIntegration } from 'sentry-integration-libsql-client';
 import { Resource } from 'sst';
 
-const client = createClient({
-  url: Resource.Database.url,
-  authToken: Resource.Database.token || undefined,
-});
+export type DbType = LibSQLDatabase<typeof schema> & {
+  $client: Client;
+};
 
-Sentry.addIntegration(libsqlIntegration(client, Sentry));
+const dbMap = new WeakMap<{ id: string }, DbType>();
 
-export const db = drizzle({ client, schema });
+export const db = (id?: string) => {
+  let client: Client;
+  if (id) {
+    const db = dbMap.get({ id });
+    if (db) {
+      return db;
+    }
+
+    if (id === 'schema') {
+      client = createClient({
+        url: Resource.TursoDatabaseSchema.url,
+        authToken: Resource.TursoGroupToken.value,
+      });
+    } else {
+      client = createClient({
+        url: `${id}-${Resource.TursoOrg.value}.turso.io`,
+        authToken: Resource.TursoGroupToken.value,
+      });
+    }
+  } else {
+    client = createClient({
+      url: Resource.SharedTursoDatabase.url,
+      authToken: Resource.SharedTursoDatabase.token || undefined,
+    });
+  }
+  Sentry.addIntegration(libsqlIntegration(client, Sentry));
+  const db = drizzle({ client, schema });
+  dbMap.set({ id: id ?? 'shared' }, db);
+  return db;
+};

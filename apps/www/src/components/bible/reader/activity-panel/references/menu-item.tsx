@@ -9,7 +9,7 @@ import { useActivityPanel } from '../../activity-panel';
 
 const getHasReferences = GET(async (bibleId: string) => {
   'use server';
-  const bibleData = await db.query.bibles.findFirst({
+  const bibleData = await db().query.bibles.findFirst({
     columns: {},
     where: (bibles, { eq }) => eq(bibles.id, bibleId),
     with: { chapters: { columns: {}, with: { chaptersToSourceDocuments: true } } },

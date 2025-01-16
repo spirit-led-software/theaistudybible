@@ -19,13 +19,13 @@ export async function createSession(token: string, userId: string): Promise<Sess
     userId,
     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
   };
-  await db.insert(sessions).values(session);
+  await db().insert(sessions).values(session);
   return session;
 }
 
 export async function validateSessionToken(token: string): Promise<SessionValidationResult> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-  const result = await db
+  const result = await db()
     .select({ user: users, session: sessions })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
@@ -36,14 +36,14 @@ export async function validateSessionToken(token: string): Promise<SessionValida
 
   const { user, session } = result[0];
   if (Date.now() >= session.expiresAt.getTime()) {
-    await db.delete(sessions).where(eq(sessions.id, session.id));
+    await db().delete(sessions).where(eq(sessions.id, session.id));
     return { session: null, user: null };
   }
 
   // If the session is about to expire, extend it by 30 days
   if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
     session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // 30 days
-    await db
+    await db()
       .update(sessions)
       .set({ expiresAt: session.expiresAt })
       .where(eq(sessions.id, session.id));
@@ -52,11 +52,11 @@ export async function validateSessionToken(token: string): Promise<SessionValida
 }
 
 export async function invalidateSession(sessionId: string): Promise<void> {
-  await db.delete(sessions).where(eq(sessions.id, sessionId));
+  await db().delete(sessions).where(eq(sessions.id, sessionId));
 }
 
 export async function deleteExpiredSessions(): Promise<void> {
-  await db.delete(sessions).where(lt(sessions.expiresAt, new Date()));
+  await db().delete(sessions).where(lt(sessions.expiresAt, new Date()));
 }
 
 export type SessionValidationResult =

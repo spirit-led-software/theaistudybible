@@ -94,14 +94,16 @@ export class VectorStore {
           })),
           { namespace: options.namespace },
         ),
-        db.insert(sourceDocuments).values(
-          batch.map(
-            (d) =>
-              ({
-                id: d.id,
-              }) satisfies typeof sourceDocuments.$inferInsert,
+        db()
+          .insert(sourceDocuments)
+          .values(
+            batch.map(
+              (d) =>
+                ({
+                  id: d.id,
+                }) satisfies typeof sourceDocuments.$inferInsert,
+            ),
           ),
-        ),
       ]);
     }
     return docsWithEmbeddings.map((d) => d.id);
@@ -116,7 +118,7 @@ export class VectorStore {
       );
       await Promise.all([
         this.client.delete(batch),
-        db.delete(sourceDocuments).where(inArray(sourceDocuments.id, batch)),
+        db().delete(sourceDocuments).where(inArray(sourceDocuments.id, batch)),
       ]);
     }
   }

@@ -31,7 +31,7 @@ export const app = new Hono<{
   })
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const message = await db.query.messages.findFirst({
+    const message = await db().query.messages.findFirst({
       where: eq(messages.id, id),
     });
     if (!message) {
@@ -56,7 +56,7 @@ export const app = new Hono<{
     await next();
   })
   .use('/:id/reaction/*', async (c, next) => {
-    const reaction = await db.query.messageReactions.findFirst({
+    const reaction = await db().query.messageReactions.findFirst({
       where: eq(messageReactions.messageId, c.var.message.id),
     });
     if (!reaction) {
@@ -90,7 +90,7 @@ export const app = new Hono<{
     ),
     async (c) => {
       const data = c.req.valid('json');
-      const message = await db
+      const message = await db()
         .insert(messages)
         .values({
           ...data,
@@ -114,13 +114,13 @@ export const app = new Hono<{
     }
 
     const [foundMessages, messagesCount] = await Promise.all([
-      db.query.messages.findMany({
+      db().query.messages.findMany({
         where,
         orderBy: sort,
         offset: cursor,
         limit: limit,
       }),
-      db
+      db()
         .select({ count: count() })
         .from(messages)
         .where(where)
@@ -154,7 +154,7 @@ export const app = new Hono<{
     ),
     async (c) => {
       const data = c.req.valid('json');
-      const [message] = await db
+      const [message] = await db()
         .update(messages)
         .set({
           ...data,
@@ -171,7 +171,7 @@ export const app = new Hono<{
     },
   )
   .delete('/:id', async (c) => {
-    await db.delete(messages).where(eq(messages.id, c.var.message.id));
+    await db().delete(messages).where(eq(messages.id, c.var.message.id));
     return c.json(
       {
         message: 'Message deleted successfully',
@@ -190,7 +190,7 @@ export const app = new Hono<{
     ),
     async (c) => {
       const data = c.req.valid('json');
-      const reaction = await db
+      const reaction = await db()
         .insert(messageReactions)
         .values({
           ...data,
@@ -225,7 +225,7 @@ export const app = new Hono<{
     ),
     async (c) => {
       const data = c.req.valid('json');
-      const reaction = await db
+      const reaction = await db()
         .update(messageReactions)
         .set({
           ...data,
@@ -242,7 +242,7 @@ export const app = new Hono<{
     },
   )
   .delete('/:id/reaction', async (c) => {
-    await db.delete(messageReactions).where(eq(messageReactions.messageId, c.var.message.id));
+    await db().delete(messageReactions).where(eq(messageReactions.messageId, c.var.message.id));
     return c.json(
       {
         message: 'Message reaction deleted successfully',
@@ -251,7 +251,7 @@ export const app = new Hono<{
     );
   })
   .get('/:id/source-documents', async (c) => {
-    const sourceDocumentRelations = await db.query.messagesToSourceDocuments.findMany({
+    const sourceDocumentRelations = await db().query.messagesToSourceDocuments.findMany({
       where: eq(messages.id, c.var.message.id),
     });
     const sourceDocuments = await vectorStore.getDocuments(

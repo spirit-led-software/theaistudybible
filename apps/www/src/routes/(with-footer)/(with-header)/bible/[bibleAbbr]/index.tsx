@@ -19,7 +19,7 @@ export const route: RouteDefinition = {
 
 const getBibleRedirectUrl = GET(async ({ bibleAbbr }: BibleRedirectUrlParams) => {
   'use server';
-  const bibleData = await db.query.bibles.findFirst({
+  const bibleData = await db().query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
     columns: { abbreviation: true },
     with: {

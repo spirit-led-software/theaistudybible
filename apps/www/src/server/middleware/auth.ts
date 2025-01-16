@@ -37,7 +37,7 @@ export const authMiddleware = () => {
 
     if (!settings) {
       dbOperations.push(
-        db
+        db()
           .insert(userSettings)
           .values({ userId: user.id, emailNotifications: true, preferredBibleId: null })
           .onConflictDoUpdate({
@@ -56,8 +56,8 @@ export const authMiddleware = () => {
 
     if (!roles) {
       dbOperations.push(
-        db.query.usersToRoles
-          .findMany({
+        db()
+          .query.usersToRoles.findMany({
             where: (usersToRoles, { eq }) => eq(usersToRoles.userId, user.id),
             with: { role: true },
           })
@@ -70,7 +70,7 @@ export const authMiddleware = () => {
 
     if (!credits) {
       dbOperations.push(
-        db
+        db()
           .insert(userCredits)
           .values({ userId: user.id, lastSignInCreditAt: new Date() })
           .onConflictDoUpdate({

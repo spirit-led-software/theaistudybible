@@ -1,25 +1,34 @@
 import type { FlyRegion } from './types/fly.io';
 import { isProd } from './utils/constants';
 
-function getDatabase() {
-  if ($dev) {
-    const tursoDevCmd = new sst.x.DevCommand('TursoDev', {
-      dev: {
-        title: 'Turso',
-        command: 'turso dev --db-file .libsql.db --port 54321',
-        autostart: true,
-      },
-    });
-    return new sst.Linkable('Database', {
-      properties: {
-        // This is how we get the linkable to depend on the dev command
-        name: tursoDevCmd.urn.apply(() => 'name'),
-        url: tursoDevCmd.urn.apply(() => 'http://127.0.0.1:54321'),
-        token: tursoDevCmd.urn.apply(() => ''),
-      },
-    });
-  }
-  const tursoGroup = isProd
+export let dbGroup: turso.Group | undefined;
+export let dbGroupToken: $util.Output<sst.Secret> | undefined;
+export let dbSchema: turso.Database | undefined;
+export let db:
+  | $util.Output<
+      sst.Linkable<{
+        name: string;
+        url: string;
+        token: string;
+      }>
+    >
+  | turso.Database;
+
+if ($dev && process.env.TURSO_DEV === 'true') {
+  db = new sst.x.DevCommand('TursoDev', {
+    dev: {
+      title: 'Turso',
+      command: 'turso dev --db-file .libsql.db --port 54321',
+      autostart: true,
+    },
+  }).urn.apply(
+    () =>
+      new sst.Linkable('Database', {
+        properties: { name: 'name', url: 'http://127.0.0.1:54321', token: '' },
+      }),
+  );
+} else {
+  dbGroup = isProd
     ? new turso.Group(
         'TursoGroup',
         {
@@ -31,25 +40,46 @@ function getDatabase() {
       )
     : turso.Group.get('TursoGroup', 'default', {}, { retainOnDelete: true });
 
-  const tursoDatabase = new turso.Database(
-    'TursoDatabase',
+  sst.Linkable.wrap(turso.Group, (resource) => ({
+    properties: {
+      name: resource.name,
+      primary: resource.primary,
+      locations: resource.locations,
+    },
+  }));
+
+  dbGroupToken = turso
+    .getGroupTokenOutput({ id: dbGroup.id })
+    .apply(({ jwt }) => new sst.Secret('TursoGroupToken', jwt));
+
+  sst.Linkable.wrap(turso.Database, (resource) => ({
+    properties: {
+      name: resource.name,
+      url: $interpolate`https://${resource.database.hostname}`,
+      token: turso.getDatabaseTokenOutput({ id: resource.id }).apply(({ jwt }) => jwt),
+    },
+  }));
+
+  dbSchema = new turso.Database(
+    'TursoDatabaseSchema',
     {
-      name: `${$app.name}-${$app.stage}`,
-      group: tursoGroup.name,
+      name: `${$app.name}-${$app.stage}-schema`,
+      group: dbGroup.name,
+      isSchema: true,
     },
     { retainOnDelete: isProd },
   );
 
-  return new sst.Linkable('Database', {
-    properties: {
-      name: tursoDatabase.name,
-      url: $interpolate`https://${tursoDatabase.database.hostname}`,
-      token: turso.getDatabaseTokenOutput({ id: tursoDatabase.id }).apply(({ jwt }) => jwt),
+  db = new turso.Database(
+    'SharedTursoDatabase',
+    {
+      name: `${$app.name}-${$app.stage}-shared`,
+      group: dbGroup.name,
+      schema: dbSchema.name,
     },
-  });
+    { retainOnDelete: isProd },
+  );
 }
-
-export const database = getDatabase();
 
 sst.Linkable.wrap(upstash.RedisDatabase, (resource) => ({
   properties: {

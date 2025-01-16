@@ -38,7 +38,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
         const { bibleId, bookId, previousId, nextId, chapterNumber, content, generateEmbeddings } =
           JSON.parse(messageContent) as IndexChapterEvent;
 
-        const bibleData = await db.query.bibles.findFirst({
+        const bibleData = await db().query.bibles.findFirst({
           where: (bibles, { eq }) => eq(bibles.id, bibleId),
           with: {
             books: {

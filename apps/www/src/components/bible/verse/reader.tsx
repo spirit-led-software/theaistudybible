@@ -25,7 +25,7 @@ const getVerseReaderData = GET(
     verseNum: number;
   }) => {
     'use server';
-    const bibleData = await db.query.bibles.findFirst({
+    const bibleData = await db().query.bibles.findFirst({
       where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
       with: {
         biblesToRightsHolders: { with: { rightsHolder: true } },

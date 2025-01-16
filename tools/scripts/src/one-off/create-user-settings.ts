@@ -2,8 +2,8 @@ import { db } from '@/core/database';
 import { userSettings } from '@/core/database/schema';
 
 export const createUserSettings = async () => {
-  const users = await db.query.users.findMany({});
-  await db
+  const users = await db().query.users.findMany({});
+  await db()
     .insert(userSettings)
     .values(
       users.map((user) => ({

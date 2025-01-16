@@ -16,7 +16,7 @@ const app = new Hono<{
   };
 }>()
   .use('/:id/*', async (c, next) => {
-    const chat = await db.query.chats.findFirst({
+    const chat = await db().query.chats.findFirst({
       where: ({ id }, { eq }) => eq(id, c.req.param('id')),
     });
     if (!chat) {
@@ -34,7 +34,7 @@ const app = new Hono<{
   .post('/', zValidator('json', createInsertSchema(chats)), async (c) => {
     const chatData = c.req.valid('json');
     const chat = (
-      await db
+      await db()
         .insert(chats)
         .values({
           ...chatData,
@@ -54,13 +54,13 @@ const app = new Hono<{
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
     const [foundChats, chatCount] = await Promise.all([
-      db.query.chats.findMany({
+      db().query.chats.findMany({
         where: filter,
         limit,
         offset: cursor,
         orderBy: sort,
       }),
-      db
+      db()
         .select({ count: count() })
         .from(chats)
         .where(filter)
@@ -87,7 +87,7 @@ const app = new Hono<{
   .patch('/:id', zValidator('json', createInsertSchema(chats)), async (c) => {
     const chatData = c.req.valid('json');
     const chat = (
-      await db.update(chats).set(chatData).where(eq(chats.id, c.var.chat!.id)).returning()
+      await db().update(chats).set(chatData).where(eq(chats.id, c.var.chat!.id)).returning()
     )[0];
     return c.json(
       {
@@ -98,7 +98,7 @@ const app = new Hono<{
     );
   })
   .delete('/:id', async (c) => {
-    await db.delete(chats).where(eq(chats.id, c.var.chat!.id));
+    await db().delete(chats).where(eq(chats.id, c.var.chat!.id));
     return c.json(
       {
         message: 'Chat deleted successfully',
@@ -115,13 +115,13 @@ const app = new Hono<{
     }
 
     const [foundMessages, messageCount] = await Promise.all([
-      db.query.messages.findMany({
+      db().query.messages.findMany({
         where,
         limit,
         offset: cursor,
         orderBy: sort,
       }),
-      db
+      db()
         .select({ count: count() })
         .from(messages)
         .where(where)

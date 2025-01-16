@@ -28,7 +28,7 @@ import { createEffect, createSignal } from 'solid-js';
 const editChatAction = action(async (props: { chatId: string; name: string }) => {
   'use server';
   const { user } = requireAuth();
-  const [chat] = await db
+  const [chat] = await db()
     .update(chats)
     .set({
       name: props.name,

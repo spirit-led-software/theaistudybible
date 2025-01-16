@@ -15,7 +15,7 @@ export async function getValidMessages({
   offset?: number;
   mustStartWithUserMessage?: boolean;
 }) {
-  let messages = await db.query.messages.findMany({
+  let messages = await db().query.messages.findMany({
     where: (messages, { and, eq, or, isNull, ne, not }) =>
       and(
         eq(messages.userId, userId),

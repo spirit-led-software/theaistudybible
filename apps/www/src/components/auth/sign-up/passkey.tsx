@@ -54,7 +54,7 @@ const passkeySchema = z.object({
 
 const createChallengeAction = action(async (email: string) => {
   'use server';
-  const existingUser = await db.query.users.findFirst({
+  const existingUser = await db().query.users.findFirst({
     where: eq(users.email, email),
   });
   if (existingUser) {
@@ -113,8 +113,8 @@ const signUpWithPasskeyAction = action(
       throw new Error('Invalid cross origin');
     }
 
-    const [user] = await db.insert(users).values({ email: input.email }).returning();
-    await db.insert(userSettings).values({ userId: user.id });
+    const [user] = await db().insert(users).values({ email: input.email }).returning();
+    await db().insert(userSettings).values({ userId: user.id });
 
     let credential: WebAuthnUserCredential;
     if (authenticatorData.credential.publicKey.algorithm() === coseAlgorithmES256) {

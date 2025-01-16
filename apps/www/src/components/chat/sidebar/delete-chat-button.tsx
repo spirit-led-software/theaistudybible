@@ -22,7 +22,9 @@ import { Trash } from 'lucide-solid';
 const deleteChatAction = action(async (chatId: string) => {
   'use server';
   const { user } = requireAuth();
-  await db.delete(chats).where(and(eq(chats.userId, user.id), eq(chats.id, chatId)));
+  await db()
+    .delete(chats)
+    .where(and(eq(chats.userId, user.id), eq(chats.id, chatId)));
   return { success: true };
 });
 

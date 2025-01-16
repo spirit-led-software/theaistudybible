@@ -45,6 +45,7 @@
     "@hono/zod-validator": "^0.4.2",
     "@internationalized/date": "^3.6.0",
     "@kobalte/core": "^0.13.7",
+    "@libsql/client-wasm": "^0.14.0",
     "@modular-forms/solid": "0.25.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@pilcrowjs/object-parser": "^0.0.4",
@@ -69,6 +70,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk-solid": "^1.1.0",
+    "comlink": "^4.4.2",
     "cropperjs": "^1.6.2",
     "embla-carousel-solid": "^8.5.2",
     "hono": "^4.6.16",
@@ -79,7 +81,8 @@
     "solid-js": "^1.9.4",
     "solid-markdown": "^2.0.14",
     "solid-sonner": "^0.2.8",
-    "tailwind-merge": "^2.6.0"
+    "tailwind-merge": "^2.6.0",
+    "vite-plugin-comlink": "^5.1.0"
   },
   "engines": {
     "node": ">=18",

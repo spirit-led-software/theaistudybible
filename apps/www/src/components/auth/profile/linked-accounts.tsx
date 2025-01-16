@@ -20,9 +20,9 @@ const unlinkAction = action(async (provider: Provider) => {
   'use server';
   const { session, user } = requireAuth();
   if (provider === 'google') {
-    await db.update(users).set({ googleId: null }).where(eq(users.id, user.id));
+    await db().update(users).set({ googleId: null }).where(eq(users.id, user.id));
   } else if (provider === 'apple') {
-    await db.update(users).set({ appleId: null }).where(eq(users.id, user.id));
+    await db().update(users).set({ appleId: null }).where(eq(users.id, user.id));
   } else {
     throw new Error(`Invalid provider: ${provider}`);
   }

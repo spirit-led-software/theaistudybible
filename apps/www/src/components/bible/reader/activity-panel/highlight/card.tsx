@@ -22,7 +22,7 @@ const updateHighlightsAction = action(
   async ({ color, verseIds }: { color: string; verseIds: string[] }) => {
     'use server';
     const { user } = requireAuth();
-    return await db
+    return await db()
       .insert(verseHighlights)
       .values(
         verseIds.map((id) => ({
@@ -44,7 +44,7 @@ const updateHighlightsAction = action(
 const deleteHighlightsAction = action(async ({ verseIds }: { verseIds: string[] }) => {
   'use server';
   const { user } = requireAuth();
-  await db
+  await db()
     .delete(verseHighlights)
     .where(and(eq(verseHighlights.userId, user.id), inArray(verseHighlights.verseId, verseIds)));
   return { success: true };

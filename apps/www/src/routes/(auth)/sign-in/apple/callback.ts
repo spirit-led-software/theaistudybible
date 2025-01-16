@@ -56,7 +56,7 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
     );
   }
 
-  const existingUserByAppleId = await db.query.users.findFirst({
+  const existingUserByAppleId = await db().query.users.findFirst({
     where: (table, { eq }) => eq(table.appleId, appleId),
   });
   if (existingUserByAppleId) {
@@ -77,17 +77,17 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
     });
   }
 
-  let user = await db.query.users.findFirst({
+  let user = await db().query.users.findFirst({
     where: (table, { eq }) => eq(table.email, email),
   });
   if (user) {
-    [user] = await db
+    [user] = await db()
       .update(users)
       .set({ appleId, firstName: name?.firstName, lastName: name?.lastName })
       .where(eq(users.id, user.id))
       .returning();
   } else {
-    [user] = await db
+    [user] = await db()
       .insert(users)
       .values({ appleId, email, firstName: name?.firstName, lastName: name?.lastName })
       .returning();

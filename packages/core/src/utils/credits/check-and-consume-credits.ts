@@ -6,14 +6,14 @@ export type Action = 'chat' | 'advanced-chat' | 'image';
 
 export const checkAndConsumeCredits = async (userId: string, action: Action) => {
   const cost = getCost(action);
-  let [userCredit] = await db.select().from(userCredits).where(eq(userCredits.userId, userId));
+  let [userCredit] = await db().select().from(userCredits).where(eq(userCredits.userId, userId));
   if (!userCredit) {
-    [userCredit] = await db.insert(userCredits).values({ userId, balance: 10 }).returning();
+    [userCredit] = await db().insert(userCredits).values({ userId, balance: 10 }).returning();
   }
   if (userCredit.balance < cost) {
     return false;
   }
-  await db
+  await db()
     .update(userCredits)
     .set({ balance: userCredit.balance - cost })
     .where(eq(userCredits.userId, userId));

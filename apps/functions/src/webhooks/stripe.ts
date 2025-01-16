@@ -27,7 +27,7 @@ const app = new Hono().post('/', async (c) => {
         return c.json({ message: 'Client reference ID not found' }, 400);
       }
 
-      const user = await db.query.users.findFirst({
+      const user = await db().query.users.findFirst({
         where: (users, { eq }) => eq(users.id, clientReferenceId),
       });
       if (!user) {
@@ -40,7 +40,7 @@ const app = new Hono().post('/', async (c) => {
         customer = await stripe.customers.retrieve(customer);
       }
       if (customer && !customer.deleted && user.stripeCustomerId !== customer.id) {
-        await db
+        await db()
           .update(users)
           .set({
             stripeCustomerId: customer.id,
@@ -65,7 +65,7 @@ const app = new Hono().post('/', async (c) => {
         return c.json({ message: 'Invalid credits in product metadata' }, 400);
       }
 
-      await db
+      await db()
         .insert(userCredits)
         .values({
           userId: user.id,

@@ -17,7 +17,7 @@ export const app = new Hono<{
 }>()
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const indexOperation = await db.query.indexOperations.findFirst({
+    const indexOperation = await db().query.indexOperations.findFirst({
       where: eq(indexOperations.id, id),
     });
 
@@ -32,13 +32,13 @@ export const app = new Hono<{
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
     const [foundIndexOperations, indexOperationsCount] = await Promise.all([
-      db.query.indexOperations.findMany({
+      db().query.indexOperations.findMany({
         where: filter,
         orderBy: sort,
         offset: cursor,
         limit: limit,
       }),
-      db.select({ count: count() }).from(indexOperations).where(filter),
+      db().select({ count: count() }).from(indexOperations).where(filter),
     ]);
 
     return c.json(
@@ -70,7 +70,7 @@ export const app = new Hono<{
     async (c) => {
       const data = c.req.valid('json');
 
-      const [indexOperation] = await db
+      const [indexOperation] = await db()
         .update(indexOperations)
         .set(data)
         .where(eq(indexOperations.id, c.req.param('id')))
@@ -85,7 +85,9 @@ export const app = new Hono<{
     },
   )
   .delete('/:id', async (c) => {
-    await db.delete(indexOperations).where(eq(indexOperations.id, c.req.param('id')));
+    await db()
+      .delete(indexOperations)
+      .where(eq(indexOperations.id, c.req.param('id')));
     return c.json(
       {
         message: 'Index operation deleted',

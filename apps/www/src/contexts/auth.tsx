@@ -2,6 +2,8 @@ import type { Role } from '@/schemas/roles/types';
 import type { Session, User, UserSettings } from '@/schemas/users/types';
 import { auth } from '@/www/server/auth';
 import { setUser as setSentryUser } from '@sentry/solidstart';
+import { createWritableMemo } from '@solid-primitives/memo';
+import { makePersisted } from '@solid-primitives/storage';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import {
@@ -86,7 +88,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
   }));
 
   const session = createMemo(() => query.data?.session);
-  const user = createMemo(() => query.data?.user);
+  const [user] = makePersisted(createWritableMemo(() => query.data?.user));
   const roles = createMemo(() => query.data?.roles);
   const settings = createMemo(() => query.data?.settings);
 

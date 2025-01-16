@@ -59,7 +59,7 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
     );
   }
 
-  const existingUserByGoogleId = await db.query.users.findFirst({
+  const existingUserByGoogleId = await db().query.users.findFirst({
     where: (table, { eq }) => eq(table.googleId, googleId),
   });
   if (existingUserByGoogleId) {
@@ -80,11 +80,11 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
     });
   }
 
-  let user = await db.query.users.findFirst({
+  let user = await db().query.users.findFirst({
     where: (table, { eq }) => eq(table.email, email),
   });
   if (user) {
-    [user] = await db
+    [user] = await db()
       .update(users)
       .set({
         googleId,
@@ -95,7 +95,7 @@ export const GET: APIHandler = async ({ nativeEvent, request }) => {
       .where(eq(users.id, user.id))
       .returning();
   } else {
-    [user] = await db
+    [user] = await db()
       .insert(users)
       .values({
         googleId,

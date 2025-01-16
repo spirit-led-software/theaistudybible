@@ -10,14 +10,14 @@ import { hashPassword, verifyPassword } from './utils';
 
 export async function signIn(credentials: z.infer<typeof signInSchema>) {
   const validated = await signInSchema.parseAsync(credentials);
-  const existingUser = await db.query.users.findFirst({
+  const existingUser = await db().query.users.findFirst({
     where: (users, { eq }) => eq(users.email, validated.email),
   });
   if (!existingUser) {
     throw new AuthError('InvalidSignIn', 'User not found');
   }
 
-  const existingUserPassword = await db.query.passwords.findFirst({
+  const existingUserPassword = await db().query.passwords.findFirst({
     where: (passwords, { and, eq }) =>
       and(eq(passwords.userId, existingUser.id), eq(passwords.active, true)),
   });
@@ -42,7 +42,7 @@ export async function signIn(credentials: z.infer<typeof signInSchema>) {
 
 export async function signUp(credentials: z.infer<typeof signUpSchema>) {
   const validated = await signUpSchema.parseAsync(credentials);
-  const existingUser = await db.query.users.findFirst({
+  const existingUser = await db().query.users.findFirst({
     where: (users, { eq }) => eq(users.email, validated.email),
   });
   if (existingUser) {
@@ -50,18 +50,18 @@ export async function signUp(credentials: z.infer<typeof signUpSchema>) {
   }
 
   const hash = await hashPassword(validated.password);
-  const [user] = await db
+  const [user] = await db()
     .insert(users)
     .values({
       email: validated.email,
     })
     .returning();
   await Promise.all([
-    db.insert(passwords).values({
+    db().insert(passwords).values({
       userId: user.id,
       hash,
     }),
-    db.insert(userSettings).values({
+    db().insert(userSettings).values({
       userId: user.id,
     }),
   ]);
@@ -76,14 +76,14 @@ export async function signUp(credentials: z.infer<typeof signUpSchema>) {
 export async function requestPasswordReset(values: z.infer<typeof forgotPasswordSchema>) {
   const validated = await forgotPasswordSchema.parseAsync(values);
 
-  const user = await db.query.users.findFirst({
+  const user = await db().query.users.findFirst({
     where: (users, { eq }) => eq(users.email, validated.email),
   });
   if (!user) {
     throw new AuthError('UserNotFound', 'User not found');
   }
 
-  const [code] = await db
+  const [code] = await db()
     .insert(forgottenPasswordCodes)
     .values({
       userId: user.id,
@@ -108,7 +108,7 @@ export async function requestPasswordReset(values: z.infer<typeof forgotPassword
 export async function resetPassword(values: z.infer<typeof resetPasswordSchema>) {
   const validated = await resetPasswordSchema.parseAsync(values);
 
-  const code = await db.query.forgottenPasswordCodes.findFirst({
+  const code = await db().query.forgottenPasswordCodes.findFirst({
     where: (forgottenPasswordCodes, { eq }) => eq(forgottenPasswordCodes.code, validated.code),
   });
   if (!code || code.expiresAt < new Date()) {
@@ -117,7 +117,7 @@ export async function resetPassword(values: z.infer<typeof resetPasswordSchema>)
 
   const hash = await hashPassword(validated.password);
 
-  const oldPasswords = await db.query.passwords.findMany({
+  const oldPasswords = await db().query.passwords.findMany({
     where: (passwords, { eq }) => eq(passwords.userId, code.userId),
     orderBy: (passwords, { desc }) => [desc(passwords.createdAt)],
     limit: 2,
@@ -130,10 +130,10 @@ export async function resetPassword(values: z.infer<typeof resetPasswordSchema>)
   }
 
   // Invalidate the existing passwords
-  await db.update(passwords).set({ active: false }).where(eq(passwords.userId, code.userId));
+  await db().update(passwords).set({ active: false }).where(eq(passwords.userId, code.userId));
 
   // Create the new password
-  await db
+  await db()
     .insert(passwords)
     .values({ userId: code.userId, hash })
     .onConflictDoUpdate({

@@ -18,7 +18,7 @@ const getUserCredits = GET(async () => {
   if (!user) {
     return { balance: 10 };
   }
-  const [userCredit] = await db.select().from(userCredits).where(eq(userCredits.userId, user.id));
+  const [userCredit] = await db().select().from(userCredits).where(eq(userCredits.userId, user.id));
   return { balance: userCredit?.balance ?? 10 };
 });
 

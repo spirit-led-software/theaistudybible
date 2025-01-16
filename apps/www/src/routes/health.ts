@@ -3,8 +3,8 @@ import { db } from '@/core/database';
 import type { APIHandler } from '@solidjs/start/server';
 
 export const GET: APIHandler = async () => {
-  const dbTest = await db.$client
-    .execute('SELECT 1;')
+  const dbTest = await db()
+    .$client.execute('SELECT 1;')
     .then(() => undefined)
     .catch((e) => e);
   const cacheTest = await cache

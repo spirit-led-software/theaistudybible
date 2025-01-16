@@ -2,6 +2,7 @@
 
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
+import { clientOnly } from '@solidjs/start';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
@@ -26,6 +27,10 @@ import '@fontsource/goldman/400.css';
 import '@fontsource/goldman/700.css';
 import '@fontsource-variable/inter';
 import './app.css';
+
+const LocalDbProvider = clientOnly(async () => ({
+  default: (await import('./contexts/local-db')).LocalDbProvider,
+}));
 
 export default function App() {
   const queryClient = new QueryClient({
@@ -55,53 +60,55 @@ export default function App() {
               <ColorModeProvider storageManager={storageManager}>
                 <ServiceWorkerProvider>
                   <AuthProvider>
-                    <BibleProvider>
-                      <ChatProvider>
-                        <DevotionProvider>
-                          <Suspense
-                            fallback={
-                              <div class='flex h-full w-full items-center justify-center'>
-                                <div class='w-full max-w-xl'>
-                                  <Logo />
-                                </div>
-                              </div>
-                            }
-                          >
-                            <SentryErrorBoundary
-                              fallback={(err, reset) => (
+                    <LocalDbProvider>
+                      <BibleProvider>
+                        <ChatProvider>
+                          <DevotionProvider>
+                            <Suspense
+                              fallback={
                                 <div class='flex h-full w-full items-center justify-center'>
-                                  <div class='flex w-full max-w-xl flex-col gap-3'>
-                                    <H1>Oops, something went wrong. Please contact support.</H1>
-                                    <H4>{err.message}</H4>
-                                    <Show when={err.stack} keyed>
-                                      {(stack) => (
-                                        <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
-                                          {stack}
-                                        </pre>
-                                      )}
-                                    </Show>
-                                    <Show
-                                      when={
-                                        'cause' in err && err.cause instanceof Error && err.cause
-                                      }
-                                      keyed
-                                    >
-                                      {(cause) => <H3>{cause.message}</H3>}
-                                    </Show>
-                                    <Button onClick={reset}>Try again</Button>
+                                  <div class='w-full max-w-xl'>
+                                    <Logo />
                                   </div>
                                 </div>
-                              )}
+                              }
                             >
-                              {props.children}
+                              <SentryErrorBoundary
+                                fallback={(err, reset) => (
+                                  <div class='flex h-full w-full items-center justify-center'>
+                                    <div class='flex w-full max-w-xl flex-col gap-3'>
+                                      <H1>Oops, something went wrong. Please contact support.</H1>
+                                      <H4>{err.message}</H4>
+                                      <Show when={err.stack} keyed>
+                                        {(stack) => (
+                                          <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
+                                            {stack}
+                                          </pre>
+                                        )}
+                                      </Show>
+                                      <Show
+                                        when={
+                                          'cause' in err && err.cause instanceof Error && err.cause
+                                        }
+                                        keyed
+                                      >
+                                        {(cause) => <H3>{cause.message}</H3>}
+                                      </Show>
+                                      <Button onClick={reset}>Try again</Button>
+                                    </div>
+                                  </div>
+                                )}
+                              >
+                                {props.children}
 
-                              <Toaster />
-                              <NotificationPromptDialog />
-                            </SentryErrorBoundary>
-                          </Suspense>
-                        </DevotionProvider>
-                      </ChatProvider>
-                    </BibleProvider>
+                                <Toaster />
+                                <NotificationPromptDialog />
+                              </SentryErrorBoundary>
+                            </Suspense>
+                          </DevotionProvider>
+                        </ChatProvider>
+                      </BibleProvider>
+                    </LocalDbProvider>
                   </AuthProvider>
                 </ServiceWorkerProvider>
               </ColorModeProvider>

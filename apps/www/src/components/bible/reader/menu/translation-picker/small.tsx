@@ -21,7 +21,7 @@ import { createMemo } from 'solid-js';
 
 const getSmallPickerData = GET(async () => {
   'use server';
-  return await db.query.bibles.findMany({
+  return await db().query.bibles.findMany({
     with: { biblesToLanguages: { with: { language: true } } },
   });
 });

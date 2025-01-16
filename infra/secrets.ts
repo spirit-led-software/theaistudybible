@@ -1,3 +1,5 @@
+export const TURSO_API_TOKEN = new sst.Secret('TursoApiToken', process.env.TURSO_API_TOKEN);
+
 export const OPENAI_API_KEY = new sst.Secret('OpenAiApiKey');
 export const ANTHROPIC_API_KEY = new sst.Secret('AnthropicApiKey');
 export const GROQ_API_KEY = new sst.Secret('GroqApiKey');

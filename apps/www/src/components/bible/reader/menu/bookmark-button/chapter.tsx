@@ -22,7 +22,7 @@ const getBookmark = GET(async (chapterId: string) => {
     return { bookmark: null };
   }
 
-  const bookmark = await db.query.chapterBookmarks.findFirst({
+  const bookmark = await db().query.chapterBookmarks.findFirst({
     where: (chapterBookmarks, { and, eq }) =>
       and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.chapterId, chapterId)),
   });
@@ -32,14 +32,14 @@ const getBookmark = GET(async (chapterId: string) => {
 const addBookmarkAction = action(async (chapterId: string) => {
   'use server';
   const { user } = requireAuth();
-  await db.insert(chapterBookmarks).values({ chapterId, userId: user.id }).onConflictDoNothing();
+  await db().insert(chapterBookmarks).values({ chapterId, userId: user.id }).onConflictDoNothing();
   return { success: true };
 });
 
 const deleteBookmarkAction = action(async (chapterId: string) => {
   'use server';
   const { user } = requireAuth();
-  await db
+  await db()
     .delete(chapterBookmarks)
     .where(and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.chapterId, chapterId)));
   return { success: true };

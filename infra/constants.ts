@@ -41,3 +41,6 @@ export const VAPID_PUBLIC_KEY = new Constant(
 );
 
 export const BRAIN_TRUST_PROJECT_NAME = new Constant('BrainTrustProjectName', 'The AI Study Bible');
+
+export const TURSO_ORG = new Constant('TursoOrg', process.env.TURSO_ORG!);
+export const TURSO_DEV = new Constant('TursoDev', process.env.TURSO_DEV ?? 'false');

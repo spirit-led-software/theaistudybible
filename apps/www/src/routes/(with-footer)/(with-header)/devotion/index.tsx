@@ -9,7 +9,7 @@ import { Show } from 'solid-js';
 
 const getLatestDevotion = GET(async () => {
   'use server';
-  const devotion = await db.query.devotions.findFirst({
+  const devotion = await db().query.devotions.findFirst({
     orderBy: (devotions, { desc }) => desc(devotions.createdAt),
   });
   return { devotion: devotion ?? null };

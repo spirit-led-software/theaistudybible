@@ -33,7 +33,7 @@ const getNotes = GET(
 
     let notes = [];
     if (props.verseIds?.length) {
-      notes = await db.query.verseNotes.findMany({
+      notes = await db().query.verseNotes.findMany({
         where: (verseNotes, { and, eq, inArray }) =>
           and(eq(verseNotes.userId, user.id), inArray(verseNotes.verseId, props.verseIds!)),
         orderBy: (verseNotes, { desc }) => desc(verseNotes.updatedAt),
@@ -47,7 +47,7 @@ const getNotes = GET(
         },
       });
     } else {
-      notes = await db.query.chapterNotes.findMany({
+      notes = await db().query.chapterNotes.findMany({
         where: (chapterNotes, { and, eq }) =>
           and(eq(chapterNotes.userId, user.id), eq(chapterNotes.chapterId, props.chapterId)),
         orderBy: (chapterNotes, { desc }) => desc(chapterNotes.updatedAt),

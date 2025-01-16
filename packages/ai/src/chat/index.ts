@@ -66,7 +66,7 @@ ${messagesToString(messages)}
 What's the new title?`,
   });
 
-  const [chat] = await db
+  const [chat] = await db()
     .update(chats)
     .set({
       name: title,
@@ -124,7 +124,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
     );
   } else {
     pendingPromises.push(
-      db
+      db()
         .update(chats)
         .set({ updatedAt: new Date() })
         .where(eq(chats.id, options.chat.id))
@@ -159,7 +159,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
       maxSteps: options.maxSteps ?? 5,
       onStepFinish: async (step) => {
         const onStepFinish = async () => {
-          const [response] = await db
+          const [response] = await db()
             .insert(messagesTable)
             .values({
               role: 'assistant',
@@ -181,7 +181,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
           });
 
           if (step.toolResults?.length) {
-            await db
+            await db()
               .update(messagesTable)
               .set({
                 toolInvocations: step.toolResults.map((t) => ({
@@ -194,7 +194,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
 
             for (const toolResult of step.toolResults) {
               if (toolResult.toolName === 'vectorStore' && toolResult.result.status === 'success') {
-                await db
+                await db()
                   .insert(messagesToSourceDocuments)
                   .values(
                     toolResult.result.documents.map((d) => ({
@@ -217,7 +217,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
                   options.dataStream.writeMessageAnnotation({
                     generatedImageId: generateImageToolResult.result.image.id,
                   });
-                  await db
+                  await db()
                     .insert(userGeneratedImagesToSourceDocuments)
                     .values(
                       toolResult.result.documents.map((d) => ({

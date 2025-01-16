@@ -20,8 +20,8 @@ const getHighlights = GET(async (chapterId: string) => {
     return [];
   }
 
-  return await db.query.chapters
-    .findFirst({
+  return await db()
+    .query.chapters.findFirst({
       where: (chapters, { eq }) => eq(chapters.id, chapterId),
       columns: { id: true },
       with: {
@@ -43,8 +43,8 @@ const getNotes = GET(async (chapterId: string) => {
     return [];
   }
 
-  return await db.query.chapters
-    .findFirst({
+  return await db()
+    .query.chapters.findFirst({
       where: (chapters, { eq }) => eq(chapters.id, chapterId),
       columns: { id: true },
       with: {

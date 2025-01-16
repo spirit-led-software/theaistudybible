@@ -24,7 +24,11 @@ import {
 const updateUserAction = action(async (values: UpdateUser) => {
   'use server';
   const { session, user } = requireAuth();
-  const [updatedUser] = await db.update(users).set(values).where(eq(users.id, user.id)).returning();
+  const [updatedUser] = await db()
+    .update(users)
+    .set(values)
+    .where(eq(users.id, user.id))
+    .returning();
   await cache.del(`auth:${session.id}`); // invalidate auth cache
   return { user: updatedUser };
 });

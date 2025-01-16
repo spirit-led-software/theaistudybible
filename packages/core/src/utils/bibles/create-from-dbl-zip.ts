@@ -82,7 +82,7 @@ function findPublication(metadata: DBLMetadata, publicationId?: string): Publica
 }
 
 async function findExistingBible(abbreviation: string, overwrite: boolean) {
-  const bible = await db.query.bibles.findFirst({
+  const bible = await db().query.bibles.findFirst({
     where: eq(schema.bibles.abbreviation, abbreviation),
   });
 
@@ -102,14 +102,14 @@ async function findExistingBible(abbreviation: string, overwrite: boolean) {
 }
 
 async function deleteBibleAndEmbeddings(bibleId: string) {
-  await db.delete(schema.bibles).where(eq(schema.bibles.id, bibleId));
+  await db().delete(schema.bibles).where(eq(schema.bibles.id, bibleId));
 }
 
 async function createNewBible(metadata: DBLMetadata, abbreviation: string) {
   const copyRightHtml = new XMLBuilder({
     ignoreAttributes: false,
   }).build(metadata.copyright.fullStatement.statementContent);
-  const [bible] = await db
+  const [bible] = await db()
     .insert(schema.bibles)
     .values({
       abbreviation,
@@ -138,7 +138,7 @@ async function createBibleRelations(
 async function createBibleLanguage(bibleId: string, dblLanguage: DBLMetadata['language']) {
   const { iso, ...rest } = dblLanguage;
 
-  const [language] = await db
+  const [language] = await db()
     .insert(schema.bibleLanguages)
     .values(dblLanguage)
     .onConflictDoUpdate({
@@ -146,7 +146,7 @@ async function createBibleLanguage(bibleId: string, dblLanguage: DBLMetadata['la
       set: rest,
     })
     .returning();
-  await db.insert(schema.biblesToLanguages).values({
+  await db().insert(schema.biblesToLanguages).values({
     bibleId,
     languageId: language.id,
   });
@@ -157,7 +157,7 @@ async function createBibleCountries(
   dblCountries: DBLMetadata['countries']['country'],
 ) {
   const countriesArray = Array.isArray(dblCountries) ? dblCountries : [dblCountries];
-  const countries = await db
+  const countries = await db()
     .insert(schema.bibleCountries)
     .values(countriesArray)
     .onConflictDoUpdate({
@@ -170,12 +170,14 @@ async function createBibleCountries(
       ),
     })
     .returning();
-  await db.insert(schema.biblesToCountries).values(
-    countries.map((country) => ({
-      bibleId,
-      countryId: country.id,
-    })),
-  );
+  await db()
+    .insert(schema.biblesToCountries)
+    .values(
+      countries.map((country) => ({
+        bibleId,
+        countryId: country.id,
+      })),
+    );
 }
 
 async function createBibleRightsHolder(
@@ -183,7 +185,7 @@ async function createBibleRightsHolder(
   dblRightsHolder: DBLMetadata['agencies']['rightsHolder'],
 ) {
   const { uid, ...rest } = dblRightsHolder;
-  const [rightsHolder] = await db
+  const [rightsHolder] = await db()
     .insert(schema.bibleRightsHolders)
     .values(dblRightsHolder)
     .onConflictDoUpdate({
@@ -191,7 +193,7 @@ async function createBibleRightsHolder(
       set: rest,
     })
     .returning();
-  await db.insert(schema.biblesToRightsHolders).values({
+  await db().insert(schema.biblesToRightsHolders).values({
     bibleId,
     rightsHolderId: rightsHolder.id,
   });
@@ -202,7 +204,7 @@ async function createBibleRightsAdmin(
   dblRightsAdmin: DBLMetadata['agencies']['rightsAdmin'],
 ) {
   const { uid, ...rest } = dblRightsAdmin;
-  const [rightsAdmin] = await db
+  const [rightsAdmin] = await db()
     .insert(schema.bibleRightsAdmins)
     .values(dblRightsAdmin)
     .onConflictDoUpdate({
@@ -210,7 +212,7 @@ async function createBibleRightsAdmin(
       set: rest,
     })
     .returning();
-  await db.insert(schema.biblesToRightsAdmins).values({
+  await db().insert(schema.biblesToRightsAdmins).values({
     bibleId,
     rightsAdminId: rightsAdmin.id,
   });
@@ -221,7 +223,7 @@ async function createBibleContributor(
   dblContributor: DBLMetadata['agencies']['contributor'],
 ) {
   const contributorsArray = Array.isArray(dblContributor) ? dblContributor : [dblContributor];
-  const contributors = await db
+  const contributors = await db()
     .insert(schema.bibleContributors)
     .values(contributorsArray)
     .onConflictDoUpdate({
@@ -235,12 +237,14 @@ async function createBibleContributor(
     })
     .returning();
 
-  await db.insert(schema.biblesToContributors).values(
-    contributors.map((contributor) => ({
-      bibleId,
-      contributorId: contributor.id,
-    })),
-  );
+  await db()
+    .insert(schema.biblesToContributors)
+    .values(
+      contributors.map((contributor) => ({
+        bibleId,
+        contributorId: contributor.id,
+      })),
+    );
 }
 
 function getBookInfos(publication: Publication, metadata: DBLMetadata) {
@@ -264,7 +268,7 @@ async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBook
 
   for (let i = 0; i < bookInfos.length; i += batchSize) {
     const batch = bookInfos.slice(i, i + batchSize);
-    const insertedBooks = await db
+    const insertedBooks = await db()
       .insert(schema.books)
       .values(
         batch.map((book, idx) => {

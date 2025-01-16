@@ -57,7 +57,7 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
     }),
     execute: async ({ bibleAbbr, bookName, chapterNumber, verseNumbers, color }) => {
       try {
-        const queryResult = await db.query.bibles.findFirst({
+        const queryResult = await db().query.bibles.findFirst({
           columns: { id: true, abbreviation: true },
           where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
           with: {
@@ -93,7 +93,7 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
           throw new Error('Verse(s) not found');
         }
 
-        await db
+        await db()
           .insert(verseHighlights)
           .values(
             verses.map((verse) => ({
@@ -136,7 +136,7 @@ export const bookmarkVerseTool = (input: { dataStream: DataStreamWriter; userId:
     }),
     execute: async ({ bibleAbbr, bookName, chapterNumber, verseNumbers }) => {
       try {
-        const queryResult = await db.query.bibles.findFirst({
+        const queryResult = await db().query.bibles.findFirst({
           columns: { id: true, abbreviation: true },
           where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
           with: {
@@ -172,7 +172,7 @@ export const bookmarkVerseTool = (input: { dataStream: DataStreamWriter; userId:
           throw new Error('Verse(s) not found');
         }
 
-        await db
+        await db()
           .insert(verseBookmarks)
           .values(
             verses.map((verse) => ({
@@ -210,7 +210,7 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
     }),
     execute: async ({ bibleAbbr, bookName, chapterNumbers }) => {
       try {
-        const queryResult = await db.query.bibles.findFirst({
+        const queryResult = await db().query.bibles.findFirst({
           columns: { id: true, abbreviation: true },
           where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
           with: {
@@ -239,7 +239,7 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
           throw new Error('Chapter(s) not found');
         }
 
-        await db
+        await db()
           .insert(chapterBookmarks)
           .values(
             chapters.map((chapter) => ({
@@ -354,7 +354,7 @@ export const generateImageTool = (input: { dataStream: DataStreamWriter; userId:
           } as const;
         }
 
-        const [generatedImage] = await db
+        const [generatedImage] = await db()
           .insert(userGeneratedImages)
           .values({
             id,

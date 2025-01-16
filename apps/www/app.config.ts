@@ -2,6 +2,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { sentrySolidStartVite } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
 import solidDevTools from 'solid-devtools/vite';
+import { comlink } from 'vite-plugin-comlink';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -10,13 +11,14 @@ export default defineConfig({
   server: {
     preset: 'bun',
     serveStatic: false,
-    plugins: ['./src/server/plugins/compression.ts'],
+    plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/opfs.ts'],
     compatibilityDate: '2024-12-02',
   },
   vite: {
     envPrefix: 'PUBLIC_',
     plugins: [
       tsconfigPaths(),
+      comlink(),
       solidDevTools({ autoname: true }),
       VitePWA({
         strategies: 'injectManifest',
@@ -82,6 +84,11 @@ export default defineConfig({
         sourceMapsUploadOptions: { filesToDeleteAfterUpload: ['**/*.map'] },
       }),
     ],
-    optimizeDeps: { include: ['solid-markdown > debug', 'solid-marked > extend'] },
+    ssr: { noExternal: ['@tursodatabase/api'] },
+    optimizeDeps: {
+      include: ['solid-markdown > debug', 'solid-marked > extend'],
+      exclude: ['@libsql/client-wasm'],
+    },
+    worker: { format: 'es', plugins: () => [comlink()] },
   },
 });

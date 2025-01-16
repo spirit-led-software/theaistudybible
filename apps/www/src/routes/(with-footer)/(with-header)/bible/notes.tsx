@@ -23,7 +23,7 @@ const getNotes = GET(async ({ limit, offset }: { limit: number; offset: number }
     return { notes: [], nextCursor: undefined };
   }
   const [verseNotes, chapterNotes] = await Promise.all([
-    db.query.verseNotes.findMany({
+    db().query.verseNotes.findMany({
       where: (verseNotes, { eq }) => eq(verseNotes.userId, user.id),
       with: {
         verse: {
@@ -38,7 +38,7 @@ const getNotes = GET(async ({ limit, offset }: { limit: number; offset: number }
       limit,
       offset,
     }),
-    db.query.chapterNotes.findMany({
+    db().query.chapterNotes.findMany({
       where: (chapterNotes, { eq }) => eq(chapterNotes.userId, user.id),
       with: {
         chapter: {

@@ -17,7 +17,7 @@ import { setResponseHeader } from 'vinxi/http';
 
 const getDevotion = GET(async ({ id }: { id: string }) => {
   'use server';
-  const devotion = await db.query.devotions.findFirst({
+  const devotion = await db().query.devotions.findFirst({
     where: (devotions, { eq }) => eq(devotions.id, id),
     with: { images: true },
   });

@@ -57,12 +57,6 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
-    "Database": {
-      "name": string
-      "token": string
-      "type": "sst.sst.Linkable"
-      "url": string
-    }
     "DeadLetterQueue": {
       "type": "sst.aws.Queue"
       "url": string
@@ -148,6 +142,12 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "SharedTursoDatabase": {
+      "name": string
+      "token": string
+      "type": "turso.index/database.Database"
+      "url": string
+    }
     "Stage": {
       "type": "asb.asb.Constant"
       "value": string
@@ -163,6 +163,34 @@ declare module "sst" {
     "StripeWebhookEndpoint": {
       "secret": string
       "type": "stripe.index/webhookEndpoint.WebhookEndpoint"
+    }
+    "TursoApiToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "TursoDatabaseSchema": {
+      "name": string
+      "token": string
+      "type": "turso.index/database.Database"
+      "url": string
+    }
+    "TursoDev": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
+    "TursoGroup": {
+      "locations": any
+      "name": string
+      "primary": string
+      "type": "turso.index/group.Group"
+    }
+    "TursoGroupToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "TursoOrg": {
+      "type": "asb.asb.Constant"
+      "value": string
     }
     "UpstashRedis": {
       "redisUrl": string

@@ -24,7 +24,7 @@ import { H6 } from '../ui/typography';
 
 const getDevotions = GET(async ({ offset, limit }: { offset: number; limit: number }) => {
   'use server';
-  const devotions = await db.query.devotions.findMany({
+  const devotions = await db().query.devotions.findMany({
     orderBy: (devotions, { desc }) => desc(devotions.createdAt),
     offset,
     limit,

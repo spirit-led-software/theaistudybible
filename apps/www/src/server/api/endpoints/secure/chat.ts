@@ -87,7 +87,7 @@ const app = new Hono<{
 
       const chatId = input.chatId ?? createId();
       console.time('getChat');
-      let chat = await db.query.chats.findFirst({
+      let chat = await db().query.chats.findFirst({
         where: (chats, { eq }) => eq(chats.id, chatId),
       });
       if (chat) {
@@ -95,7 +95,7 @@ const app = new Hono<{
           return c.json({ message: 'You are not authorized to access this chat' }, 403);
         }
       } else {
-        [chat] = await db
+        [chat] = await db()
           .insert(chats)
           .values({
             id: chatId,
@@ -108,12 +108,12 @@ const app = new Hono<{
       console.time('validateBibleId');
       let bible: Bible | undefined;
       if (input.bibleId) {
-        bible = await db.query.bibles.findFirst({
+        bible = await db().query.bibles.findFirst({
           where: (bibles, { eq }) => eq(bibles.id, input.bibleId!),
         });
         if (!bible) return c.json({ message: 'Invalid Bible ID' }, 400);
       } else if (c.var.settings?.preferredBibleId) {
-        bible = await db.query.bibles.findFirst({
+        bible = await db().query.bibles.findFirst({
           where: (bibles, { eq }) => eq(bibles.id, c.var.settings!.preferredBibleId!),
         });
       }
@@ -126,14 +126,14 @@ const app = new Hono<{
 
       console.time('saveMessage');
       const lastMessageId = getMessageId(lastMessage);
-      const existingMessage = await db.query.messages.findFirst({
+      const existingMessage = await db().query.messages.findFirst({
         where: (messages, { eq }) => eq(messages.id, lastMessageId),
       });
       if (existingMessage) {
         if (existingMessage.userId !== c.var.user!.id || existingMessage.chatId !== chat.id) {
           return c.json({ message: 'You are not authorized to access this message' }, 403);
         }
-        await db
+        await db()
           .update(messagesTable)
           .set({
             ...lastMessage,
@@ -142,12 +142,14 @@ const app = new Hono<{
           })
           .where(eq(messagesTable.id, existingMessage.id));
       } else {
-        await db.insert(messagesTable).values({
-          ...lastMessage,
-          updatedAt: new Date(),
-          chatId: chat.id,
-          userId: c.var.user!.id,
-        });
+        await db()
+          .insert(messagesTable)
+          .values({
+            ...lastMessage,
+            updatedAt: new Date(),
+            chatId: chat.id,
+            userId: c.var.user!.id,
+          });
       }
       console.timeEnd('saveMessage');
 

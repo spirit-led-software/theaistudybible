@@ -33,7 +33,7 @@ const getHighlights = GET(async ({ limit, offset }: { limit: number; offset: num
     return { highlights: [], nextCursor: undefined };
   }
 
-  const highlights = await db.query.verseHighlights.findMany({
+  const highlights = await db().query.verseHighlights.findMany({
     where: (verseHighlights, { eq }) => eq(verseHighlights.userId, user.id),
     with: {
       verse: {
@@ -57,7 +57,7 @@ const getHighlights = GET(async ({ limit, offset }: { limit: number; offset: num
 const deleteHighlightAction = action(async (highlightId: string) => {
   'use server';
   const { user } = requireAuth();
-  await db
+  await db()
     .delete(verseHighlights)
     .where(and(eq(verseHighlights.userId, user.id), eq(verseHighlights.id, highlightId)));
   return { success: true };

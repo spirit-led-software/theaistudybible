@@ -34,7 +34,7 @@ if (Resource.Stage.value === 'production') {
 }
 
 export const getBibleReading = async (topic: string) => {
-  const pastDevotions = await db.query.devotions.findMany({
+  const pastDevotions = await db().query.devotions.findMany({
     columns: { id: true, bibleReading: true },
     where: (devotions, { eq }) => eq(devotions.topic, topic),
     orderBy: (devotions, { desc }) => [desc(devotions.createdAt)],
@@ -237,7 +237,7 @@ export const generateImage = async ({
     throw new Error('Could not upload generated image to storage. Please try again later.');
   }
 
-  const [devotionImage] = await db
+  const [devotionImage] = await db()
     .insert(devotionImages)
     .values({
       id,
@@ -276,7 +276,7 @@ export const generateDevotion = async () => {
     prayer,
   });
 
-  const [devotion] = await db
+  const [devotion] = await db()
     .insert(devotions)
     .values({
       topic,

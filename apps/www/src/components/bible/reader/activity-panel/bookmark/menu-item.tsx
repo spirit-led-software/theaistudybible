@@ -23,7 +23,7 @@ const getSelectionBookmarked = GET(async (props: { verseIds: string[] }) => {
     return { isBookmarked: false };
   }
 
-  const bookmarks = await db
+  const bookmarks = await db()
     .select()
     .from(verseBookmarks)
     .where(
@@ -35,7 +35,7 @@ const getSelectionBookmarked = GET(async (props: { verseIds: string[] }) => {
 const bookmarkVersesAction = action(async (props: { verseIds: string[] }) => {
   'use server';
   const { user } = requireAuth();
-  await db
+  await db()
     .insert(verseBookmarks)
     .values(
       props.verseIds.map((verseId) => ({
@@ -50,7 +50,7 @@ const bookmarkVersesAction = action(async (props: { verseIds: string[] }) => {
 const unbookmarkVersesAction = action(async (props: { verseIds: string[] }) => {
   'use server';
   const { user } = requireAuth();
-  await db
+  await db()
     .delete(verseBookmarks)
     .where(
       and(eq(verseBookmarks.userId, user.id), inArray(verseBookmarks.verseId, props.verseIds)),

@@ -27,7 +27,7 @@ import { EditChatButton } from './edit-chat-button';
 const getChats = GET(async ({ offset, limit }: { offset: number; limit: number }) => {
   'use server';
   const { user } = requireAuth();
-  const chats = await db.query.chats.findMany({
+  const chats = await db().query.chats.findMany({
     where: (chats, { eq }) => eq(chats.userId, user.id),
     orderBy: (chats, { desc }) => desc(chats.updatedAt),
     offset,

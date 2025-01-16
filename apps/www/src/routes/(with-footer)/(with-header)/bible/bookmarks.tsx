@@ -33,7 +33,7 @@ const getBookmarks = GET(async ({ limit, offset }: { limit: number; offset: numb
     return { bookmarks: [], nextCursor: undefined };
   }
   const [verseBookmarks, chapterBookmarks] = await Promise.all([
-    db.query.verseBookmarks.findMany({
+    db().query.verseBookmarks.findMany({
       where: (verseBookmarks, { eq }) => eq(verseBookmarks.userId, user.id),
       with: {
         verse: {
@@ -47,7 +47,7 @@ const getBookmarks = GET(async ({ limit, offset }: { limit: number; offset: numb
       limit,
       offset,
     }),
-    db.query.chapterBookmarks.findMany({
+    db().query.chapterBookmarks.findMany({
       where: (chapterBookmarks, { eq }) => eq(chapterBookmarks.userId, user.id),
       with: {
         chapter: {
@@ -74,11 +74,11 @@ const deleteBookmarkAction = action(
     'use server';
     const { user } = requireAuth();
     if (props.type === 'verse') {
-      await db
+      await db()
         .delete(verseBookmarks)
         .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.id, props.bookmarkId)));
     } else {
-      await db
+      await db()
         .delete(chapterBookmarks)
         .where(
           and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.id, props.bookmarkId)),

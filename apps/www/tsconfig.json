@@ -14,6 +14,7 @@
       "vinxi/types/client",
       "@solidjs/start/env",
       "@solidjs/start/server",
+      "vite-plugin-comlink/client",
       "vite-plugin-pwa/info",
       "vite-plugin-pwa/solid"
     ],

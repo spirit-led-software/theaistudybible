@@ -6,7 +6,7 @@ export default defineConfig({
   out: 'migrations',
   dialect: 'turso',
   dbCredentials: {
-    url: Resource.Database.url,
-    authToken: Resource.Database.token || undefined,
+    url: Resource.TursoDatabaseSchema.url,
+    authToken: Resource.TursoDatabaseSchema.token || undefined,
   },
 });
