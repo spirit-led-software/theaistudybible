@@ -184,6 +184,23 @@ declare module "sst" {
       "type": "asb.asb.Constant"
       "value": string
     }
+    "WebAppAssetsBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppCdnLoggingBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppServerFn-us-east-1": {
+      "name": string
+      "type": "sst.aws.Function"
+      "url": string
+    }
+    "WebAppServerRouter-us-east-1": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
       "value": string

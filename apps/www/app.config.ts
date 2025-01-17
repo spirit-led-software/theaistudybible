@@ -8,9 +8,11 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
-    preset: 'bun',
+    preset: 'aws-lambda',
+    awsLambda: { streaming: true },
+    inlineDynamicImports: true,
     serveStatic: false,
-    plugins: ['./src/server/plugins/compression.ts'],
+    plugins: ['./src/server/plugins/sentry.ts', './src/server/plugins/compression.ts'],
     compatibilityDate: '2024-12-02',
   },
   vite: {
@@ -21,6 +23,7 @@ export default defineConfig({
       VitePWA({
         strategies: 'injectManifest',
         srcDir: 'src',
+        outDir: '.output/public',
         filename: 'sw.ts',
         registerType: 'autoUpdate',
         manifest: {

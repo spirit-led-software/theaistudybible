@@ -12,6 +12,7 @@ export default $config({
       'docker-build': true,
       'pulumi-stripe': true,
       aws: { region: 'us-east-1' },
+      command: true,
       turso: { organization: process.env.TURSO_ORG! },
     },
   }),

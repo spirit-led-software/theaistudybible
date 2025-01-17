@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@sentry/profiling-node": "^8.50.0",
     "@theaistudybible/tsconfig": "workspace:*",
     "@vite-pwa/assets-generator": "^0.2.6",
     "autoprefixer": "^10.4.20",
@@ -29,7 +30,7 @@
     "vite-plugin-cjs-interop": "^2.1.6",
     "vite-plugin-pwa": "^0.21.1",
     "vite-plugin-solid": "^2.11.0",
-    "vitest": "^3.0.0",
+    "vitest": "^3.0.2",
     "workbox-build": "^7.3.0",
     "workbox-core": "^7.3.0",
     "workbox-precaching": "^7.3.0",
@@ -37,7 +38,7 @@
     "workbox-window": "^7.3.0"
   },
   "dependencies": {
-    "@ai-sdk/solid": "^1.0.12",
+    "@ai-sdk/solid": "^1.0.13",
     "@corvu/drawer": "^0.2.2",
     "@fontsource-variable/inter": "^5.1.1",
     "@fontsource/goldman": "^5.1.1",
@@ -72,8 +73,8 @@
     "cropperjs": "^1.6.2",
     "embla-carousel-solid": "^8.5.2",
     "hono": "^4.6.16",
-    "lucide-solid": "^0.471.0",
-    "motion": "^11.18.0",
+    "lucide-solid": "^0.473.0",
+    "motion": "^11.18.1",
     "posthog-js": "^1.207.0",
     "posthog-node": "^4.4.0",
     "solid-js": "^1.9.4",

@@ -17,32 +17,37 @@ export const allLinks = $output([
 ]);
 
 $transform(sst.aws.Function, (args) => {
-  args.copyFiles = $output(args.copyFiles).apply((copyFiles = []) => [
-    ...copyFiles,
-    { from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' },
-  ]);
+  args.copyFiles = $output(args.copyFiles).apply((copyFiles = []) =>
+    Array.from(
+      new Set([{ from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' }, ...copyFiles]),
+    ),
+  );
   args.runtime ??= 'nodejs22.x';
   args.nodejs = $output(args.nodejs).apply((nodejs = {}) => ({
     ...nodejs,
-    install: [
-      ...(nodejs.install ?? []),
-      '@libsql/client',
-      'tiktoken',
-      '@node-rs/argon2',
-      '@node-rs/bcrypt',
-      '@sentry/aws-serverless',
-      'posthog-node',
-    ],
-    esbuild: {
-      external: [
-        ...(nodejs.esbuild?.external ?? []),
+    install: Array.from(
+      new Set([
         '@libsql/client',
         'tiktoken',
         '@node-rs/argon2',
         '@node-rs/bcrypt',
         '@sentry/aws-serverless',
         'posthog-node',
-      ],
+        ...(nodejs.install ?? []),
+      ]),
+    ),
+    esbuild: {
+      external: Array.from(
+        new Set([
+          '@libsql/client',
+          'tiktoken',
+          '@node-rs/argon2',
+          '@node-rs/bcrypt',
+          '@sentry/aws-serverless',
+          'posthog-node',
+          ...(nodejs.esbuild?.external ?? []),
+        ]),
+      ),
     },
   }));
   args.memory ??= '512 MB';
@@ -80,5 +85,5 @@ $transform(sst.aws.Function, (args) => {
     );
   args.link = $util
     .all([args.link, allLinks])
-    .apply(([links = [], allLinks]) => [...links, ...allLinks]);
+    .apply(([links = [], allLinks]) => Array.from(new Set([...links, ...allLinks])));
 });
