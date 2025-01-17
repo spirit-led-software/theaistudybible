@@ -12,8 +12,7 @@ concurrency: ${{ github.event.inputs.stage }}
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  FLY_ORG: ${{ vars.FLY_ORG }}
-  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+  AWS_REGION: 'us-east-1'
   TURSO_ORG: ${{ vars.TURSO_ORG }}
   TURSO_API_TOKEN: ${{ secrets.TURSO_API_KEY }}
   UPSTASH_EMAIL: ${{ vars.UPSTASH_EMAIL }}
