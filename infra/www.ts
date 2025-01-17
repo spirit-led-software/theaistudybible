@@ -108,12 +108,12 @@ if (!$dev) {
       capacity: isProd
         ? {
             fargate: { weight: 1, base: 1 },
-            spot: { weight: 2 },
+            spot: { weight: 3 },
           }
         : 'spot',
       cpu: '0.25 vCPU',
       memory: '0.5 GB',
-      scaling: { cpuUtilization: 90, memoryUtilization: 95, min: 1, max: isProd ? 4 : 1 },
+      scaling: { cpuUtilization: 95, memoryUtilization: 95, min: 1, max: isProd ? 4 : 1 },
       health: {
         command: ['CMD-SHELL', 'curl -f http://localhost:8080/health || exit 1'],
         interval: '10 seconds',
