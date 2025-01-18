@@ -129,11 +129,6 @@ if (!$dev) {
               toPort: 80,
               protocol: 'tcp',
               cidrBlocks: cloudfrontIpRanges.cidrBlocks,
-            },
-            {
-              fromPort: 80,
-              toPort: 80,
-              protocol: 'tcp',
               ipv6CidrBlocks: cloudfrontIpRanges.ipv6CidrBlocks,
             },
           ];
