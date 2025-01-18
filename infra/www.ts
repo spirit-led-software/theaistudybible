@@ -122,14 +122,15 @@ if (!$dev) {
       link: allLinks,
       transform: {
         loadBalancerSecurityGroup: (args) => {
-          const cloudfrontIpRanges = aws.getIpRangesOutput({ services: ['cloudfront'] });
+          const cloudfrontPrefixList = aws.ec2.getPrefixListOutput({
+            name: 'com.amazonaws.global.cloudfront.origin-facing',
+          });
           args.ingress = [
             {
               fromPort: 80,
               toPort: 80,
               protocol: 'tcp',
-              cidrBlocks: cloudfrontIpRanges.cidrBlocks,
-              ipv6CidrBlocks: cloudfrontIpRanges.ipv6CidrBlocks,
+              prefixListIds: [cloudfrontPrefixList.id],
             },
           ];
         },
