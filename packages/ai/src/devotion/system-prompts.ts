@@ -31,6 +31,7 @@ export const bibleReadingSystemPrompt = (input: {
 - Below is a list of the previous bible readings for this topic:
 \t${input.pastDevotions.map((devotion) => `- ${devotion.bibleReading}`).join('\n\t')}
 - You must not select a bible reading that is already in the list.
+- You may use the "Bible Vector Store" tool up to 10 times to find a bible reading.
 
 **Error Prevention**:
 - If multiple equally relevant verses exist, prioritize New Testament references

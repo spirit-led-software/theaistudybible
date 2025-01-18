@@ -44,8 +44,8 @@ export const getBibleReading = async (topic: string) => {
     model,
     system: bibleReadingSystemPrompt({ pastDevotions }),
     prompt: `Find a bible reading for the topic: "${topic}"`,
-    tools: { vectorStore: bibleVectorStoreTool },
-    maxSteps: 5,
+    tools: { bibleVectorStore: bibleVectorStoreTool },
+    maxSteps: 10,
   });
 
   if (text === 'ERROR') {
