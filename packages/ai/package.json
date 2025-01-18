@@ -11,16 +11,16 @@
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^1.0.9",
-    "@ai-sdk/deepseek": "^0.0.6",
-    "@ai-sdk/groq": "^1.0.12",
-    "@ai-sdk/mistral": "^1.0.9",
-    "@ai-sdk/openai": "^1.0.20",
+    "@ai-sdk/anthropic": "^1.1.0",
+    "@ai-sdk/deepseek": "^0.1.0",
+    "@ai-sdk/groq": "^1.1.0",
+    "@ai-sdk/mistral": "^1.1.0",
+    "@ai-sdk/openai": "^1.1.0",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
     "@upstash/vector": "^1.2.0",
     "braintrust": "^0.0.182",
-    "openai": "^4.78.1",
+    "openai": "^4.79.1",
     "tiktoken": "^1.0.18"
   }
 }

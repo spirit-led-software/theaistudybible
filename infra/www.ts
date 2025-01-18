@@ -87,10 +87,7 @@ if (!$dev) {
     const service = cluster.addService(`WebAppService-${region}`, {
       image: webAppImage.ref,
       loadBalancer: {
-        ports: [
-          { listen: '80/tcp', forward: '8080/tcp' },
-          { listen: '443/tls', forward: '8080/tcp' },
-        ],
+        ports: [{ listen: '80/tcp', forward: '8080/tcp' }],
         domain: {
           name: serverDomain,
           dns: sst.aws.dns({
@@ -123,6 +120,20 @@ if (!$dev) {
       },
       environment: baseEnv,
       link: allLinks,
+      transform: {
+        loadBalancerSecurityGroup: (args) => {
+          const cloudfrontIpRanges = aws.getIpRangesOutput({ services: ['cloudfront'] });
+          args.ingress = [
+            {
+              fromPort: 80,
+              toPort: 80,
+              protocol: 'tcp',
+              cidrBlocks: cloudfrontIpRanges.cidrBlocks,
+              ipv6CidrBlocks: cloudfrontIpRanges.ipv6CidrBlocks,
+            },
+          ];
+        },
+      },
     });
     return { region, vpc, cluster, service };
   });
@@ -290,7 +301,7 @@ if (!$dev) {
       customOriginConfig: {
         httpPort: 80,
         httpsPort: 443,
-        originProtocolPolicy: 'https-only',
+        originProtocolPolicy: 'http-only',
         originSslProtocols: ['TLSv1.2'],
         originReadTimeout: 60,
         originKeepaliveTimeout: 60,
