@@ -122,9 +122,10 @@ if (!$dev) {
       link: allLinks,
       transform: {
         loadBalancerSecurityGroup: (args) => {
-          const cloudfrontPrefixList = aws.ec2.getManagedPrefixListOutput({
-            name: 'com.amazonaws.global.cloudfront.origin-facing',
-          });
+          const cloudfrontPrefixList = aws.ec2.getManagedPrefixListOutput(
+            { name: 'com.amazonaws.global.cloudfront.origin-facing' },
+            { provider },
+          );
           args.ingress = [
             {
               fromPort: 80,
