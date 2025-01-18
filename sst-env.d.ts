@@ -17,6 +17,10 @@ declare module "sst" {
       "type": "sst.sst.Linkable"
       "url": string
     }
+    "AnalyticsApiRouter": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "AnthropicApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -183,6 +187,30 @@ declare module "sst" {
     "VapidPublicKey": {
       "type": "asb.asb.Constant"
       "value": string
+    }
+    "Vpc-eu-west-1": {
+      "type": "sst.aws.Vpc"
+    }
+    "Vpc-us-east-1": {
+      "type": "sst.aws.Vpc"
+    }
+    "WebAppBucket-1737109580407": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppCdnLoggingBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppService-eu-west-1": {
+      "service": string
+      "type": "sst.aws.Service"
+      "url": string
+    }
+    "WebAppService-us-east-1": {
+      "service": string
+      "type": "sst.aws.Service"
+      "url": string
     }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
