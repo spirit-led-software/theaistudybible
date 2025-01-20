@@ -123,8 +123,8 @@ if (!$dev) {
             },
           ],
           cpuType: 'shared',
-          cpus: 2,
-          memory: 512,
+          cpus: isProd ? 4 : 1,
+          memory: isProd ? 1024 : 512,
         }),
       );
     }
