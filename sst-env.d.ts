@@ -194,7 +194,11 @@ declare module "sst" {
     "Vpc-us-east-1": {
       "type": "sst.aws.Vpc"
     }
-    "WebAppBucket-1737214752218": {
+    "WebAppBucket-1737215613561": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppBucket-1737398630287": {
       "name": string
       "type": "sst.aws.Bucket"
     }
