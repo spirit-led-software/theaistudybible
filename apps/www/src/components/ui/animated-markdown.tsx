@@ -1,5 +1,5 @@
 import { cn } from '@/www/lib/utils';
-import { type Accessor, For, type JSX, createEffect, createMemo } from 'solid-js';
+import { type Accessor, For, createEffect, createMemo } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import type { SolidMarkdownOptions } from 'solid-markdown';
 import { Markdown } from './markdown';
@@ -30,8 +30,9 @@ export const AnimatedMarkdown = (props: AnimatedMarkdownProps) => {
           sep={props.separator}
           animation={props.animation}
           animationDurationMs={props.animationDurationMs}
-          input={textProps.node.value}
-        />
+        >
+          {textProps.node.value}
+        </TokenizedText>
       );
     },
     ...props.components,
@@ -44,7 +45,7 @@ export const AnimatedMarkdown = (props: AnimatedMarkdownProps) => {
   );
 };
 
-const getTokens = (input: JSX.Element, sep: 'word' | 'char') => {
+const getTokens = (input: string, sep: 'word' | 'char') => {
   if (typeof input === 'undefined' || input === null) return [];
   if (typeof input === 'string') {
     let splitRegex: RegExp;
@@ -55,13 +56,13 @@ const getTokens = (input: JSX.Element, sep: 'word' | 'char') => {
     } else {
       throw new Error('Invalid separator');
     }
-    return input.split(splitRegex).filter((token) => token.length > 0);
+    return input.split(splitRegex);
   }
   return [input];
 };
 
 type TokenizedTextProps = {
-  input: JSX.Element;
+  children: string;
   sep?: Separator;
   animation?: Animation;
   animationDurationMs?: number;
@@ -69,19 +70,16 @@ type TokenizedTextProps = {
 
 const TokenizedText = (props: TokenizedTextProps) => {
   const sep = createMemo(() => props.sep ?? 'word');
-  const [tokens, setTokens] = createStore(getTokens(props.input, sep()));
+  const [tokens, setTokens] = createStore(getTokens(props.children, sep()));
   createEffect(() => {
-    setTokens(reconcile(getTokens(props.input, sep())));
+    setTokens(reconcile(getTokens(props.children, sep())));
   });
 
   return (
     <For each={tokens}>
       {(token) => (
         <span
-          class={cn(
-            'inline',
-            animationClasses[props.animation ?? 'fade-in'],
-          )}
+          class={cn('inline', animationClasses[props.animation ?? 'fade-in'])}
           style={{
             'animation-duration': `${props.animationDurationMs ?? 500}ms`,
             'animation-iteration-count': '1',
