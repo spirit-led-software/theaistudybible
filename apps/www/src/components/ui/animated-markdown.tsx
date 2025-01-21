@@ -79,7 +79,7 @@ const TokenizedText = (props: TokenizedTextProps) => {
       {(token) => (
         <span
           class={cn(
-            'inline-block whitespace-pre-wrap',
+            'inline',
             animationClasses[props.animation ?? 'fade-in'],
           )}
           style={{
