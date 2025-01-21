@@ -65,6 +65,20 @@ export const cdn = new sst.aws.Router('Cdn', {
   transform: {
     cdn: (args) => {
       args.wait = !$dev;
+      args.defaultCacheBehavior = $output(args.defaultCacheBehavior).apply((behavior) => ({
+        ...behavior,
+        // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
+        // CloudFront's managed CachingOptimized policy
+        cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
+      }));
+      args.orderedCacheBehaviors = $output(args.orderedCacheBehaviors).apply((behaviors = []) =>
+        behaviors.map((behavior) => ({
+          ...behavior,
+          // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
+          // CloudFront's managed CachingOptimized policy
+          cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
+        })),
+      );
     },
   },
 });
