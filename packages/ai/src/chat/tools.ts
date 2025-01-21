@@ -345,6 +345,8 @@ export const generateImageTool = (input: { dataStream: DataStreamWriter; userId:
             Bucket: Resource.GeneratedImagesBucket.name,
             Key: key,
             Body: imageBuffer,
+            ContentType: 'image/png',
+            CacheControl: 'public, max-age=31536000, immutable',
           }),
         );
         if (putObjectResult.$metadata.httpStatusCode !== 200) {

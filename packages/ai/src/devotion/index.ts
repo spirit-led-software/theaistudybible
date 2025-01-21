@@ -48,10 +48,6 @@ export const getBibleReading = async (topic: string) => {
     maxSteps: 10,
   });
 
-  if (text === 'ERROR') {
-    throw new Error('Could not find a bible reading for the topic. Please try again later.');
-  }
-
   return text;
 };
 
@@ -231,6 +227,8 @@ export const generateImage = async ({
       Bucket: Resource.DevotionImagesBucket.name,
       Key: key,
       Body: imageBuffer,
+      ContentType: 'image/png',
+      CacheControl: 'public, max-age=31536000, immutable',
     }),
   );
   if (putObjectResult.$metadata.httpStatusCode !== 200) {

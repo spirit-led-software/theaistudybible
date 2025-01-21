@@ -54,7 +54,6 @@ export const bibleReadingSystemPrompt = (input: {
 >
 > [John 3:16](${Resource.WebAppUrl.value}/bible/FBV/JHN/3/16)
 \`\`\`
-- If you are unable to find a bible reading, output just the word "ERROR" with no other text.
 
 Never deviate from the required output format. Your response should only contain the formatted Bible reading.`;
 
