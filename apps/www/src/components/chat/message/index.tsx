@@ -28,7 +28,7 @@ export const Message = (props: MessageProps) => {
   return (
     <article
       class={cn(
-        'flex w-full max-w-2xl space-x-4 px-3 py-4',
+        'flex w-full max-w-2xl space-x-4 px-3 py-4 overflow-hidden',
         props.previousMessage?.role === props.message.role ? 'border-t-0' : 'border-t',
       )}
       aria-label={`${props.message.role === 'assistant' ? 'AI' : 'User'} message`}
@@ -50,7 +50,7 @@ export const Message = (props: MessageProps) => {
           </Switch>
         </Show>
       </div>
-      <div class='flex w-full flex-col gap-4'>
+      <div class='flex w-full flex-col gap-4 overflow-hidden'>
         <Show when={props.message.content}>
           {(content) => (
             <Show
