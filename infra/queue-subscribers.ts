@@ -3,6 +3,7 @@ import {
   emailQueue,
   indexBibleChapterQueue,
   indexBibleQueue,
+  indexDataSourceFilesQueue,
   profileImagesQueue,
 } from './queues';
 
@@ -41,6 +42,15 @@ indexBibleChapterQueue.subscribe(
     batch: { partialResponses: true },
     transform: { eventSourceMapping: { scalingConfig: { maximumConcurrency: 10 } } },
   },
+);
+
+indexDataSourceFilesQueue.subscribe(
+  {
+    handler: 'apps/functions/src/queues/subscribers/data-sources/files.handler',
+    memory: '2 GB',
+    timeout: '15 minutes',
+  },
+  { batch: { partialResponses: true } },
 );
 
 profileImagesQueue.subscribe(

@@ -94,7 +94,6 @@ export default function App() {
                               )}
                             >
                               {props.children}
-
                               <Toaster />
                               <NotificationPromptDialog />
                             </SentryErrorBoundary>

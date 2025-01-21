@@ -17,10 +17,6 @@ declare module "sst" {
       "type": "sst.sst.Linkable"
       "url": string
     }
-    "AnalyticsApiRouter": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
     "AnthropicApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -58,6 +54,10 @@ declare module "sst" {
       "url": string
     }
     "ChapterMessageBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "DataSourceFilesBucket": {
       "name": string
       "type": "sst.aws.Bucket"
     }
@@ -117,6 +117,10 @@ declare module "sst" {
       "url": string
     }
     "IndexBibleQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "IndexDataSourceFilesQueue": {
       "type": "sst.aws.Queue"
       "url": string
     }
@@ -187,26 +191,6 @@ declare module "sst" {
     "VapidPublicKey": {
       "type": "asb.asb.Constant"
       "value": string
-    }
-    "WebAppBucket-1737401214298": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1737455276699": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1737455605212": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppBucket-1737456527046": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppCdnLoggingBucket": {
-      "name": string
-      "type": "sst.aws.Bucket"
     }
     "WebAppUrl": {
       "type": "asb.asb.Constant"

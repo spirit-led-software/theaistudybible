@@ -69,16 +69,6 @@ export const advancedChatModels: ChatModelInfo[] = [
     tier: 'advanced',
   },
   {
-    id: 'llama-3.3-70b-versatile',
-    name: 'Llama 3.3 Versatile',
-    description: 'A 70B parameter versatile model trained by Meta',
-    contextSize: 128_000,
-    provider: 'meta',
-    host: 'groq',
-    link: 'https://www.llama.com/',
-    tier: 'advanced',
-  },
-  {
     id: 'claude-3-5-sonnet-latest',
     name: 'Claude 3.5 Sonnet',
     description: 'The flagship model of Anthropic',

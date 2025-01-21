@@ -1,5 +1,10 @@
 import { DOMAIN } from './constants';
-import { indexBibleChapterQueue, indexBibleQueue, profileImagesQueue } from './queues';
+import {
+  indexBibleChapterQueue,
+  indexBibleQueue,
+  indexDataSourceFilesQueue,
+  profileImagesQueue,
+} from './queues';
 import { isProd } from './utils/constants';
 
 export const bibleBucket = new sst.aws.Bucket('BibleBucket', {}, { retainOnDelete: false });
@@ -14,6 +19,21 @@ export const chapterMessageBucket = new sst.aws.Bucket(
 );
 chapterMessageBucket.subscribeQueue(indexBibleChapterQueue.arn, {
   events: ['s3:ObjectCreated:*'],
+});
+
+export const dataSourceFilesBucket = new sst.aws.Bucket(
+  'DataSourceFilesBucket',
+  {},
+  { retainOnDelete: false },
+);
+dataSourceFilesBucket.notify({
+  notifications: [
+    {
+      name: indexDataSourceFilesQueue.nodes.queue.name,
+      queue: indexDataSourceFilesQueue.arn,
+      events: ['s3:ObjectCreated:*'],
+    },
+  ],
 });
 
 export const profileImagesBucket = new sst.aws.Bucket(

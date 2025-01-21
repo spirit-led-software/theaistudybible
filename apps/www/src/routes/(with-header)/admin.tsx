@@ -1,40 +1,24 @@
+import { AdminSidebar } from '@/www/components/admin/sidebar';
 import { Protected } from '@/www/components/auth/control';
-import { Tabs, TabsList, TabsTrigger } from '@/www/components/ui/tabs';
+import { SidebarProvider, SidebarTrigger } from '@/www/components/ui/sidebar';
 import { useAuth } from '@/www/contexts/auth';
-import { Navigate, useLocation, useNavigate } from '@solidjs/router';
-import { type JSX, Show, createMemo } from 'solid-js';
+import { Navigate } from '@solidjs/router';
+import { type JSX, Show } from 'solid-js';
 
 export default function AdminLayout(props: { children: JSX.Element }) {
   const { isAdmin } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const tab = createMemo(() => location.pathname.split('/').pop());
-
   const Unauthorized = () => <Navigate href='/' />;
 
   return (
     <Protected signedOutFallback={<Unauthorized />}>
       <Show when={isAdmin()} fallback={<Unauthorized />}>
-        <div class='flex w-full grow flex-col items-center p-5'>
-          <div class='flex w-full max-w-2xl flex-col gap-3'>
-            <Tabs
-              defaultValue={tab()}
-              class='w-full'
-              value={tab()}
-              onChange={(value) => {
-                navigate(`/admin/${value}`);
-              }}
-            >
-              <TabsList class='grid w-full grid-cols-3'>
-                <TabsTrigger value='devotions'>Devotions</TabsTrigger>
-                <TabsTrigger value='bibles'>Bibles</TabsTrigger>
-                <TabsTrigger value='push-notification'>Push Notification</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            {props.children}
+        <SidebarProvider class='h-full min-h-full'>
+          <AdminSidebar />
+          <div class='flex h-full w-full flex-1 p-5'>
+            <SidebarTrigger />
+            <div class='mx-auto flex h-full w-full max-w-4xl flex-col'>{props.children}</div>
           </div>
-        </div>
+        </SidebarProvider>
       </Show>
     </Protected>
   );
