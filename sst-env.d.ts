@@ -200,7 +200,7 @@ declare module "sst" {
       "type": "asb.asb.Constant"
       "value": string
     }
-    "WebAppBucket-1737566824976": {
+    "WebAppBucket-1737577336808": {
       "name": string
       "type": "sst.aws.Bucket"
     }
