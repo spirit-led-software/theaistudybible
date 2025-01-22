@@ -30,6 +30,7 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createForm, getValue, setValue, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';
+import { GET } from '@solidjs/start';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { FolderArchive } from 'lucide-solid';
 import { Show, createEffect, createSignal } from 'solid-js';
@@ -45,25 +46,27 @@ const createDataSourceAction = action(
   },
 );
 
-const getPresignedUrl = async (input: {
-  name: string;
-  contentType: string;
-  metadata?: Record<string, string>;
-}) => {
-  'use server';
-  const { name, contentType, metadata } = input;
-  const command = new PutObjectCommand({
-    Bucket: Resource.DataSourceFilesBucket.name,
-    Key: name,
-    ContentType: contentType,
-    Metadata: transformKeys(metadata ?? {}, 'toKebab'),
-  });
-  return {
-    presignedUrl: await getSignedUrl(s3, command, {
-      expiresIn: 60 * 60 * 24,
-    }),
-  };
-};
+const getPresignedUrl = GET(
+  async (input: {
+    name: string;
+    contentType: string;
+    metadata?: Record<string, string>;
+  }) => {
+    'use server';
+    const { name, contentType, metadata } = input;
+    const command = new PutObjectCommand({
+      Bucket: Resource.DataSourceFilesBucket.name,
+      Key: name,
+      ContentType: contentType,
+      Metadata: transformKeys(metadata ?? {}, 'toKebab'),
+    });
+    return {
+      presignedUrl: await getSignedUrl(s3, command, {
+        expiresIn: 60 * 60 * 24,
+      }),
+    };
+  },
+);
 
 const CreateDataSourceFormSchema = CreateDataSourceSchema.extend({
   metadata: z
@@ -88,8 +91,7 @@ const CreateDataSourceFormSchema = CreateDataSourceSchema.extend({
 
 const AddSourcePage = () => {
   const createDataSource = useAction(createDataSourceAction);
-
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
 
   const [form, { Form, Field }] = createForm<z.infer<typeof CreateDataSourceFormSchema>>({
     validate: zodForm(CreateDataSourceFormSchema),
@@ -99,7 +101,6 @@ const AddSourcePage = () => {
     mutationFn: async (values: z.infer<typeof CreateDataSourceFormSchema>) => {
       const { file, ...rest } = values;
       const { dataSource } = await createDataSource(rest);
-
       if (file) {
         const presignedUrl = await getPresignedUrl({
           name: file.name,
@@ -125,7 +126,7 @@ const AddSourcePage = () => {
       toast.success('Data source added');
     },
     onError: (error) => toast.error(error.message),
-    onSettled: () => qc.invalidateQueries({ queryKey: ['data-sources'] }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['data-sources'] }),
   }));
 
   const [fileList, setFileList] = createSignal<FileList>();

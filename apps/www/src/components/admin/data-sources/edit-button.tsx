@@ -2,6 +2,7 @@ import { db } from '@/core/database';
 import { dataSources } from '@/core/database/schema';
 import { UpdateDataSourceSchema } from '@/schemas/data-sources';
 import type { DataSource } from '@/schemas/data-sources/types';
+import { requireAdmin } from '@/www/server/auth';
 import { createForm, setValue, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
@@ -31,10 +32,10 @@ import {
 const editDataSourceAction = action(
   async (id: string, data: z.infer<typeof UpdateDataSourceFormSchema>) => {
     'use server';
-    const { metadata, ...rest } = data;
+    requireAdmin();
     const [dataSource] = await db
       .update(dataSources)
-      .set({ ...rest, metadata: metadata ? JSON.parse(metadata) : undefined })
+      .set(data)
       .where(eq(dataSources.id, id))
       .returning();
     return { dataSource };

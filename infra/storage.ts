@@ -8,8 +8,14 @@ import {
 import { isProd } from './utils/constants';
 
 export const bibleBucket = new sst.aws.Bucket('BibleBucket', {}, { retainOnDelete: false });
-bibleBucket.subscribeQueue(indexBibleQueue.arn, {
-  events: ['s3:ObjectCreated:*'],
+bibleBucket.notify({
+  notifications: [
+    {
+      name: indexBibleQueue.nodes.queue.name,
+      queue: indexBibleQueue.arn,
+      events: ['s3:ObjectCreated:*'],
+    },
+  ],
 });
 
 export const chapterMessageBucket = new sst.aws.Bucket(
@@ -17,8 +23,14 @@ export const chapterMessageBucket = new sst.aws.Bucket(
   {},
   { retainOnDelete: false },
 );
-chapterMessageBucket.subscribeQueue(indexBibleChapterQueue.arn, {
-  events: ['s3:ObjectCreated:*'],
+chapterMessageBucket.notify({
+  notifications: [
+    {
+      name: indexBibleChapterQueue.nodes.queue.name,
+      queue: indexBibleChapterQueue.arn,
+      events: ['s3:ObjectCreated:*'],
+    },
+  ],
 });
 
 export const dataSourceFilesBucket = new sst.aws.Bucket(
@@ -41,8 +53,14 @@ export const profileImagesBucket = new sst.aws.Bucket(
   { access: 'cloudfront' },
   { retainOnDelete: isProd },
 );
-profileImagesBucket.subscribeQueue(profileImagesQueue.arn, {
-  events: ['s3:ObjectCreated:*'],
+profileImagesBucket.notify({
+  notifications: [
+    {
+      name: profileImagesQueue.nodes.queue.name,
+      queue: profileImagesQueue.arn,
+      events: ['s3:ObjectCreated:*'],
+    },
+  ],
 });
 
 export const generatedImagesBucket = new sst.aws.Bucket(

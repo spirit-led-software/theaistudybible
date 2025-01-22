@@ -61,6 +61,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "DataSourcesSyncQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "Database": {
       "name": string
       "token": string

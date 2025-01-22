@@ -1,22 +1,28 @@
-import { useAction } from '@solidjs/router';
-
-import { db } from '@/core/database';
+import { sqs } from '@/core/queues';
 import type { DataSource } from '@/schemas/data-sources/types';
 import { requireAdmin } from '@/www/server/auth';
+import { SendMessageCommand } from '@aws-sdk/client-sqs';
+import { useAction } from '@solidjs/router';
 import { action } from '@solidjs/router';
+import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { splitProps } from 'solid-js';
+import { toast } from 'solid-sonner';
+import { Resource } from 'sst';
 import { Button, type ButtonProps } from '../../ui/button';
 
-const syncDataSourceAction = action(async (id: string) => {
+const queueSyncDataSourceAction = action(async (id: string) => {
   'use server';
   requireAdmin();
-  const dataSource = await db.query.dataSources.findFirst({
-    where: (dataSources, { eq }) => eq(dataSources.id, id),
-  });
-  if (!dataSource) {
-    throw new Error('Data source not found');
+  const response = await sqs.send(
+    new SendMessageCommand({
+      QueueUrl: Resource.DataSourcesSyncQueue.url,
+      MessageBody: JSON.stringify({ id, manual: true }),
+    }),
+  );
+  if (response.$metadata.httpStatusCode !== 200) {
+    throw new Error('Failed to queue data source sync');
   }
-  return { dataSource };
+  return { success: true };
 });
 
 export type SyncDataSourceButtonProps = Omit<ButtonProps, 'onClick'> & {
@@ -25,9 +31,30 @@ export type SyncDataSourceButtonProps = Omit<ButtonProps, 'onClick'> & {
 
 const SyncDataSourceButton = (props: SyncDataSourceButtonProps) => {
   const [local, rest] = splitProps(props, ['dataSource']);
-  const syncDataSource = useAction(syncDataSourceAction);
 
-  return <Button onClick={() => syncDataSource(local.dataSource.id)} {...rest} />;
+  const queueSyncDataSource = useAction(queueSyncDataSourceAction);
+  const queryClient = useQueryClient();
+
+  const handleClick = createMutation(() => ({
+    mutationFn: () => queueSyncDataSource(local.dataSource.id),
+    onSuccess: () => {
+      toast.success('Data source sync queued');
+    },
+    onError: () => {
+      toast.error('Failed to queue data source sync');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['dataSources'] });
+    },
+  }));
+
+  return (
+    <Button
+      disabled={local.dataSource.type === 'FILE'}
+      onClick={() => handleClick.mutate()}
+      {...rest}
+    />
+  );
 };
 
 export { SyncDataSourceButton };

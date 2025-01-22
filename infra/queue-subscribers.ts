@@ -1,4 +1,5 @@
 import {
+  dataSourcesSyncQueue,
   deadLetterQueue,
   emailQueue,
   indexBibleChapterQueue,
@@ -42,6 +43,15 @@ indexBibleChapterQueue.subscribe(
     batch: { partialResponses: true },
     transform: { eventSourceMapping: { scalingConfig: { maximumConcurrency: 10 } } },
   },
+);
+
+dataSourcesSyncQueue.subscribe(
+  {
+    handler: 'apps/functions/src/queues/subscribers/data-sources/index.handler',
+    memory: '2 GB',
+    timeout: '15 minutes',
+  },
+  { batch: { partialResponses: true } },
 );
 
 indexDataSourceFilesQueue.subscribe(
