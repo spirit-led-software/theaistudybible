@@ -150,9 +150,6 @@ export function parseUsx(xmlString: string) {
       if (chapterNumber < 1) {
         throw new Error(`Invalid chapter number ${chapterNumber}`);
       }
-      if (chapterNumber !== state.chapterNumber + 1) {
-        throw new Error(`Chapter ${chapterNumber} isn't +1 previous ${state.chapterNumber}`);
-      }
       const id = `chap_${createId()}`;
       state.chapterNumber = chapterNumber;
       state.chapterId = id;
@@ -265,9 +262,6 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
       const verseNumber = Number.parseInt(element.getAttribute('number') ?? '0');
       if (verseNumber < 1) {
         throw new Error(`Invalid verse number ${verseNumber}`);
-      }
-      if (verseNumber !== state.verseNumber + 1) {
-        throw new Error(`Verse ${verseNumber} isn't +1 previous ${state.verseNumber}`);
       }
 
       const id = `ver_${createId()}`;

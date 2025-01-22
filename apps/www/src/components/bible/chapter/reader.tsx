@@ -188,12 +188,16 @@ export function ChapterReader(props: ChapterReaderProps) {
                     as={A}
                     variant='link'
                     href={rightsHolder.url}
+                    target='_blank'
                     class='p-0 text-muted-foreground'
                   >
                     {rightsHolder.nameLocal}
                   </Button>
                 </Muted>
-                <div innerHTML={bible.copyrightStatement} class='text-muted-foreground text-xs' />
+                <div
+                  innerHTML={bible.copyrightStatement}
+                  class='flex flex-col items-center text-muted-foreground text-xs'
+                />
               </div>
               <Show when={previousChapter} keyed>
                 {(previousChapter) => {

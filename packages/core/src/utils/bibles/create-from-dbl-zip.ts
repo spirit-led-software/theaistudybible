@@ -28,7 +28,7 @@ export async function createBibleFromDblZip({
 }: CreateBibleParams) {
   const zipFile = await JSZip.loadAsync(zipBuffer);
   const { metadata, publication } = await extractMetadataAndPublication(zipFile, publicationId);
-  const abbreviation = publication.abbreviation;
+  const abbreviation = publication.abbreviation ?? metadata.identification.abbreviation;
 
   console.log(`Checking if bible ${abbreviation} already exists...`);
   let bible: Bible | undefined = await findExistingBible(abbreviation, overwrite);

@@ -29,7 +29,7 @@ indexBibleQueue.subscribe(
   },
   {
     batch: { partialResponses: true },
-    transform: { eventSourceMapping: { scalingConfig: { maximumConcurrency: 10 } } },
+    transform: { eventSourceMapping: { scalingConfig: { maximumConcurrency: 20 } } },
   },
 );
 
