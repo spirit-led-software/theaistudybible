@@ -1,7 +1,7 @@
 import { embeddingModel } from '@/ai/models';
 import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
-import { indexOperations } from '@/core/database/schema';
+import { dataSources, dataSourcesToSourceDocuments, indexOperations } from '@/core/database/schema';
 import { s3 } from '@/core/storage';
 import { createId } from '@/core/utils/id';
 import { transformKeys } from '@/core/utils/object';
@@ -75,6 +75,8 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
           });
           docs = await splitter.splitDocuments(docs);
           docs = docs.map((doc) => {
+            doc.metadata = { ...doc.metadata, ...transformedMetadata };
+
             let title = name;
             if (doc.metadata.title) {
               title = doc.metadata.title;
@@ -82,21 +84,15 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
                 title = `${title} by ${doc.metadata.author}`;
               }
             }
-
             if (doc.metadata.pageNumber) {
               title = `${title} - Page ${doc.metadata.pageNumber}`;
             }
+            doc.pageContent = `From ${title}\n\n${doc.pageContent}`;
 
-            return {
-              pageContent: `From ${title}\n\n${doc.pageContent}`,
-              metadata: {
-                ...doc.metadata,
-                ...transformedMetadata,
-              },
-            };
+            return doc;
           });
 
-          await vectorStore.addDocuments(
+          const result = await vectorStore.addDocuments(
             docs.map((doc) => {
               const { pageContent, ...rest } = doc;
               return {
@@ -106,6 +102,23 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
               };
             }),
           );
+
+          await Promise.all([
+            db
+              .update(indexOperations)
+              .set({ status: 'COMPLETED' })
+              .where(eq(indexOperations.id, indexOperation.id)),
+            db.insert(dataSourcesToSourceDocuments).values(
+              result.map((sourceDocId) => ({
+                sourceDocumentId: sourceDocId,
+                dataSourceId,
+              })),
+            ),
+            db
+              .update(dataSources)
+              .set({ numberOfDocuments: result.length })
+              .where(eq(dataSources.id, dataSourceId)),
+          ]);
 
           console.log(`Successfully processed ${key}`);
         } catch (error) {

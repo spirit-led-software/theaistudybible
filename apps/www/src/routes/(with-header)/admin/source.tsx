@@ -26,6 +26,7 @@ import {
   TextFieldLabel,
   TextFieldTextArea,
 } from '@/www/components/ui/text-field';
+import { requireAdmin } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createForm, getValue, setValue, zodForm } from '@modular-forms/solid';
@@ -41,7 +42,9 @@ import { ZodIssueCode, z } from 'zod';
 const createDataSourceAction = action(
   async (values: Omit<z.infer<typeof CreateDataSourceFormSchema>, 'file'>) => {
     'use server';
-    const [dataSource] = await db.insert(dataSources).values(values).returning();
+    requireAdmin();
+    const validatedData = CreateDataSourceFormSchema.parse(values);
+    const [dataSource] = await db.insert(dataSources).values(validatedData).returning();
     return { dataSource };
   },
 );
@@ -70,22 +73,24 @@ const getPresignedUrl = GET(
 
 const CreateDataSourceFormSchema = CreateDataSourceSchema.extend({
   metadata: z
-    .string()
-    .optional()
-    .transform((str, ctx) => {
-      if (!str) {
-        return {};
-      }
-      try {
-        return JSON.parse(str);
-      } catch {
-        ctx.addIssue({
-          code: ZodIssueCode.custom,
-          message: 'Invalid JSON',
-        });
-        return z.NEVER;
-      }
-    }),
+    .record(z.string(), z.string())
+    .or(
+      z.string().transform((str, ctx) => {
+        if (!str) {
+          return {};
+        }
+        try {
+          return JSON.parse(str);
+        } catch {
+          ctx.addIssue({
+            code: ZodIssueCode.custom,
+            message: 'Invalid JSON',
+          });
+          return z.NEVER;
+        }
+      }),
+    )
+    .optional(),
   file: z.instanceof(File).optional(),
 });
 
@@ -98,8 +103,8 @@ const AddSourcePage = () => {
   });
 
   const onSubmit = createMutation(() => ({
-    mutationFn: async (values: z.infer<typeof CreateDataSourceFormSchema>) => {
-      const { file, ...rest } = values;
+    mutationFn: async (values: z.input<typeof CreateDataSourceFormSchema>) => {
+      const { file, ...rest } = CreateDataSourceFormSchema.parse(values);
       const { dataSource } = await createDataSource(rest);
       if (file) {
         const presignedUrl = await getPresignedUrl({

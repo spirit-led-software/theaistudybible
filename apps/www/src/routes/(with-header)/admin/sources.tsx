@@ -1,12 +1,14 @@
 import { db } from '@/core/database';
 import { DeleteDataSourceButton } from '@/www/components/admin/data-sources/delete-button';
 import { EditDataSourceButton } from '@/www/components/admin/data-sources/edit-button';
+import { SyncDataSourceButton } from '@/www/components/admin/data-sources/sync-button';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { DataTable } from '@/www/components/ui/data-table';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
-import { Pencil, Trash } from 'lucide-solid';
+import { formatDate } from 'date-fns';
+import { Pencil, RefreshCw, Trash } from 'lucide-solid';
 import { Show } from 'solid-js';
 
 const getSources = GET(async (input: { offset: number; limit: number }) => {
@@ -27,6 +29,7 @@ const SourcesPage = () => {
     queryFn: ({ pageParam }) => getSources({ offset: pageParam ?? 0, limit: 10 }),
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: 0,
+    refetchInterval: 10000,
   }));
 
   return (
@@ -36,23 +39,55 @@ const SourcesPage = () => {
           <DataTable
             columns={[
               { accessorKey: 'id', header: 'ID' },
-              { accessorKey: 'name', header: 'Name' },
               { accessorKey: 'type', header: 'Type' },
+              { accessorKey: 'name', header: 'Name' },
               {
                 accessorKey: 'url',
                 header: 'URL',
-                cell: (props) => <div class='max-w-40 truncate'>{props.row.getValue('url')}</div>,
+                cell: (props) => <div class='max-w-52 truncate'>{props.row.getValue('url')}</div>,
+              },
+              {
+                accessorKey: 'syncSchedule',
+                header: 'Sync Schedule',
+              },
+              {
+                accessorKey: 'numberOfDocuments',
+                header: 'Sync Status',
+              },
+              {
+                accessorKey: 'lastManualSync',
+                header: 'Last Manual Sync',
+                cell: (props) =>
+                  props.row.getValue('lastManualSync')
+                    ? formatDate(props.row.getValue('lastManualSync'), 'MM/dd/yyyy hh:mm a')
+                    : 'N/A',
+              },
+              {
+                accessorKey: 'lastAutomaticSync',
+                header: 'Last Automatic Sync',
+                cell: (props) =>
+                  props.row.getValue('lastAutomaticSync')
+                    ? formatDate(props.row.getValue('lastAutomaticSync'), 'MM/dd/yyyy hh:mm a')
+                    : 'N/A',
               },
               {
                 accessorKey: 'id',
                 header: 'Actions',
                 cell: (props) => (
-                  <div class='flex gap-2'>
+                  <div class='flex gap-1'>
+                    <SyncDataSourceButton
+                      variant='ghost'
+                      size='icon'
+                      dataSource={props.row.original}
+                      class='size-8'
+                    >
+                      <RefreshCw />
+                    </SyncDataSourceButton>
                     <EditDataSourceButton
                       variant='ghost'
                       size='icon'
                       dataSource={props.row.original}
-                      class='size-10'
+                      class='size-8'
                     >
                       <Pencil />
                     </EditDataSourceButton>
@@ -60,7 +95,7 @@ const SourcesPage = () => {
                       variant='ghost'
                       size='icon'
                       dataSource={props.row.original}
-                      class='size-10'
+                      class='size-8'
                     >
                       <Trash />
                     </DeleteDataSourceButton>

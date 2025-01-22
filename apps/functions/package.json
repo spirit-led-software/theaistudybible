@@ -18,6 +18,7 @@
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
     "hono": "^4.6.17",
+    "pdf-parse": "^1.1.1",
     "svix": "^1.45.1"
   }
 }

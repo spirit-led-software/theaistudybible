@@ -16,7 +16,7 @@ export default function AdminLayout(props: { children: JSX.Element }) {
           <AdminSidebar />
           <div class='flex h-full w-full flex-1 p-5'>
             <SidebarTrigger />
-            <div class='mx-auto flex h-full w-full max-w-4xl flex-col'>{props.children}</div>
+            <div class='mx-auto flex h-full w-full flex-col'>{props.children}</div>
           </div>
         </SidebarProvider>
       </Show>

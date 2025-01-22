@@ -1,10 +1,12 @@
+import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
-import { dataSources } from '@/core/database/schema';
+import { dataSources, sourceDocuments } from '@/core/database/schema';
 import { s3 } from '@/core/storage';
+import { transformKeys } from '@/core/utils/object';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { wrapHandler } from '@sentry/aws-serverless';
 import type { SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { Resource } from 'sst';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
@@ -18,22 +20,58 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
       }
       const dataSource = await db.query.dataSources.findFirst({
         where: (dataSources, { eq }) => eq(dataSources.id, id),
+        with: { dataSourcesToSourceDocuments: true },
       });
       if (!dataSource) {
         throw new Error('Data source not found');
       }
 
+      console.log('Deleting old data source documents:', dataSource.id);
+      await Promise.all([
+        db.delete(sourceDocuments).where(
+          inArray(
+            sourceDocuments.id,
+            dataSource.dataSourcesToSourceDocuments.map((d) => d.sourceDocumentId),
+          ),
+        ),
+        vectorStore.deleteDocuments(
+          dataSource.dataSourcesToSourceDocuments.map((d) => d.sourceDocumentId),
+        ),
+      ]);
+
+      await db
+        .update(dataSources)
+        .set({ numberOfDocuments: 0 })
+        .where(eq(dataSources.id, dataSource.id));
+
+      console.log('Syncing data source:', dataSource.id);
       if (dataSource.type === 'REMOTE_FILE') {
         const response = await fetch(dataSource.url);
         if (!response.ok) {
           throw new Error(`Failed to fetch remote file: ${response.statusText}`);
         }
+
         const blob = await response.blob();
+        const arrayBuffer = await blob.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        console.log('Uploading file to S3:', `${dataSource.id}`);
         const s3Response = await s3.send(
           new PutObjectCommand({
             Bucket: Resource.DataSourceFilesBucket.name,
-            Key: `${dataSource.id}.${blob.type}`,
-            Body: blob,
+            Key: `${dataSource.id}`,
+            Body: buffer,
+            ContentType: blob.type,
+            Metadata: transformKeys(
+              {
+                ...dataSource.metadata,
+                type: dataSource.type,
+                name: dataSource.name,
+                url: dataSource.url,
+                dataSourceId: dataSource.id,
+              },
+              'toKebab',
+            ),
           }),
         );
         if (s3Response.$metadata.httpStatusCode !== 200) {
@@ -53,4 +91,5 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
       batchItemFailures.push({ itemIdentifier: r.messageId });
     }
   }
+  return { batchItemFailures };
 });

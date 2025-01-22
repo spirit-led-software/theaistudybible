@@ -61,7 +61,7 @@ export const requireAuth = (message?: string) => {
 
 export const requireAdmin = () => {
   const authObj = requireAuth();
-  if (!authObj.roles.some((role) => role.name === 'admin')) {
+  if (!authObj.roles.some((role) => role.id === 'admin')) {
     throw new Error('You must be an admin to access this resource');
   }
   return authObj;

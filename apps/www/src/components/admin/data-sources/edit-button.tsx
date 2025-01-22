@@ -33,9 +33,10 @@ const editDataSourceAction = action(
   async (id: string, data: z.infer<typeof UpdateDataSourceFormSchema>) => {
     'use server';
     requireAdmin();
+    const validatedData = UpdateDataSourceFormSchema.parse(data);
     const [dataSource] = await db
       .update(dataSources)
-      .set(data)
+      .set(validatedData)
       .where(eq(dataSources.id, id))
       .returning();
     return { dataSource };
@@ -44,22 +45,24 @@ const editDataSourceAction = action(
 
 const UpdateDataSourceFormSchema = UpdateDataSourceSchema.extend({
   metadata: z
-    .string()
-    .optional()
-    .transform((str, ctx) => {
-      if (!str) {
-        return {};
-      }
-      try {
-        return JSON.parse(str);
-      } catch (e) {
-        ctx.addIssue({
-          code: ZodIssueCode.custom,
-          message: (e as Error).message,
-        });
-        return z.NEVER;
-      }
-    }),
+    .record(z.string(), z.string())
+    .or(
+      z.string().transform((str, ctx) => {
+        if (!str) {
+          return {};
+        }
+        try {
+          return JSON.parse(str);
+        } catch (e) {
+          ctx.addIssue({
+            code: ZodIssueCode.custom,
+            message: (e as Error).message,
+          });
+          return z.NEVER;
+        }
+      }),
+    )
+    .optional(),
 });
 
 export type EditDataSourceButtonProps = ButtonProps & {
@@ -80,7 +83,7 @@ export const EditDataSourceButton = (props: EditDataSourceButtonProps) => {
       url: local.dataSource.url,
       type: local.dataSource.type,
       syncSchedule: local.dataSource.syncSchedule,
-      metadata: JSON.stringify(local.dataSource.metadata),
+      metadata: JSON.stringify(local.dataSource.metadata, null, 2),
     },
   });
 
