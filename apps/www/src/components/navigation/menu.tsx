@@ -40,7 +40,7 @@ export const Menu = (props: MenuProps) => {
         <NavigationMenuLink
           as={A}
           href='/about/install'
-          class='bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90'
+          class='bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground focus:bg-primary/80 focus:text-primary-foreground'
         >
           Install
         </NavigationMenuLink>
@@ -50,7 +50,7 @@ export const Menu = (props: MenuProps) => {
           About
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[500px] sm:grid-cols-3'>
+        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[500px] sm:grid-cols-3 sm:[&>*]:h-full sm:[&>*]:w-full'>
           <NavigationMenuLink as={A} href='/about'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Info />
@@ -108,7 +108,7 @@ export const Menu = (props: MenuProps) => {
           Bible
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2'>
+        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2 sm:[&>*]:h-full sm:[&>*]:w-full'>
           <NavigationMenuLink as={A} href='/bible'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <BookOpen />
@@ -144,7 +144,7 @@ export const Menu = (props: MenuProps) => {
           AI
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[500px] sm:grid-cols-3'>
+        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[500px] sm:grid-cols-3 sm:[&>*]:h-full sm:[&>*]:w-full'>
           <NavigationMenuLink as={A} href='/chat'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <MessageCircle />
