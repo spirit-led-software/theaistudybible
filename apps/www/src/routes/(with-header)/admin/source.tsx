@@ -8,6 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/comp
 import {
   FileInput,
   FileInputDropArea,
+  FileInputInput,
   FileInputRoot,
   FileInputTrigger,
 } from '@/www/components/ui/file-input';
@@ -29,7 +30,7 @@ import {
 import { requireAdmin } from '@/www/server/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { createForm, getValue, setValue, zodForm } from '@modular-forms/solid';
+import { createForm, getError, getValue, setValue, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
@@ -91,7 +92,27 @@ const CreateDataSourceFormSchema = CreateDataSourceSchema.extend({
       }),
     )
     .optional(),
-  file: z.instanceof(File).optional(),
+  file: z
+    .instanceof(File)
+    .refine((file) => file.size < 100 * 1024 * 1024, {
+      message: 'File must be less than 100MB',
+    })
+    .refine(
+      (file) => {
+        const allowedTypes = [
+          'application/pdf',
+          'text/csv',
+          'text/plain',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ];
+        return allowedTypes.includes(file.type);
+      },
+      {
+        message: 'File must be a PDF, CSV, TXT or Word document',
+      },
+    )
+    .optional(),
 });
 
 const AddSourcePage = () => {
@@ -100,6 +121,10 @@ const AddSourcePage = () => {
 
   const [form, { Form, Field }] = createForm<z.infer<typeof CreateDataSourceFormSchema>>({
     validate: zodForm(CreateDataSourceFormSchema),
+    initialValues: {
+      metadata: JSON.stringify({ category: '', title: '', author: '' }, null, 2),
+      syncSchedule: 'NEVER',
+    },
   });
 
   const onSubmit = createMutation(() => ({
@@ -133,14 +158,6 @@ const AddSourcePage = () => {
     onError: (error) => toast.error(error.message),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['data-sources'] }),
   }));
-
-  const [fileList, setFileList] = createSignal<FileList>();
-  createEffect(() => {
-    const currentFile = fileList()?.[0];
-    if (currentFile) {
-      setValue(form, 'file', currentFile);
-    }
-  });
 
   return (
     <Card>
@@ -200,23 +217,43 @@ const AddSourcePage = () => {
             {(field, props) => (
               <TextField value={field.value} validationState={field.error ? 'invalid' : 'valid'}>
                 <TextFieldLabel>Metadata (JSON)</TextFieldLabel>
-                <TextFieldTextArea {...props} />
+                <TextFieldTextArea type='text' autoResize {...props} />
                 <TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
               </TextField>
             )}
           </Field>
           <Show when={getValue(form, 'type') === 'FILE'}>
-            <FileInput value={fileList()} onChange={setFileList}>
-              <FileInputRoot class='h-32'>
-                <FileInputTrigger class='flex h-full items-center justify-center border-2 border-gray-300 border-dashed p-4 text-lg'>
-                  <FolderArchive class='mr-4 size-8' />
-                  Choose File
-                </FileInputTrigger>
-                <FileInputDropArea class='border-2 border-gray-300 border-dashed p-4'>
-                  Drop your file here
-                </FileInputDropArea>
-              </FileInputRoot>
-            </FileInput>
+            <Field name='file' type='File'>
+              {(field, props) => {
+                const [fileList, setFileList] = createSignal<FileList>();
+                createEffect(() => {
+                  const currentFile = fileList()?.[0];
+                  if (currentFile) {
+                    setValue(form, field.name, currentFile);
+                  }
+                });
+
+                return (
+                  <div class='flex flex-col gap-1'>
+                    <FileInput value={fileList()} onChange={setFileList}>
+                      <FileInputRoot class='h-32'>
+                        <FileInputTrigger class='flex h-full items-center justify-center border-2 border-gray-300 border-dashed p-4 text-lg'>
+                          <FolderArchive class='mr-4 size-8' />
+                          Choose File
+                        </FileInputTrigger>
+                        <FileInputInput {...props} />
+                        <FileInputDropArea class='border-2 border-gray-300 border-dashed p-4'>
+                          Drop your file here
+                        </FileInputDropArea>
+                      </FileInputRoot>
+                    </FileInput>
+                    <Show when={getError(form, 'file')} keyed>
+                      {(error) => <p class='text-error text-sm'>{error}</p>}
+                    </Show>
+                  </div>
+                );
+              }}
+            </Field>
           </Show>
           <Field name='syncSchedule'>
             {(field, props) => (

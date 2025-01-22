@@ -12,7 +12,7 @@ import { cn } from '@/www/lib/utils';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { A } from '@solidjs/router';
 import type { ToolInvocation } from 'ai';
-import { ArrowUpRightFromSquare, BookOpenIcon, Search } from 'lucide-solid';
+import { ArrowUpRightFromSquare, BookOpenIcon, FileIcon, Search } from 'lucide-solid';
 import { For, Match, Show, Switch } from 'solid-js';
 import type { z } from 'zod';
 
@@ -84,17 +84,27 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
                             href={doc.metadata?.url ?? ''}
                             class={cn(
                               buttonVariants({ variant: 'outline' }),
-                              'flex h-fit w-fit items-center rounded-full px-2 py-1 text-xs',
+                              'group flex h-fit max-w-full items-center rounded-full px-3 py-2 text-xs',
                             )}
+                            target={
+                              doc.metadata?.url?.includes(import.meta.env.PUBLIC_WEBAPP_URL)
+                                ? '_self'
+                                : '_blank'
+                            }
                           >
-                            <span class='mr-1 inline-block'>
+                            <span class='mr-1'>
                               <Switch fallback={<ArrowUpRightFromSquare size={12} />}>
-                                <Match when={doc.metadata?.type === 'bible'}>
+                                <Match when={doc.metadata?.type?.toUpperCase() === 'BIBLE'}>
                                   <BookOpenIcon size={12} />
+                                </Match>
+                                <Match when={doc.metadata?.type?.toUpperCase() === 'REMOTE_FILE'}>
+                                  <FileIcon size={12} />
                                 </Match>
                               </Switch>
                             </span>
-                            {doc.metadata?.name ?? doc.metadata?.title ?? doc.metadata?.url ?? ''}
+                            <span class='line-clamp-2 text-wrap group-hover:line-clamp-none'>
+                              {doc.metadata?.name ?? doc.metadata?.url ?? ''}
+                            </span>
                           </A>
                         )}
                       </For>

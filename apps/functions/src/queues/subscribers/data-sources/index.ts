@@ -1,12 +1,12 @@
 import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
-import { dataSources, sourceDocuments } from '@/core/database/schema';
+import { dataSources } from '@/core/database/schema';
 import { s3 } from '@/core/storage';
 import { transformKeys } from '@/core/utils/object';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { wrapHandler } from '@sentry/aws-serverless';
 import type { SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
-import { eq, inArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { Resource } from 'sst';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
@@ -27,17 +27,9 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
       }
 
       console.log('Deleting old data source documents:', dataSource.id);
-      await Promise.all([
-        db.delete(sourceDocuments).where(
-          inArray(
-            sourceDocuments.id,
-            dataSource.dataSourcesToSourceDocuments.map((d) => d.sourceDocumentId),
-          ),
-        ),
-        vectorStore.deleteDocuments(
-          dataSource.dataSourcesToSourceDocuments.map((d) => d.sourceDocumentId),
-        ),
-      ]);
+      await vectorStore.deleteDocuments(
+        dataSource.dataSourcesToSourceDocuments.map((d) => d.sourceDocumentId),
+      );
 
       await db
         .update(dataSources)

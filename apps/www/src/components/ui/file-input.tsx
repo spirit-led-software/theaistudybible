@@ -1,6 +1,6 @@
 import { cn } from '@/www/lib/utils';
 import type { PolymorphicProps } from '@kobalte/core';
-import type { JSX, ValidComponent } from 'solid-js';
+import type { ComponentProps, JSX, ValidComponent } from 'solid-js';
 import {
   createContext,
   createMemo,
@@ -130,32 +130,49 @@ type FileInputTriggerProps = ButtonProps & {
 };
 
 const FileInputTrigger = (props: FileInputTriggerProps) => {
-  const { files, setFiles } = useFileInput();
+  const { files } = useFileInput();
   const [local, others] = splitProps(props, ['class', 'children']);
 
-  const handleChange = (event: Event) => {
-    const input = event.target as HTMLInputElement;
+  return (
+    <Button
+      variant='outline'
+      class={cn(
+        'w-full justify-start text-left font-normal',
+        !files() && 'text-muted-foreground',
+        local.class,
+      )}
+      onClick={() => document.getElementById('file-input')?.click()}
+      {...others}
+    >
+      <Show when={files()} fallback={local.children || 'Select file or drag and drop'}>
+        {`${files()!.length} file(s) selected`}
+      </Show>
+    </Button>
+  );
+};
+
+type FileInputInputProps = Omit<ComponentProps<'input'>, 'children' | 'type'>;
+
+const FileInputInput = (props: FileInputInputProps) => {
+  const { setFiles } = useFileInput();
+  const [local, others] = splitProps(props, ['class', 'onChange']);
+
+  const handleChange: JSX.ChangeEventHandlerUnion<HTMLInputElement, Event> = (event) => {
+    const input = event.target;
     setFiles(input.files);
+    if (local.onChange && typeof local.onChange === 'function') {
+      local.onChange(event);
+    }
   };
 
   return (
-    <>
-      <Button
-        variant='outline'
-        class={cn(
-          'w-full justify-start text-left font-normal',
-          !files() && 'text-muted-foreground',
-          local.class,
-        )}
-        onClick={() => document.getElementById('file-input')?.click()}
-        {...others}
-      >
-        <Show when={files()} fallback={local.children || 'Select file or drag and drop'}>
-          {`${files()!.length} file(s) selected`}
-        </Show>
-      </Button>
-      <input id='file-input' type='file' class='hidden' onChange={handleChange} />
-    </>
+    <input
+      id='file-input'
+      type='file'
+      class={cn('hidden', local.class)}
+      onChange={handleChange}
+      {...others}
+    />
   );
 };
 
@@ -202,6 +219,7 @@ export {
   FileInputDescription,
   FileInputDropArea,
   FileInputErrorMessage,
+  FileInputInput,
   FileInputRoot,
   FileInputTrigger,
 };

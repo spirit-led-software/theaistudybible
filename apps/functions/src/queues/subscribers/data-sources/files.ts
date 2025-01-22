@@ -11,7 +11,7 @@ import type { Document } from '@langchain/core/documents';
 import { wrapHandler } from '@sentry/aws-serverless';
 import type { S3EventRecord, SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
 import { eq } from 'drizzle-orm';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { TokenTextSplitter } from 'langchain/text_splitter';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
   console.log('Processing data source files event:', JSON.stringify(event, null, 2));
@@ -69,34 +69,21 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
             throw new Error('Unsupported file type');
           }
 
-          const splitter = new RecursiveCharacterTextSplitter({
+          const splitter = new TokenTextSplitter({
+            encodingName: 'cl100k_base',
             chunkSize: embeddingModel.chunkSize,
             chunkOverlap: embeddingModel.chunkOverlap,
           });
           docs = await splitter.splitDocuments(docs);
-          docs = docs.map((doc) => {
-            doc.metadata = { ...doc.metadata, ...transformedMetadata };
+          docs = docs.map((doc) => transformDocument(doc, transformedMetadata));
 
-            let title = name;
-            if (doc.metadata.title) {
-              title = doc.metadata.title;
-              if (doc.metadata.author) {
-                title = `${title} by ${doc.metadata.author}`;
-              }
-            }
-            if (doc.metadata.pageNumber) {
-              title = `${title} - Page ${doc.metadata.pageNumber}`;
-            }
-            doc.pageContent = `From ${title}\n\n${doc.pageContent}`;
-
-            return doc;
-          });
+          console.log('Adding documents to vector store', JSON.stringify(docs, null, 2));
 
           const result = await vectorStore.addDocuments(
             docs.map((doc) => {
-              const { pageContent, ...rest } = doc;
+              const { id = createId(), pageContent, ...rest } = doc;
               return {
-                id: doc.id ?? createId(),
+                id,
                 content: pageContent,
                 ...rest,
               };
@@ -122,6 +109,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
 
           console.log(`Successfully processed ${key}`);
         } catch (error) {
+          console.error('Error processing file:', error);
           await db
             .update(indexOperations)
             .set({
@@ -132,10 +120,41 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
         }
       }
     } catch (error) {
-      console.error('Error processing profile images:', error);
+      console.error('Error processing file:', error);
       batchItemFailures.push({ itemIdentifier: record.messageId });
     }
   }
 
   return { batchItemFailures };
 });
+
+// biome-ignore lint/suspicious/noExplicitAny: Accept any
+const transformDocument = (doc: Document<Record<string, any>>, metadata: Record<string, any>) => {
+  doc.metadata = { ...doc.metadata, ...metadata };
+  let name = metadata.name;
+  const title = doc.metadata.pdf?.info?.Title ?? doc.metadata.title;
+  const author = doc.metadata.pdf?.info?.Author ?? doc.metadata.author;
+  if (title) {
+    name = title;
+    if (author) {
+      name = `"${name}" by ${author}`;
+    }
+  }
+  const pageNumber = doc.metadata.loc?.pageNumber;
+  if (pageNumber) {
+    name += `; P${pageNumber}`;
+    const lineFrom = doc.metadata.loc.lines?.from;
+    if (lineFrom) {
+      name += `:L${lineFrom}`;
+      const lineTo = doc.metadata.loc.lines.to;
+      if (lineTo) {
+        name += `-${lineTo}`;
+      }
+    }
+  }
+
+  const header = `From ${name}:\n---\n`;
+  doc.pageContent = `${header}${doc.pageContent}`;
+  doc.metadata.name = name;
+  return doc;
+};

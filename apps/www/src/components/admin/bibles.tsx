@@ -11,7 +11,13 @@ import { Resource } from 'sst';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
-import { FileInput, FileInputDropArea, FileInputRoot, FileInputTrigger } from '../ui/file-input';
+import {
+  FileInput,
+  FileInputDropArea,
+  FileInputInput,
+  FileInputRoot,
+  FileInputTrigger,
+} from '../ui/file-input';
 import { Label } from '../ui/label';
 import {
   NumberField,
@@ -143,6 +149,7 @@ export const BiblesContent = () => {
               <FolderArchive class='mr-4 size-8' />
               Choose zip
             </FileInputTrigger>
+            <FileInputInput />
             <FileInputDropArea class='border-2 border-gray-300 border-dashed p-4'>
               Drop your zip file here
             </FileInputDropArea>

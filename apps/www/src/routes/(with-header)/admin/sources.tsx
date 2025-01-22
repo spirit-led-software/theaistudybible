@@ -48,11 +48,11 @@ const SourcesPage = () => {
               },
               {
                 accessorKey: 'syncSchedule',
-                header: 'Sync Schedule',
+                header: 'Schedule',
               },
               {
                 accessorKey: 'numberOfDocuments',
-                header: 'Sync Status',
+                header: 'Documents',
               },
               {
                 accessorKey: 'lastManualSync',

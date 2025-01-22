@@ -58,7 +58,7 @@ export const EmptyWindow = (props: EmptyWindowProps) => {
       aria-label='Chat suggestions'
     >
       <GradientH3 class='mb-6'>Start a conversation</GradientH3>
-      <div class='grid w-full max-w-sm grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2 lg:max-w-2xl lg:grid-cols-3'>
+      <div class='grid w-full max-w-md grid-cols-1 gap-3 sm:max-w-lg sm:grid-cols-2'>
         <For each={props.additionalContext ? additionalContextQuestions : questions}>
           {({ text, query, icon: Icon }) => (
             <Button
@@ -67,7 +67,7 @@ export const EmptyWindow = (props: EmptyWindowProps) => {
               onClick={() => props.append({ role: 'user', content: query })}
               aria-label={`Ask: ${text}`}
             >
-              <Icon class='mr-3 inline-block size-5 shrink-0 sm:size-6' aria-hidden='true' />
+              <Icon class='mr-1 inline-block size-8 shrink-0 sm:size-6' aria-hidden='true' />
               <span class='text-sm sm:text-base'>{text}</span>
             </Button>
           )}

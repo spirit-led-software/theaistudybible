@@ -160,7 +160,7 @@ export const EditDataSourceButton = (props: EditDataSourceButtonProps) => {
               {(field, props) => (
                 <TextField value={field.value} validationState={field.error ? 'invalid' : 'valid'}>
                   <TextFieldLabel>Metadata (JSON)</TextFieldLabel>
-                  <TextFieldTextArea type='text' {...props} />
+                  <TextFieldTextArea type='text' autoResize {...props} />
                   <TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
                 </TextField>
               )}

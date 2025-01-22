@@ -415,7 +415,7 @@ export const messagesToSourceDocuments = sqliteTable(
       .references(() => messages.id, { onDelete: 'cascade' }),
     sourceDocumentId: text('source_document_id')
       .notNull()
-      .references(() => sourceDocuments.id),
+      .references(() => sourceDocuments.id, { onDelete: 'cascade' }),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -525,7 +525,7 @@ export const userGeneratedImagesToSourceDocuments = sqliteTable(
       .references(() => userGeneratedImages.id, { onDelete: 'cascade' }),
     sourceDocumentId: text('source_document_id')
       .notNull()
-      .references(() => sourceDocuments.id),
+      .references(() => sourceDocuments.id, { onDelete: 'cascade' }),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -649,7 +649,7 @@ export const devotionsToSourceDocuments = sqliteTable(
       .references(() => devotions.id, { onDelete: 'cascade' }),
     sourceDocumentId: text('source_document_id')
       .notNull()
-      .references(() => sourceDocuments.id),
+      .references(() => sourceDocuments.id, { onDelete: 'cascade' }),
     distance: real('distance').notNull().default(0),
     distanceMetric: text('distance_metric', {
       enum: ['cosine', 'l2', 'innerProduct'],
@@ -717,7 +717,7 @@ export const dataSourcesToSourceDocuments = sqliteTable(
       .references(() => dataSources.id, { onDelete: 'cascade' }),
     sourceDocumentId: text('source_document_id')
       .notNull()
-      .references(() => sourceDocuments.id),
+      .references(() => sourceDocuments.id, { onDelete: 'cascade' }),
   },
   (table) => [
     primaryKey({
@@ -1200,7 +1200,7 @@ export const chaptersToSourceDocuments = sqliteTable(
       .references(() => chapters.id, { onDelete: 'cascade' }),
     sourceDocumentId: text('source_document_id')
       .notNull()
-      .references(() => sourceDocuments.id),
+      .references(() => sourceDocuments.id, { onDelete: 'cascade' }),
   },
   (table) => [
     primaryKey({
