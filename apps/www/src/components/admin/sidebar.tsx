@@ -65,25 +65,25 @@ const AdminSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Sources</SidebarGroupLabel>
+          <SidebarGroupLabel>Data Sources</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={location.pathname === '/admin/sources'}
+                  isActive={location.pathname === '/admin/data-sources'}
                   as={A}
-                  href='/admin/sources'
+                  href='/admin/data-sources'
                 >
-                  All Sources
+                  All Data Sources
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  isActive={location.pathname === '/admin/source'}
+                  isActive={location.pathname === '/admin/data-source'}
                   as={A}
-                  href='/admin/source'
+                  href='/admin/data-source'
                 >
-                  Add a Source
+                  Add a Data Source
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
