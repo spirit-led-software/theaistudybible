@@ -20,7 +20,7 @@
     "@theaistudybible/schemas": "workspace:*",
     "@upstash/vector": "^1.2.0",
     "braintrust": "^0.0.182",
-    "openai": "^4.79.1",
+    "openai": "^4.80.0",
     "tiktoken": "^1.0.18"
   }
 }
