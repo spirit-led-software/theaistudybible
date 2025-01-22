@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { vectorStore } from '../vector-store';
 
 export const bibleVectorStoreTool = tool({
-  description: 'Bible Vector Store: Fetch bible passages for your answer.',
+  description: 'Bible Vector Store: Fetch bible passages for your output.',
   parameters: z.object({
     terms: z
       .array(z.string())
@@ -15,7 +15,7 @@ export const bibleVectorStoreTool = tool({
     return await Promise.all(
       terms.map((term) =>
         vectorStore.searchDocuments(term, {
-          filter: 'type = "bible" and translation = "FBV"',
+          filter: '(type = "bible" or type = "BIBLE") and translation = "WEB"',
           limit: 12,
           withMetadata: true,
           withEmbedding: false,
@@ -32,17 +32,21 @@ export const bibleVectorStoreTool = tool({
 });
 
 export const vectorStoreTool = tool({
-  description: 'Vector Store: Fetch relevant resources for your answer.',
+  description: 'Vector Store: Fetch relevant resources for your output.',
   parameters: z.object({
     terms: z
       .array(z.string())
-      .describe('1 to 4 search terms or phrases that will be used to find relevant resources.'),
+      .describe(
+        '1 to 6 search terms or phrases that will be used to find relevant resources. These search phrases are searched separately and the results are combined.',
+      )
+      .min(1)
+      .max(6),
   }),
   execute: async ({ terms }) => {
     return await Promise.all(
       terms.map((term) =>
         vectorStore.searchDocuments(term, {
-          limit: 8,
+          limit: 12,
           withMetadata: true,
           withEmbedding: false,
         }),
@@ -52,7 +56,7 @@ export const vectorStoreTool = tool({
         .flat()
         .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
         .sort((a, b) => b.score - a.score)
-        .slice(0, 4),
+        .slice(0, 8),
     );
   },
 });

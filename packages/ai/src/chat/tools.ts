@@ -272,7 +272,11 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
     parameters: z.object({
       terms: z
         .array(z.string())
-        .describe('1 to 6 search terms or phrases that will be used to find relevant resources.'),
+        .describe(
+          '1 to 6 search terms or phrases that will be used to find relevant resources. These search phrases are searched separately and the results are combined.',
+        )
+        .min(1)
+        .max(6),
     }),
     execute: async ({ terms }) => {
       try {
@@ -282,7 +286,9 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
               limit: 12,
               withMetadata: true,
               withEmbedding: false,
-              filter: input.bibleId ? `bibleId = "${input.bibleId}" or type != "bible"` : undefined,
+              filter: input.bibleId
+                ? `bibleId = "${input.bibleId}" or (type != "bible" and type != "BIBLE")`
+                : undefined,
             }),
           ),
         ).then((docs) =>
