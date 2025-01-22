@@ -11,8 +11,8 @@ export const bibleBucket = new sst.aws.Bucket('BibleBucket', {}, { retainOnDelet
 bibleBucket.notify({
   notifications: [
     {
-      name: indexBibleQueue.nodes.queue.name,
-      queue: indexBibleQueue.arn,
+      name: 'indexBibleQueue',
+      queue: indexBibleQueue,
       events: ['s3:ObjectCreated:*'],
     },
   ],
@@ -26,8 +26,8 @@ export const chapterMessageBucket = new sst.aws.Bucket(
 chapterMessageBucket.notify({
   notifications: [
     {
-      name: indexBibleChapterQueue.nodes.queue.name,
-      queue: indexBibleChapterQueue.arn,
+      name: 'indexBibleChapterQueue',
+      queue: indexBibleChapterQueue,
       events: ['s3:ObjectCreated:*'],
     },
   ],
@@ -41,8 +41,8 @@ export const dataSourceFilesBucket = new sst.aws.Bucket(
 dataSourceFilesBucket.notify({
   notifications: [
     {
-      name: indexDataSourceFilesQueue.nodes.queue.name,
-      queue: indexDataSourceFilesQueue.arn,
+      name: 'indexDataSourceFilesQueue',
+      queue: indexDataSourceFilesQueue,
       events: ['s3:ObjectCreated:*'],
     },
   ],
@@ -56,8 +56,8 @@ export const profileImagesBucket = new sst.aws.Bucket(
 profileImagesBucket.notify({
   notifications: [
     {
-      name: profileImagesQueue.nodes.queue.name,
-      queue: profileImagesQueue.arn,
+      name: 'profileImagesQueue',
+      queue: profileImagesQueue,
       events: ['s3:ObjectCreated:*'],
     },
   ],
