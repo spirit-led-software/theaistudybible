@@ -117,7 +117,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
   });
 
   return (
-    <SidebarProvider class='h-full min-h-full' style={{ '--sidebar-width': '20rem' }}>
+    <SidebarProvider
+      class='h-full min-h-full'
+      style={{ '--sidebar-width': '20rem' }}
+      defaultOpen={location.pathname.startsWith('/chat')}
+    >
       <Show when={location.pathname.startsWith('/chat')}>
         <MetaTags />
       </Show>

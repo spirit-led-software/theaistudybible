@@ -110,6 +110,7 @@ export const ChatSidebar = () => {
     <Sidebar
       class='h-full pt-safe-offset-24 pr-1 pb-safe-offset-4 pl-safe-offset-1'
       gapFixerClass='h-full'
+      variant={location.pathname.startsWith('/chat') ? 'sidebar' : 'floating'}
     >
       <SidebarHeader class='flex flex-col gap-2'>
         <H3>Chat History</H3>
