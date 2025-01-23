@@ -38,8 +38,6 @@ type SidebarContext = {
   state: Accessor<'expanded' | 'collapsed'>;
   open: Accessor<boolean>;
   setOpen: (open: boolean) => void;
-  openMobile: Accessor<boolean>;
-  setOpenMobile: (open: boolean) => void;
   isMobile: Accessor<boolean>;
   toggleSidebar: () => void;
 };
@@ -90,7 +88,6 @@ const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
   ]);
 
   const isMobile = useIsMobile();
-  const [openMobile, setOpenMobile] = createSignal(false);
 
   // This is the internal state of the sidebar.
   // We use open and onOpenChange for control from outside the component.
@@ -108,7 +105,7 @@ const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
 
   // Helper to toggle the sidebar.
   const toggleSidebar = () => {
-    return isMobile() ? setOpenMobile((open) => !open) : setOpen((open) => !open);
+    return setOpen((open) => !open);
   };
 
   // Adds a keyboard shortcut to toggle the sidebar.
@@ -133,8 +130,6 @@ const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
     open,
     setOpen,
     isMobile,
-    openMobile,
-    setOpenMobile,
     toggleSidebar,
   };
 
@@ -160,7 +155,7 @@ const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
 
 type SidebarProps = ComponentProps<'div'> & {
   side?: 'left' | 'right';
-  variant?: 'sidebar' | 'floating' | 'inset';
+  variant?: 'sidebar' | 'floating' | 'inset' | 'sheet';
   collapsible?: 'offcanvas' | 'icon' | 'none';
   gapFixerClass?: string;
 };
@@ -183,7 +178,7 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
     'gapFixerClass',
   ]);
 
-  const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+  const { isMobile, state, open, setOpen } = useSidebar();
 
   return (
     <Switch>
@@ -198,8 +193,8 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
           {local.children}
         </div>
       </Match>
-      <Match when={isMobile()}>
-        <Sheet open={openMobile()} onOpenChange={setOpenMobile} {...others}>
+      <Match when={local.variant === 'sheet' || isMobile()}>
+        <Sheet open={open()} onOpenChange={setOpen} {...others}>
           <SheetContent
             data-sidebar='sidebar'
             data-mobile='true'

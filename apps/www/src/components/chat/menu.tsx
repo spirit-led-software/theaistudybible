@@ -11,7 +11,7 @@ export const ChatMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [chatStore, setChatStore] = useChatStore();
-  const { open, openMobile } = useSidebar();
+  const { open } = useSidebar();
 
   const chatName = createMemo(() => chatStore.chat?.name ?? 'New Chat');
 
@@ -24,7 +24,7 @@ export const ChatMenu = () => {
       <div class='flex w-full max-w-3xl items-center justify-between px-3 py-1'>
         <div class='flex items-center gap-2'>
           <SidebarTrigger as={Button} size='icon' variant='ghost'>
-            {open() || openMobile() ? <ChevronLeft /> : <SidebarIcon />}
+            {open() ? <ChevronLeft /> : <SidebarIcon />}
           </SidebarTrigger>
           <H6 class='truncate' aria-label='Chat name'>
             {chatName()}

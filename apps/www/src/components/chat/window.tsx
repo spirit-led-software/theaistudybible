@@ -1,6 +1,7 @@
 import { useBibleStore } from '@/www/contexts/bible';
 import { createChatScrollAnchor } from '@/www/hooks/create-chat-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
+import { cn } from '@/www/lib/utils';
 import { useWindowSize } from '@solid-primitives/resize-observer';
 import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
@@ -116,13 +117,15 @@ export const ChatWindow = (props: ChatWindowProps) => {
     return idx;
   });
 
+  const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
+
   return (
     <SidebarProvider
-      class='h-full min-h-full'
+      class={cn('min-h-full', isChatPage() ? 'h-full' : 'h-(--activity-panel-height)')}
       style={{ '--sidebar-width': '20rem' }}
-      defaultOpen={location.pathname.startsWith('/chat')}
+      defaultOpen={isChatPage()}
     >
-      <Show when={location.pathname.startsWith('/chat')}>
+      <Show when={isChatPage()}>
         <MetaTags />
       </Show>
       <ChatSidebar />

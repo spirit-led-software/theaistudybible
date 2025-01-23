@@ -195,8 +195,13 @@ export const ActivityPanelContent = () => {
       open={!!value()}
       onOpenChange={(isOpen) => !isOpen && setValue(undefined)}
     >
-      <DrawerContent class='w-full max-w-2xl justify-self-center shadow-lg'>
-        <div class='mx-auto flex max-h-[calc(100vh-120px)] w-full flex-col overflow-hidden p-4'>
+      <DrawerContent
+        class='w-full max-w-2xl justify-self-center shadow-lg'
+        style={{
+          '--activity-panel-height': 'calc(100vh - 120px)',
+        }}
+      >
+        <div class='mx-auto flex max-h-(--activity-panel-height) w-full flex-col overflow-hidden p-4'>
           <Show when={value() !== 'chat'}>
             <DrawerHeader class='mb-2'>
               <DrawerTitle class='text-center'>{brStore.selectedTitle}</DrawerTitle>

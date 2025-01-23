@@ -60,7 +60,7 @@ const getDevotions = GET(
 export const getDevotionsQueryOptions = (searchQuery?: string) => ({
   queryKey: ['devotions', { searchQuery }],
   queryFn: ({ pageParam }: { pageParam: number }) =>
-    getDevotions({ offset: pageParam, limit: 7, searchQuery }),
+    getDevotions({ offset: pageParam, limit: 10, searchQuery }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getDevotions>>) => lastPage.nextCursor,
   keepPreviousData: true,

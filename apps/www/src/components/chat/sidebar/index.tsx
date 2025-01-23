@@ -8,7 +8,7 @@ import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
 import { Search, X } from 'lucide-solid';
-import { For, Show, createSignal } from 'solid-js';
+import { For, Show, createMemo, createSignal } from 'solid-js';
 import { useChatStore } from '../../../contexts/chat';
 import { QueryBoundary } from '../../query-boundary';
 import { Button } from '../../ui/button';
@@ -106,11 +106,13 @@ export const ChatSidebar = () => {
   const [searchQuery, setSearchQuery] = createSignal('');
   const chatsQuery = createInfiniteQuery(() => getChatsQueryOptions(searchQuery()));
 
+  const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
+
   return (
     <Sidebar
       class='h-full pt-safe-offset-24 pr-1 pb-safe-offset-4 pl-safe-offset-1'
       gapFixerClass='h-full'
-      variant={location.pathname.startsWith('/chat') ? 'sidebar' : 'floating'}
+      variant={isChatPage() ? 'sidebar' : 'sheet'}
     >
       <SidebarHeader class='flex flex-col gap-2'>
         <H3>Chat History</H3>
@@ -162,10 +164,10 @@ export const ChatSidebar = () => {
                         <SidebarMenuButton
                           onClick={() => {
                             setChatStore('chatId', chat.id);
-                            if (location.pathname.startsWith('/chat')) {
+                            if (isChatPage()) {
                               navigate(`/chat/${chat.id}`);
                             }
-                            if (isMobile()) {
+                            if (!isChatPage() || isMobile()) {
                               toggleSidebar();
                             }
                           }}
