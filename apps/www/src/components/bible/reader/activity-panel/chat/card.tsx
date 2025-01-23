@@ -26,7 +26,7 @@ export const ChatCard = () => {
   });
 
   return (
-    <Card class='flex h-full w-full flex-1 flex-col overflow-hidden'>
+    <Card class='flex h-full w-full flex-1 flex-col overflow-hidden p-0'>
       <SignedIn
         fallback={
           <>
