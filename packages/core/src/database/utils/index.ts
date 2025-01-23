@@ -1,6 +1,6 @@
 import { createId } from '@/core/utils/id';
 import { formatISO, parseISO } from 'date-fns';
-import { type SQL, getTableColumns, sql } from 'drizzle-orm';
+import { type Column, type SQL, getTableColumns, sql } from 'drizzle-orm';
 import type { PgTable } from 'drizzle-orm/pg-core';
 import { type SQLiteTable, customType, text } from 'drizzle-orm/sqlite-core';
 
@@ -43,3 +43,5 @@ export const buildConflictUpdateColumns = <
     {} as Record<Q, SQL>,
   );
 };
+
+export const ilike = (column: Column, value: string) => sql`LOWER(${column}) LIKE LOWER(${value})`;

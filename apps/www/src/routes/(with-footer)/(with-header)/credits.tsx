@@ -114,7 +114,7 @@ export default function CreditPurchasePage() {
       <div class='container flex h-full w-full overflow-y-auto'>
         <div class='container flex max-w-2xl flex-1 flex-col px-4 py-8'>
           <div class='flex flex-col items-center gap-2 pb-8'>
-            <H1 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+            <H1 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
               Purchase Credits
             </H1>
             <P class='text-center text-muted-foreground text-sm'>

@@ -4,11 +4,9 @@ import { Button } from '@/www/components/ui/button';
 import { Command, CommandEmpty, CommandInput, CommandList } from '@/www/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { json } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronsUpDown } from 'lucide-solid';
-import { murmurHash } from 'ohash';
 import { For } from 'solid-js';
 import { ChapterPicker } from './chapter';
 
@@ -33,18 +31,12 @@ const getBookPickerData = GET(async (bibleId: string) => {
 
   const { books, ...bible } = bibleData;
 
-  const returnValue = { bible, books };
-  return json(returnValue, {
-    headers: {
-      'Cache-Control': 'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
-      ETag: murmurHash(JSON.stringify(returnValue)).toString(36),
-    },
-  });
+  return { bible, books };
 });
 
 export const bookPickerQueryOptions = (bibleId: string) => ({
   queryKey: ['book-picker', { bibleId }],
-  queryFn: () => getBookPickerData(bibleId).then((data) => data.customBody()),
+  queryFn: () => getBookPickerData(bibleId),
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 

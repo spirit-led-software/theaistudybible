@@ -96,7 +96,7 @@ export function SettingsCard() {
       </CardHeader>
       <CardContent class='flex h-full w-full flex-1 flex-col'>
         <Form
-          class='flex flex-grow flex-col gap-6'
+          class='flex grow flex-col gap-6'
           onSubmit={(values) => handleSubmit.mutateAsync(values)}
         >
           <div class='flex h-full flex-1 flex-col gap-6'>

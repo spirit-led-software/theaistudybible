@@ -1,3 +1,5 @@
+@reference "../../../../app.css";
+
 .eb-container ol,
 .eb-container ul {
   list-style: none;

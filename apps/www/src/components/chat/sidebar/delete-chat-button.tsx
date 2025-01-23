@@ -61,6 +61,7 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
               as={Button}
               variant='ghost'
               size='icon'
+              class='size-8'
             >
               <Trash size={16} />
             </DialogTrigger>

@@ -13,11 +13,10 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
 import { Spinner } from '@/www/components/ui/spinner';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { json, useNavigate } from '@solidjs/router';
+import { useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Check, ChevronsUpDown } from 'lucide-solid';
-import { murmurHash } from 'ohash';
 import { createMemo } from 'solid-js';
 
 const getSmallPickerData = GET(async () => {
@@ -26,17 +25,12 @@ const getSmallPickerData = GET(async () => {
     where: (bibles, { eq }) => eq(bibles.readyForPublication, true),
     with: { biblesToLanguages: { with: { language: true } } },
   });
-  return json(bibles, {
-    headers: {
-      'Cache-Control': 'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
-      ETag: murmurHash(JSON.stringify(bibles)).toString(36),
-    },
-  });
+  return { bibles };
 });
 
 export const smallTranslationPickerQueryOptions = () => ({
   queryKey: ['small-translation-picker'],
-  queryFn: () => getSmallPickerData().then((data) => data.customBody()),
+  queryFn: () => getSmallPickerData(),
 });
 
 export function SmallTranslationPicker() {
@@ -48,7 +42,7 @@ export function SmallTranslationPicker() {
   const uniqueLanguages = createMemo(() => {
     if (query.status === 'success') {
       return (
-        query.data?.reduce((acc, bible) => {
+        query.data.bibles.reduce((acc, bible) => {
           if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {
             acc.push(bible.biblesToLanguages[0].language);
           }
@@ -69,7 +63,7 @@ export function SmallTranslationPicker() {
         </Button>
       }
     >
-      {(bibles) => (
+      {({ bibles }) => (
         <Popover>
           <PopoverTrigger
             as={Button}

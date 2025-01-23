@@ -28,7 +28,7 @@ export const Message = (props: MessageProps) => {
   return (
     <article
       class={cn(
-        'flex w-full max-w-2xl space-x-4 overflow-hidden px-3 py-4',
+        'flex w-full max-w-3xl space-x-4 overflow-hidden px-3 py-4',
         props.previousMessage?.role === props.message.role ? 'border-t-0' : 'border-t',
       )}
       aria-label={`${props.message.role === 'assistant' ? 'AI' : 'User'} message`}
@@ -41,10 +41,10 @@ export const Message = (props: MessageProps) => {
             </Match>
             <Match when={props.message.role === 'assistant'}>
               <div
-                class='flex size-10 flex-shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2'
+                class='flex size-10 shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2'
                 aria-label='AI assistant avatar'
               >
-                <Icon width={300} height={300} class='flex-shrink-0' aria-hidden='true' />
+                <Icon width={300} height={300} class='shrink-0' aria-hidden='true' />
               </div>
             </Match>
           </Switch>

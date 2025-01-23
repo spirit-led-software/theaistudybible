@@ -4,11 +4,10 @@ import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Input } from '@/www/components/ui/input';
 import { H2, P } from '@/www/components/ui/typography';
-import { A, json } from '@solidjs/router';
+import { A } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Search } from 'lucide-solid';
-import { murmurHash } from 'ohash';
 import { createMemo, createSignal } from 'solid-js';
 
 const getBibles = GET(async () => {
@@ -17,17 +16,12 @@ const getBibles = GET(async () => {
     where: (bibles, { eq }) => eq(bibles.readyForPublication, true),
     with: { biblesToLanguages: { with: { language: true } } },
   });
-  return json(bibles, {
-    headers: {
-      'Cache-Control': 'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
-      ETag: murmurHash(JSON.stringify(bibles)).toString(36),
-    },
-  });
+  return { bibles };
 });
 
 export const largeTranslationPickerQueryOptions = {
   queryKey: ['bibles'],
-  queryFn: () => getBibles().then((data) => data.customBody()),
+  queryFn: () => getBibles(),
 };
 
 export function LargeTranslationPicker() {
@@ -38,7 +32,7 @@ export function LargeTranslationPicker() {
   const filteredBibles = createMemo(() => {
     if (query.status === 'success') {
       return (
-        query.data?.filter(
+        query.data.bibles.filter(
           (bible) =>
             bible.name.toLowerCase().includes(search().toLowerCase()) ||
             bible.abbreviation.toLowerCase().includes(search().toLowerCase()),
@@ -59,7 +53,7 @@ export function LargeTranslationPicker() {
 
   return (
     <QueryBoundary query={query}>
-      {(bibles) => (
+      {({ bibles }) => (
         <div class='flex h-full w-full flex-col place-items-center justify-center'>
           <H2>Select your translation:</H2>
           <div class='w-full md:w-3/4 lg:w-1/2'>

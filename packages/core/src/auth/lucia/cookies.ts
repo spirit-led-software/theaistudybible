@@ -1,12 +1,12 @@
 import type { Session } from '@/schemas/users/types';
-import { type CookieSerializeOptions, serialize } from 'cookie';
+import { type SerializeOptions, serialize } from 'cookie';
 import { Resource } from 'sst';
 
 export class SessionCookie {
   constructor(
     public name: string,
     public value: string,
-    public attributes: CookieSerializeOptions,
+    public attributes: SerializeOptions,
   ) {}
 
   serialize() {

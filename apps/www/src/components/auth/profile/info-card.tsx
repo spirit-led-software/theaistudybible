@@ -20,7 +20,7 @@ export const InfoCard = () => {
         <div class='group relative'>
           <Avatar class='size-24 border-4 border-primary/10 sm:size-32 md:size-40'>
             <AvatarImage src={user()?.image || undefined} />
-            <AvatarFallback class='bg-gradient-to-br from-primary to-secondary text-3xl text-primary-foreground sm:text-4xl md:text-5xl'>
+            <AvatarFallback class='bg-linear-to-br from-primary to-secondary text-3xl text-primary-foreground sm:text-4xl md:text-5xl'>
               {user()?.firstName?.charAt(0) || user()?.email?.charAt(0) || '?'}
               {user()?.lastName?.charAt(0) || ''}
             </AvatarFallback>

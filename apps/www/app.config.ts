@@ -4,6 +4,7 @@ import { defineConfig } from '@solidjs/start/config';
 import solidDevTools from 'solid-devtools/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   middleware: './src/middleware.ts',
@@ -17,6 +18,7 @@ export default defineConfig({
     envPrefix: 'PUBLIC_',
     plugins: [
       tsconfigPaths(),
+      tailwindcss(),
       solidDevTools({ autoname: true }),
       VitePWA({
         strategies: 'injectManifest',

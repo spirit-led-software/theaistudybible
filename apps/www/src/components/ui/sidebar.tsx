@@ -18,8 +18,7 @@ import { Polymorphic } from '@kobalte/core';
 import type { VariantProps } from 'class-variance-authority';
 import { cva } from 'class-variance-authority';
 
-import type { ButtonProps } from '@/www/components/ui/button';
-import { Button } from '@/www/components/ui/button';
+import { Button, type ButtonProps } from '@/www/components/ui/button';
 import { Separator } from '@/www/components/ui/separator';
 import { Sheet, SheetContent } from '@/www/components/ui/sheet';
 import { Skeleton } from '@/www/components/ui/skeleton';
@@ -148,7 +147,7 @@ const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
           ...local.style,
         }}
         class={cn(
-          'group/sidebar-wrapper flex min-h-svh w-full text-sidebar-foreground has-[[data-variant=inset]]:bg-sidebar',
+          'group/sidebar-wrapper flex min-h-svh w-full text-sidebar-foreground has-data-[variant=inset]:bg-sidebar',
           local.class,
         )}
         {...others}
@@ -191,7 +190,7 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
       <Match when={local.collapsible === 'none'}>
         <div
           class={cn(
-            'test flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground',
+            'test flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground',
             local.class,
           )}
           {...others}
@@ -204,7 +203,7 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
           <SheetContent
             data-sidebar='sidebar'
             data-mobile='true'
-            class='w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden'
+            class='w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden'
             style={{
               '--sidebar-width': SIDEBAR_WIDTH_MOBILE,
             }}
@@ -225,32 +224,32 @@ const Sidebar: Component<SidebarProps> = (rawProps) => {
           {/* This is what handles the sidebar gap on desktop */}
           <div
             class={cn(
-              'relative h-svh w-[--sidebar-width] bg-transparent transition-[width] duration-200 ease-linear',
+              'relative h-svh w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear',
               'group-data-[collapsible=offcanvas]:w-0',
               'group-data-[side=right]:rotate-180',
               local.variant === 'floating' || local.variant === 'inset'
-                ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]'
-                : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon]',
+                ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]'
+                : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon)',
               local.gapFixerClass,
             )}
           />
           <div
             class={cn(
-              'fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] duration-200 ease-linear md:flex',
+              'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex',
               local.side === 'left'
                 ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
                 : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
               // Adjust the padding for floating and inset variants.
               local.variant === 'floating' || local.variant === 'inset'
-                ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]'
-                : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l',
+                ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]'
+                : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l',
               local.class,
             )}
             {...others}
           >
             <div
               data-sidebar='sidebar'
-              class='flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow'
+              class='flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm'
             >
               {local.children}
             </div>
@@ -265,36 +264,40 @@ type SidebarTriggerProps<T extends ValidComponent = 'button'> = ButtonProps<T> &
   onClick?: (event: MouseEvent) => void;
 };
 
-const SidebarTrigger = <T extends ValidComponent = 'button'>(props: SidebarTriggerProps<T>) => {
-  const [local, others] = splitProps(props as SidebarTriggerProps, ['class', 'onClick']);
+const SidebarTrigger = <T extends ValidComponent = 'button'>(
+  props: PolymorphicProps<T, SidebarTriggerProps<T>>,
+) => {
+  const [local, others] = splitProps(props as SidebarTriggerProps, ['onClick', 'children']);
   const { toggleSidebar } = useSidebar();
 
   return (
-    <Button
+    <Polymorphic<SidebarTriggerProps>
+      as={Button}
       data-sidebar='trigger'
       variant='ghost'
       size='icon'
-      class={cn('size-7', local.class)}
       onClick={(event: MouseEvent) => {
         local.onClick?.(event);
         toggleSidebar();
       }}
       {...others}
     >
-      <svg
-        viewBox='0 0 24 24'
-        fill='none'
-        stroke='currentColor'
-        stroke-width='2'
-        stroke-linecap='round'
-        stroke-linejoin='round'
-        class='size-4'
-      >
-        <rect width='18' height='18' x='3' y='3' rx='2' />
-        <path d='M9 3v18' />
-      </svg>
+      {local.children ?? (
+        <svg
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2'
+          stroke-linecap='round'
+          stroke-linejoin='round'
+          class='size-4'
+        >
+          <rect width='18' height='18' x='3' y='3' rx='2' />
+          <path d='M9 3v18' />
+        </svg>
+      )}
       <span class='sr-only'>Toggle Sidebar</span>
-    </Button>
+    </Polymorphic>
   );
 };
 
@@ -311,9 +314,9 @@ const SidebarRail: Component<ComponentProps<'button'>> = (props) => {
       title='Toggle Sidebar'
       class={cn(
         '-translate-x-1/2 group-data-[side=left]:-right-4 absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=right]:left-0 sm:flex',
-        '[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize',
+        'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
         '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
-        'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:hover:bg-sidebar group-data-[collapsible=offcanvas]:after:left-full',
+        'group-data-[collapsible=offcanvas]:translate-x-0 hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:after:left-full',
         '[[data-side=left][data-collapsible=offcanvas]_&]:-right-2',
         '[[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
         local.class,
@@ -329,7 +332,7 @@ const SidebarInset: Component<ComponentProps<'main'>> = (props) => {
     <main
       class={cn(
         'relative flex min-h-svh flex-1 flex-col bg-background',
-        'peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow',
+        'peer-data-[variant=inset]:min-h-[calc(100svh-(--spacing(4)))] md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2 md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm',
         local.class,
       )}
       {...others}
@@ -341,11 +344,15 @@ type SidebarInputProps<T extends ValidComponent = 'input'> = ComponentProps<
   typeof TextFieldInput<T>
 >;
 
-const SidebarInput = <T extends ValidComponent = 'input'>(props: SidebarInputProps<T>) => {
+const SidebarInput = <T extends ValidComponent = 'input'>(
+  props: PolymorphicProps<T, SidebarInputProps<T>>,
+) => {
   const [local, others] = splitProps(props as SidebarInputProps, ['class']);
   return (
     <TextField>
-      <TextFieldInput
+      <Polymorphic<SidebarInputProps>
+        // @ts-expect-error
+        as={TextFieldInput}
         data-sidebar='input'
         class={cn(
           'h-8 w-full bg-background shadow-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
@@ -373,10 +380,14 @@ const SidebarFooter: Component<ComponentProps<'div'>> = (props) => {
 
 type SidebarSeparatorProps<T extends ValidComponent = 'hr'> = ComponentProps<typeof Separator<T>>;
 
-const SidebarSeparator = <T extends ValidComponent = 'hr'>(props: SidebarSeparatorProps<T>) => {
+const SidebarSeparator = <T extends ValidComponent = 'hr'>(
+  props: PolymorphicProps<T, SidebarSeparatorProps<T>>,
+) => {
   const [local, others] = splitProps(props as SidebarSeparatorProps, ['class']);
   return (
-    <Separator
+    <Polymorphic<SidebarSeparatorProps>
+      // @ts-expect-error
+      as={Separator}
       data-sidebar='separator'
       class={cn('mx-2 w-auto bg-sidebar-border', local.class)}
       {...others}
@@ -421,7 +432,7 @@ const SidebarGroupLabel = <T extends ValidComponent = 'div'>(
       as='div'
       data-sidebar='group-label'
       class={cn(
-        'flex h-8 shrink-0 items-center rounded-md px-2 font-medium text-sidebar-foreground/70 text-xs outline-none ring-sidebar-ring transition-[margin,opa] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
+        'flex h-8 shrink-0 items-center rounded-md px-2 font-medium text-sidebar-foreground/70 text-xs outline-hidden ring-sidebar-ring transition-[margin,opa] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
         'group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0',
         local.class,
       )}
@@ -441,9 +452,9 @@ const SidebarGroupAction = <T extends ValidComponent = 'button'>(
       as='button'
       data-sidebar='group-action'
       class={cn(
-        'absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
+        'absolute top-3.5 right-3 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0',
         // Increases the hit area of the button on mobile.
-        'after:-inset-2 after:absolute after:md:hidden',
+        'after:-inset-2 after:absolute md:after:hidden',
         'group-data-[collapsible=icon]:hidden',
         local.class,
       )}
@@ -476,7 +487,7 @@ const SidebarMenuItem: Component<ComponentProps<'li'>> = (props) => {
 };
 
 const sidebarMenuButtonVariants = cva(
-  'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
+  'peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0',
   {
     variants: {
       variant: {
@@ -487,7 +498,7 @@ const sidebarMenuButtonVariants = cva(
       size: {
         default: 'h-8 text-sm',
         sm: 'h-7 text-xs',
-        lg: 'h-12 text-sm group-data-[collapsible=icon]:!p-0',
+        lg: 'h-12 text-sm group-data-[collapsible=icon]:p-0!',
       },
     },
     defaultVariants: {
@@ -557,9 +568,9 @@ const SidebarMenuAction = <T extends ValidComponent = 'button'>(
       as='button'
       data-sidebar='menu-action'
       class={cn(
-        'absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0',
+        'absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0',
         // Increases the hit area of the button on mobile.
-        'after:-inset-2 after:absolute after:md:hidden',
+        'after:-inset-2 after:absolute md:after:hidden',
         'peer-data-[size=sm]/menu-button:top-1',
         'peer-data-[size=default]/menu-button:top-1.5',
         'peer-data-[size=lg]/menu-button:top-2.5',
@@ -611,7 +622,7 @@ const SidebarMenuSkeleton: Component<SidebarMenuSkeletonProps> = (rawProps) => {
     >
       {local.showIcon && <Skeleton class='size-4 rounded-md' data-sidebar='menu-skeleton-icon' />}
       <Skeleton
-        class='h-4 max-w-[--skeleton-width] flex-1'
+        class='h-4 max-w-(--skeleton-width) flex-1'
         data-sidebar='menu-skeleton-text'
         style={{
           '--skeleton-width': width(),
@@ -660,7 +671,7 @@ const SidebarMenuSubButton = <T extends ValidComponent = 'a'>(
       data-size={local.size}
       data-active={local.isActive}
       class={cn(
-        '-translate-x-px flex h-7 min-w-0 items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground',
+        '-translate-x-px flex h-7 min-w-0 items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-hidden ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground',
         'data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground',
         local.size === 'sm' && 'text-xs',
         local.size === 'md' && 'text-sm',

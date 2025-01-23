@@ -9,6 +9,7 @@ import { For, Show, createEffect, createMemo, on } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { Button } from '../ui/button';
+import { SidebarProvider } from '../ui/sidebar';
 import { Spinner } from '../ui/spinner';
 import { TextField, TextFieldTextArea } from '../ui/text-field';
 import { EmptyWindow } from './empty-window';
@@ -16,6 +17,7 @@ import { ChatMenu } from './menu';
 import { Message } from './message';
 import { SuggestionsMessage } from './message/suggestions';
 import { SelectModelButton } from './select-model-button';
+import { ChatSidebar } from './sidebar';
 
 export type ChatWindowProps = {
   additionalContext?: string;
@@ -115,10 +117,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
   });
 
   return (
-    <>
+    <SidebarProvider class='h-full min-h-full' style={{ '--sidebar-width': '20rem' }}>
       <Show when={location.pathname.startsWith('/chat')}>
         <MetaTags />
       </Show>
+      <ChatSidebar />
       <div
         class='relative flex h-full w-full flex-1 flex-col overflow-hidden'
         aria-label='Chat window'
@@ -212,7 +215,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           }}
           aria-label='Message input form'
         >
-          <div class='flex h-fit w-full max-w-2xl items-center gap-1 rounded-full border px-1 py-2'>
+          <div class='flex h-fit w-full max-w-3xl items-center gap-1 rounded-full border px-1 py-2'>
             <SelectModelButton />
             <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>
               <TextFieldTextArea
@@ -240,7 +243,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           </div>
         </form>
       </div>
-    </>
+    </SidebarProvider>
   );
 };
 

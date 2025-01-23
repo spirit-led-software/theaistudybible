@@ -30,7 +30,7 @@ const DialogOverlay = <T extends ValidComponent = 'div'>(
   return (
     <DialogPrimitive.Overlay
       class={cn(
-        'data-[closed]:fade-out-0 data-[expanded]:fade-in-0 fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[closed]:animate-out data-[expanded]:animate-in',
+        'data-closed:fade-out-0 data-expanded:fade-in-0 fixed inset-0 z-50 bg-background/80 backdrop-blur-xs data-closed:animate-out data-expanded:animate-in',
         props.class,
       )}
       {...rest}
@@ -53,13 +53,13 @@ const DialogContent = <T extends ValidComponent = 'div'>(
       <DialogOverlay />
       <DialogPrimitive.Content
         class={cn(
-          'data-[closed]:fade-out-0 data-[expanded]:fade-in-0 data-[closed]:zoom-out-95 data-[expanded]:zoom-in-95 data-[closed]:slide-out-to-left-1/2 data-[closed]:slide-out-to-top-[48%] data-[expanded]:slide-in-from-left-1/2 data-[expanded]:slide-in-from-top-[48%] -translate-x-1/2 -translate-y-1/2 fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200 data-[closed]:animate-out data-[expanded]:animate-in sm:rounded-lg',
+          'data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95 data-closed:slide-out-to-left-1/2 data-closed:slide-out-to-top-[48%] data-expanded:slide-in-from-left-1/2 data-expanded:slide-in-from-top-[48%] -translate-x-1/2 -translate-y-1/2 fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200 data-closed:animate-out data-expanded:animate-in sm:rounded-lg',
           props.class,
         )}
         {...rest}
       >
         {props.children}
-        <DialogPrimitive.CloseButton class='absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[expanded]:bg-accent data-[expanded]:text-muted-foreground'>
+        <DialogPrimitive.CloseButton class='absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-expanded:bg-accent data-expanded:text-muted-foreground'>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 24 24'

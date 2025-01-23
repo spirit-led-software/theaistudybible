@@ -1,10 +1,11 @@
 import { db } from '@/core/database';
 import { toTitleCase } from '@/core/utils/string';
 import { DevotionMenu } from '@/www/components/devotions/menu';
-import { getDevotionsQueryOptions } from '@/www/components/devotions/sidebar';
+import { DevotionSidebar, getDevotionsQueryOptions } from '@/www/components/devotions/sidebar';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Markdown } from '@/www/components/ui/markdown';
+import { SidebarProvider } from '@/www/components/ui/sidebar';
 import { H2, H3 } from '@/www/components/ui/typography';
 import { useDevotionStore } from '@/www/contexts/devotion';
 import { Meta, Title } from '@solidjs/meta';
@@ -13,7 +14,6 @@ import { A, useParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 import { For, Show, createEffect, createMemo } from 'solid-js';
-import { setResponseHeader } from 'vinxi/http';
 
 const getDevotion = GET(async ({ id }: { id: string }) => {
   'use server';
@@ -21,10 +21,6 @@ const getDevotion = GET(async ({ id }: { id: string }) => {
     where: (devotions, { eq }) => eq(devotions.id, id),
     with: { images: true },
   });
-  setResponseHeader(
-    'Cache-Control',
-    'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
-  );
   return { devotion: devotion ?? null };
 });
 
@@ -59,101 +55,107 @@ export default function DevotionPage() {
   });
 
   return (
-    <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
-      <DevotionMenu />
-      <div class='flex h-full w-full flex-1 flex-col items-center overflow-y-auto p-5 pt-32 pb-20'>
-        <QueryBoundary query={devotionQuery}>
-          {({ devotion }) => (
-            <Show
-              when={devotion}
-              fallback={
-                <div class='flex h-full w-full flex-1 flex-col items-center justify-center gap-4'>
-                  <H3>Devotion not found</H3>
-                  <Button as={A} href='/devotion'>
-                    Go back to Devotions
-                  </Button>
-                </div>
-              }
-              keyed
-            >
-              {(devotion) => (
-                <>
-                  <MetaTags devotion={devotion} />
-                  <div class='flex w-full max-w-2xl flex-col gap-4 whitespace-pre-wrap'>
-                    <div class='flex flex-col gap-2 text-center'>
-                      <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                        Reading
-                      </H2>
-                      <Markdown>{devotion.bibleReading}</Markdown>
-                    </div>
-                    <div class='flex flex-col gap-2'>
-                      <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                        Summary
-                      </H2>
-                      <Markdown>{devotion.summary}</Markdown>
-                    </div>
-                    <Show when={devotion.reflection} keyed>
-                      {(reflection) => (
-                        <div class='flex flex-col gap-2'>
-                          <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                            Reflection
-                          </H2>
-                          <Markdown>{reflection}</Markdown>
-                        </div>
-                      )}
-                    </Show>
-                    <Show when={devotion.prayer} keyed>
-                      {(prayer) => (
-                        <div class='flex flex-col gap-2'>
-                          <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                            Prayer
-                          </H2>
-                          <Markdown>{prayer}</Markdown>
-                        </div>
-                      )}
-                    </Show>
-                    <Show when={devotion.images} keyed>
-                      {(image) => (
-                        <div class='flex flex-col gap-2'>
-                          <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                            Generated Illustration
-                          </H2>
-                          <img src={image.url!} alt='Illustration for the devotion' />
-                          <p class='text-xs'>Prompt: {image.prompt}</p>
-                        </div>
-                      )}
-                    </Show>
-                    <Show when={devotion.diveDeeperQueries} keyed>
-                      {(queries) => (
-                        <div class='flex flex-col gap-2'>
-                          <H2 class='inline-block bg-gradient-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                            Dive Deeper
-                          </H2>
-                          <div class='grid grid-cols-1 gap-2 sm:grid-cols-2'>
-                            <For each={queries}>
-                              {(query) => (
-                                <Button
-                                  as={A}
-                                  href={`/chat?query=${encodeURIComponent(query)}`}
-                                  variant='outline'
-                                  class='h-auto w-full whitespace-normal py-3 text-left'
-                                >
-                                  {query}
-                                </Button>
-                              )}
-                            </For>
-                          </div>
-                        </div>
-                      )}
-                    </Show>
+    <SidebarProvider
+      class='h-full min-h-full'
+      style={{
+        '--sidebar-width': '20rem',
+      }}
+    >
+      <DevotionSidebar />
+      <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
+        <DevotionMenu />
+        <div class='flex h-full w-full flex-1 flex-col items-center overflow-y-auto p-5 pt-32 pb-20'>
+          <QueryBoundary query={devotionQuery}>
+            {({ devotion }) => (
+              <Show
+                when={devotion}
+                fallback={
+                  <div class='flex h-full w-full flex-1 flex-col items-center justify-center gap-4'>
+                    <H3>Devotion not found</H3>
+                    <Button as={A} href='/devotion'>
+                      Go back to Devotions
+                    </Button>
                   </div>
-                </>
-              )}
-            </Show>
-          )}
-        </QueryBoundary>
+                }
+                keyed
+              >
+                {(devotion) => (
+                  <>
+                    <MetaTags devotion={devotion} />
+                    <div class='flex w-full max-w-3xl flex-col gap-4 whitespace-pre-wrap'>
+                      <Show when={devotion.images} keyed>
+                        {(image) => (
+                          <img
+                            src={image.url!}
+                            class='h-auto w-full'
+                            alt='Illustration for the devotion'
+                          />
+                        )}
+                      </Show>
+                      <div class='flex flex-col gap-2 text-center'>
+                        <H2 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+                          Reading
+                        </H2>
+                        <Markdown>{devotion.bibleReading}</Markdown>
+                      </div>
+                      <div class='flex flex-col gap-2'>
+                        <H2 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+                          Summary
+                        </H2>
+                        <Markdown>{devotion.summary}</Markdown>
+                      </div>
+                      <Show when={devotion.reflection} keyed>
+                        {(reflection) => (
+                          <div class='flex flex-col gap-2'>
+                            <H2 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+                              Reflection
+                            </H2>
+                            <Markdown>{reflection}</Markdown>
+                          </div>
+                        )}
+                      </Show>
+                      <Show when={devotion.prayer} keyed>
+                        {(prayer) => (
+                          <div class='flex flex-col gap-2'>
+                            <H2 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+                              Prayer
+                            </H2>
+                            <Markdown>{prayer}</Markdown>
+                          </div>
+                        )}
+                      </Show>
+                      <Show when={devotion.diveDeeperQueries} keyed>
+                        {(queries) => (
+                          <div class='flex flex-col gap-2'>
+                            <H2 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+                              Dive Deeper
+                            </H2>
+                            <div class='grid grid-cols-1 gap-2 sm:grid-cols-2'>
+                              <For each={queries}>
+                                {(query) => (
+                                  <Button
+                                    as={A}
+                                    href={`/chat?query=${encodeURIComponent(query)}`}
+                                    variant='outline'
+                                    class='h-auto w-full whitespace-normal py-3 text-left'
+                                  >
+                                    {query}
+                                  </Button>
+                                )}
+                              </For>
+                            </div>
+                          </div>
+                        )}
+                      </Show>
+                    </div>
+                  </>
+                )}
+              </Show>
+            )}
+          </QueryBoundary>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
 

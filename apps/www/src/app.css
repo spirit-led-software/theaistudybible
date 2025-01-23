@@ -1,6 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@config '../tailwind.config.ts';
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
 
 @layer base {
   :root {
@@ -26,7 +44,7 @@
     --error-foreground: 0 0% 100%;
     --ring: 237 86% 8%;
     --radius: 0.7rem;
-    --sidebar-background: 0 0% 99%;
+    --sidebar-background: 237 39% 100%;
     --sidebar-foreground: 237 64% 3%;
     --sidebar-primary: 237 86% 8%;
     --sidebar-primary-foreground: 237 0% 100%;
@@ -93,6 +111,41 @@
   h2,
   h3 {
     @apply font-goldman;
+  }
+}
+
+/* Scrollbar */
+@layer base {
+  /* Base scrollbar style */
+  ::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 4px;
+    transition: background-color 0.1s ease;
+  }
+
+  /* Show scrollbar on hover/scroll */
+  :hover::-webkit-scrollbar-thumb,
+  :focus::-webkit-scrollbar-thumb,
+  :active::-webkit-scrollbar-thumb {
+    background-color: rgb(0 0 0 / 0.2);
+  }
+
+  /* For Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.1s ease;
+  }
+
+  *:hover,
+  *:focus,
+  *:active {
+    scrollbar-color: rgb(0 0 0 / 0.2) transparent;
   }
 }
 

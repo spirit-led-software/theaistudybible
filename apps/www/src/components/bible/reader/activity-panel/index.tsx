@@ -136,7 +136,7 @@ export const ActivityPanelMenu = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         onInteractOutside={(e) => e.preventDefault()}
-        class='grid grid-cols-2 bg-background/80 backdrop-blur-sm [&>*]:px-4 [&>*]:py-3 [&>*]:hover:cursor-pointer'
+        class='grid grid-cols-2 bg-background/80 backdrop-blur-xs *:px-4 *:py-3 hover:*:cursor-pointer'
       >
         <DropdownMenuItem
           onSelect={() => {

@@ -189,7 +189,7 @@ const FileInputDropArea = (props: FileInputDropAreaProps) => {
     <Show when={isDragging()}>
       <div
         class={cn(
-          'absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm transition-opacity duration-300',
+          'absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-xs transition-opacity duration-300',
           local.class,
         )}
         {...others}

@@ -11,11 +11,10 @@ import { Button } from '@/www/components/ui/button';
 import { CommandItem } from '@/www/components/ui/command';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { A, json } from '@solidjs/router';
+import { A } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Check } from 'lucide-solid';
-import { murmurHash } from 'ohash';
 import { For } from 'solid-js';
 
 type GetChapterPickerDataProps = {
@@ -55,18 +54,12 @@ const getChapterPickerData = GET(async ({ bibleAbbr, bookCode }: GetChapterPicke
 
   const { chapters, ...book } = books[0];
 
-  const returnValue = { bible, book, chapters };
-  return json(returnValue, {
-    headers: {
-      'Cache-Control': 'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
-      ETag: murmurHash(JSON.stringify(returnValue)).toString(36),
-    },
-  });
+  return { bible, book, chapters };
 });
 
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
   queryKey: ['chapter-picker', props],
-  queryFn: () => getChapterPickerData(props).then((data) => data.customBody()),
+  queryFn: () => getChapterPickerData(props),
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 
@@ -110,7 +103,7 @@ export function ChapterPicker(props: ChapterPickerProps) {
                     >
                       <Check
                         size={10}
-                        class={`mr-1 h-4 w-4 flex-shrink-0 ${foundChapter.id === brStore.chapter.id ? '' : 'hidden'}`}
+                        class={`mr-1 h-4 w-4 shrink-0 ${foundChapter.id === brStore.chapter.id ? '' : 'hidden'}`}
                       />
                       {foundChapter.number}
                     </Button>

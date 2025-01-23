@@ -79,6 +79,7 @@ export const EditChatButton = (props: EditChatButtonProps) => {
               as={Button}
               variant='ghost'
               size='icon'
+              class='size-8'
             >
               <Pencil size={16} />
             </DialogTrigger>

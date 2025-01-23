@@ -17,7 +17,7 @@ export function NavigationHeader() {
       <div class='flex justify-start sm:hidden'>
         <NavigationDrawer />
       </div>
-      <div class='flex flex-grow justify-center sm:flex-grow-0 sm:justify-start'>
+      <div class='flex grow justify-center sm:grow-0 sm:justify-start'>
         <A href='/'>
           <LogoSmall
             width={128}
@@ -33,7 +33,7 @@ export function NavigationHeader() {
           />
         </A>
       </div>
-      <div class='hidden items-center justify-center sm:flex sm:flex-grow'>
+      <div class='hidden items-center justify-center sm:flex sm:grow'>
         <Menu orientation='horizontal' />
       </div>
       <div class='flex items-center justify-end gap-2'>

@@ -8,7 +8,7 @@ import { Match, Switch, splitProps } from 'solid-js';
 import { Portal } from 'solid-js/web';
 
 const toastVariants = cva(
-  'group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--kb-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--kb-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[opened]:animate-in data-[closed]:animate-out data-[swipe=end]:animate-out data-[closed]:fade-out-80 data-[closed]:slide-out-to-right-full data-[opened]:slide-in-from-top-full data-[opened]:sm:slide-in-from-bottom-full',
+  'group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--kb-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--kb-toast-swipe-move-x)] data-[swipe=move]:transition-none data-opened:animate-in data-closed:animate-out data-[swipe=end]:animate-out data-closed:fade-out-80 data-closed:slide-out-to-right-full data-opened:slide-in-from-top-full sm:data-opened:slide-in-from-bottom-full',
   {
     variants: {
       variant: {
@@ -38,7 +38,7 @@ const Toaster = <T extends ValidComponent = 'ol'>(props: PolymorphicProps<T, Toa
       <ToastPrimitive.Region>
         <ToastPrimitive.List
           class={cn(
-            'fixed top-safe z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:top-auto sm:right-safe sm:bottom-safe sm:flex-col md:max-w-[420px]',
+            'fixed top-safe z-100 flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:top-auto sm:right-safe sm:bottom-safe sm:flex-col md:max-w-[420px]',
             local.class,
           )}
           {...others}
@@ -72,7 +72,7 @@ const ToastClose = <T extends ValidComponent = 'button'>(
   return (
     <ToastPrimitive.CloseButton
       class={cn(
-        'absolute top-2 right-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-destructive-foreground group-[.error]:text-error-foreground group-[.success]:text-success-foreground group-[.warning]:text-warning-foreground',
+        'absolute top-2 right-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity focus:opacity-100 focus:outline-hidden focus:ring-2 group-hover:opacity-100 group-[.destructive]:text-destructive-foreground group-[.error]:text-error-foreground group-[.success]:text-success-foreground group-[.warning]:text-warning-foreground',
         local.class,
       )}
       {...others}

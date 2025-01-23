@@ -123,7 +123,7 @@ export const NotesCard = () => {
           </>
         }
       >
-        <CardHeader class='flex flex-row items-center justify-between border-b shadow-sm'>
+        <CardHeader class='flex flex-row items-center justify-between border-b shadow-xs'>
           <CardTitle>Notes</CardTitle>
           <Tooltip>
             <TooltipTrigger as={Button} onClick={() => setIsAddingNote(true)} size='icon'>

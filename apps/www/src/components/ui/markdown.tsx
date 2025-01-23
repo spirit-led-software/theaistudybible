@@ -131,7 +131,7 @@ export const Markdown = (props: MarkdownProps) => {
               </Image.Fallback>
             </Image.Root>
           </DialogTrigger>
-          <DialogContent class='max-w-screen-lg'>
+          <DialogContent class='max-w-(--breakpoint-lg)'>
             <DialogHeader>
               <DialogTitle>Generated Image</DialogTitle>
             </DialogHeader>

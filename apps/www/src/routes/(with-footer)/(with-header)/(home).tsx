@@ -21,7 +21,7 @@ export default function HomePage() {
         {/* Add ambient background */}
         <div class='-z-10 absolute inset-0'>
           {/* Base gradient */}
-          <div class='absolute inset-0 bg-gradient-to-tr from-primary/[0.03] via-accent/[0.03] to-background' />
+          <div class='absolute inset-0 bg-linear-to-tr from-primary/[0.03] via-accent/[0.03] to-background' />
 
           {/* Larger, more visible blurred circles */}
           <div class='-right-1/4 absolute top-0 h-[500px] w-[500px] rounded-full bg-[#A2EEFB]/20 blur-[128px]' />
@@ -63,7 +63,7 @@ export default function HomePage() {
                   as={A}
                   href='/bible'
                   size='lg'
-                  class='w-full max-w-xs bg-gradient-to-r from-primary to-accent hover:opacity-90'
+                  class='w-full max-w-xs bg-linear-to-r from-primary to-accent hover:opacity-90'
                 >
                   Get Started for Free
                 </Button>
@@ -113,7 +113,7 @@ export default function HomePage() {
       </div>
 
       {/* Feature Section */}
-      <div class='bg-gradient-to-b from-background to-primary/5 py-16 sm:py-20 md:py-24'>
+      <div class='bg-linear-to-b from-background to-primary/5 py-16 sm:py-20 md:py-24'>
         <div class='container mx-auto px-4'>
           <H2 class='mb-8 text-center text-4xl sm:mb-12 sm:text-5xl'>
             Discover the Power of AI-Assisted Bible Study
@@ -184,7 +184,7 @@ export default function HomePage() {
               as={A}
               href='/bible'
               size='lg'
-              class='w-full max-w-xs bg-gradient-to-r from-primary to-accent hover:opacity-90'
+              class='w-full max-w-xs bg-linear-to-r from-primary to-accent hover:opacity-90'
             >
               Get Started Free
             </Button>

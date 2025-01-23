@@ -5,12 +5,10 @@ import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { useSwipe } from '@/www/hooks/use-swipe';
 import { cn } from '@/www/lib/utils';
-import { A, json, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
+import { A, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
-import { formatISO } from 'date-fns';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
-import { murmurHash } from 'ohash';
 import { Show } from 'solid-js';
 import { createSignal } from 'solid-js';
 import { Button, buttonVariants } from '../../ui/button';
@@ -126,20 +124,7 @@ const getVerseReaderData = GET(
     }
     const verse = verses[0];
 
-    const returnValue = {
-      bible,
-      book,
-      chapter,
-      verse,
-      rightsHolder: biblesToRightsHolders[0].rightsHolder,
-    };
-    return json(returnValue, {
-      headers: {
-        'Last-Modified': formatISO(verse.updatedAt),
-        ETag: murmurHash(JSON.stringify(returnValue)).toString(36),
-        'Cache-Control': 'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
-      },
-    });
+    return { bible, book, chapter, verse, rightsHolder: biblesToRightsHolders[0].rightsHolder };
   },
 );
 
@@ -150,7 +135,7 @@ export const getVerseReaderQueryOptions = (props: {
   verseNum: number;
 }) => ({
   queryKey: ['verse-reader', props],
-  queryFn: () => getVerseReaderData(props).then((data) => data.customBody()),
+  queryFn: () => getVerseReaderData(props),
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 
