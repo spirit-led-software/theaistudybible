@@ -8,7 +8,7 @@ import { H6 } from '../ui/typography';
 
 export const DevotionMenu = () => {
   const [devotionStore] = useDevotionStore();
-  const { state } = useSidebar();
+  const { open, openMobile } = useSidebar();
 
   const devotionTopic = createMemo(() =>
     toTitleCase(devotionStore.devotion?.topic ?? 'New Devotion'),
@@ -22,7 +22,7 @@ export const DevotionMenu = () => {
     >
       <div class='flex w-full max-w-3xl items-center gap-2 px-3 py-1'>
         <SidebarTrigger as={Button} size='icon' variant='ghost'>
-          {state() === 'expanded' ? <ChevronLeft /> : <SidebarIcon />}
+          {open() || openMobile() ? <ChevronLeft /> : <SidebarIcon />}
         </SidebarTrigger>
         <H6 class='truncate' aria-label='Devotion topic'>
           {devotionTopic()}
