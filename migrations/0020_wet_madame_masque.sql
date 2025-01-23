@@ -1,0 +1,1 @@
+ALTER TABLE `bibles` ADD `ready_for_publication` integer DEFAULT false NOT NULL;

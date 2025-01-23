@@ -775,6 +775,9 @@ export const bibles = sqliteTable(
     nameLocal: text('name_local').notNull(),
     description: text('description').notNull(),
     copyrightStatement: text('copyright_statement').notNull(),
+    readyForPublication: integer('ready_for_publication', { mode: 'boolean' })
+      .notNull()
+      .default(false),
   },
   (table) => [
     uniqueIndex('bibles_abbreviation_idx').on(table.abbreviation),

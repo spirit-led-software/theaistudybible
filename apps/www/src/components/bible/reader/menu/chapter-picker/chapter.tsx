@@ -11,12 +11,12 @@ import { Button } from '@/www/components/ui/button';
 import { CommandItem } from '@/www/components/ui/command';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { A } from '@solidjs/router';
+import { A, json } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Check } from 'lucide-solid';
+import { murmurHash } from 'ohash';
 import { For } from 'solid-js';
-import { setResponseHeader } from 'vinxi/http';
 
 type GetChapterPickerDataProps = {
   bibleAbbr: string;
@@ -26,7 +26,8 @@ type GetChapterPickerDataProps = {
 const getChapterPickerData = GET(async ({ bibleAbbr, bookCode }: GetChapterPickerDataProps) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
-    where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+    where: (bibles, { and, eq }) =>
+      and(eq(bibles.abbreviation, bibleAbbr), eq(bibles.readyForPublication, true)),
     columns: { id: true },
     with: {
       books: {
@@ -54,20 +55,18 @@ const getChapterPickerData = GET(async ({ bibleAbbr, bookCode }: GetChapterPicke
 
   const { chapters, ...book } = books[0];
 
-  setResponseHeader(
-    'Cache-Control',
-    'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
-  );
-  return {
-    bible,
-    book,
-    chapters,
-  };
+  const returnValue = { bible, book, chapters };
+  return json(returnValue, {
+    headers: {
+      'Cache-Control': 'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
+      ETag: murmurHash(JSON.stringify(returnValue)).toString(36),
+    },
+  });
 });
 
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
   queryKey: ['chapter-picker', props],
-  queryFn: () => getChapterPickerData(props),
+  queryFn: () => getChapterPickerData(props).then((data) => data.customBody()),
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 

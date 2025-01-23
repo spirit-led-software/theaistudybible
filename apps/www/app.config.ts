@@ -25,9 +25,9 @@ export default defineConfig({
         filename: 'service-worker.ts',
         manifest: {
           name: 'The AI Study Bible',
-          short_name: 'The AI Study Bible',
+          short_name: 'TASB',
           description:
-            'The AI Study Bible is a digital study Bible that uses artificial intelligence to help you study the Bible.',
+            'Study the Bible with AI-powered insights, verse explanations, and personalized devotionals. Access multiple translations, create highlights, notes, and bookmarks.',
           scope: '/',
           start_url: '/',
           theme_color: '#030527',

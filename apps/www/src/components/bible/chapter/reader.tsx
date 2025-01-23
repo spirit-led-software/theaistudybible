@@ -5,13 +5,14 @@ import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { useSwipe } from '@/www/hooks/use-swipe';
 import { cn } from '@/www/lib/utils';
-import { A, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
+import { A, json, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
+import { formatISO } from 'date-fns';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
+import { murmurHash } from 'ohash';
 import { Show } from 'solid-js';
 import { createSignal } from 'solid-js';
-import { setResponseHeader } from 'vinxi/http';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
@@ -25,7 +26,8 @@ const getChapterReaderData = GET(
   }) => {
     'use server';
     const bibleData = await db.query.bibles.findFirst({
-      where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
+      where: (bibles, { and, eq }) =>
+        and(eq(bibles.abbreviation, props.bibleAbbr), eq(bibles.readyForPublication, true)),
       with: {
         biblesToRightsHolders: { with: { rightsHolder: true } },
         books: {
@@ -80,16 +82,19 @@ const getChapterReaderData = GET(
 
     const chapter = chapters[0];
 
-    setResponseHeader(
-      'Cache-Control',
-      'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
-    );
-    return {
+    const returnValue = {
       bible,
       book,
       chapter,
       rightsHolder: biblesToRightsHolders[0].rightsHolder,
     };
+    return json(returnValue, {
+      headers: {
+        'Last-Modified': formatISO(chapter.updatedAt),
+        ETag: murmurHash(JSON.stringify(returnValue)).toString(36),
+        'Cache-Control': 'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
+      },
+    });
   },
 );
 
@@ -99,7 +104,7 @@ export const chapterReaderQueryOptions = (props: {
   chapterNum: number;
 }) => ({
   queryKey: ['chapter-reader', props],
-  queryFn: () => getChapterReaderData(props),
+  queryFn: () => getChapterReaderData(props).then((data) => data.customBody()),
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 

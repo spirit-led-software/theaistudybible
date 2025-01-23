@@ -5,13 +5,14 @@ import { useBibleStore } from '@/www/contexts/bible';
 import { BibleReaderProvider } from '@/www/contexts/bible-reader';
 import { useSwipe } from '@/www/hooks/use-swipe';
 import { cn } from '@/www/lib/utils';
-import { A, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
+import { A, json, useIsRouting, useNavigate, usePreloadRoute } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
+import { formatISO } from 'date-fns';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-solid';
+import { murmurHash } from 'ohash';
 import { Show } from 'solid-js';
 import { createSignal } from 'solid-js';
-import { setResponseHeader } from 'vinxi/http';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { ReaderContent } from '../reader';
@@ -26,7 +27,8 @@ const getVerseReaderData = GET(
   }) => {
     'use server';
     const bibleData = await db.query.bibles.findFirst({
-      where: (bibles, { eq }) => eq(bibles.abbreviation, props.bibleAbbr),
+      where: (bibles, { and, eq }) =>
+        and(eq(bibles.abbreviation, props.bibleAbbr), eq(bibles.readyForPublication, true)),
       with: {
         biblesToRightsHolders: { with: { rightsHolder: true } },
         books: {
@@ -124,17 +126,20 @@ const getVerseReaderData = GET(
     }
     const verse = verses[0];
 
-    setResponseHeader(
-      'Cache-Control',
-      'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
-    );
-    return {
+    const returnValue = {
       bible,
       book,
       chapter,
       verse,
       rightsHolder: biblesToRightsHolders[0].rightsHolder,
     };
+    return json(returnValue, {
+      headers: {
+        'Last-Modified': formatISO(verse.updatedAt),
+        ETag: murmurHash(JSON.stringify(returnValue)).toString(36),
+        'Cache-Control': 'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
+      },
+    });
   },
 );
 
@@ -145,7 +150,7 @@ export const getVerseReaderQueryOptions = (props: {
   verseNum: number;
 }) => ({
   queryKey: ['verse-reader', props],
-  queryFn: () => getVerseReaderData(props),
+  queryFn: () => getVerseReaderData(props).then((data) => data.customBody()),
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 
@@ -250,7 +255,7 @@ export function VerseReader(props: VerseReaderProps) {
                 </Muted>
                 <div
                   innerHTML={bible.copyrightStatement}
-                  class='flex flex-col items-center text-muted-foreground text-xs'
+                  class='flex flex-col items-center text-center text-muted-foreground text-xs'
                 />
               </div>
               <div class='flex w-full flex-col items-center'>
@@ -259,7 +264,7 @@ export function VerseReader(props: VerseReaderProps) {
                   href={`/bible/${bible.abbreviation}/${book.code}/${chapter.number}`}
                   variant='outline'
                 >
-                  View all of <strong class='ml-1'>{chapter.name}</strong>
+                  View all of <strong>{chapter.name}</strong>
                 </Button>
               </div>
               <Show when={previousVerse} keyed>

@@ -4,22 +4,30 @@ import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Input } from '@/www/components/ui/input';
 import { H2, P } from '@/www/components/ui/typography';
-import { A } from '@solidjs/router';
+import { A, json } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Search } from 'lucide-solid';
+import { murmurHash } from 'ohash';
 import { createMemo, createSignal } from 'solid-js';
 
 const getBibles = GET(async () => {
   'use server';
-  return await db.query.bibles.findMany({
+  const bibles = await db.query.bibles.findMany({
+    where: (bibles, { eq }) => eq(bibles.readyForPublication, true),
     with: { biblesToLanguages: { with: { language: true } } },
+  });
+  return json(bibles, {
+    headers: {
+      'Cache-Control': 'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
+      ETag: murmurHash(JSON.stringify(bibles)).toString(36),
+    },
   });
 });
 
 export const largeTranslationPickerQueryOptions = {
   queryKey: ['bibles'],
-  queryFn: () => getBibles(),
+  queryFn: () => getBibles().then((data) => data.customBody()),
 };
 
 export function LargeTranslationPicker() {

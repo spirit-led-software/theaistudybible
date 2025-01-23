@@ -13,22 +13,30 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
 import { Spinner } from '@/www/components/ui/spinner';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { useNavigate } from '@solidjs/router';
+import { json, useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Check, ChevronsUpDown } from 'lucide-solid';
+import { murmurHash } from 'ohash';
 import { createMemo } from 'solid-js';
 
 const getSmallPickerData = GET(async () => {
   'use server';
-  return await db.query.bibles.findMany({
+  const bibles = await db.query.bibles.findMany({
+    where: (bibles, { eq }) => eq(bibles.readyForPublication, true),
     with: { biblesToLanguages: { with: { language: true } } },
+  });
+  return json(bibles, {
+    headers: {
+      'Cache-Control': 'public,max-age=259200,s-maxage=604800,stale-while-revalidate=86400',
+      ETag: murmurHash(JSON.stringify(bibles)).toString(36),
+    },
   });
 });
 
 export const smallTranslationPickerQueryOptions = () => ({
   queryKey: ['small-translation-picker'],
-  queryFn: () => getSmallPickerData(),
+  queryFn: () => getSmallPickerData().then((data) => data.customBody()),
 });
 
 export function SmallTranslationPicker() {
