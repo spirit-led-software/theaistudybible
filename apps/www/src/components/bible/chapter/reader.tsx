@@ -187,7 +187,7 @@ export function ChapterReader(props: ChapterReaderProps) {
                 </Muted>
                 <div
                   innerHTML={bible.copyrightStatement}
-                  class='flex flex-col items-center text-muted-foreground text-xs'
+                  class='flex flex-col items-center text-muted-foreground text-xs text-center'
                 />
               </div>
               <Show when={previousChapter} keyed>
