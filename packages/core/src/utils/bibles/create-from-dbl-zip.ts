@@ -1,3 +1,4 @@
+import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import * as schema from '@/core/database/schema';
 import { buildConflictUpdateColumns } from '@/core/database/utils';
@@ -102,7 +103,27 @@ async function findExistingBible(abbreviation: string, overwrite: boolean) {
 }
 
 async function deleteBibleAndEmbeddings(bibleId: string) {
-  await db.delete(schema.bibles).where(eq(schema.bibles.id, bibleId));
+  const sourceDocumentIds = await db.query.bibles
+    .findMany({
+      columns: {},
+      with: {
+        chapters: {
+          columns: {},
+          with: { chaptersToSourceDocuments: { columns: { sourceDocumentId: true } } },
+        },
+      },
+    })
+    .then((result) =>
+      result.flatMap((bible) =>
+        bible.chapters.flatMap((chapter) =>
+          chapter.chaptersToSourceDocuments.map(({ sourceDocumentId }) => sourceDocumentId),
+        ),
+      ),
+    );
+  await Promise.all([
+    db.delete(schema.bibles).where(eq(schema.bibles.id, bibleId)),
+    vectorStore.deleteDocuments(sourceDocumentIds),
+  ]);
 }
 
 async function createNewBible(metadata: DBLMetadata, abbreviation: string) {

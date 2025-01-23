@@ -20,10 +20,9 @@ export default defineConfig({
       solidDevTools({ autoname: true }),
       VitePWA({
         strategies: 'injectManifest',
-        srcDir: 'src',
-        outDir: '.output/public',
-        filename: 'sw.ts',
         registerType: 'autoUpdate',
+        srcDir: 'src',
+        filename: 'service-worker.ts',
         manifest: {
           name: 'The AI Study Bible',
           short_name: 'The AI Study Bible',
