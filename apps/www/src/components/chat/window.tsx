@@ -121,7 +121,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   return (
     <SidebarProvider
-      class={cn('min-h-full flex-1 overflow-hidden', isChatPage() ? 'h-full' : 'h-[calc(var(--activity-panel-height) - 20px)]')}
+      class={cn('min-h-full flex-1 overflow-hidden', isChatPage() ? 'h-full' : 'h-[calc(100vh - 100px)]')}
       style={{ '--sidebar-width': '20rem' }}
       defaultOpen={isChatPage()}
     >
