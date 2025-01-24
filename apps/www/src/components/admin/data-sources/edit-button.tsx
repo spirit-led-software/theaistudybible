@@ -7,6 +7,7 @@ import { createForm, setValue, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
+import { getTableColumns } from 'drizzle-orm/utils';
 import { createSignal, splitProps } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { ZodIssueCode, z } from 'zod';
@@ -118,7 +119,7 @@ export const EditDataSourceButton = (props: EditDataSourceButtonProps) => {
                   <Select
                     value={field.value}
                     onChange={(v) => setValue(form, 'type', v ?? 'WEB_CRAWL')}
-                    options={dataSources.type.enumValues}
+                    options={getTableColumns(dataSources).type.enumValues}
                     itemComponent={(props) => (
                       <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
                     )}

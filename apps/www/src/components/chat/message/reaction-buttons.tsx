@@ -45,7 +45,7 @@ const addReactionAction = action(
         },
       })
       .returning();
-    return reaction;
+    return { reaction };
   },
 );
 

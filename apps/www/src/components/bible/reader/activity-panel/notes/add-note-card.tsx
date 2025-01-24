@@ -53,7 +53,7 @@ const addNoteAction = action(
         })
         .returning();
     }
-    return note;
+    return { note };
   },
 );
 

@@ -34,6 +34,7 @@ import { createForm, getError, getValue, setValue, zodForm } from '@modular-form
 import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { getTableColumns } from 'drizzle-orm/utils';
 import { FolderArchive } from 'lucide-solid';
 import { Show, createEffect, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
@@ -174,7 +175,7 @@ const AddSourcePage = () => {
                   <Select
                     value={field.value}
                     onChange={(v) => setValue(form, field.name, v ?? 'WEB_CRAWL')}
-                    options={dataSources.type.enumValues}
+                    options={getTableColumns(dataSources).type.enumValues}
                     itemComponent={(props) => (
                       <SelectItem item={props.item}>{props.item.rawValue}</SelectItem>
                     )}

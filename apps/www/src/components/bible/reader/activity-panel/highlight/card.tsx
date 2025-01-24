@@ -22,7 +22,7 @@ const updateHighlightsAction = action(
   async ({ color, verseIds }: { color: string; verseIds: string[] }) => {
     'use server';
     const { user } = requireAuth();
-    return await db
+    const highlights = await db
       .insert(verseHighlights)
       .values(
         verseIds.map((id) => ({
@@ -38,6 +38,8 @@ const updateHighlightsAction = action(
         },
       })
       .returning();
+
+    return { highlights };
   },
 );
 

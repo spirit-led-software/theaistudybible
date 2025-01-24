@@ -3,6 +3,7 @@ import { sessions, users } from '@/core/database/schema';
 import type { Session, User } from '@/schemas/users/types';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from '@oslojs/encoding';
+import { addDays, subDays } from 'date-fns';
 import { eq, lt } from 'drizzle-orm';
 
 export function generateSessionToken(): string {
@@ -17,7 +18,7 @@ export async function createSession(token: string, userId: string): Promise<Sess
   const session: Session = {
     id: sessionId,
     userId,
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    expiresAt: addDays(new Date(), 30),
   };
   await db.insert(sessions).values(session);
   return session;
@@ -41,8 +42,8 @@ export async function validateSessionToken(token: string): Promise<SessionValida
   }
 
   // If the session is about to expire, extend it by 30 days
-  if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
-    session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30); // 30 days
+  if (Date.now() >= subDays(session.expiresAt, 15).getTime()) {
+    session.expiresAt = addDays(new Date(), 30);
     await db
       .update(sessions)
       .set({ expiresAt: session.expiresAt })

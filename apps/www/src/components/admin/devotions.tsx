@@ -12,7 +12,8 @@ const triggerGenerateDevotion = async () => {
   if (!roles?.some((role) => role.id === 'admin')) {
     throw new Error('You must be an admin to access this resource.');
   }
-  return await generateDevotion();
+  const devotion = await generateDevotion();
+  return { devotion };
 };
 
 export const DevotionsContent = () => {

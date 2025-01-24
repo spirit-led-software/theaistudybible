@@ -56,7 +56,7 @@ export const useAuth = () => {
 
 const getAuth = GET(() => {
   'use server';
-  return auth();
+  return { auth: auth() };
 });
 
 export const authProviderQueryOptions = () => ({
@@ -73,22 +73,17 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
   const placeholderData = isServer
     ? getAuth()
-    : {
-        session: undefined,
-        user: undefined,
-        settings: undefined,
-        roles: undefined,
-      };
+    : { auth: { session: undefined, user: undefined, settings: undefined, roles: undefined } };
 
   const query = createQuery(() => ({
     ...authProviderQueryOptions(),
-    placeholderData: placeholderData as unknown as ReturnType<typeof getAuth>,
+    placeholderData: placeholderData as ReturnType<typeof getAuth>,
   }));
 
-  const session = createMemo(() => query.data?.session);
-  const user = createMemo(() => query.data?.user);
-  const roles = createMemo(() => query.data?.roles);
-  const settings = createMemo(() => query.data?.settings);
+  const session = createMemo(() => query.data?.auth.session);
+  const user = createMemo(() => query.data?.auth.user);
+  const roles = createMemo(() => query.data?.auth.roles);
+  const settings = createMemo(() => query.data?.auth.settings);
 
   createEffect(() => {
     const currentUser = user();

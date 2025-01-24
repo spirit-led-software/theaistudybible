@@ -43,6 +43,7 @@ const triggerPushNotification = async (title: string, body: string, url?: string
         }),
     ),
   );
+  return { success: true };
 };
 
 export const PushNotificationContent = () => {

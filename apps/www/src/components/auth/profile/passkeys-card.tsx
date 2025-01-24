@@ -43,11 +43,13 @@ const getPasskeys = GET(async () => {
   'use server';
   const { user } = requireAuth();
   const passkeys = await getUserPasskeyCredentials(user.id);
-  return passkeys.map((passkey) => ({
-    ...passkey,
-    id: encodeBase64(passkey.id),
-    publicKey: encodeBase64(passkey.publicKey),
-  }));
+  return {
+    passkeys: passkeys.map((passkey) => ({
+      ...passkey,
+      id: encodeBase64(passkey.id),
+      publicKey: encodeBase64(passkey.publicKey),
+    })),
+  };
 });
 
 const deletePasskeyAction = action(async (passkeyId: string) => {
@@ -148,7 +150,8 @@ const createPasskeyAction = action(
       throw new Error('Too many credentials');
     }
 
-    createPasskeyCredential(credential);
+    const passkeyCredential = await createPasskeyCredential(credential);
+    return { passkeyCredential };
   },
 );
 
@@ -264,7 +267,7 @@ export function PasskeysCard() {
           query={passkeysQuery}
           notFoundFallback={<div class='text-center text-muted-foreground'>No passkeys found</div>}
         >
-          {(passkeys) => (
+          {({ passkeys }) => (
             <div class='space-y-2'>
               <For each={passkeys}>
                 {(passkey) => (

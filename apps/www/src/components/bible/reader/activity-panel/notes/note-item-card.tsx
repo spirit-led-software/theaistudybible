@@ -44,7 +44,7 @@ const editNoteAction = action(
         .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)))
         .returning();
     }
-    return note;
+    return { note };
   },
 );
 

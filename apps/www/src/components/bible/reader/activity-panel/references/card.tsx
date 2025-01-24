@@ -32,7 +32,7 @@ Here is the passage:
 ${text}`,
   });
   const maxDocs = 10;
-  return await Promise.all(
+  const results = await Promise.all(
     searchTerms.map((searchTerm) =>
       vectorStore.searchDocuments(searchTerm, {
         withMetadata: true,
@@ -46,6 +46,8 @@ ${text}`,
       (result, idx, self) => self.findIndex((t) => t.id === result.id) === idx, // Remove duplicates
     ),
   );
+
+  return { references: results };
 });
 
 export const ReferencesCard = () => {
@@ -81,7 +83,7 @@ export const ReferencesCard = () => {
             </div>
           }
         >
-          {(references) => (
+          {({ references }) => (
             <div class='flex w-full flex-1 flex-col space-y-4 overflow-y-auto rounded-lg border p-5'>
               <For each={references}>
                 {(reference, idx) => (

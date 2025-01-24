@@ -1,4 +1,3 @@
-import { cache } from '@/core/cache';
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { toTitleCase } from '@/core/utils/string';
@@ -18,7 +17,7 @@ type Provider = 'google' | 'apple';
 
 const unlinkAction = action(async (provider: Provider) => {
   'use server';
-  const { session, user } = requireAuth();
+  const { user } = requireAuth();
   if (provider === 'google') {
     await db.update(users).set({ googleId: null }).where(eq(users.id, user.id));
   } else if (provider === 'apple') {
@@ -26,7 +25,6 @@ const unlinkAction = action(async (provider: Provider) => {
   } else {
     throw new Error(`Invalid provider: ${provider}`);
   }
-  await cache.del(`auth:${session.id}`); // invalidate auth cache
   return { success: true };
 });
 

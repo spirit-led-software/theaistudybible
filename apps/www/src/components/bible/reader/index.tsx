@@ -17,10 +17,10 @@ const getHighlights = GET(async (chapterId: string) => {
   'use server';
   const { user } = auth();
   if (!user) {
-    return [];
+    return { highlights: [] };
   }
 
-  return await db.query.chapters
+  const highlights = await db.query.chapters
     .findFirst({
       where: (chapters, { eq }) => eq(chapters.id, chapterId),
       columns: { id: true },
@@ -34,16 +34,18 @@ const getHighlights = GET(async (chapterId: string) => {
     .then((chapter) => {
       return chapter?.verses.flatMap((verse) => verse.highlights) || [];
     });
+
+  return { highlights };
 });
 
 const getNotes = GET(async (chapterId: string) => {
   'use server';
   const { user } = auth();
   if (!user) {
-    return [];
+    return { notes: [] };
   }
 
-  return await db.query.chapters
+  const notes = await db.query.chapters
     .findFirst({
       where: (chapters, { eq }) => eq(chapters.id, chapterId),
       columns: { id: true },
@@ -55,6 +57,8 @@ const getNotes = GET(async (chapterId: string) => {
       },
     })
     .then((chapter) => chapter?.verses.flatMap((verse) => verse.notes) || []);
+
+  return { notes };
 });
 
 export type ReaderContentProps = {
@@ -96,13 +100,13 @@ export const ReaderContent = (props: ReaderContentProps) => {
   const highlightsQuery = createQuery(() => ({
     queryKey: ['highlights', { chapterId: brStore.chapter.id }],
     queryFn: () => getHighlights(brStore.chapter.id),
-    placeholderData: [],
+    placeholderData: { highlights: [] },
   }));
 
   const notesQuery = createQuery(() => ({
     queryKey: ['notes', { chapterId: brStore.chapter.id }],
     queryFn: () => getNotes(brStore.chapter.id),
-    placeholderData: [],
+    placeholderData: { notes: [] },
   }));
 
   return (
@@ -112,13 +116,13 @@ export const ReaderContent = (props: ReaderContentProps) => {
         <Contents
           contents={props.contents}
           highlights={
-            highlightsQuery.data?.map((hl) => ({
+            highlightsQuery.data?.highlights.map((hl) => ({
               id: hl.id,
               verseId: hl.verseId,
               color: hl.color,
             })) || []
           }
-          notes={notesQuery.data}
+          notes={notesQuery.data?.notes}
         />
       </div>
       <ActivityPanel>

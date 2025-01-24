@@ -1,4 +1,3 @@
-import { cache } from '@/core/cache';
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { UpdateUserSchema } from '@/schemas/users';
@@ -23,9 +22,8 @@ import {
 
 const updateUserAction = action(async (values: UpdateUser) => {
   'use server';
-  const { session, user } = requireAuth();
+  const { user } = requireAuth();
   const [updatedUser] = await db.update(users).set(values).where(eq(users.id, user.id)).returning();
-  await cache.del(`auth:${session.id}`); // invalidate auth cache
   return { user: updatedUser };
 });
 

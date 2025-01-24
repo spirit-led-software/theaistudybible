@@ -1,4 +1,3 @@
-import { cache } from '@/core/cache';
 import { db } from '@/core/database';
 import { userSettings } from '@/core/database/schema';
 import { UpdateUserSettingsSchema } from '@/schemas/users/settings';
@@ -31,7 +30,7 @@ const getBibles = GET(async () => {
   const bibles = await db.query.bibles.findMany({
     columns: { id: true, abbreviationLocal: true, nameLocal: true },
   });
-  return bibles;
+  return { bibles };
 });
 
 const updateSettingsAction = action(async (values: z.infer<typeof UpdateUserSettingsSchema>) => {
@@ -52,7 +51,6 @@ const updateSettingsAction = action(async (values: z.infer<typeof UpdateUserSett
       .values({ userId: user.id, ...values })
       .returning();
   }
-  await cache.del(`settings:${user.id}`);
   return { settings };
 });
 
@@ -129,7 +127,7 @@ export function SettingsCard() {
                       </Button>
                     }
                   >
-                    {(bibles) => (
+                    {({ bibles }) => (
                       <Select
                         value={bibles.find((bible) => bible.id === field.value)}
                         onChange={(v) => setValue(form, field.name, v?.id)}

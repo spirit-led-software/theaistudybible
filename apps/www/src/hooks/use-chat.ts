@@ -74,7 +74,7 @@ const getChatSuggestions = GET(async (chatId: string) => {
   });
   // If there are no messages, don't suggest follow ups
   if (messages.length === 0) {
-    return [];
+    return { suggestions: [] };
   }
 
   const {
@@ -107,14 +107,14 @@ ${messagesToString(messages)}
 What are some follow up questions that the user may ask?`,
   });
 
-  return suggestions;
+  return { suggestions };
 });
 
 export const getChatSuggestionsQueryProps = (chatId: string) => ({
   queryKey: ['chat-suggestions', { chatId }],
   queryFn: () => getChatSuggestions(chatId),
   staleTime: Number.MAX_SAFE_INTEGER,
-  placeholderData: [],
+  placeholderData: { suggestions: [] },
 });
 
 export type UseChatProps = Prettify<

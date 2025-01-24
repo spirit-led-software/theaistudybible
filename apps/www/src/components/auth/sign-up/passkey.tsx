@@ -153,7 +153,7 @@ const signUpWithPasskeyAction = action(
       throw new Error('Too many credentials');
     }
 
-    createPasskeyCredential(credential);
+    await createPasskeyCredential(credential);
 
     const sessionToken = lucia.sessions.generateSessionToken();
     const session = await lucia.sessions.createSession(sessionToken, user.id);

@@ -30,7 +30,7 @@ const getProducts = GET(async () => {
   const products = productsListResponse.data
     .filter((p) => p.default_price && 'credits' in p.metadata)
     .toSorted((a, b) => Number(a.metadata.credits) - Number(b.metadata.credits));
-  return products;
+  return { products };
 });
 
 const createCheckoutSessionAction = action(async (product: Stripe.Product) => {
@@ -48,7 +48,7 @@ const createCheckoutSessionAction = action(async (product: Stripe.Product) => {
     success_url: `${import.meta.env.PUBLIC_WEBAPP_URL}/credits?success=true`,
     cancel_url: `${import.meta.env.PUBLIC_WEBAPP_URL}/credits?canceled=true`,
   });
-  return checkoutSession;
+  return { checkoutSession };
 });
 
 const getProductsQueryOptions = {
@@ -84,7 +84,7 @@ export default function CreditPurchasePage() {
 
   const handlePurchase = createMutation(() => ({
     mutationFn: async (product: Stripe.Product) => {
-      const [session, stripe] = await Promise.all([
+      const [{ checkoutSession }, stripe] = await Promise.all([
         createCheckoutSession(product),
         loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY),
       ]);
@@ -93,7 +93,7 @@ export default function CreditPurchasePage() {
       }
 
       const { error } = await stripe.redirectToCheckout({
-        sessionId: session.id,
+        sessionId: checkoutSession.id,
       });
       if (error) {
         throw new Error(error.message);
@@ -132,7 +132,7 @@ export default function CreditPurchasePage() {
                 </div>
               ))}
             >
-              {(products) =>
+              {({ products }) =>
                 products.map((product) => (
                   <Card class='flex flex-col justify-between'>
                     <CardHeader class='pb-2'>

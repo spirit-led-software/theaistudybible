@@ -196,10 +196,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
                   !followUpSuggestionsQuery.isFetching &&
                   followUpSuggestionsQuery.data
                 }
+                keyed
               >
-                {(suggestions) => (
-                  <Show when={suggestions().length}>
-                    <SuggestionsMessage suggestions={suggestions()} append={append} />
+                {({ suggestions }) => (
+                  <Show when={suggestions.length}>
+                    <SuggestionsMessage suggestions={suggestions} append={append} />
                   </Show>
                 )}
               </Show>

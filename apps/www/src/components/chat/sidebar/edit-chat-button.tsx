@@ -36,7 +36,7 @@ const editChatAction = action(async (props: { chatId: string; name: string }) =>
     })
     .where(and(eq(chats.userId, user.id), eq(chats.id, props.chatId)))
     .returning();
-  return chat;
+  return { chat };
 });
 
 export type EditChatButtonProps = {
