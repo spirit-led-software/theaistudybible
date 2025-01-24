@@ -5,18 +5,17 @@ import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
 import { createForm, setValue, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';
-import { GET } from '@solidjs/start';
-import { createMutation, createQuery } from '@tanstack/solid-query';
+import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import type { z } from 'zod';
+import { SmallBiblePicker } from '../../bible/small-bible-picker';
 import { PushNotificationToggle } from '../../push-notification-toggle';
-import { QueryBoundary } from '../../query-boundary';
 import { Button } from '../../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
 import { Label } from '../../ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import {} from '../../ui/select';
 import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from '../../ui/switch';
 import {
   TextField,
@@ -24,14 +23,6 @@ import {
   TextFieldLabel,
   TextFieldTextArea,
 } from '../../ui/text-field';
-
-const getBibles = GET(async () => {
-  'use server';
-  const bibles = await db.query.bibles.findMany({
-    columns: { id: true, abbreviationLocal: true, nameLocal: true },
-  });
-  return { bibles };
-});
 
 const updateSettingsAction = action(async (values: z.infer<typeof UpdateUserSettingsSchema>) => {
   'use server';
@@ -56,11 +47,6 @@ const updateSettingsAction = action(async (values: z.infer<typeof UpdateUserSett
 
 export function SettingsCard() {
   const updateSettings = useAction(updateSettingsAction);
-
-  const biblesQuery = createQuery(() => ({
-    queryKey: ['bibles'],
-    queryFn: () => getBibles(),
-  }));
 
   const { settings, refetch } = useAuth();
 
@@ -116,46 +102,14 @@ export function SettingsCard() {
               )}
             </Field>
             <Field name='preferredBibleId'>
-              {(field, props) => (
+              {(field) => (
                 <div class='flex flex-col gap-2'>
                   <Label>Preferred Bible</Label>
-                  <QueryBoundary
-                    query={biblesQuery}
-                    loadingFallback={
-                      <Button class='w-fit' disabled>
-                        Loading...
-                      </Button>
-                    }
-                  >
-                    {({ bibles }) => (
-                      <Select
-                        value={bibles.find((bible) => bible.id === field.value)}
-                        onChange={(v) => setValue(form, field.name, v?.id)}
-                        options={bibles}
-                        optionValue={(bible) => bible.id}
-                        itemComponent={(props) => (
-                          <SelectItem item={props.item}>
-                            <div class='flex flex-col'>
-                              <span class='font-medium text-sm'>
-                                {props.item.rawValue.abbreviationLocal}
-                              </span>
-                              <span class='text-muted-foreground text-xs'>
-                                {props.item.rawValue.nameLocal}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        )}
-                        placeholder='Select a Bible'
-                      >
-                        <SelectTrigger class='w-fit min-w-24' {...props}>
-                          <SelectValue<(typeof bibles)[number]>>
-                            {(props) => props.selectedOption()?.abbreviationLocal}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent />
-                      </Select>
-                    )}
-                  </QueryBoundary>
+                  <SmallBiblePicker
+                    value={field.value ?? undefined}
+                    onValueChange={(b) => setValue(form, field.name, b?.id)}
+                    class='w-fit'
+                  />
                 </div>
               )}
             </Field>
