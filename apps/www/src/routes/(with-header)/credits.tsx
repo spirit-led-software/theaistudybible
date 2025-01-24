@@ -177,9 +177,9 @@ export default function CreditPurchasePage() {
             </P>
             <P>
               Looking for a different amount?{' '}
-              <a href='mailto:support@theaistudybible.com' class='text-primary underline'>
+              <Button as='a' href='mailto:support@theaistudybible.com' variant='link' class='p-0'>
                 Contact us
-              </a>
+              </Button>
             </P>
           </div>
         </div>

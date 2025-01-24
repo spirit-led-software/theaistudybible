@@ -3,6 +3,7 @@ import tailwindcssAnimate from 'tailwindcss-animate';
 import tailwindcssSafeArea from 'tailwindcss-safe-area';
 import plugin from 'tailwindcss/plugin';
 
+/** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['variant', ['.dark &', '[data-kb-theme="dark"] &']],
   content: ['./src/**/*.{ts,tsx,js,jsx,mdx,html}'],

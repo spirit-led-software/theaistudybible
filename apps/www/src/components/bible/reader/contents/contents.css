@@ -1,5 +1,3 @@
-@reference "../../../../app.css";
-
 .eb-container ol,
 .eb-container ul {
   list-style: none;
@@ -296,7 +294,9 @@
 }
 
 .eb-container [class^="p"] {
-  @apply my-2 indent-2;
+  margin-top: calc(var(--spacing) * 2);
+  margin-bottom: calc(var(--spacing) * 2);
+  text-indent: calc(var(--spacing) * 2);
 }
 
 .eb-container .m {
@@ -670,5 +670,9 @@
 }
 
 .eb-container .v {
-  @apply mx-1 align-super text-sm;
+  margin-left: var(--spacing);
+  margin-right: var(--spacing);
+  vertical-align: super;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
 }

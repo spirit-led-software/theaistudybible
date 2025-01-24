@@ -20,7 +20,7 @@ export const DevotionMenu = () => {
       role='banner'
       aria-label='Devotion header'
     >
-      <div class='flex w-full max-w-3xl items-center gap-2 px-3 py-1'>
+      <div class='flex w-full max-w-3xl items-center gap-2 py-1'>
         <SidebarTrigger as={Button} size='icon' variant='ghost'>
           {open() ? <ChevronLeft /> : <SidebarIcon />}
         </SidebarTrigger>

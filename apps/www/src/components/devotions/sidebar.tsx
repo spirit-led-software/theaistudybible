@@ -76,7 +76,7 @@ export const DevotionSidebar = () => {
 
   return (
     <Sidebar
-      class='h-full pt-safe-offset-24 pr-1 pb-safe-offset-4 pl-safe-offset-1'
+      class='h-full pt-safe-offset-2 pr-1 pb-safe-offset-2 pl-safe-offset-2'
       gapFixerClass='h-full'
     >
       <SidebarHeader class='flex flex-col gap-2'>
@@ -190,23 +190,22 @@ export const DevotionSidebar = () => {
                       </SidebarMenuItem>
                     )}
                   </For>
+                  <Show when={devotionsQuery.hasNextPage}>
+                    <Button
+                      class='w-full'
+                      disabled={devotionsQuery.isFetchingNextPage}
+                      onClick={() => devotionsQuery.fetchNextPage()}
+                    >
+                      Load More
+                    </Button>
+                  </Show>
                 </SidebarMenu>
               </Show>
             );
           }}
         </QueryBoundary>
       </SidebarContent>
-      <SidebarFooter>
-        <Show when={devotionsQuery.hasNextPage}>
-          <Button
-            class='w-full'
-            disabled={devotionsQuery.isFetchingNextPage}
-            onClick={() => devotionsQuery.fetchNextPage()}
-          >
-            Load More
-          </Button>
-        </Show>
-      </SidebarFooter>
+      <SidebarFooter />
     </Sidebar>
   );
 };

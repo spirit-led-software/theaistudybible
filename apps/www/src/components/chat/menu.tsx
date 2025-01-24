@@ -21,11 +21,16 @@ export const ChatMenu = () => {
       role='banner'
       aria-label='Chat header'
     >
-      <div class='flex w-full max-w-3xl items-center justify-between px-3 py-1'>
-        <SidebarTrigger as={Button} size='icon' variant='ghost'>
+      <div class='flex w-full max-w-3xl items-center justify-between gap-2 px-3 py-1'>
+        <SidebarTrigger
+          as={Button}
+          size='icon'
+          variant='ghost'
+          aria-label='Open Chat History Sidebar'
+        >
           {open() ? <ChevronLeft /> : <SidebarIcon />}
         </SidebarTrigger>
-        <H6 class='truncate' aria-label='Chat name'>
+        <H6 class='flex-1 truncate' aria-label='Chat name'>
           {chatName()}
         </H6>
         <div class='flex justify-end' role='toolbar' aria-label='Chat actions'>

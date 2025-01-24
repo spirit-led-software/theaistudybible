@@ -110,7 +110,7 @@ export const ChatSidebar = () => {
 
   return (
     <Sidebar
-      class='h-full pt-safe-offset-24 pr-1 pb-safe-offset-4 pl-safe-offset-1'
+      class='h-full pt-safe-offset-2 pr-1 pb-safe-offset-2 pl-safe-offset-2'
       gapFixerClass='h-full'
       variant={isChatPage() ? 'sidebar' : 'sheet'}
     >
@@ -157,7 +157,7 @@ export const ChatSidebar = () => {
                       <SidebarMenuItem
                         data-index={idx()}
                         class={cn(
-                          'group flex h-fit w-full items-center justify-between overflow-hidden rounded-lg px-1 hover:bg-accent',
+                          'group/chat-item flex h-fit w-full items-center justify-between overflow-hidden rounded-lg px-1 hover:bg-accent',
                           chatStore.chat?.id === chat.id && 'bg-muted',
                         )}
                       >
@@ -171,20 +171,20 @@ export const ChatSidebar = () => {
                               toggleSidebar();
                             }
                           }}
-                          class='flex min-h-fit w-full flex-1 grow overflow-hidden px-2 py-1 text-left'
+                          class='flex min-h-fit w-full flex-1 grow p-3 text-left'
                         >
-                          <div class='flex w-full flex-col overflow-hidden'>
-                            <span class='line-clamp-2'>
+                          <div class='flex w-full flex-col'>
+                            <div class='truncate-fade'>
                               {getHighlightedChatName(chat.name, searchQuery())}
-                            </span>
-                            <span class='text-muted-foreground text-xs'>
+                            </div>
+                            <div class='text-muted-foreground text-xs'>
                               {formatDate(chat.updatedAt, 'MMMM d, yyyy')}
-                            </span>
+                            </div>
                             <Show when={chat.message?.content} keyed>
                               {(content) => (
-                                <span class='mt-1 text-xs'>
+                                <div class='mt-1 text-xs'>
                                   {getHighlightedMessageExcerpt(content, searchQuery())}
-                                </span>
+                                </div>
                               )}
                             </Show>
                           </div>
@@ -196,23 +196,22 @@ export const ChatSidebar = () => {
                       </SidebarMenuItem>
                     )}
                   </For>
+                  <Show when={chatsQuery.hasNextPage}>
+                    <Button
+                      class='w-full'
+                      disabled={chatsQuery.isFetchingNextPage}
+                      onClick={() => chatsQuery.fetchNextPage()}
+                    >
+                      Load More
+                    </Button>
+                  </Show>
                 </SidebarMenu>
               </Show>
             );
           }}
         </QueryBoundary>
       </SidebarContent>
-      <SidebarFooter>
-        <Show when={chatsQuery.hasNextPage}>
-          <Button
-            class='w-full'
-            disabled={chatsQuery.isFetchingNextPage}
-            onClick={() => chatsQuery.fetchNextPage()}
-          >
-            Load More
-          </Button>
-        </Show>
-      </SidebarFooter>
+      <SidebarFooter />
     </Sidebar>
   );
 };
@@ -226,7 +225,7 @@ const getHighlightedChatName = (name: string, query: string) => {
     .split(new RegExp(`(${query.toLowerCase()})`, 'gi'))
     .map((part) =>
       part.toLowerCase() === query.toLowerCase() ? (
-        <span class='bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
+        <span class='inline bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
       ) : (
         part
       ),

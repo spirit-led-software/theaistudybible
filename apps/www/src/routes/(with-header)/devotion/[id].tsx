@@ -8,6 +8,7 @@ import { Markdown } from '@/www/components/ui/markdown';
 import { SidebarProvider } from '@/www/components/ui/sidebar';
 import { H2, H3 } from '@/www/components/ui/typography';
 import { useDevotionStore } from '@/www/contexts/devotion';
+import { useWindowSize } from '@solid-primitives/resize-observer';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A, useParams } from '@solidjs/router';
@@ -43,6 +44,7 @@ export const route: RouteDefinition = {
 
 export default function DevotionPage() {
   const params = useParams();
+  const windowSize = useWindowSize();
   const [, setDevotionStore] = useDevotionStore();
 
   const devotionQuery = createQuery(() => ({
@@ -54,35 +56,38 @@ export default function DevotionPage() {
     }
   });
 
+  const isMobile = createMemo(() => windowSize.width < 768);
+
   return (
     <SidebarProvider
-      class='h-full min-h-full'
+      class='min-h-full flex-1 overflow-hidden'
       style={{
         '--sidebar-width': '20rem',
       }}
+      defaultOpen={!isMobile()}
     >
       <DevotionSidebar />
-      <div class='relative flex h-full w-full flex-1 flex-col overflow-hidden'>
+      <div class='flex w-full flex-1 flex-col overflow-hidden'>
         <DevotionMenu />
-        <div class='flex h-full w-full flex-1 flex-col items-center overflow-y-auto p-5 pt-32 pb-20'>
-          <QueryBoundary query={devotionQuery}>
-            {({ devotion }) => (
-              <Show
-                when={devotion}
-                fallback={
-                  <div class='flex h-full w-full flex-1 flex-col items-center justify-center gap-4'>
-                    <H3>Devotion not found</H3>
-                    <Button as={A} href='/devotion'>
-                      Go back to Devotions
-                    </Button>
-                  </div>
-                }
-                keyed
-              >
-                {(devotion) => (
-                  <>
-                    <MetaTags devotion={devotion} />
-                    <div class='flex w-full max-w-3xl flex-col gap-4 whitespace-pre-wrap'>
+        <QueryBoundary query={devotionQuery}>
+          {({ devotion }) => (
+            <Show
+              when={devotion}
+              fallback={
+                <div class='flex w-full flex-1 flex-col items-center justify-center gap-4'>
+                  <H3>Devotion not found</H3>
+                  <Button as={A} href='/devotion'>
+                    Go back to Devotions
+                  </Button>
+                </div>
+              }
+              keyed
+            >
+              {(devotion) => (
+                <>
+                  <MetaTags devotion={devotion} />
+                  <div class='flex w-full flex-1 flex-col overflow-y-auto overflow-x-hidden'>
+                    <div class='mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 whitespace-pre-wrap px-5 pt-10 pb-20'>
                       <Show when={devotion.images} keyed>
                         {(image) => (
                           <img
@@ -148,12 +153,12 @@ export default function DevotionPage() {
                         )}
                       </Show>
                     </div>
-                  </>
-                )}
-              </Show>
-            )}
-          </QueryBoundary>
-        </div>
+                  </div>
+                </>
+              )}
+            </Show>
+          )}
+        </QueryBoundary>
       </div>
     </SidebarProvider>
   );

@@ -2,19 +2,25 @@ import { A, useLocation } from '@solidjs/router';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from '../ui/sidebar';
+import { H3 } from '../ui/typography';
 
 const AdminSidebar = () => {
   const location = useLocation();
 
   return (
-    <Sidebar class='top-20 h-full' gapFixerClass='h-full'>
+    <Sidebar class='h-full' gapFixerClass='h-full'>
+      <SidebarHeader>
+        <H3>Admin</H3>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Devotions</SidebarGroupLabel>
@@ -90,6 +96,7 @@ const AdminSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter />
     </Sidebar>
   );
 };
