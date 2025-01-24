@@ -199,7 +199,7 @@ export const ActivityPanelContent = () => {
         class='w-full max-w-2xl justify-self-center shadow-lg'
         style={{
           '--activity-panel-max-height': 'calc(100vh - 120px)',
-          '--activity-panel-chat-height': 'calc(100vh - 100px)',
+          '--activity-panel-chat-height': 'calc(100vh - 140px)',
         }}
       >
         <div class='mx-auto flex max-h-(--activity-panel-max-height) w-full flex-col overflow-hidden p-4'>
