@@ -1,7 +1,6 @@
 import { useBibleStore } from '@/www/contexts/bible';
 import { createChatScrollAnchor } from '@/www/hooks/create-chat-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
-import { cn } from '@/www/lib/utils';
 import { useWindowSize } from '@solid-primitives/resize-observer';
 import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
@@ -118,21 +117,19 @@ export const ChatWindow = (props: ChatWindowProps) => {
   });
 
   const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
+  const isMobile = createMemo(() => windowSize.width < 768);
 
   return (
     <SidebarProvider
-      class={cn('min-h-full flex-1 overflow-hidden', isChatPage() ? 'h-full' : 'h-(--activity-panel-chat-height)')}
+      class='min-h-full flex-1 overflow-hidden'
       style={{ '--sidebar-width': '20rem' }}
-      defaultOpen={isChatPage()}
+      defaultOpen={!isMobile() && isChatPage()}
     >
       <Show when={isChatPage()}>
         <MetaTags />
       </Show>
       <ChatSidebar />
-      <div
-        class='relative flex h-full w-full flex-1 flex-col overflow-hidden'
-        aria-label='Chat window'
-      >
+      <div class='relative flex w-full flex-1 flex-col overflow-hidden' aria-label='Chat window'>
         <ChatMenu />
         <Show when={!isAtBottom()}>
           <Button
@@ -147,7 +144,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         </Show>
         <div
           ref={setScrollRef}
-          class='flex h-full w-full flex-1 flex-col overflow-y-auto overflow-x-hidden'
+          class='flex w-full flex-1 flex-col overflow-y-auto overflow-x-hidden'
           role='log'
           aria-live='polite'
           aria-label='Chat messages'

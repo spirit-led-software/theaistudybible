@@ -4,57 +4,57 @@ import { For } from 'solid-js';
 import { Button } from '../ui/button';
 import { GradientH3 } from '../ui/typography';
 
+const questions = [
+  {
+    icon: Lightbulb,
+    text: 'Who is Jesus Christ?',
+    query: 'Who is Jesus Christ and why is He significant?',
+  },
+  { icon: Wrench, text: 'What tools can you use?', query: 'What tools do you have access to?' },
+  {
+    icon: Heart,
+    text: 'How to grow in faith?',
+    query: 'What are some practical ways to grow in Christian faith?',
+  },
+  {
+    icon: Globe,
+    text: "Christianity's impact",
+    query: 'How has Christianity influenced world history and culture?',
+  },
+];
+
+const additionalContextQuestions = [
+  {
+    icon: Book,
+    text: 'Explain the passage',
+    query: 'What does this passage mean?',
+  },
+  {
+    icon: Image,
+    text: 'Show a visual',
+    query: 'Create an image based on this passage.',
+  },
+  {
+    icon: Heart,
+    text: 'Apply the passage',
+    query: 'How can I apply this passage to my life?',
+  },
+  {
+    icon: Globe,
+    text: 'Explore the passage',
+    query: 'What other passages are related to this one?',
+  },
+];
+
 export type EmptyWindowProps = {
   append: ReturnType<typeof useChat>['append'];
   additionalContext?: string;
 };
 
 export const EmptyWindow = (props: EmptyWindowProps) => {
-  const questions = [
-    {
-      icon: Lightbulb,
-      text: 'Who is Jesus Christ?',
-      query: 'Who is Jesus Christ and why is He significant?',
-    },
-    { icon: Wrench, text: 'What tools can you use?', query: 'What tools do you have access to?' },
-    {
-      icon: Heart,
-      text: 'How to grow in faith?',
-      query: 'What are some practical ways to grow in Christian faith?',
-    },
-    {
-      icon: Globe,
-      text: "Christianity's impact",
-      query: 'How has Christianity influenced world history and culture?',
-    },
-  ];
-
-  const additionalContextQuestions = [
-    {
-      icon: Book,
-      text: 'Explain the passage',
-      query: 'What does this passage mean?',
-    },
-    {
-      icon: Image,
-      text: 'Show a visual',
-      query: 'Create an image based on this passage.',
-    },
-    {
-      icon: Heart,
-      text: 'Apply the passage',
-      query: 'How can I apply this passage to my life?',
-    },
-    {
-      icon: Globe,
-      text: 'Explore the passage',
-      query: 'What other passages are related to this one?',
-    },
-  ];
-
   return (
     <section
-      class='flex h-full w-full flex-col items-center justify-center p-4'
+      class='flex h-full w-full flex-col items-center justify-center px-4 py-10'
       aria-label='Chat suggestions'
     >
       <GradientH3 class='mb-6'>Start a conversation</GradientH3>

@@ -102,11 +102,13 @@ export const ReferencesCard = () => {
                     </div>
                     <DrawerClose
                       as={A}
-                      href={`${reference.metadata!.url}?${reference
-                        .metadata!.verseIds?.map(
-                          (verseId: string) => `verseId=${encodeURIComponent(verseId)}`,
-                        )
-                        .join('&') ?? ''}`}
+                      href={`${reference.metadata!.url}?${
+                        reference
+                          .metadata!.verseIds?.map(
+                            (verseId: string) => `verseId=${encodeURIComponent(verseId)}`,
+                          )
+                          .join('&') ?? ''
+                      }`}
                       class={cn(buttonVariants({ variant: 'link' }), 'text-accent-foreground')}
                     >
                       Read More

@@ -22,12 +22,12 @@ export const ChatMenu = () => {
       aria-label='Chat header'
     >
       <div class='flex w-full max-w-3xl items-center justify-between px-3 py-1'>
-          <SidebarTrigger as={Button} size='icon' variant='ghost'>
-            {open() ? <ChevronLeft /> : <SidebarIcon />}
-          </SidebarTrigger>
-          <H6 class='truncate' aria-label='Chat name'>
-            {chatName()}
-          </H6>
+        <SidebarTrigger as={Button} size='icon' variant='ghost'>
+          {open() ? <ChevronLeft /> : <SidebarIcon />}
+        </SidebarTrigger>
+        <H6 class='truncate' aria-label='Chat name'>
+          {chatName()}
+        </H6>
         <div class='flex justify-end' role='toolbar' aria-label='Chat actions'>
           <Tooltip>
             <TooltipTrigger
