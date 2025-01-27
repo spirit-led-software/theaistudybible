@@ -272,31 +272,42 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
     parameters: z.object({
       terms: z
         .array(z.string())
+        .min(1)
+        .max(6)
         .describe(
           '1 to 6 search terms or phrases that will be used to find relevant resources. These search phrases are searched separately and the results are combined.',
-        )
-        .min(1)
-        .max(6),
+        ),
+      type: z
+        .enum(['bible', 'theology', 'general'])
+        .optional()
+        .default('general')
+        .describe(
+          'The type of resources to search for. "bible" will only search for resources from the Bible. "theology" will only search for popular theology resources such as commentaries, sermons, and theological books. "general" will search for resources from all types. The default is "general".',
+        ),
     }),
-    execute: async ({ terms }) => {
+    execute: async ({ terms, type }) => {
       try {
+        let filter = `bibleId = "${input.bibleId}" or (type != "bible" and type != "BIBLE")`;
+        if (type === 'bible') {
+          filter = `(type = "bible" or type = "BIBLE") and bibleId = "${input.bibleId}"`;
+        } else if (type === 'theology') {
+          filter = 'category = "theology"';
+        }
+
         const docs = await Promise.all(
           terms.map((term) =>
             vectorStore.searchDocuments(term, {
               limit: 12,
               withMetadata: true,
               withEmbedding: false,
-              filter: input.bibleId
-                ? `bibleId = "${input.bibleId}" or (type != "bible" and type != "BIBLE")`
-                : undefined,
+              filter,
             }),
           ),
         ).then((docs) =>
           docs
             .flat()
             .filter((doc, index, self) => self.findIndex((d) => d.id === doc.id) === index)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 8),
+            .sort((a, b) => b.score - a.score),
         );
 
         return {

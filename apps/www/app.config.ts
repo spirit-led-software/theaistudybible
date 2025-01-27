@@ -1,10 +1,10 @@
 import { createId } from '@paralleldrive/cuid2';
 import { sentrySolidStartVite } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
+import tailwindcss from '@tailwindcss/vite';
 import solidDevTools from 'solid-devtools/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   middleware: './src/middleware.ts',

@@ -1,3 +1,4 @@
+import { db } from '@/core/database';
 import { tool } from 'ai';
 import { z } from 'zod';
 import { vectorStore } from '../vector-store';
@@ -7,27 +8,45 @@ export const bibleVectorStoreTool = tool({
   parameters: z.object({
     terms: z
       .array(z.string())
+      .min(1)
+      .max(4)
       .describe(
         '1 to 4 search terms or phrases that will be used to find relevant bible passages.',
       ),
   }),
   execute: async ({ terms }) => {
-    return await Promise.all(
-      terms.map((term) =>
-        vectorStore.searchDocuments(term, {
-          filter: '(type = "bible" or type = "BIBLE") and translation = "WEB"',
-          limit: 12,
-          withMetadata: true,
-          withEmbedding: false,
-        }),
-      ),
-    ).then((docs) =>
-      docs
-        .flat()
-        .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 8),
-    );
+    try {
+      const bible = await db.query.bibles.findFirst({
+        where: (bibles, { eq }) => eq(bibles.abbreviation, 'NASB'),
+      });
+      if (!bible) {
+        throw new Error('Bible not found');
+      }
+      const docs = await Promise.all(
+        terms.map((term) =>
+          vectorStore.searchDocuments(term, {
+            filter: `(type = "bible" or type = "BIBLE") and bibleId = "${bible.id}"`,
+            limit: 20,
+            withMetadata: true,
+            withEmbedding: false,
+          }),
+        ),
+      ).then((docs) =>
+        docs
+          .flat()
+          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
+          .sort((a, b) => b.score - a.score),
+      );
+      return {
+        status: 'success',
+        docs,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        error: error instanceof Error ? error.message : 'An unknown error occurred',
+      };
+    }
   },
 });
 
@@ -36,27 +55,37 @@ export const vectorStoreTool = tool({
   parameters: z.object({
     terms: z
       .array(z.string())
+      .min(1)
+      .max(6)
       .describe(
         '1 to 6 search terms or phrases that will be used to find relevant resources. These search phrases are searched separately and the results are combined.',
-      )
-      .min(1)
-      .max(6),
+      ),
   }),
   execute: async ({ terms }) => {
-    return await Promise.all(
-      terms.map((term) =>
-        vectorStore.searchDocuments(term, {
-          limit: 12,
-          withMetadata: true,
-          withEmbedding: false,
-        }),
-      ),
-    ).then((docs) =>
-      docs
-        .flat()
-        .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 8),
-    );
+    try {
+      const docs = await Promise.all(
+        terms.map((term) =>
+          vectorStore.searchDocuments(term, {
+            limit: 12,
+            withMetadata: true,
+            withEmbedding: false,
+          }),
+        ),
+      ).then((docs) =>
+        docs
+          .flat()
+          .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
+          .sort((a, b) => b.score - a.score),
+      );
+      return {
+        status: 'success',
+        docs,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        error: error instanceof Error ? error.message : 'An unknown error occurred',
+      };
+    }
   },
 });
