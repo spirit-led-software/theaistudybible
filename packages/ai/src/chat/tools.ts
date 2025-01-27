@@ -297,7 +297,7 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
         const docs = await Promise.all(
           terms.map((term) =>
             vectorStore.searchDocuments(term, {
-              limit: 12,
+              limit: 8,
               withMetadata: true,
               withEmbedding: false,
               filter,
@@ -307,7 +307,8 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
           docs
             .flat()
             .filter((doc, index, self) => self.findIndex((d) => d.id === doc.id) === index)
-            .sort((a, b) => b.score - a.score),
+            .toSorted((a, b) => b.score - a.score)
+            .slice(0, 10),
         );
 
         return {
