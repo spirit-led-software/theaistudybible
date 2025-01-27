@@ -15,7 +15,7 @@
       "**/.vinxi",
       "**/.output",
       "**/dist",
-      "**/bun.lockb",
+      "**/bun.lock",
       "**/migrations",
       "**/sst-env.d.ts",
       "packages/core/src/utils/bibles/__tests__/MAT.json"

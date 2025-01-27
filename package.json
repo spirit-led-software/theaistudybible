@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "turbo run build",
-    "clean-install": "rimraf bun.lockb .sst --glob '**/node_modules' && bun install --no-cache && sst install",
+    "clean-install": "rimraf bun.lock .sst --glob '**/node_modules' && bun install --no-cache && sst install",
     "clean": "turbo run clean",
     "cy:open": "sst shell -- cypress open",
     "db:generate": "sst shell -- drizzle-kit generate",

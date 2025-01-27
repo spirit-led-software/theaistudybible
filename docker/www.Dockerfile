@@ -21,7 +21,7 @@ COPY --link ./packages/email/package.json ./packages/email/package.json
 COPY --link ./packages/schemas/package.json ./packages/schemas/package.json
 COPY --link ./tools/scripts/package.json ./tools/scripts/package.json
 COPY --link ./tools/tsconfig/package.json ./tools/tsconfig/package.json
-COPY --link ./bun.lockb ./bun.lockb
+COPY --link ./bun.lock ./bun.lock
 
 RUN bun install --frozen-lockfile
 
