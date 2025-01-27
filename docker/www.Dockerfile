@@ -62,6 +62,10 @@ ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
 
 WORKDIR /build
 
+RUN apt-get -qq update && \
+    apt-get -qq install -y git && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --from=install /install/node_modules ./node_modules
 
 COPY --link . .
