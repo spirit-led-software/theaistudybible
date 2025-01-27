@@ -168,7 +168,7 @@ export function ChapterReader(props: ChapterReaderProps) {
           return (
             <BibleReaderProvider bible={bible} book={book} chapter={chapter}>
               <BibleReaderMenu />
-              <div class='mt-12 mb-5'>
+              <div class='mt-16 mb-5'>
                 <ReaderContent contents={chapter.content} />
               </div>
               <div class='mb-20 flex flex-col items-center gap-2'>

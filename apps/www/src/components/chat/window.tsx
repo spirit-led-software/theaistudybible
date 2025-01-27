@@ -209,7 +209,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           </div>
         </div>
         <form
-          class='relative flex w-full flex-col items-center justify-center gap-2 border-t px-2 py-2'
+          class='relative flex w-full flex-col items-center justify-center gap-2 px-2 pb-2'
           onSubmit={handleSubmit}
           onKeyDown={(e) => {
             if (windowSize.width < 768) return;
@@ -220,7 +220,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           }}
           aria-label='Message input form'
         >
-          <div class='flex h-fit w-full max-w-3xl items-center gap-1 rounded-full border px-1 py-2'>
+          <div class='flex h-fit w-full max-w-3xl items-center gap-1 rounded-full border bg-background/80 px-1 py-2 backdrop-blur-md'>
             <SelectModelButton />
             <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>
               <TextFieldTextArea

@@ -46,11 +46,7 @@ export function BookPicker() {
 
   return (
     <Popover placement='bottom-start'>
-      <PopoverTrigger
-        as={Button}
-        variant='outline'
-        class='max-w-40 justify-between text-nowrap sm:max-w-[unset]'
-      >
+      <PopoverTrigger as={Button} variant='outline' class='flex-1 justify-between text-nowrap'>
         <span class='truncate'>
           {brStore.book.shortName} {brStore.chapter.number}
           {brStore.verse ? `:${brStore.verse.number}` : ''}

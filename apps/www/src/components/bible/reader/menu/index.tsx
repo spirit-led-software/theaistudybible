@@ -16,11 +16,11 @@ import { SmallTranslationPicker } from './translation-picker/small';
 export const BibleReaderMenu = () => {
   const [brStore] = useBibleReaderStore();
   return (
-    <div class='fixed top-20 flex items-center gap-2 rounded-b-lg bg-background/80 p-2 backdrop-blur-md'>
+    <div class='fixed inset-x-safe top-20 flex w-full items-center justify-center gap-2 border-b bg-background/80 p-2 backdrop-blur-md'>
       <BookPicker />
       <SmallTranslationPicker />
       <DropdownMenu>
-        <DropdownMenuTrigger as={Button} size='icon'>
+        <DropdownMenuTrigger as={Button} size='icon' variant='outline'>
           <EllipsisVertical />
         </DropdownMenuTrigger>
         <DropdownMenuContent>

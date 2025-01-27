@@ -203,3 +203,11 @@ export {
   NavigationMenuTrigger,
   NavigationMenuViewport,
 };
+
+export type {
+  NavigationMenuProps,
+  NavigationMenuTriggerProps,
+  NavigationMenuLinkProps,
+  NavigationMenuLabelProps,
+  NavigationMenuDescriptionProps,
+};
