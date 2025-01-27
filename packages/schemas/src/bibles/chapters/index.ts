@@ -8,6 +8,7 @@ const refine = {
   content: ContentSchema.array(),
 };
 
+// @ts-expect-error - Circular dependency
 export const ChapterSchema = createSelectSchema(chapters, refine);
 
 export const CreateChapterSchema = createInsertSchema(chapters, refine).omit({

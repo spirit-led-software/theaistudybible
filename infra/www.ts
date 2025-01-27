@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { analyticsApi } from './analytics';
 import {
   DOMAIN,
@@ -84,12 +83,6 @@ export const webAppDevCmd = new sst.x.DevCommand('WebAppDev', {
 });
 
 if (!$dev) {
-  const bucket = new sst.aws.Bucket(
-    `WebAppBucket-${Date.now()}`,
-    { access: 'cloudfront' },
-    { retainOnDelete: false },
-  );
-
   const flyApp = new fly.App('WebApp', {
     name: `${$app.name}-${$app.stage}-www`,
     org: process.env.FLY_ORG,
@@ -181,33 +174,8 @@ if (!$dev) {
   }
 
   function buildWebAppImage() {
-    const buildIamUser = new aws.iam.User('BuildIamUser');
-    const buildIamPolicy = new aws.iam.Policy('BuildIamPolicy', {
-      policy: {
-        Statement: [
-          {
-            Effect: 'Allow',
-            Action: ['s3:*'],
-            Resource: [bucket.arn, $interpolate`${bucket.arn}/*`],
-          },
-        ],
-        Version: '2012-10-17',
-      },
-    });
-    new aws.iam.UserPolicyAttachment('BuildIamUserPolicyAttachment', {
-      user: buildIamUser.name,
-      policyArn: buildIamPolicy.arn,
-    });
-    const accessKey = new aws.iam.AccessKey('BuildIamAccessKey', {
-      user: buildIamUser.name,
-    });
-
     const buildArgs = $util
       .all([
-        accessKey.id,
-        $util.secret(accessKey.secret),
-        bucket.nodes.bucket.region,
-        bucket.name,
         WEBAPP_URL.value,
         cdn.url,
         STRIPE_PUBLISHABLE_KEY.value,
@@ -222,10 +190,6 @@ if (!$dev) {
       ])
       .apply(
         ([
-          awsAccessKeyId,
-          awsSecretAccessKey,
-          awsRegion,
-          assetsBucket,
           webappUrl,
           cdnUrl,
           stripePublishableKey,
@@ -238,10 +202,6 @@ if (!$dev) {
           sentryProjectName,
           sentryAuthToken,
         ]) => ({
-          aws_access_key_id: awsAccessKeyId,
-          aws_secret_access_key: awsSecretAccessKey,
-          aws_default_region: awsRegion,
-          assets_bucket: assetsBucket,
           stage: $app.stage,
           webapp_url: webappUrl,
           cdn_url: cdnUrl,
@@ -313,56 +273,7 @@ if (!$dev) {
     return { app, machine };
   }
 
-  function getStaticAssets() {
-    return $util
-      .all([bucket.name, bucket.nodes.bucket.region, webAppImage.ref])
-      .apply(async ([bucketName, bucketRegion]) => {
-        const assets: string[] = [];
-        const client = new S3Client({ region: bucketRegion });
-
-        let isTruncated = true;
-        let continuationToken: string | undefined;
-
-        // Handle pagination
-        while (isTruncated) {
-          const response = await client.send(
-            new ListObjectsV2Command({
-              Bucket: bucketName,
-              Delimiter: '/',
-              ContinuationToken: continuationToken,
-            }),
-          );
-          // Process directories (CommonPrefixes)
-          for (const prefix of response.CommonPrefixes ?? []) {
-            if (prefix.Prefix) {
-              assets.push(prefix.Prefix);
-            }
-          }
-          // Process files
-          for (const obj of response.Contents ?? []) {
-            if (obj.Key && !obj.Key.includes('/')) {
-              assets.push(obj.Key);
-            }
-          }
-          isTruncated = response.IsTruncated ?? false;
-          continuationToken = response.NextContinuationToken;
-        }
-        return assets;
-      });
-  }
-
   function buildCdn() {
-    const bucketAccess = new aws.cloudfront.OriginAccessControl('WebAppBucketAccess', {
-      originAccessControlOriginType: 's3',
-      signingBehavior: 'always',
-      signingProtocol: 'sigv4',
-    });
-    const s3Origin: aws.types.input.cloudfront.DistributionOrigin = {
-      originId: 's3Origin',
-      domainName: bucket.nodes.bucket.bucketRegionalDomainName,
-      originAccessControlId: bucketAccess.id,
-    };
-
     const serverOrigin: aws.types.input.cloudfront.DistributionOrigin = {
       originId: 'serverOrigin',
       domainName: $interpolate`${flyApp.name}.fly.dev`,
@@ -375,7 +286,6 @@ if (!$dev) {
         originKeepaliveTimeout: 60,
       },
     };
-
     const serverOriginBehavior: Omit<
       aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
       'pathPattern'
@@ -410,19 +320,6 @@ if (!$dev) {
         },
       ],
     };
-    const assetsCacheBehavior: Omit<
-      aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
-      'pathPattern'
-    > = {
-      targetOriginId: s3Origin.originId,
-      viewerProtocolPolicy: 'redirect-to-https',
-      allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
-      cachedMethods: ['GET', 'HEAD'],
-      compress: true,
-      // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
-      // CloudFront's managed CachingOptimized policy
-      cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
-    };
 
     const loggingBucket = new sst.aws.Bucket(
       'WebAppCdnLoggingBucket',
@@ -437,18 +334,8 @@ if (!$dev) {
     return new sst.aws.Cdn(
       'WebAppCdn',
       {
-        origins: [serverOrigin, s3Origin],
+        origins: [serverOrigin],
         defaultCacheBehavior: serverOriginBehavior,
-        orderedCacheBehaviors: getStaticAssets().apply((assets) => [
-          {
-            pathPattern: '_server/',
-            ...serverOriginBehavior,
-          },
-          ...assets.map((asset) => ({
-            pathPattern: asset.endsWith('/') ? `${asset}*` : asset,
-            ...assetsCacheBehavior,
-          })),
-        ]),
         wait: !$dev,
         invalidation: { paths: ['/*'], wait: !$dev },
         domain: {

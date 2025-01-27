@@ -6,13 +6,36 @@ import solidDevTools from 'solid-devtools/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
+const defaultCacheControlHeaders = {
+  'cache-control': 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400,immutable',
+  vary: 'Accept-Encoding',
+};
+
+const staticCacheControlHeaders = {
+  ...defaultCacheControlHeaders,
+  'cache-control': 'public,max-age=31536000,immutable',
+};
+
 export default defineConfig({
   middleware: './src/middleware.ts',
   server: {
     preset: 'bun',
-    serveStatic: false,
     plugins: ['./src/server/plugins/compression.ts'],
     compatibilityDate: '2024-12-02',
+    routeRules: {
+      '/_build/assets/**': { headers: defaultCacheControlHeaders },
+      '/_build/manifest.webmanifest': { headers: defaultCacheControlHeaders },
+      '/_build/service-worker.js*': { headers: defaultCacheControlHeaders },
+      '/_server/assets/**': { headers: defaultCacheControlHeaders },
+      '/assets/**': { headers: defaultCacheControlHeaders },
+      '/logos/**': { headers: staticCacheControlHeaders },
+      '/pwa/**': { headers: staticCacheControlHeaders },
+      '/apple-touch-icon-180x180.png': { headers: staticCacheControlHeaders },
+      '/favicon.ico': { headers: staticCacheControlHeaders },
+      '/icon.png': { headers: staticCacheControlHeaders },
+      '/maskable-icon-512x512.png': { headers: staticCacheControlHeaders },
+      '/robots.txt': { headers: staticCacheControlHeaders },
+    },
   },
   vite: {
     envPrefix: 'PUBLIC_',

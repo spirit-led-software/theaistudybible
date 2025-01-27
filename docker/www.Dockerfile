@@ -30,11 +30,6 @@ RUN bun install --frozen-lockfile
 ########################################################
 FROM base AS build
 
-ARG aws_access_key_id
-ARG aws_secret_access_key
-ARG aws_default_region
-ARG assets_bucket
-
 ARG stage
 ARG webapp_url
 ARG cdn_url
@@ -49,10 +44,6 @@ ARG sentry_org
 ARG sentry_project_id
 ARG sentry_project_name
 ARG sentry_auth_token
-
-ENV AWS_ACCESS_KEY_ID ${aws_access_key_id}
-ENV AWS_SECRET_ACCESS_KEY ${aws_secret_access_key}
-ENV AWS_DEFAULT_REGION ${aws_default_region}
 
 ENV PUBLIC_STAGE ${stage}
 ENV PUBLIC_WEBAPP_URL ${webapp_url}
@@ -71,48 +62,10 @@ ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
 
 WORKDIR /build
 
-RUN apt-get -qq update && \
-    apt-get -qq install -y git curl unzip && \
-    case "$(uname -m)" in \
-        aarch64) ARCH="aarch64" ;; \
-        x86_64)  ARCH="x86_64" ;; \
-        *) echo "Unsupported architecture: $(uname -m)"; exit 1 ;; \
-    esac && \
-    curl -s "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o "awscliv2.zip" && \
-    unzip -q awscliv2.zip && \
-    ./aws/install && \
-    rm -rf awscliv2.zip aws /var/lib/apt/lists/*
-
 COPY --from=install /install/node_modules ./node_modules
 
 COPY --link . .
 RUN bun run build
-
-RUN aws s3 sync /build/apps/www/.output/public s3://${assets_bucket} \
-        --metadata-directive 'REPLACE' \
-        --cache-control 'public,max-age=31536000,immutable' \
-        --exclude "*" \
-        --include "*.js" \
-        --include "*.css" \
-        --include "*.woff2" \
-        --include "*.jpg" \
-        --include "*.png" \
-        --include "*.svg" \
-        --include "*.webp" \
-        --include "*.ico" \
-        --include "*.gif" && \
-    aws s3 sync /build/apps/www/.output/public s3://${assets_bucket} \
-        --metadata-directive 'REPLACE' \
-        --cache-control 'public,max-age=3600,s-maxage=31536000,stale-while-revalidate=86400,stale-if-error=259200' \
-        --exclude "*.js" \
-        --exclude "*.css" \
-        --exclude "*.woff2" \
-        --exclude "*.jpg" \
-        --exclude "*.png" \
-        --exclude "*.svg" \
-        --exclude "*.webp" \
-        --exclude "*.ico" \
-        --exclude "*.gif"
 
 ########################################################
 # Release
@@ -144,13 +97,13 @@ RUN apt-get -qq update && \
     apt-get -qq install -y curl && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=build /build/apps/www/.output/server .
-COPY --link ./apps/www/instrument.mjs ./
+COPY --from=build /build/apps/www/.output .
+COPY --link ./apps/www/instrument.mjs ./server/instrument.mjs
 
 RUN bun add --trust @sentry/bun posthog-node && \
     bun pm cache rm
 
-ENTRYPOINT [ "bun", "run", "--preload", "./instrument.mjs", "./index.mjs" ]
+ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
 EXPOSE ${PORT}
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \

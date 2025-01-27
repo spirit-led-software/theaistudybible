@@ -45,12 +45,13 @@ export const FinishReasonSchema: z.ZodType<FinishReason> = z.enum([
 
 const refine = {
   ...defaultRefine,
-  annotations: z.array(JSONSchema).optional(),
-  data: JSONSchema.optional(),
-  finishReason: FinishReasonSchema.optional(),
-  toolInvocations: z.array(ToolInvocationSchema).optional(),
+  annotations: z.array(JSONSchema).nullish(),
+  data: JSONSchema.nullish(),
+  finishReason: FinishReasonSchema.nullish(),
+  toolInvocations: z.array(ToolInvocationSchema).nullish(),
 };
 
+// @ts-expect-error - Circular dependency
 export const MessageSchema = createSelectSchema(messages, refine);
 
 export const CreateMessageSchema = createInsertSchema(messages, refine).omit({

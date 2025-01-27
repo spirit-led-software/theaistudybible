@@ -297,7 +297,7 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
         const docs = await Promise.all(
           terms.map((term) =>
             vectorStore.searchDocuments(term, {
-              limit: 8,
+              limit: 12,
               withMetadata: true,
               withEmbedding: false,
               filter,
