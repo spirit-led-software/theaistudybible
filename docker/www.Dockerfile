@@ -104,7 +104,8 @@ RUN apt-get -qq update && \
 COPY --from=build /build/apps/www/.output .
 COPY --link ./apps/www/instrument.mjs ./server/instrument.mjs
 
-RUN bun add --trust @sentry/bun posthog-node && \
+RUN cd /app/server && \
+    bun add --trust @sentry/bun posthog-node && \
     bun pm cache rm
 
 ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
