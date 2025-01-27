@@ -273,9 +273,9 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
       terms: z
         .array(z.string())
         .min(1)
-        .max(6)
+        .max(4)
         .describe(
-          '1 to 6 search terms or phrases that will be used to find relevant resources. These search phrases are searched separately and the results are combined.',
+          '1 to 4 search terms or phrases that will be used to find relevant resources. These search phrases are searched separately and the results are combined.',
         ),
       type: z
         .enum(['bible', 'theology', 'general'])
@@ -308,7 +308,7 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
             .flat()
             .filter((doc, index, self) => self.findIndex((d) => d.id === doc.id) === index)
             .toSorted((a, b) => b.score - a.score)
-            .slice(0, 10),
+            .slice(0, 12),
         );
 
         return {
