@@ -30,7 +30,7 @@ export const ChatMenu = () => {
         >
           {open() ? <ChevronLeft /> : <SidebarIcon />}
         </SidebarTrigger>
-        <H6 class='flex-1 truncate' aria-label='Chat name'>
+        <H6 class='truncate-fade flex-1' aria-label='Chat name'>
           {chatName()}
         </H6>
         <div class='flex justify-end' role='toolbar' aria-label='Chat actions'>
