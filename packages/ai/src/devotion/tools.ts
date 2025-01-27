@@ -9,9 +9,9 @@ export const bibleVectorStoreTool = tool({
     terms: z
       .array(z.string())
       .min(1)
-      .max(4)
+      .max(5)
       .describe(
-        '1 to 4 search terms or phrases that will be used to find relevant bible passages.',
+        '1 to 5 search terms or phrases that will be used to find relevant bible passages.',
       ),
   }),
   execute: async ({ terms }) => {
@@ -26,7 +26,7 @@ export const bibleVectorStoreTool = tool({
         terms.map((term) =>
           vectorStore.searchDocuments(term, {
             filter: `(type = "bible" or type = "BIBLE") and bibleId = "${bible.id}"`,
-            limit: 20,
+            limit: 10,
             withMetadata: true,
             withEmbedding: false,
           }),
@@ -56,9 +56,9 @@ export const vectorStoreTool = tool({
     terms: z
       .array(z.string())
       .min(1)
-      .max(6)
+      .max(4)
       .describe(
-        '1 to 6 search terms or phrases that will be used to find relevant resources. These search phrases are searched separately and the results are combined.',
+        '1 to 4 search terms or phrases that will be used to find relevant resources. These search phrases are searched separately and the results are combined.',
       ),
   }),
   execute: async ({ terms }) => {
@@ -75,7 +75,8 @@ export const vectorStoreTool = tool({
         docs
           .flat()
           .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id))
-          .sort((a, b) => b.score - a.score),
+          .toSorted((a, b) => b.score - a.score)
+          .slice(0, 12),
       );
       return {
         status: 'success',
