@@ -1,9 +1,11 @@
 import { db } from '@/core/database';
+import { ilike } from '@/core/database/utils';
 import { Protected } from '@/www/components/auth/control';
 import { NoteItemCard } from '@/www/components/bible/reader/activity-panel/notes/note-item-card';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Spinner } from '@/www/components/ui/spinner';
+import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { auth } from '@/www/server/auth';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
@@ -13,55 +15,114 @@ import { A } from '@solidjs/router';
 import { Navigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
-import { For, Match, Switch, createEffect } from 'solid-js';
+import { count } from 'drizzle-orm';
+import { Search, X } from 'lucide-solid';
+import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 
-const getNotes = GET(async ({ limit, offset }: { limit: number; offset: number }) => {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    return { notes: [], nextCursor: undefined };
-  }
-  const [verseNotes, chapterNotes] = await Promise.all([
-    db.query.verseNotes.findMany({
-      where: (verseNotes, { eq }) => eq(verseNotes.userId, user.id),
-      with: {
-        verse: {
-          columns: { content: false },
-          with: {
-            chapter: { columns: { content: false } },
-            bible: true,
-            book: true,
-          },
+const getNotes = GET(
+  async ({ limit, offset, search }: { limit: number; offset: number; search?: string }) => {
+    'use server';
+    const { user } = auth();
+    if (!user) {
+      return { notes: [], nextCursor: undefined };
+    }
+
+    // First get total counts to help with pagination
+    const [verseCountResult, chapterCountResult] = await Promise.all([
+      db.query.verseNotes.findMany({
+        columns: {},
+        where: (verseNotes, { and, eq }) => {
+          const conditions = [eq(verseNotes.userId, user.id)];
+          if (search) {
+            conditions.push(ilike(verseNotes.content, `%${search}%`));
+          }
+          return and(...conditions);
         },
-      },
-      limit,
-      offset,
-    }),
-    db.query.chapterNotes.findMany({
-      where: (chapterNotes, { eq }) => eq(chapterNotes.userId, user.id),
-      with: {
-        chapter: {
-          columns: { content: false },
-          with: { bible: true, book: true },
+        extras: { count: count().as('count') },
+      }),
+      db.query.chapterNotes.findMany({
+        columns: {},
+        where: (chapterNotes, { and, eq }) => {
+          const conditions = [eq(chapterNotes.userId, user.id)];
+          if (search) {
+            conditions.push(ilike(chapterNotes.content, `%${search}%`));
+          }
+          return and(...conditions);
         },
-      },
-      limit,
-      offset,
-    }),
-  ]);
+        extras: { count: count().as('count') },
+      }),
+    ]);
 
-  const notes = [...verseNotes, ...chapterNotes];
+    const verseCount = verseCountResult[0].count;
+    const chapterCount = chapterCountResult[0].count;
 
-  return {
-    notes,
-    nextCursor: notes.length === limit ? offset + limit : undefined,
-  };
-});
+    // Calculate proper offset and limit for each query
+    const verseOffset = offset > verseCount ? 0 : offset;
+    const verseLimit = Math.min(limit, Math.max(0, verseCount - verseOffset));
 
-const getNotesQueryOptions = () => ({
-  queryKey: ['notes'],
-  queryFn: ({ pageParam }: { pageParam: number }) => getNotes({ limit: 9, offset: pageParam }),
+    const chapterOffset = Math.max(0, offset - verseCount);
+    const chapterLimit = Math.min(limit - verseLimit, Math.max(0, chapterCount - chapterOffset));
+
+    const [verseNotes, chapterNotes] = await Promise.all([
+      verseLimit > 0
+        ? db.query.verseNotes.findMany({
+            where: (verseNotes, { and, eq }) => {
+              const conditions = [eq(verseNotes.userId, user.id)];
+              if (search) {
+                conditions.push(ilike(verseNotes.content, `%${search}%`));
+              }
+              return and(...conditions);
+            },
+            with: {
+              verse: {
+                columns: { content: false },
+                with: {
+                  chapter: { columns: { content: false } },
+                  bible: true,
+                  book: true,
+                },
+              },
+            },
+            limit: verseLimit,
+            offset: verseOffset,
+          })
+        : Promise.resolve([]),
+      chapterLimit > 0
+        ? db.query.chapterNotes.findMany({
+            where: (chapterNotes, { and, eq }) => {
+              const conditions = [eq(chapterNotes.userId, user.id)];
+              if (search) {
+                conditions.push(ilike(chapterNotes.content, `%${search}%`));
+              }
+              return and(...conditions);
+            },
+            with: {
+              chapter: {
+                columns: { content: false },
+                with: { bible: true, book: true },
+              },
+            },
+            limit: chapterLimit,
+            offset: chapterOffset,
+          })
+        : Promise.resolve([]),
+    ]);
+
+    const notes = [...verseNotes, ...chapterNotes];
+    const totalCount = verseCount + chapterCount;
+
+    return {
+      notes,
+      nextCursor: offset + notes.length < totalCount ? offset + limit : undefined,
+    };
+  },
+);
+
+const getNotesQueryOptions = (input: { search?: string } = {}) => ({
+  queryKey: ['notes', input],
+  queryFn: ({ pageParam }: { pageParam: number }) =>
+    getNotes({ limit: 9, offset: pageParam, search: input.search }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getNotes>>) => lastPage.nextCursor,
   keepPreviousData: true,
@@ -76,8 +137,9 @@ export const route: RouteDefinition = {
 
 export default function NotesPage() {
   const [autoAnimateRef] = createAutoAnimate();
+  const [search, setSearch] = createSignal('');
 
-  const notesQuery = createInfiniteQuery(() => getNotesQueryOptions());
+  const notesQuery = createInfiniteQuery(() => getNotesQueryOptions({ search: search() }));
   const [notes, setNotes] = createStore<Awaited<ReturnType<typeof getNotes>>['notes']>([]);
   createEffect(() => {
     if (notesQuery.status === 'success') {
@@ -93,9 +155,27 @@ export default function NotesPage() {
     >
       <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
-        <H2 class='inline-block bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-          Your Notes
-        </H2>
+        <div class='flex flex-col gap-2'>
+          <H2 class='inline-block bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+            Your Notes
+          </H2>
+          <div class='relative'>
+            <Search class='-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground' />
+            <TextField value={search()} onChange={setSearch}>
+              <TextFieldInput type='text' placeholder='Search notes' class='pr-8 pl-9' />
+            </TextField>
+            <Show when={search()}>
+              <Button
+                variant='ghost'
+                size='icon'
+                class='-translate-y-1/2 absolute top-1/2 right-1 size-6 p-0.5'
+                onClick={() => setSearch('')}
+              >
+                <X class='size-4' />
+              </Button>
+            </Show>
+          </div>
+        </div>
         <div
           ref={autoAnimateRef}
           class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'

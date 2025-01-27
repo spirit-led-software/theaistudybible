@@ -44,8 +44,8 @@ export const VerseContent = (props: VerseContentProps) => {
       >
         {(notes) => (
           <Popover>
-            <PopoverTrigger as={Button} variant='ghost' size='icon' class='size-4 p-0'>
-              <Notebook size={12} />
+            <PopoverTrigger as={Button} variant='ghost' size='icon' class='size-6 p-1'>
+              <Notebook />
             </PopoverTrigger>
             <PopoverContent class='flex max-h-96 w-80 flex-col gap-2 overflow-y-auto p-4'>
               <H5>User note{notes.length > 1 ? 's' : ''}</H5>

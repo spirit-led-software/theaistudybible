@@ -1,9 +1,9 @@
 import { db } from '@/core/database';
 import { chapterBookmarks } from '@/core/database/schema';
-import { SignedIn } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
-import { Button } from '@/www/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { DropdownMenuItem } from '@/www/components/ui/dropdown-menu';
+import { Spinner } from '@/www/components/ui/spinner';
+import {} from '@/www/components/ui/tooltip';
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth, requireAuth } from '@/www/server/auth';
@@ -15,18 +15,18 @@ import { Bookmark } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { toast } from 'solid-sonner';
 
-const getBookmark = GET(async (chapterId: string) => {
+const getHasBookmark = GET(async (chapterId: string) => {
   'use server';
   const { user } = auth();
   if (!user) {
-    return { bookmark: null };
+    return { hasBookmark: false };
   }
 
   const bookmark = await db.query.chapterBookmarks.findFirst({
     where: (chapterBookmarks, { and, eq }) =>
       and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.chapterId, chapterId)),
   });
-  return { bookmark: bookmark ?? null };
+  return { hasBookmark: !!bookmark };
 });
 
 const addBookmarkAction = action(async (chapterId: string) => {
@@ -47,10 +47,10 @@ const deleteBookmarkAction = action(async (chapterId: string) => {
 
 export const getChapterBookmarkQueryOptions = ({ chapterId }: { chapterId: string }) => ({
   queryKey: ['bookmark', { chapterId }],
-  queryFn: () => getBookmark(chapterId),
+  queryFn: () => getHasBookmark(chapterId),
 });
 
-export const ChapterBookmarkButton = () => {
+export const ChapterBookmarkMenuItem = () => {
   const addBookmark = useAction(addBookmarkAction);
   const deleteBookmark = useAction(deleteBookmarkAction);
 
@@ -83,48 +83,35 @@ export const ChapterBookmarkButton = () => {
     <QueryBoundary
       query={query}
       loadingFallback={
-        <Button disabled size='icon'>
-          <Bookmark />
-        </Button>
+        <div class='flex w-full items-center gap-2'>
+          <Spinner size='sm' />
+          <p>Loading...</p>
+        </div>
       }
     >
-      {({ bookmark }) => (
+      {({ hasBookmark }) => (
         <Show
-          when={bookmark}
+          when={hasBookmark}
           fallback={
-            <Tooltip>
-              <TooltipTrigger
-                as={Button}
-                size='icon'
-                onClick={() => addBookmarkMutation.mutate()}
-                disabled={
-                  !isSignedIn() || addBookmarkMutation.isPending || deleteBookmarkMutation.isPending
-                }
-                class='disabled:pointer-events-auto'
-              >
-                <Bookmark />
-              </TooltipTrigger>
-              <TooltipContent>
-                <SignedIn fallback={<p>Sign in to add bookmark</p>}>
-                  <p>Add Bookmark</p>
-                </SignedIn>
-              </TooltipContent>
-            </Tooltip>
+            <DropdownMenuItem
+              onSelect={() => addBookmarkMutation.mutate()}
+              disabled={
+                !isSignedIn() || addBookmarkMutation.isPending || deleteBookmarkMutation.isPending
+              }
+              class='disabled:pointer-events-auto'
+            >
+              <Bookmark class='mr-2' />
+              Add Bookmark
+            </DropdownMenuItem>
           }
         >
-          <Tooltip>
-            <TooltipTrigger
-              as={Button}
-              size='icon'
-              onClick={() => deleteBookmarkMutation.mutate()}
-              disabled={addBookmarkMutation.isPending || deleteBookmarkMutation.isPending}
-            >
-              <Bookmark fill='hsl(var(--primary-foreground))' />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Remove Bookmark</p>
-            </TooltipContent>
-          </Tooltip>
+          <DropdownMenuItem
+            onSelect={() => deleteBookmarkMutation.mutate()}
+            disabled={addBookmarkMutation.isPending || deleteBookmarkMutation.isPending}
+          >
+            <Bookmark class='mr-2' />
+            Remove Bookmark
+          </DropdownMenuItem>
         </Show>
       )}
     </QueryBoundary>

@@ -11,8 +11,8 @@ export type NoteContentProps = {
 export function NoteContent(props: NoteContentProps) {
   return (
     <Popover placement='top'>
-      <PopoverTrigger as={Button} variant='ghost' size='sm' class='mx-0.5 size-4 p-0 align-super'>
-        <Notebook size={12} />
+      <PopoverTrigger as={Button} variant='ghost' size='sm' class='mx-1 size-6 p-1.5'>
+        <Notebook />
       </PopoverTrigger>
       <PopoverContent class='eb-container w-52 p-2'>
         <Contents contents={props.content.contents} class='text-sm' />

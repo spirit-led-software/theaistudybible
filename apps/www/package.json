@@ -36,7 +36,7 @@
     "workbox-window": "^7.3.0"
   },
   "dependencies": {
-    "@ai-sdk/solid": "^1.1.5",
+    "@ai-sdk/solid": "^1.1.6",
     "@corvu/drawer": "^0.2.2",
     "@fontsource-variable/inter": "^5.1.1",
     "@fontsource/goldman": "^5.1.1",
@@ -60,8 +60,8 @@
     "@solidjs/start": "^1.0.11",
     "@stripe/stripe-js": "^5.5.0",
     "@tailwindcss/vite": "^4.0.0",
-    "@tanstack/solid-query": "^5.64.2",
-    "@tanstack/solid-query-devtools": "^5.64.2",
+    "@tanstack/solid-query": "^5.65.0",
+    "@tanstack/solid-query-devtools": "^5.65.0",
     "@tanstack/solid-table": "^8.20.5",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
@@ -75,7 +75,7 @@
     "hono": "^4.6.19",
     "lucide-solid": "^0.474.0",
     "motion": "^12.0.6",
-    "posthog-js": "^1.210.2",
+    "posthog-js": "^1.211.0",
     "posthog-node": "^4.4.1",
     "solid-js": "^1.9.4",
     "solid-markdown": "^2.0.14",

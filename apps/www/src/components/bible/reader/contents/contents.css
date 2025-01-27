@@ -24,7 +24,7 @@
 .eb-container .c {
   text-align: center;
   font-weight: bold;
-  font-size: 1.3em;
+  font-size: calc(var(--br-textsize) * 1.3);
 }
 
 .eb-container .ca {
@@ -54,7 +54,7 @@
 
 .eb-container sup[class^="v"] {
   color: black;
-  font-size: 0.7em;
+  font-size: calc(var(--br-textsize) * 0.7);
   letter-spacing: -0.03em;
   vertical-align: 0.25em;
   line-height: 0;
@@ -144,7 +144,7 @@
 
 .eb-container .fv {
   color: #737373;
-  font-size: 0.75em;
+  font-size: calc(var(--br-textsize) * 0.75);
   letter-spacing: -0.03em;
   vertical-align: 0.25em;
   line-height: 0;
@@ -189,7 +189,7 @@
 }
 
 .eb-container [class^="is"] {
-  font-size: 1.1em;
+  font-size: calc(var(--br-textsize) * 1.1);
   text-align: center;
   font-weight: bold;
 }
@@ -255,7 +255,7 @@
 
 .eb-container .iot {
   font-weight: bold;
-  font-size: 1.1em;
+  font-size: calc(var(--br-textsize) * 1.1);
   margin-top: 1.5em;
 }
 
@@ -297,6 +297,7 @@
   margin-top: calc(var(--spacing) * 2);
   margin-bottom: calc(var(--spacing) * 2);
   text-indent: calc(var(--spacing) * 2);
+  font-size: var(--br-textsize);
 }
 
 .eb-container .m {
@@ -419,7 +420,7 @@
 .eb-container .qa {
   text-align: center;
   font-style: italic;
-  font-size: 1.1em;
+  font-size: calc(var(--br-textsize) * 1.1);
   margin-left: 0em;
   margin-right: 0em;
 }
@@ -557,11 +558,11 @@
 
 .eb-container .mt,
 .eb-container .mt1 {
-  font-size: 2.8em;
+  font-size: calc(var(--br-textsize) * 2.8);
 }
 
 .eb-container .mt2 {
-  font-size: 1.6em;
+  font-size: calc(var(--br-textsize) * 1.6);
   font-style: italic;
   font-weight: normal;
 }
@@ -575,19 +576,19 @@
 
 .eb-container .ms,
 .eb-container .ms1 {
-  font-size: 1.6em;
+  font-size: calc(var(--br-textsize) * 1.6);
 }
 
 .eb-container .ms2 {
-  font-size: 1.5em;
+  font-size: calc(var(--br-textsize) * 1.5);
 }
 
 .eb-container .ms3 {
-  font-size: 1.4em;
+  font-size: calc(var(--br-textsize) * 1.4);
 }
 
 .eb-container .mr {
-  font-size: 0.9em;
+  font-size: calc(var(--br-textsize) * 0.9);
   margin-bottom: 1em;
   text-align: center;
   font-weight: normal;
@@ -598,7 +599,7 @@
 .eb-container .s1 {
   text-align: center;
   font-weight: bold;
-  font-size: 1.1em;
+  font-size: calc(var(--br-textsize) * 1.1);
   letter-spacing: normal;
 }
 
@@ -632,7 +633,7 @@
 }
 
 .eb-container .r {
-  font-size: 0.9em;
+  font-size: calc(var(--br-textsize) * 0.9);
   font-weight: normal;
   font-style: italic;
   text-align: center;
@@ -640,7 +641,7 @@
 }
 
 .eb-container .rq {
-  font-size: 0.85em;
+  font-size: calc(var(--br-textsize) * 0.85);
   line-height: 1.9;
   font-style: italic;
   padding-left: rhythm(0.5);
@@ -673,6 +674,6 @@
   margin-left: var(--spacing);
   margin-right: var(--spacing);
   vertical-align: super;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-size: calc(var(--br-textsize) * 0.75);
+  line-height: calc(var(--br-textsize) * 1.5);
 }

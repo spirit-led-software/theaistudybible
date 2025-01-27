@@ -5,9 +5,10 @@ import {
 import { formNumberSequenceString } from '@/core/utils/number';
 import type { Content } from '@/schemas/bibles/contents';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
+import { makePersisted } from '@solid-primitives/storage';
 import { useSearchParams } from '@solidjs/router';
 import type { JSXElement } from 'solid-js';
-import { createContext, createEffect, on, splitProps, useContext } from 'solid-js';
+import { createContext, createEffect, createSignal, on, splitProps, useContext } from 'solid-js';
 import type { SetStoreFunction, Store } from 'solid-js/store';
 import { createStore } from 'solid-js/store';
 import { useBibleStore } from './bible';
@@ -19,6 +20,8 @@ export type SelectedVerseInfo = {
   text: string;
 };
 
+export type BibleReaderTextSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
+
 export type BibleReaderStore = {
   bible: Bible;
   book: Book;
@@ -28,6 +31,7 @@ export type BibleReaderStore = {
   selectedIds: string[];
   selectedTitle: string;
   selectedText: string;
+  textSize?: BibleReaderTextSize;
 };
 
 export type BibleReaderContextValue = [
@@ -94,12 +98,22 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     return [];
   };
 
+  const [textSize, setTextSize] = makePersisted(createSignal<BibleReaderTextSize>('md'), {
+    name: 'br-textSize',
+  });
+
   const [store, setStore] = createStore<BibleReaderStore>({
     bible: others.bible,
     book: others.book,
     chapter: others.chapter,
     verse: others.verse ?? null,
     selectedVerseInfos: others.selectedVerseInfos ?? getVerseInfosFromVerseSearchParams(),
+    get textSize() {
+      return textSize();
+    },
+    set textSize(value: BibleReaderTextSize) {
+      setTextSize(value);
+    },
     get selectedIds(): string[] {
       return this.selectedVerseInfos.flatMap((info: SelectedVerseInfo) => info.contentIds);
     },

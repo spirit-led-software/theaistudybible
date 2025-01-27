@@ -61,6 +61,17 @@ const getNotes = GET(async (chapterId: string) => {
   return { notes };
 });
 
+const textSizeToFontVarMap = {
+  xs: '0.75rem',
+  sm: '0.875rem',
+  md: '1rem',
+  lg: '1.125rem',
+  xl: '1.25rem',
+  '2xl': '1.5rem',
+  '3xl': '1.875rem',
+  '4xl': '2.25rem',
+};
+
 export type ReaderContentProps = {
   contents: Content[];
 };
@@ -112,7 +123,10 @@ export const ReaderContent = (props: ReaderContentProps) => {
   return (
     <>
       <MetaTags />
-      <div class='eb-container w-full select-none'>
+      <div
+        class='eb-container w-full select-none'
+        style={{ '--br-textsize': textSizeToFontVarMap[brStore.textSize ?? 'md'] }}
+      >
         <Contents
           contents={props.contents}
           highlights={

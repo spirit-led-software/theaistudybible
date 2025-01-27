@@ -1,5 +1,6 @@
 import { db } from '@/core/database';
 import { chapterBookmarks, verseBookmarks } from '@/core/database/schema';
+import { ilike } from '@/core/database/utils';
 import { contentsToText } from '@/core/utils/bible';
 import { Protected } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
@@ -14,6 +15,7 @@ import {
   DialogTrigger,
 } from '@/www/components/ui/dialog';
 import { Spinner } from '@/www/components/ui/spinner';
+import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { auth, requireAuth } from '@/www/server/auth';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
@@ -22,52 +24,148 @@ import type { RouteDefinition } from '@solidjs/router';
 import { A, Navigate, action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
-import { and, eq } from 'drizzle-orm';
-import { For, Match, Show, Switch, createEffect } from 'solid-js';
+import { and, count, eq, inArray } from 'drizzle-orm';
+import { Search, X } from 'lucide-solid';
+import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 
-const getBookmarks = GET(async ({ limit, offset }: { limit: number; offset: number }) => {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    return { bookmarks: [], nextCursor: undefined };
-  }
-  const [verseBookmarks, chapterBookmarks] = await Promise.all([
-    db.query.verseBookmarks.findMany({
-      where: (verseBookmarks, { eq }) => eq(verseBookmarks.userId, user.id),
-      with: {
-        verse: {
-          with: {
-            bible: { columns: { abbreviation: true } },
-            book: { columns: { code: true } },
-            chapter: { columns: { number: true } },
-          },
+const getBookmarks = GET(
+  async ({ limit, offset, search }: { limit: number; offset: number; search?: string }) => {
+    'use server';
+    const { user } = auth();
+    if (!user) {
+      return { bookmarks: [], nextCursor: undefined };
+    }
+
+    let verses: { id: string }[] = [];
+    let chapters: { id: string }[] = [];
+    if (search) {
+      [verses, chapters] = await Promise.all([
+        db.query.verses.findMany({
+          columns: { id: true },
+          where: (verses, { or }) =>
+            or(ilike(verses.name, `%${search}%`), ilike(verses.content, `%${search}%`)),
+        }),
+        db.query.chapters.findMany({
+          columns: { id: true },
+          where: (chapters, { or }) =>
+            or(ilike(chapters.name, `%${search}%`), ilike(chapters.content, `%${search}%`)),
+        }),
+      ]);
+    }
+
+    // First get total counts to help with pagination
+    const [verseCountResult, chapterCountResult] = await Promise.all([
+      db.query.verseBookmarks.findMany({
+        columns: {},
+        where: (verseBookmarks, { and, eq }) => {
+          const conditions = [eq(verseBookmarks.userId, user.id)];
+          if (verses.length > 0) {
+            conditions.push(
+              inArray(
+                verseBookmarks.verseId,
+                verses.map((v) => v.id),
+              ),
+            );
+          }
+          return and(...conditions);
         },
-      },
-      limit,
-      offset,
-    }),
-    db.query.chapterBookmarks.findMany({
-      where: (chapterBookmarks, { eq }) => eq(chapterBookmarks.userId, user.id),
-      with: {
-        chapter: {
-          columns: { content: false },
-          with: {
-            bible: { columns: { abbreviation: true } },
-            book: { columns: { code: true } },
-          },
+        extras: { count: count().as('count') },
+      }),
+      db.query.chapterBookmarks.findMany({
+        columns: {},
+        where: (chapterBookmarks, { and, eq }) => {
+          const conditions = [eq(chapterBookmarks.userId, user.id)];
+          if (chapters.length > 0) {
+            conditions.push(
+              inArray(
+                chapterBookmarks.chapterId,
+                chapters.map((c) => c.id),
+              ),
+            );
+          }
+          return and(...conditions);
         },
-      },
-      limit,
-      offset,
-    }),
-  ]);
-  const bookmarks = [...verseBookmarks, ...chapterBookmarks];
-  return {
-    bookmarks,
-    nextCursor: bookmarks.length === limit ? offset + limit : undefined,
-  };
-});
+        extras: { count: count().as('count') },
+      }),
+    ]);
+
+    const verseCount = verseCountResult[0].count;
+    const chapterCount = chapterCountResult[0].count;
+
+    // Calculate proper offset and limit for each query
+    const verseOffset = offset > verseCount ? 0 : offset;
+    const verseLimit = Math.min(limit, Math.max(0, verseCount - verseOffset));
+
+    const chapterOffset = Math.max(0, offset - verseCount);
+    const chapterLimit = Math.min(limit - verseLimit, Math.max(0, chapterCount - chapterOffset));
+
+    const [verseBookmarks, chapterBookmarks] = await Promise.all([
+      verseLimit > 0
+        ? db.query.verseBookmarks.findMany({
+            where: (verseBookmarks, { and, eq }) => {
+              const conditions = [eq(verseBookmarks.userId, user.id)];
+              if (verses.length > 0) {
+                conditions.push(
+                  inArray(
+                    verseBookmarks.verseId,
+                    verses.map((v) => v.id),
+                  ),
+                );
+              }
+              return and(...conditions);
+            },
+            with: {
+              verse: {
+                with: {
+                  bible: { columns: { abbreviation: true } },
+                  book: { columns: { code: true } },
+                  chapter: { columns: { number: true } },
+                },
+              },
+            },
+            limit: verseLimit,
+            offset: verseOffset,
+          })
+        : Promise.resolve([]),
+      chapterLimit > 0
+        ? db.query.chapterBookmarks.findMany({
+            where: (chapterBookmarks, { and, eq }) => {
+              const conditions = [eq(chapterBookmarks.userId, user.id)];
+              if (chapters.length > 0) {
+                conditions.push(
+                  inArray(
+                    chapterBookmarks.chapterId,
+                    chapters.map((c) => c.id),
+                  ),
+                );
+              }
+              return and(...conditions);
+            },
+            with: {
+              chapter: {
+                columns: { content: false },
+                with: {
+                  bible: { columns: { abbreviation: true } },
+                  book: { columns: { code: true } },
+                },
+              },
+            },
+            limit: chapterLimit,
+            offset: chapterOffset,
+          })
+        : Promise.resolve([]),
+    ]);
+
+    const bookmarks = [...verseBookmarks, ...chapterBookmarks];
+    const totalCount = verseCount + chapterCount;
+
+    return {
+      bookmarks,
+      nextCursor: offset + bookmarks.length < totalCount ? offset + limit : undefined,
+    };
+  },
+);
 
 const deleteBookmarkAction = action(
   async (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
@@ -88,9 +186,10 @@ const deleteBookmarkAction = action(
   },
 );
 
-const getBookmarksQueryOptions = () => ({
-  queryKey: ['bookmarks'],
-  queryFn: ({ pageParam }: { pageParam: number }) => getBookmarks({ limit: 9, offset: pageParam }),
+const getBookmarksQueryOptions = (input: { search?: string } = {}) => ({
+  queryKey: ['bookmarks', input],
+  queryFn: ({ pageParam }: { pageParam: number }) =>
+    getBookmarks({ limit: 9, offset: pageParam, search: input.search }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getBookmarks>>) => lastPage.nextCursor,
   keepPreviousData: true,
@@ -105,12 +204,11 @@ export const route: RouteDefinition = {
 
 export default function BookmarksPage() {
   const deleteBookmark = useAction(deleteBookmarkAction);
-
   const qc = useQueryClient();
-
   const [autoAnimateRef] = createAutoAnimate();
+  const [search, setSearch] = createSignal('');
 
-  const bookmarksQuery = createInfiniteQuery(() => getBookmarksQueryOptions());
+  const bookmarksQuery = createInfiniteQuery(() => getBookmarksQueryOptions({ search: search() }));
   const [bookmarks, setBookmarks] = createStore<
     Awaited<ReturnType<typeof getBookmarks>>['bookmarks']
   >([]);
@@ -133,9 +231,27 @@ export default function BookmarksPage() {
     >
       <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
-        <H2 class='inline-block bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-          Your Bookmarks
-        </H2>
+        <div class='flex flex-col gap-2'>
+          <H2 class='inline-block bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+            Your Bookmarks
+          </H2>
+          <div class='relative'>
+            <Search class='-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground' />
+            <TextField value={search()} onChange={setSearch}>
+              <TextFieldInput type='text' placeholder='Search bookmarks' class='pr-8 pl-9' />
+            </TextField>
+            <Show when={search()}>
+              <Button
+                variant='ghost'
+                size='icon'
+                class='-translate-y-1/2 absolute top-1/2 right-1 size-6 p-0.5'
+                onClick={() => setSearch('')}
+              >
+                <X class='size-4' />
+              </Button>
+            </Show>
+          </div>
+        </div>
         <div
           ref={autoAnimateRef}
           class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'
@@ -161,7 +277,10 @@ export default function BookmarksPage() {
                     <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
                       <CardHeader>
                         <CardTitle>
-                          {'verse' in bookmark ? bookmark.verse.name : bookmark.chapter.name}
+                          {getHighlightedVerseContent(
+                            'verse' in bookmark ? bookmark.verse.name : bookmark.chapter.name,
+                            search(),
+                          )}
                         </CardTitle>
                       </CardHeader>
                       <Show
@@ -171,7 +290,9 @@ export default function BookmarksPage() {
                       >
                         {(verse) => (
                           <CardContent class='flex grow flex-col'>
-                            {contentsToText(verse.content)}
+                            <p>
+                              {getHighlightedVerseContent(contentsToText(verse.content), search())}
+                            </p>
                           </CardContent>
                         )}
                       </Show>
@@ -256,4 +377,20 @@ const MetaTags = () => {
       <Meta name='twitter:description' content={description} />
     </>
   );
+};
+
+const getHighlightedVerseContent = (content: string, query: string) => {
+  if (!query || !content.toLowerCase().includes(query.toLowerCase())) {
+    return content;
+  }
+
+  return content
+    .split(new RegExp(`(${query.toLowerCase()})`, 'gi'))
+    .map((part) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <span class='inline bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
+      ) : (
+        part
+      ),
+    );
 };

@@ -71,6 +71,7 @@ export type NoteItemCardProps = {
   verse?: Omit<Verse, 'content'>;
   showViewButton?: boolean;
 };
+
 export const NoteItemCard = (props: NoteItemCardProps) => {
   const editNote = useAction(editNoteAction);
   const deleteNote = useAction(deleteNoteAction);

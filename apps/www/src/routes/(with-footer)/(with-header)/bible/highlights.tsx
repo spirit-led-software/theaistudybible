@@ -1,5 +1,6 @@
 import { db } from '@/core/database';
 import { verseHighlights } from '@/core/database/schema';
+import { ilike } from '@/core/database/utils';
 import { contentsToText } from '@/core/utils/bible';
 import { Protected } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
@@ -14,6 +15,7 @@ import {
   DialogTrigger,
 } from '@/www/components/ui/dialog';
 import { Spinner } from '@/www/components/ui/spinner';
+import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { auth, requireAuth } from '@/www/server/auth';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
@@ -22,37 +24,61 @@ import type { RouteDefinition } from '@solidjs/router';
 import { A, Navigate, action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
-import { and, eq } from 'drizzle-orm';
-import { For, Match, Switch, createEffect } from 'solid-js';
+import { type SQL, and, eq } from 'drizzle-orm';
+import { Search, X } from 'lucide-solid';
+import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 
-const getHighlights = GET(async ({ limit, offset }: { limit: number; offset: number }) => {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    return { highlights: [], nextCursor: undefined };
-  }
+const getHighlights = GET(
+  async ({ limit, offset, search }: { limit: number; offset: number; search?: string }) => {
+    'use server';
+    const { user } = auth();
+    if (!user) {
+      return { highlights: [], nextCursor: undefined };
+    }
 
-  const highlights = await db.query.verseHighlights.findMany({
-    where: (verseHighlights, { eq }) => eq(verseHighlights.userId, user.id),
-    with: {
-      verse: {
-        with: {
-          bible: { columns: { abbreviation: true } },
-          book: { columns: { code: true } },
-          chapter: { columns: { number: true } },
+    let verses: { id: string }[] = [];
+    if (search) {
+      verses = await db.query.verses.findMany({
+        columns: { id: true },
+        where: (verses, { or }) =>
+          or(ilike(verses.name, `%${search}%`), ilike(verses.content, `%${search}%`)),
+      });
+    }
+
+    const highlights = await db.query.verseHighlights.findMany({
+      where: (verseHighlights, { and, eq, inArray }) => {
+        let condition: SQL | undefined = eq(verseHighlights.userId, user.id);
+        if (verses.length > 0) {
+          condition = and(
+            condition,
+            inArray(
+              verseHighlights.verseId,
+              verses.map((v) => v.id),
+            ),
+          );
+        }
+        return condition;
+      },
+      with: {
+        verse: {
+          with: {
+            bible: { columns: { abbreviation: true } },
+            book: { columns: { code: true } },
+            chapter: { columns: { number: true } },
+          },
         },
       },
-    },
-    limit,
-    offset,
-  });
+      limit,
+      offset,
+    });
 
-  return {
-    highlights,
-    nextCursor: highlights.length === limit ? offset + limit : undefined,
-  };
-});
+    return {
+      highlights,
+      nextCursor: highlights.length === limit ? offset + limit : undefined,
+    };
+  },
+);
 
 const deleteHighlightAction = action(async (highlightId: string) => {
   'use server';
@@ -63,9 +89,10 @@ const deleteHighlightAction = action(async (highlightId: string) => {
   return { success: true };
 });
 
-const getHighlightsQueryOptions = () => ({
-  queryKey: ['highlights'],
-  queryFn: ({ pageParam }: { pageParam: number }) => getHighlights({ limit: 9, offset: pageParam }),
+const getHighlightsQueryOptions = (input: { search?: string } = {}) => ({
+  queryKey: ['highlights', input],
+  queryFn: ({ pageParam }: { pageParam: number }) =>
+    getHighlights({ limit: 9, offset: pageParam, search: input.search }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getHighlights>>) => lastPage.nextCursor,
   keepPreviousData: true,
@@ -85,7 +112,11 @@ export default function HighlightsPage() {
 
   const [autoAnimateRef] = createAutoAnimate();
 
-  const highlightsQuery = createInfiniteQuery(() => getHighlightsQueryOptions());
+  const [search, setSearch] = createSignal('');
+
+  const highlightsQuery = createInfiniteQuery(() =>
+    getHighlightsQueryOptions({ search: search() }),
+  );
   const [highlights, setHighlights] = createStore<
     Awaited<ReturnType<typeof getHighlights>>['highlights']
   >([]);
@@ -108,9 +139,27 @@ export default function HighlightsPage() {
     >
       <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
-        <H2 class='inline-block bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-          Your Highlighted Verses
-        </H2>
+        <div class='flex flex-col gap-2'>
+          <H2 class='inline-block bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+            Your Highlighted Verses
+          </H2>
+          <div class='relative'>
+            <Search class='-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground' />
+            <TextField value={search()} onChange={setSearch}>
+              <TextFieldInput type='text' placeholder='Search chats' class='pr-8 pl-9' />
+            </TextField>
+            <Show when={search()}>
+              <Button
+                variant='ghost'
+                size='icon'
+                class='-translate-y-1/2 absolute top-1/2 right-1 size-6 p-0.5'
+                onClick={() => setSearch('')}
+              >
+                <X class='size-4' />
+              </Button>
+            </Show>
+          </div>
+        </div>
         <div
           ref={autoAnimateRef}
           class='mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'
@@ -135,16 +184,21 @@ export default function HighlightsPage() {
                   {(highlight, idx) => (
                     <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
                       <CardHeader class='flex flex-row items-center justify-between'>
-                        <CardTitle>{highlight.verse.name}</CardTitle>
+                        <CardTitle>
+                          {getHighlightedVerseContent(highlight.verse.name, search())}
+                        </CardTitle>
                         <div
                           class='size-6 rounded-full'
-                          style={{
-                            'background-color': highlight.color,
-                          }}
+                          style={{ 'background-color': highlight.color }}
                         />
                       </CardHeader>
                       <CardContent class='flex grow flex-col'>
-                        {contentsToText(highlight.verse.content)}
+                        <p>
+                          {getHighlightedVerseContent(
+                            contentsToText(highlight.verse.content),
+                            search(),
+                          )}
+                        </p>
                       </CardContent>
                       <CardFooter class='flex justify-end gap-2'>
                         <Dialog>
@@ -220,4 +274,20 @@ const MetaTags = () => {
       <Meta name='twitter:description' content={description} />
     </>
   );
+};
+
+const getHighlightedVerseContent = (content: string, query: string) => {
+  if (!query || !content.toLowerCase().includes(query.toLowerCase())) {
+    return content;
+  }
+
+  return content
+    .split(new RegExp(`(${query.toLowerCase()})`, 'gi'))
+    .map((part) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <span class='inline bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
+      ) : (
+        part
+      ),
+    );
 };
