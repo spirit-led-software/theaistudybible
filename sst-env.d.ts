@@ -17,6 +17,10 @@ declare module "sst" {
       "type": "sst.sst.Linkable"
       "url": string
     }
+    "AnalyticsApiRouter": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "AnthropicApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -195,6 +199,10 @@ declare module "sst" {
     "VapidPublicKey": {
       "type": "asb.asb.Constant"
       "value": string
+    }
+    "WebAppCdnLoggingBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
     }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
