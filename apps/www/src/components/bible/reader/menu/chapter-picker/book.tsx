@@ -1,13 +1,14 @@
 import { db } from '@/core/database';
 import { QueryBoundary } from '@/www/components/query-boundary';
-import { Button } from '@/www/components/ui/button';
+import { Button, type ButtonProps } from '@/www/components/ui/button';
 import { Command, CommandEmpty, CommandInput, CommandList } from '@/www/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { cn } from '@/www/lib/utils';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { ChevronsUpDown } from 'lucide-solid';
-import { For } from 'solid-js';
+import { For, splitProps } from 'solid-js';
 import { ChapterPicker } from './chapter';
 
 const getBookPickerData = GET(async (bibleId: string) => {
@@ -40,13 +41,21 @@ export const bookPickerQueryOptions = (bibleId: string) => ({
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 
-export function BookPicker() {
+export type BookPickerProps = Omit<ButtonProps, 'children'>;
+
+export function BookPicker(props: BookPickerProps) {
+  const [local, rest] = splitProps(props, ['class']);
   const [brStore] = useBibleReaderStore();
   const query = createQuery(() => bookPickerQueryOptions(brStore.bible.abbreviation));
 
   return (
     <Popover placement='bottom-start'>
-      <PopoverTrigger as={Button} variant='outline' class='flex-1 justify-between text-nowrap'>
+      <PopoverTrigger
+        as={Button}
+        variant='outline'
+        class={cn('justify-between text-nowrap', local.class)}
+        {...rest}
+      >
         <span class='truncate'>
           {brStore.book.shortName} {brStore.chapter.number}
           {brStore.verse ? `:${brStore.verse.number}` : ''}

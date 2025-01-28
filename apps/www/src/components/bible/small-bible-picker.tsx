@@ -41,7 +41,7 @@ export const smallBiblePickerQueryOptions = () => ({
   placeholderData: { bibles: [] },
 });
 
-export type SmallBiblePicker<T extends ValidComponent = 'button'> = Omit<
+export type SmallBiblePickerProps<T extends ValidComponent = 'button'> = Omit<
   ButtonProps<T>,
   'children'
 > & {
@@ -50,7 +50,7 @@ export type SmallBiblePicker<T extends ValidComponent = 'button'> = Omit<
   defaultValue?: string | Bible;
 };
 
-export function SmallBiblePicker(props: SmallBiblePicker) {
+export function SmallBiblePicker(props: SmallBiblePickerProps) {
   const mergedProps = mergeProps(props, {
     variant: 'outline',
     role: 'combobox',
@@ -132,7 +132,7 @@ export function SmallBiblePicker(props: SmallBiblePicker) {
             class={cn('flex items-center justify-between text-nowrap', local.class)}
             {...rest}
           >
-            {value()?.abbreviationLocal ?? 'Select Bible'}
+            <span class='truncate'>{value()?.abbreviationLocal ?? 'Select Bible'}</span>
             <ChevronsUpDown class='ml-2 size-4 shrink-0 opacity-50' />
           </PopoverTrigger>
           <PopoverContent class='w-[200px] p-0'>
