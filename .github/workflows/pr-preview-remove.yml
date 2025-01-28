@@ -3,7 +3,7 @@ name: Remove PR Preview
 on:
   pull_request:
     types: [closed]
-    branches: [master]
+    branches: [main]
 
 concurrency: pr-${{ github.event.pull_request.number }}
 
