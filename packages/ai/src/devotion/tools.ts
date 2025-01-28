@@ -7,7 +7,20 @@ export const bibleVectorStoreTool = tool({
   description: 'Bible Vector Store: Fetch bible passages for your output.',
   parameters: z.object({
     terms: z
-      .array(z.string())
+      .array(
+        z.object({
+          term: z.string().describe('The search term or phrase to search for.'),
+          weight: z
+            .number()
+            .min(0)
+            .max(1)
+            .optional()
+            .default(1)
+            .describe(
+              'The weight of the search term. Must be between 0 and 1. Higher weights are more important.',
+            ),
+        }),
+      )
       .min(1)
       .max(5)
       .describe(
@@ -23,13 +36,20 @@ export const bibleVectorStoreTool = tool({
         throw new Error('Bible not found');
       }
       const docs = await Promise.all(
-        terms.map((term) =>
-          vectorStore.searchDocuments(term, {
-            filter: `(type = "bible" or type = "BIBLE") and bibleId = "${bible.id}"`,
-            limit: 10,
-            withMetadata: true,
-            withEmbedding: false,
-          }),
+        terms.map(({ term, weight }) =>
+          vectorStore
+            .searchDocuments(term, {
+              filter: `(type = "bible" or type = "BIBLE") and bibleId = "${bible.id}"`,
+              limit: 10,
+              withMetadata: true,
+              withEmbedding: false,
+            })
+            .then((docs) =>
+              docs.map((doc) => ({
+                ...doc,
+                score: doc.score * weight,
+              })),
+            ),
         ),
       ).then((docs) =>
         docs
@@ -39,7 +59,7 @@ export const bibleVectorStoreTool = tool({
       );
       return {
         status: 'success',
-        docs,
+        documents: docs,
       };
     } catch (error) {
       return {
@@ -54,7 +74,20 @@ export const vectorStoreTool = tool({
   description: 'Vector Store: Fetch relevant resources for your output.',
   parameters: z.object({
     terms: z
-      .array(z.string())
+      .array(
+        z.object({
+          term: z.string().describe('The search term or phrase to search for.'),
+          weight: z
+            .number()
+            .min(0)
+            .max(1)
+            .optional()
+            .default(1)
+            .describe(
+              'The weight of the search term. Must be between 0 and 1. Higher weights are more important.',
+            ),
+        }),
+      )
       .min(1)
       .max(4)
       .describe(
@@ -64,12 +97,19 @@ export const vectorStoreTool = tool({
   execute: async ({ terms }) => {
     try {
       const docs = await Promise.all(
-        terms.map((term) =>
-          vectorStore.searchDocuments(term, {
-            limit: 12,
-            withMetadata: true,
-            withEmbedding: false,
-          }),
+        terms.map(({ term, weight }) =>
+          vectorStore
+            .searchDocuments(term, {
+              limit: 12,
+              withMetadata: true,
+              withEmbedding: false,
+            })
+            .then((docs) =>
+              docs.map((doc) => ({
+                ...doc,
+                score: doc.score * weight,
+              })),
+            ),
         ),
       ).then((docs) =>
         docs
@@ -80,7 +120,7 @@ export const vectorStoreTool = tool({
       );
       return {
         status: 'success',
-        docs,
+        documents: docs,
       };
     } catch (error) {
       return {

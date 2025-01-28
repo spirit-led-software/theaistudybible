@@ -271,7 +271,20 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
     description: 'Vector Store: Fetch relevant resources for your answer.',
     parameters: z.object({
       terms: z
-        .array(z.string())
+        .array(
+          z.object({
+            term: z.string().describe('The search term or phrase to search for.'),
+            weight: z
+              .number()
+              .min(0)
+              .max(1)
+              .optional()
+              .default(1)
+              .describe(
+                'The weight of the search term. Must be between 0 and 1. Higher weights are more important.',
+              ),
+          }),
+        )
         .min(1)
         .max(4)
         .describe(
@@ -295,13 +308,20 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
         }
 
         const docs = await Promise.all(
-          terms.map((term) =>
-            vectorStore.searchDocuments(term, {
-              limit: 12,
-              withMetadata: true,
-              withEmbedding: false,
-              filter,
-            }),
+          terms.map(({ term, weight }) =>
+            vectorStore
+              .searchDocuments(term, {
+                limit: 12,
+                withMetadata: true,
+                withEmbedding: false,
+                filter,
+              })
+              .then((docs) =>
+                docs.map((doc) => ({
+                  ...doc,
+                  score: doc.score * weight,
+                })),
+              ),
           ),
         ).then((docs) =>
           docs
