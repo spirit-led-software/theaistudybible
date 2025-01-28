@@ -40,7 +40,7 @@ export const VectorStoreTool = (props: VectorStoreToolProps) => {
               <H6 class='font-goldman font-normal'>Queries</H6>
               <div ref={container} class='flex flex-wrap gap-2 px-2 py-1'>
                 <For each={toolArgs().terms}>
-                  {(term) => (
+                  {({ term }) => (
                     <div class='rounded-full bg-primary px-2 py-1 text-primary-foreground text-xs'>
                       {term}
                     </div>
