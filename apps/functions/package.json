@@ -8,7 +8,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@sentry/aws-serverless": "^8.51.0",
+    "@sentry/aws-serverless": "^8.52.0",
     "@sentry/esbuild-plugin": "^3.1.0",
     "posthog-node": "^4.4.1",
     "@theaistudybible/tsconfig": "workspace:*"

@@ -69,7 +69,7 @@ RUN apt-get -qq update && \
 COPY --from=install /install/node_modules ./node_modules
 
 COPY --link . .
-RUN cd /build/apps/www && bun run build
+RUN bun run build
 
 ########################################################
 # Release
