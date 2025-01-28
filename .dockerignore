@@ -13,6 +13,9 @@ node_modules
 # VSCode
 .vscode
 
+# Turbo
+.turbo
+
 # Migrations
 /migrations
 
@@ -31,5 +34,5 @@ sst.config.ts
 .cursorrules
 
 # Misc
-.libsql.db
+.libsql.db*
 .env*
