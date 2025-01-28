@@ -60,6 +60,48 @@ async function createInitialAdminUser() {
   console.log('Initial admin user created');
 }
 
+async function createTestUser() {
+  console.log('Creating test user');
+
+  const [testUser] = await db
+    .insert(users)
+    .values({
+      email: 'test@test.com',
+      firstName: 'Test',
+    })
+    .onConflictDoUpdate({
+      target: users.email,
+      set: {
+        firstName: sql`excluded.first_name`,
+      },
+    })
+    .returning();
+
+  const pwHash = await hashPassword(Resource.AdminPassword.value);
+
+  const existingPassword = await db.query.passwords.findFirst({
+    where: and(
+      eq(passwords.userId, testUser.id),
+      eq(passwords.hash, pwHash),
+      eq(passwords.active, true),
+    ),
+  });
+  if (!existingPassword) {
+    await db.update(passwords).set({ active: false }).where(eq(passwords.userId, testUser.id));
+    await db.insert(passwords).values({ userId: testUser.id, hash: pwHash });
+  }
+
+  await db
+    .insert(usersToRoles)
+    .values({
+      userId: testUser.id,
+      roleId: 'user',
+    })
+    .onConflictDoNothing();
+
+  console.log('Test user created');
+}
+
 async function createInitialRoles() {
   console.log('Creating initial roles');
 
@@ -102,6 +144,7 @@ export const seedDatabase = async () => {
     console.log('Creating initial roles and users');
     await createInitialRoles();
     await createInitialAdminUser();
+    await createTestUser();
 
     console.log('Database seeding complete');
   } catch (e) {
