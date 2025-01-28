@@ -8,6 +8,7 @@
     "clean-install": "rimraf bun.lock .sst --glob '**/node_modules' && bun install --no-cache && sst install",
     "clean": "turbo run clean",
     "cy:open": "sst shell -- cypress open",
+    "cy:open:prod": "sst shell --stage production -- cypress open",
     "db:generate": "sst shell -- drizzle-kit generate",
     "db:migrate": "sst shell -- drizzle-kit migrate",
     "db:seed": "sst shell -- bun run ./tools/scripts/src/index.ts db seed",

@@ -8,11 +8,11 @@ describe('Devotion Pages', () => {
   });
 
   it('displays the devotion content correctly', () => {
-    cy.get('h2').contains('Reading').should('be.visible');
-    cy.get('h2').contains('Summary').should('be.visible');
+    cy.get('img[alt="Illustration for the devotion"]').scrollIntoView().should('be.visible');
+    cy.get('h2').contains('Reading').scrollIntoView().should('be.visible');
+    cy.get('h2').contains('Summary').scrollIntoView().should('be.visible');
     cy.get('h2').contains('Reflection').scrollIntoView().should('be.visible');
     cy.get('h2').contains('Prayer').scrollIntoView().should('be.visible');
-    cy.get('img[alt="Illustration for the devotion"]').scrollIntoView().should('be.visible');
   });
 
   it('navigates through devotion history using the sidebar', () => {

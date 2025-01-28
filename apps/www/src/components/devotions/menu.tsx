@@ -21,7 +21,7 @@ export const DevotionMenu = () => {
       aria-label='Devotion header'
     >
       <div class='flex w-full max-w-3xl items-center gap-2 py-1'>
-        <SidebarTrigger as={Button} size='icon' variant='ghost'>
+        <SidebarTrigger as={Button} size='icon' variant='ghost' aria-label='View Devotions'>
           {open() ? <ChevronLeft /> : <SidebarIcon />}
         </SidebarTrigger>
         <H6 class='truncate' aria-label='Devotion topic'>
