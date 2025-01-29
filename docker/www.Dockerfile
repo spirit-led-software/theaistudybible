@@ -1,3 +1,4 @@
+# TODO: Must use bun 1.2.0 because of https://github.com/oven-sh/bun/issues/16823
 FROM oven/bun:1.2.0-slim AS base
 
 ########################################################
