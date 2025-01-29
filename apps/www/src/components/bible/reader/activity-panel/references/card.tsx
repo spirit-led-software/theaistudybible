@@ -18,10 +18,31 @@ import { z } from 'zod';
 const getReferences = GET(async ({ text, bibleId }: { text: string; bibleId: string }) => {
   'use server';
   const {
-    experimental_output: { searchTerms },
+    experimental_output: { terms },
   } = await generateText({
     model: registry.languageModel('openai:gpt-4o-mini'),
-    experimental_output: Output.object({ schema: z.object({ searchTerms: z.array(z.string()) }) }),
+    experimental_output: Output.object({
+      schema: z.object({
+        terms: z
+          .array(
+            z.object({
+              term: z.string().describe('The search term or phrase to search for.'),
+              weight: z
+                .number()
+                .min(0)
+                .max(1)
+                .optional()
+                .default(1)
+                .describe('The weight of the search term between 0 and 1.'),
+            }),
+          )
+          .min(1)
+          .max(4)
+          .describe(
+            '1 to 4 search terms or phrases that will be used to find relevant resources. The search terms are searched separately and should not rely on each other.',
+          ),
+      }),
+    }),
     prompt: `You are an expert in the bible. You will be given a passage and asked to find references to it in the bible. Return a list of search terms or phrases that could be used to find references to this verse in a vector similarity search engine. 
 
 Here are some rules for you to follow:
@@ -31,23 +52,30 @@ Here are some rules for you to follow:
 Here is the passage:
 ${text}`,
   });
-  const maxDocs = 10;
   const results = await Promise.all(
-    searchTerms.map((searchTerm) =>
-      vectorStore.searchDocuments(searchTerm, {
-        withMetadata: true,
-        withEmbedding: false,
-        limit: Math.ceil(maxDocs / searchTerms.length),
-        filter: `bibleId = "${bibleId}" or type != "bible"`, // Get references from the same bible OR non-bible references like commentaries
-      }),
+    terms.map(({ term, weight }) =>
+      vectorStore
+        .searchDocuments(term, {
+          withMetadata: true,
+          withEmbedding: false,
+          limit: 12,
+          filter: `bibleId = "${bibleId}" or (type != "bible" and type != "BIBLE"`, // Get references from the same bible OR non-bible references like commentaries
+        })
+        .then((docs) =>
+          docs.map((doc) => ({
+            ...doc,
+            score: doc.score * weight,
+          })),
+        ),
     ),
   ).then((results) =>
-    results.flat().filter(
-      (result, idx, self) => self.findIndex((t) => t.id === result.id) === idx, // Remove duplicates
-    ),
+    results
+      .flat()
+      .filter((result, idx, self) => self.findIndex((t) => t.id === result.id) === idx) // Remove duplicates
+      .toSorted((a, b) => b.score - a.score),
   );
 
-  return { references: results };
+  return { references: results.slice(0, 12) };
 });
 
 export const ReferencesCard = () => {

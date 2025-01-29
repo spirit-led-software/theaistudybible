@@ -23,7 +23,11 @@ export type RerankerOptions = {
 };
 
 export class Reranker {
-  async rerankDocuments(query: string, documents: Document[], options?: RerankerOptions) {
+  async rerankDocuments(
+    query: string,
+    documents: Document[],
+    options?: RerankerOptions,
+  ): Promise<DocumentWithScore[]> {
     const response = await fetch(`${voyageAiBaseUrl}/rerank`, {
       method: 'POST',
       headers: {
@@ -43,14 +47,9 @@ export class Reranker {
       throw new Error(`Failed to rerank documents: ${response.statusText}`);
     }
     const { data }: VoyageAiRerankResponse = await response.json();
-    return data.map(
-      (item) =>
-        ({
-          ...documents[item.index],
-          score: item.relevance_score,
-        }) satisfies DocumentWithScore,
-    );
+    return data.map((item) => ({
+      ...documents[item.index],
+      score: item.relevance_score,
+    }));
   }
 }
-
-export const reranker = new Reranker();

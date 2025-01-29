@@ -6,6 +6,7 @@ import { inArray } from 'drizzle-orm';
 import { Resource } from 'sst';
 import type { Embeddings } from './embeddings';
 import { embeddings } from './embeddings';
+import { Reranker } from './reranker';
 import type { Document, DocumentWithScore } from './types/document';
 
 export type AddDocumentsOptions = {
@@ -24,12 +25,14 @@ export type SearchDocumentsOptions = {
   withMetadata?: boolean;
   limit?: number;
   namespace?: string;
+  rerank?: boolean;
 };
 const searchDocumentsDefaults = {
   withEmbedding: false,
   withMetadata: true,
   filter: undefined,
   limit: 10,
+  rerank: true,
 } as const satisfies SearchDocumentsOptions;
 
 export type GetDocumentsOptions = {
@@ -44,6 +47,7 @@ const getDocumentsDefaults = {
 export class VectorStore {
   declare FilterType: string;
   private readonly client: Index;
+  private readonly reranker: Reranker;
 
   public static MAX_UPSERT_BATCH_SIZE = 1000;
   public static MAX_DELETE_BATCH_SIZE = 1000;
@@ -53,6 +57,7 @@ export class VectorStore {
       url: Resource.UpstashVectorIndex.restUrl,
       token: Resource.UpstashVectorIndex.restToken,
     });
+    this.reranker = new Reranker();
   }
 
   async addDocuments(
@@ -136,7 +141,7 @@ export class VectorStore {
       { namespace: options.namespace },
     );
 
-    return result.map((r) => {
+    const docs = result.map((r) => {
       const { content, ...metadata } = r.metadata ?? {};
       return {
         id: r.id.toString(),
@@ -146,6 +151,8 @@ export class VectorStore {
         score: r.score,
       };
     });
+
+    return await this.reranker.rerankDocuments(query, docs);
   }
 
   async getDocuments(
