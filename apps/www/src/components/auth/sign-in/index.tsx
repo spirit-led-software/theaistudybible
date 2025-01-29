@@ -42,7 +42,12 @@ export const SignIn = (props: SignInProps) => {
             </Button>
             <PasskeyButton redirectUrl={props.redirectUrl} />
           </div>
-          <Accordion multiple={false} collapsible class='w-full px-5' defaultValue={[]}>
+          <Accordion
+            multiple={false}
+            collapsible
+            class='w-full px-5'
+            defaultValue={['email-password']}
+          >
             <AccordionItem value='email-password'>
               <AccordionTrigger>Email & Password</AccordionTrigger>
               <AccordionContent>

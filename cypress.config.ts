@@ -10,5 +10,6 @@ export default defineConfig({
     },
     defaultCommandTimeout: 1000 * (Resource.Dev.value === 'true' ? 20 : 10),
     retries: { runMode: 2 },
+    includeShadowDom: true,
   },
 });

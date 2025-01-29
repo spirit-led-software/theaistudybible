@@ -294,7 +294,7 @@ if (!$dev) {
       viewerProtocolPolicy: 'redirect-to-https',
       allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
       cachedMethods: ['GET', 'HEAD'],
-      compress: true,
+      compress: false, // compression is handled by the origin
       // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
       // CloudFront's managed AllViewerExceptHostHeader policy
       originRequestPolicyId: 'b689b0a8-53d0-40ab-baf2-68738e2966ac',

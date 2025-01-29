@@ -18,6 +18,8 @@ describe('Devotion Pages', () => {
   it('navigates through devotion history using the sidebar', () => {
     cy.get('button[aria-label="View Devotions"]').should('be.enabled').click();
     cy.get('div[data-variant="sidebar"]').should('be.visible');
+    cy.get('button[aria-label="View Devotions"]').should('be.enabled').click();
+    cy.get('div[data-variant="sidebar"]').should('not.be.visible');
   });
 
   it('handles non-existent devotion gracefully', () => {
