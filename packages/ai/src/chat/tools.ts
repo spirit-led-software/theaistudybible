@@ -14,6 +14,7 @@ import { experimental_generateImage as generateImage } from 'ai';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { openai } from '../provider-registry';
+import { reranker } from '../reranker';
 import { vectorStore } from '../vector-store';
 
 export const thinkingTool = (_input: { dataStream: DataStreamWriter }) =>
@@ -271,24 +272,11 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
     description: 'Vector Store: Fetch relevant resources for your answer.',
     parameters: z.object({
       terms: z
-        .array(
-          z.object({
-            term: z.string().describe('The search term or phrase to search for.'),
-            weight: z
-              .number()
-              .min(0)
-              .max(1)
-              .optional()
-              .default(1)
-              .describe(
-                'The weight of the search term. Must be between 0 and 1. Higher weights are more important.',
-              ),
-          }),
-        )
+        .array(z.string().describe('The search term or phrase to search for.'))
         .min(1)
         .max(4)
         .describe(
-          '1 to 4 search terms or phrases that will be used to find relevant resources. These search phrases are searched separately and the results are combined.',
+          '1 to 4 search terms or phrases that will be used to find relevant resources. The search terms should be ordered by relevance. The first term is used to rerank the results.',
         ),
       type: z
         .enum(['bible', 'theology', 'general'])
@@ -307,33 +295,26 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
           filter = 'category = "theology"';
         }
 
+        // Get initial results from vector search
         const docs = await Promise.all(
-          terms.map(({ term, weight }) =>
-            vectorStore
-              .searchDocuments(term, {
-                limit: 12,
-                withMetadata: true,
-                withEmbedding: false,
-                filter,
-              })
-              .then((docs) =>
-                docs.map((doc) => ({
-                  ...doc,
-                  score: doc.score * weight,
-                })),
-              ),
+          terms.map((term) =>
+            vectorStore.searchDocuments(term, {
+              limit: 12,
+              withMetadata: true,
+              withEmbedding: false,
+              filter,
+            }),
           ),
         ).then((docs) =>
           docs
             .flat()
-            .filter((doc, index, self) => self.findIndex((d) => d.id === doc.id) === index)
-            .toSorted((a, b) => b.score - a.score)
-            .slice(0, 12),
+            .filter((doc, index, self) => index === self.findIndex((d) => d.id === doc.id)),
         );
 
+        const rerankedDocs = await reranker.rerankDocuments(terms[0], docs, { topK: 12 });
         return {
           status: 'success',
-          documents: docs,
+          documents: rerankedDocs,
         } as const;
       } catch (err) {
         console.error('Error fetching vector store', err);

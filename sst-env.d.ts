@@ -17,10 +17,6 @@ declare module "sst" {
       "type": "sst.sst.Linkable"
       "url": string
     }
-    "AnalyticsApiRouter": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
     "AnthropicApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -180,6 +176,14 @@ declare module "sst" {
       "secret": string
       "type": "stripe.index/webhookEndpoint.WebhookEndpoint"
     }
+    "TestUserEmail": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "TestUserPassword": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "UpstashRedis": {
       "redisUrl": string
       "restToken": string
@@ -200,9 +204,9 @@ declare module "sst" {
       "type": "asb.asb.Constant"
       "value": string
     }
-    "WebAppCdnLoggingBucket": {
-      "name": string
-      "type": "sst.aws.Bucket"
+    "VoyageAiApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
     }
     "WebAppUrl": {
       "type": "asb.asb.Constant"

@@ -24,3 +24,5 @@ export const APPLE_KEY_ID = new sst.Secret('AppleKeyId');
 export const APPLE_AUTH_KEY = new sst.Secret('AppleAuthKey');
 
 export const BRAIN_TRUST_API_KEY = new sst.Secret('BrainTrustApiKey');
+
+export const VOYAGE_AI_API_KEY = new sst.Secret('VoyageAiApiKey');
