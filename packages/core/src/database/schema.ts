@@ -43,7 +43,6 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   forgottenPasswordCodes: many(forgottenPasswordCodes),
   sessions: many(sessions),
   passkeyCredentials: many(passkeyCredentials),
-  userCredits: many(userCredits),
   userSettings: one(userSettings),
   pushSubscriptions: many(pushSubscriptions),
   usersToRoles: many(usersToRoles),
@@ -147,29 +146,6 @@ export const passkeyCredentials = sqliteTable(
 export const passkeyCredentialsRelations = relations(passkeyCredentials, ({ one }) => ({
   user: one(users, {
     fields: [passkeyCredentials.userId],
-    references: [users.id],
-  }),
-}));
-
-export const userCredits = sqliteTable(
-  'user_credits',
-  {
-    ...baseModel,
-    userId: text('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    balance: integer('balance')
-      .notNull()
-      .$defaultFn(() => 10),
-    lastSignInCreditAt: timestamp('last_sign_in_credit_at'),
-    lastReadingCreditAt: timestamp('last_reading_credit_at'),
-  },
-  (table) => [uniqueIndex('user_credits_user_id_idx').on(table.userId)],
-);
-
-export const userCreditsRelations = relations(userCredits, ({ one }) => ({
-  user: one(users, {
-    fields: [userCredits.userId],
     references: [users.id],
   }),
 }));

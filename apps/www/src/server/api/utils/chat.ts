@@ -1,10 +1,30 @@
 import { advancedChatModels, basicChatModels } from '@/ai/models';
+import { cache } from '@/core/cache';
+import { getStripeData } from '@/core/stripe/utils';
+import type { Role } from '@/schemas/roles/types';
+import type { User } from '@/schemas/users/types';
+import { Ratelimit } from '@upstash/ratelimit';
 import type { Context } from 'hono';
 import type { Bindings } from 'hono/types';
-import { Resource } from 'sst';
 import type { Variables } from '../types';
 
-export function validateModelId({
+export async function getChatRateLimit(user: User, roles?: Role[] | null) {
+  const subData = await getStripeData(user.stripeCustomerId);
+  if (subData?.status === 'active' || roles?.some((role) => role.id === 'admin')) {
+    return new Ratelimit({
+      prefix: 'chat',
+      redis: cache,
+      limiter: Ratelimit.slidingWindow(100, '24h'),
+    });
+  }
+  return new Ratelimit({
+    prefix: 'chat',
+    redis: cache,
+    limiter: Ratelimit.slidingWindow(10, '24h'),
+  });
+}
+
+export async function validateModelId({
   c,
   providedModelId,
 }: {
@@ -13,7 +33,7 @@ export function validateModelId({
     Variables: Variables;
   }>;
   providedModelId: string;
-}): Response | undefined {
+}): Promise<Response | undefined> {
   const isBasicTier = basicChatModels.some(
     (model) => `${model.host}:${model.id}` === providedModelId,
   );
@@ -22,29 +42,21 @@ export function validateModelId({
   );
   if (!isBasicTier && !isAdvancedTier) {
     console.log('Invalid modelId provided');
-    c.json(
-      {
-        message: 'Invalid model ID provided',
-      },
-      400,
-    );
+    c.json({ message: 'Invalid model ID provided' }, 400);
   }
-  if (isAdvancedTier && !c.var.roles?.some((role) => role.id === 'admin')) {
+
+  const subData = await getStripeData(c.var.user!.stripeCustomerId);
+  if (
+    isAdvancedTier &&
+    subData?.status !== 'active' &&
+    !c.var.roles?.some((role) => role.id === 'admin')
+  ) {
     return c.json(
       {
-        message:
-          'Your plan does not support this model. Please upgrade to a plan that supports this model.',
+        message: 'Your plan does not support this model. Please upgrade to pro to use this model.',
       },
       403,
     );
   }
   return undefined;
-}
-
-export function getDefaultModelId(c: Context<{ Bindings: Bindings; Variables: Variables }>) {
-  return c.var.roles?.some((role) => role.id === 'admin')
-    ? Resource.Stage.value === 'production'
-      ? `${advancedChatModels[0].host}:${advancedChatModels[0].id}`
-      : `${basicChatModels[0].host}:${basicChatModels[0].id}`
-    : `${basicChatModels[0].host}:${basicChatModels[0].id}`;
 }

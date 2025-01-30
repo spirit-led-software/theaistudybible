@@ -6,7 +6,6 @@ import {
   Bookmark,
   CreditCard,
   FileText,
-  HandCoins,
   HelpCircle,
   Highlighter,
   Info,
@@ -149,9 +148,9 @@ export const NavigationDrawer = () => {
                         <Lightbulb size={18} />
                         Devotions
                       </Button>
-                      <Button as={A} href='/credits' variant='ghost' class='justify-start'>
-                        <HandCoins size={18} />
-                        Credits
+                      <Button as={A} href='/pro' variant='ghost' class='justify-start'>
+                        <CreditCard size={18} />
+                        Pro
                       </Button>
                     </div>
                   </AccordionContent>

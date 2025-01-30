@@ -5,6 +5,7 @@ import { webAppSentryKey } from './monitoring';
 import * as queues from './queues';
 import * as secrets from './secrets';
 import * as storage from './storage';
+import * as stripe from './stripe';
 import { isProd } from './utils/constants';
 
 export const allLinks = $output([
@@ -14,6 +15,7 @@ export const allLinks = $output([
   ...Object.values(databases),
   ...Object.values(email),
   ...Object.values(queues),
+  ...Object.values(stripe),
 ]);
 
 $transform(sst.aws.Function, (args) => {

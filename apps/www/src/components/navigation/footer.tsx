@@ -32,7 +32,7 @@ export const NavigationFooter = () => {
               variant='link'
               size='sm'
               as={A}
-              href='https://donate.stripe.com/cN23fc1mFdW2dXOcMM'
+              href={import.meta.env.PUBLIC_DONATION_LINK}
               target='_blank'
               rel='noopener noreferrer'
             >

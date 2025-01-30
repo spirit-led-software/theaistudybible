@@ -25,6 +25,7 @@ export default $config({
     await import('./infra/secrets');
     await import('./infra/monitoring');
     await import('./infra/analytics');
+    await import('./infra/stripe');
     await import('./infra/storage');
     await import('./infra/database');
     await import('./infra/email');

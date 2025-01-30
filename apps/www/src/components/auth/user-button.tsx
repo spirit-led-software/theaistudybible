@@ -63,14 +63,17 @@ export const UserButton = (props: UserButtonProps) => {
         </PopoverTrigger>
         <PopoverContent class='w-64'>
           <div class='flex flex-col gap-2'>
-            <H6 class='flex flex-wrap items-center justify-center gap-2'>
-              <Show when={user()?.firstName} keyed>
-                {(firstName) => <span>{firstName}</span>}
-              </Show>
-              <Show when={user()?.lastName} keyed>
-                {(lastName) => <span>{lastName}</span>}
-              </Show>
-            </H6>
+            <div class='mx-auto mb-2 flex flex-wrap items-center gap-4'>
+              <UserAvatar />
+              <H6 class='flex flex-wrap items-center justify-center gap-0.5'>
+                <Show when={user()?.firstName} keyed>
+                  {(firstName) => <span class='inline'>{firstName}</span>}
+                </Show>
+                <Show when={user()?.lastName} keyed>
+                  {(lastName) => <span class='inline'>{lastName}</span>}
+                </Show>
+              </H6>
+            </div>
             <Button variant='outline' onClick={() => navigate('/profile')}>
               Manage Account
             </Button>

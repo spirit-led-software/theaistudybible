@@ -13,6 +13,7 @@ import * as queues from './queues';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
 import * as storage from './storage';
+import { donationLink } from './stripe';
 import type { FlyRegion } from './types/fly.io';
 import { isProd } from './utils/constants';
 import { buildLinks, linksToEnv } from './utils/link';
@@ -39,9 +40,10 @@ const baseEnv = $util
     POSTHOG_API_KEY.value,
     webAppSentryKey.dsnPublic,
     webAppSentryProject.organization,
-    webAppSentryProject.projectId.apply((id) => id.toString()),
+    webAppSentryProject.internalId,
     webAppSentryProject.name,
     SENTRY_AUTH_TOKEN.value,
+    donationLink.value,
   ])
   .apply(
     ([
@@ -55,6 +57,8 @@ const baseEnv = $util
       sentryOrg,
       sentryProjectId,
       sentryProjectName,
+      sentryAuthToken,
+      donationLink,
     ]) => ({
       PUBLIC_DEV: $dev.toString(),
       PUBLIC_STAGE: $app.stage,
@@ -68,6 +72,8 @@ const baseEnv = $util
       PUBLIC_SENTRY_ORG: sentryOrg,
       PUBLIC_SENTRY_PROJECT_ID: sentryProjectId,
       PUBLIC_SENTRY_PROJECT_NAME: sentryProjectName,
+      SENTRY_AUTH_TOKEN: sentryAuthToken,
+      PUBLIC_DONATION_LINK: donationLink,
     }),
   );
 
@@ -187,6 +193,7 @@ if (!$dev) {
         webAppSentryProject.internalId,
         webAppSentryProject.name,
         $util.secret(SENTRY_AUTH_TOKEN.value),
+        donationLink.value,
       ])
       .apply(
         ([
@@ -201,6 +208,7 @@ if (!$dev) {
           sentryProjectId,
           sentryProjectName,
           sentryAuthToken,
+          donationLink,
         ]) => ({
           stage: $app.stage,
           webapp_url: webappUrl,
@@ -214,6 +222,7 @@ if (!$dev) {
           sentry_project_id: sentryProjectId,
           sentry_project_name: sentryProjectName,
           sentry_auth_token: sentryAuthToken,
+          donation_link: donationLink,
         }),
       );
 

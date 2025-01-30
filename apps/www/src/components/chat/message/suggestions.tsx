@@ -14,7 +14,7 @@ export const SuggestionsMessage = (props: SuggestionsMessageProps) => {
   const [currentSuggestion, setCurrentSuggestion] = createSignal(0);
 
   return (
-    <article class='flex w-full max-w-2xl space-x-4 border-t px-3 py-4' aria-label='Follow-ups'>
+    <article class='flex w-full max-w-3xl space-x-4 border-t px-3 py-4' aria-label='Follow-ups'>
       <div class='mt-2 flex h-full w-10 shrink-0 items-start'>
         <div class='flex size-10 items-center justify-center rounded-full border'>
           <Lightbulb />

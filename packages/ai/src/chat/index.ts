@@ -8,6 +8,7 @@ import {
 import type { Bible } from '@/schemas/bibles/types';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { Chat } from '@/schemas/chats/types';
+import type { Role } from '@/schemas/roles/types';
 import type { UserSettings } from '@/schemas/users/types';
 import type { User } from '@/schemas/users/types';
 import type { DataStreamWriter } from 'ai';
@@ -86,6 +87,7 @@ export type CreateChatChainOptions = Omit<
   chat: Chat;
   modelInfo: ChatModelInfo;
   user: User;
+  roles?: Role[] | null;
   settings?: UserSettings | null;
   dataStream: DataStreamWriter;
   additionalContext?: string | null;
@@ -134,7 +136,8 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
 
   const resolvedTools = tools({
     dataStream: options.dataStream,
-    userId: options.user.id,
+    user: options.user,
+    roles: options.roles,
     bibleId: options.bible?.id,
   });
 

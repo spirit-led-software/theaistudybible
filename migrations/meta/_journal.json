@@ -148,6 +148,13 @@
       "when": 1737646051938,
       "tag": "0020_wet_madame_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1738254606137,
+      "tag": "0021_talented_prodigy",
+      "breakpoints": true
     }
   ]
 }

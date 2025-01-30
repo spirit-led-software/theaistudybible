@@ -4,8 +4,8 @@ import {
   BookOpen,
   Bookmark,
   CreditCard,
+  CreditCardIcon,
   FileText,
-  HandCoins,
   HelpCircle,
   Highlighter,
   Info,
@@ -35,7 +35,7 @@ export const Menu = (props: MenuProps) => {
   const { isAdmin } = useAuth();
 
   return (
-    <NavigationMenu orientation={props.orientation} class='w-full'>
+    <NavigationMenu orientation={props.orientation} class='w-full gap-1'>
       <NavigationMenuItem>
         <NavigationMenuLink
           as={A}
@@ -50,22 +50,22 @@ export const Menu = (props: MenuProps) => {
           About
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[500px] sm:grid-cols-3 sm:*:h-full sm:*:w-full'>
-          <NavigationMenuLink as={A} href='/about'>
+        <NavigationMenuContent class='grid w-[500px] grid-cols-3 gap-2'>
+          <NavigationMenuLink as={A} href='/about' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Info />
               About
             </NavigationMenuLabel>
             <NavigationMenuDescription>Learn about our mission</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/about/faq'>
+          <NavigationMenuLink as={A} href='/about/faq' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <HelpCircle />
               FAQ
             </NavigationMenuLabel>
             <NavigationMenuDescription>Frequently asked questions</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/privacy'>
+          <NavigationMenuLink as={A} href='/privacy' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Shield />
               Privacy
@@ -83,6 +83,7 @@ export const Menu = (props: MenuProps) => {
             as='a'
             href='mailto:support@theaistudybible.com'
             navigate={(href) => window.open(href, '_blank', 'noopener,noreferrer')}
+            class='h-full w-full'
           >
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Mail />
@@ -92,8 +93,9 @@ export const Menu = (props: MenuProps) => {
           </NavigationMenuLink>
           <NavigationMenuLink
             as='a'
-            href='https://donate.stripe.com/cN23fc1mFdW2dXOcMM'
+            href={import.meta.env.PUBLIC_DONATION_LINK}
             navigate={(href) => window.open(href, '_blank', 'noopener,noreferrer')}
+            class='h-full w-full'
           >
             <NavigationMenuLabel class='flex items-center gap-2'>
               <CreditCard />
@@ -108,29 +110,29 @@ export const Menu = (props: MenuProps) => {
           Bible
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[400px] sm:grid-cols-2 sm:*:h-full sm:*:w-full'>
-          <NavigationMenuLink as={A} href='/bible'>
+        <NavigationMenuContent class='grid w-[400px] grid-cols-2 gap-2'>
+          <NavigationMenuLink as={A} href='/bible' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <BookOpen />
               Read
             </NavigationMenuLabel>
             <NavigationMenuDescription>Read the Bible</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/bible/highlights'>
+          <NavigationMenuLink as={A} href='/bible/highlights' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Highlighter />
               Highlights
             </NavigationMenuLabel>
             <NavigationMenuDescription>View your highlights</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/bible/notes'>
+          <NavigationMenuLink as={A} href='/bible/notes' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Notebook />
               Notes
             </NavigationMenuLabel>
             <NavigationMenuDescription>View your notes</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/bible/bookmarks'>
+          <NavigationMenuLink as={A} href='/bible/bookmarks' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Bookmark />
               Bookmarks
@@ -144,29 +146,27 @@ export const Menu = (props: MenuProps) => {
           AI
           <NavigationMenuIcon />
         </NavigationMenuTrigger>
-        <NavigationMenuContent class='flex w-56 flex-col gap-2 sm:grid sm:w-[500px] sm:grid-cols-3 sm:*:h-full sm:*:w-full'>
-          <NavigationMenuLink as={A} href='/chat'>
+        <NavigationMenuContent class='grid w-[500px] grid-cols-3 gap-2'>
+          <NavigationMenuLink as={A} href='/chat' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <MessageCircle />
               Chat
             </NavigationMenuLabel>
             <NavigationMenuDescription>Engage with AI about Christianity</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/devotion'>
+          <NavigationMenuLink as={A} href='/devotion' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Lightbulb />
               Devotions
             </NavigationMenuLabel>
             <NavigationMenuDescription>View today's devotion</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/credits'>
+          <NavigationMenuLink as={A} href='/pro' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
-              <HandCoins />
-              Credits
+              <CreditCardIcon />
+              Pro
             </NavigationMenuLabel>
-            <NavigationMenuDescription>
-              Purchase credits to use on AI actions
-            </NavigationMenuDescription>
+            <NavigationMenuDescription>Unlock Pro AI features</NavigationMenuDescription>
           </NavigationMenuLink>
         </NavigationMenuContent>
       </NavigationMenuItem>

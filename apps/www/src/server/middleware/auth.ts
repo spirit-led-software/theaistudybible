@@ -1,5 +1,5 @@
 import { db } from '@/core/database';
-import { userCredits, userSettings } from '@/core/database/schema';
+import { userSettings } from '@/core/database/schema';
 import type { FetchEvent } from '@solidjs/start/server';
 import { sql } from 'drizzle-orm';
 import { authenticate } from '../auth';
@@ -29,27 +29,6 @@ export const authMiddleware = () => {
           with: { role: true },
         })
         .then((userRoles) => userRoles.map((role) => role.role)),
-      db
-        .insert(userCredits)
-        .values({ userId: user.id, lastSignInCreditAt: new Date() })
-        .onConflictDoUpdate({
-          target: [userCredits.userId],
-          set: {
-            lastSignInCreditAt: sql`CASE
-              WHEN ${userCredits.lastSignInCreditAt} IS NULL
-                OR datetime(${userCredits.lastSignInCreditAt}, '+24 hours') <= CURRENT_TIMESTAMP 
-              THEN CURRENT_TIMESTAMP
-              ELSE ${userCredits.lastSignInCreditAt}
-            END`,
-            balance: sql`CASE 
-              WHEN ${userCredits.lastSignInCreditAt} IS NULL 
-                OR datetime(${userCredits.lastSignInCreditAt}, '+24 hours') <= CURRENT_TIMESTAMP 
-              THEN ${userCredits.balance} + 5 
-              ELSE ${userCredits.balance} 
-            END`,
-          },
-        })
-        .returning(),
     ]);
 
     Object.assign(locals, { session, user, roles, settings });

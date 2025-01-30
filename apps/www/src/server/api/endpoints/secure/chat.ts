@@ -1,16 +1,16 @@
 import { createChatChain } from '@/ai/chat';
-import { allChatModels } from '@/ai/models';
+import { allChatModels, basicChatModels } from '@/ai/models';
 import { db } from '@/core/database';
 import { chats, messages as messagesTable } from '@/core/database/schema';
-import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
 import { createId } from '@/core/utils/id';
 import type { Bible } from '@/schemas/bibles/types';
 import { MessageSchema } from '@/schemas/chats';
 import type { Bindings, Variables } from '@/www/server/api/types';
-import { getDefaultModelId, validateModelId } from '@/www/server/api/utils/chat';
+import { getChatRateLimit, validateModelId } from '@/www/server/api/utils/chat';
 import { getMessageId } from '@/www/utils/message';
 import { zValidator } from '@hono/zod-validator';
 import { createDataStream, smoothStream } from 'ai';
+import { formatDate } from 'date-fns';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
@@ -54,34 +54,28 @@ const app = new Hono<{
 
       console.time('validateModelId');
       if (input.modelId) {
-        const modelIdValidationResponse = validateModelId({
+        const modelIdValidationResponse = await validateModelId({
           c,
           providedModelId: input.modelId,
         });
-        if (modelIdValidationResponse) {
-          return modelIdValidationResponse;
-        }
+        if (modelIdValidationResponse) return modelIdValidationResponse;
       }
       console.timeEnd('validateModelId');
-      const modelId = input.modelId ?? getDefaultModelId(c);
+      const modelId = input.modelId ?? `${basicChatModels[0].host}:${basicChatModels[0].id}`;
 
       const modelInfo = allChatModels.find((m) => m.id === modelId.split(':')[1]);
       if (!modelInfo) {
         return c.json({ message: 'Invalid model provided' }, 400);
       }
 
-      console.time('checkAndConsumeCredits');
-      const hasCredits = await checkAndConsumeCredits(
-        c.var.user!.id,
-        modelInfo.tier === 'advanced' ? 'advanced-chat' : 'chat',
-      );
-      console.timeEnd('checkAndConsumeCredits');
-      if (!hasCredits) {
+      const ratelimit = await getChatRateLimit(c.var.user!, c.var.roles);
+      const ratelimitResult = await ratelimit.limit(c.var.user!.id);
+      if (!ratelimitResult.success) {
         return c.json(
           {
-            message: `You must have at least ${modelInfo.tier === 'advanced' ? 5 : 1} credit to use this resource.`,
+            message: `You have exceeded your daily chat limit. Upgrade to pro or try again at ${formatDate(ratelimitResult.reset, 'M/d/yy h:mm a')}.`,
           },
-          400,
+          429,
         );
       }
 
@@ -165,6 +159,7 @@ const app = new Hono<{
             chat,
             modelInfo,
             user: c.var.user!,
+            roles: c.var.roles,
             settings: c.var.settings,
             dataStream: dataStream,
             additionalContext: input.additionalContext,
@@ -180,7 +175,13 @@ const app = new Hono<{
             onFinish: async (event) => {
               clearInterval(pingInterval);
               if (event.finishReason !== 'stop' && event.finishReason !== 'tool-calls') {
-                pendingPromises.push(restoreCreditsOnFailure(c.var.user!.id, 'chat'));
+                pendingPromises.push(
+                  ratelimit.resetUsedTokens(c.var.user!.id).then(() =>
+                    ratelimit.limit(c.var.user!.id, {
+                      rate: ratelimitResult.limit - ratelimitResult.remaining,
+                    }),
+                  ),
+                );
               }
               await Promise.all(pendingPromises);
               globalThis.posthog?.capture({

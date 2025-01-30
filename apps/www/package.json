@@ -36,7 +36,7 @@
     "workbox-window": "^7.3.0"
   },
   "dependencies": {
-    "@ai-sdk/solid": "^1.1.7",
+    "@ai-sdk/solid": "^1.1.8",
     "@corvu/drawer": "^0.2.2",
     "@fontsource-variable/inter": "^5.1.1",
     "@fontsource/goldman": "^5.1.1",
@@ -59,7 +59,7 @@
     "@solidjs/router": "^0.15.3",
     "@solidjs/start": "^1.0.11",
     "@stripe/stripe-js": "^5.6.0",
-    "@tailwindcss/vite": "^4.0.1",
+    "@tailwindcss/vite": "4.0.0",
     "@tanstack/solid-query": "^5.65.0",
     "@tanstack/solid-query-devtools": "^5.65.0",
     "@tanstack/solid-table": "^8.20.5",

@@ -24,6 +24,8 @@ interface Env {
   PUBLIC_SENTRY_ORG: string;
   PUBLIC_SENTRY_PROJECT_ID: string;
   PUBLIC_SENTRY_PROJECT_NAME: string;
+  SENTRY_AUTH_TOKEN: string;
+  PUBLIC_DONATION_LINK: string;
 }
 
 declare global {

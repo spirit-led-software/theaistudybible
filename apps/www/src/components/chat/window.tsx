@@ -4,6 +4,7 @@ import { useChat } from '@/www/hooks/use-chat';
 import { useWindowSize } from '@solid-primitives/resize-observer';
 import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
+import { formatDate } from 'date-fns';
 import { ArrowUp, ChevronDown, ChevronUp, StopCircle } from 'lucide-solid';
 import { For, Show, createEffect, createMemo, on } from 'solid-js';
 import { toast } from 'solid-sonner';
@@ -43,6 +44,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
     addToolResult,
     chatQuery,
     followUpSuggestionsQuery,
+    remainingMessagesQuery,
   } = useChat(() => ({
     id: chatStore.chatId ?? undefined,
     body: {
@@ -62,7 +64,12 @@ export const ChatWindow = (props: ChatWindowProps) => {
   createEffect(
     on(error, (error) => {
       if (error) {
-        toast.error(error.message);
+        try {
+          const parsedError = JSON.parse(error.message);
+          toast.error(parsedError.message);
+        } catch {
+          toast.error(error.message);
+        }
       }
     }),
   );
@@ -116,6 +123,13 @@ export const ChatWindow = (props: ChatWindowProps) => {
     return idx;
   });
 
+  const remainingMessagesString = createMemo(() => {
+    if (remainingMessagesQuery.status === 'success') {
+      return `You have ${remainingMessagesQuery.data.remaining.remaining} messages remaining until ${formatDate(remainingMessagesQuery.data.remaining.reset, 'M/d/yy h:mm a')}`;
+    }
+    return undefined;
+  });
+
   const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
   const isMobile = createMemo(() => windowSize.width < 768);
 
@@ -135,7 +149,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           <Button
             variant='outline'
             size='icon'
-            class='-translate-x-1/2 absolute bottom-20 left-1/2 z-40 rounded-full bg-background shadow-lg'
+            class='-translate-x-1/2 absolute bottom-22 left-1/2 z-40 rounded-full bg-background shadow-lg'
             onClick={scrollToBottom}
             aria-label='Scroll to bottom of chat'
           >
@@ -205,11 +219,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 )}
               </Show>
             </div>
-            <div ref={setBottomRef} class='h-10 w-full shrink-0' />
+            <div ref={setBottomRef} class='h-28 w-full shrink-0' />
           </div>
         </div>
         <form
-          class='relative flex w-full flex-col items-center justify-center gap-2 px-2 pb-2'
+          class='absolute inset-x-0 bottom-0 flex w-full flex-col items-center justify-center gap-1 px-2 pb-2'
           onSubmit={handleSubmit}
           onKeyDown={(e) => {
             if (windowSize.width < 768) return;
@@ -246,6 +260,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               </Show>
             </Button>
           </div>
+          <div class='h-3 text-muted-foreground text-xs'>{remainingMessagesString()}</div>
         </form>
       </div>
     </SidebarProvider>

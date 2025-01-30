@@ -1,3 +1,4 @@
+import { cache } from '@/core/cache';
 import { db } from '@/core/database';
 import {
   chapterBookmarks,
@@ -6,11 +7,15 @@ import {
   verseHighlights,
 } from '@/core/database/schema';
 import { s3 } from '@/core/storage';
-import { checkAndConsumeCredits, restoreCreditsOnFailure } from '@/core/utils/credits';
+import { getStripeData } from '@/core/stripe/utils';
 import { createId } from '@/core/utils/id';
+import type { Role } from '@/schemas/roles/types';
+import type { User } from '@/schemas/users/types';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { Ratelimit } from '@upstash/ratelimit';
 import { type DataStreamWriter, tool } from 'ai';
 import { experimental_generateImage as generateImage } from 'ai';
+import { formatDate } from 'date-fns';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { openai } from '../provider-registry';
@@ -283,34 +288,33 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
               .describe(
                 'The weight of the search term between 0 and 1. The default is 1. A weight of 0 will not be used to rerank the results.',
               ),
+            category: z
+              .enum(['bible', 'theology', 'general'])
+              .optional()
+              .default('general')
+              .describe(
+                'The category of resources to search for. "bible" will only search for resources from the Bible. "theology" will only search for popular theology resources such as commentaries, sermons, and theological books. "general" will search for resources from all types. The default is "general".',
+              ),
           }),
         )
         .min(1)
         .max(4)
         .describe(
-          '1 to 4 search terms or phrases that will be used to find relevant resources. The search terms are searched separately and should not rely on each other.',
-        ),
-      type: z
-        .enum(['bible', 'theology', 'general'])
-        .optional()
-        .default('general')
-        .describe(
-          'The type of resources to search for. "bible" will only search for resources from the Bible. "theology" will only search for popular theology resources such as commentaries, sermons, and theological books. "general" will search for resources from all types. The default is "general".',
+          'A list of 1 to 4 search terms, their weights, and their category. The search terms are searched separately and should not rely on each other.',
         ),
     }),
-    execute: async ({ terms, type }) => {
+    execute: async ({ terms }) => {
       try {
-        let filter = `bibleId = "${input.bibleId}" or (type != "bible" and type != "BIBLE")`;
-        if (type === 'bible') {
-          filter = `(type = "bible" or type = "BIBLE") and bibleId = "${input.bibleId}"`;
-        } else if (type === 'theology') {
-          filter = 'category = "theology"';
-        }
-
         // Get initial results from vector search
         const docs = await Promise.all(
-          terms.map(({ term, weight }) =>
-            vectorStore
+          terms.map(async ({ term, weight, category }) => {
+            let filter = `bibleId = "${input.bibleId}" or (type != "bible" and type != "BIBLE")`;
+            if (category === 'bible') {
+              filter = `(type = "bible" or type = "BIBLE") and bibleId = "${input.bibleId}"`;
+            } else if (category === 'theology') {
+              filter = 'category = "theology"';
+            }
+            return await vectorStore
               .searchDocuments(term, {
                 limit: 12,
                 withMetadata: true,
@@ -322,8 +326,8 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
                   ...doc,
                   score: doc.score * weight,
                 })),
-              ),
-          ),
+              );
+          }),
         ).then((docs) =>
           docs
             .flat()
@@ -345,18 +349,22 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
     },
   });
 
-export const generateImageTool = (input: { dataStream: DataStreamWriter; userId: string }) =>
+export const generateImageTool = (input: {
+  dataStream: DataStreamWriter;
+  user: User;
+  roles?: Role[] | null;
+}) =>
   tool({
     description:
       'Generate Image: Generate an image from a text prompt. You must use the "Vector Store" tool to fetch relevant resources to make your prompt more detailed.',
     parameters: z.object({
       prompt: z
         .string()
+        .min(1)
+        .max(1000)
         .describe(
           'The text prompt that will be used to generate the image. This prompt must be detailed enough to make it accurate according to the vector store search results.',
-        )
-        .min(1)
-        .max(1000),
+        ),
       size: z
         .enum(['1024x1024', '1792x1024', '1024x1792'])
         .optional()
@@ -364,11 +372,25 @@ export const generateImageTool = (input: { dataStream: DataStreamWriter; userId:
         .describe('The size of the generated image. More detailed images need a larger size.'),
     }),
     execute: async ({ prompt, size }) => {
-      const hasEnoughCredits = await checkAndConsumeCredits(input.userId, 'image');
-      if (!hasEnoughCredits) {
+      let ratelimit = new Ratelimit({
+        prefix: 'image-generation',
+        redis: cache,
+        limiter: Ratelimit.slidingWindow(2, '24h'),
+      });
+      const subData = await getStripeData(input.user.stripeCustomerId);
+      if (subData?.status === 'active' || input.roles?.some((role) => role.id === 'admin')) {
+        ratelimit = new Ratelimit({
+          prefix: 'image-generation',
+          redis: cache,
+          limiter: Ratelimit.slidingWindow(10, '24h'),
+        });
+      }
+
+      const ratelimitResult = await ratelimit.limit(input.user.id);
+      if (!ratelimitResult.success) {
         return {
           status: 'error',
-          message: 'Not enough credits to generate an image.',
+          message: `You have exceeded your daily image generation limit. Please upgrade or try again at ${formatDate(ratelimitResult.reset, 'M/d/yy h:mm a')}.`,
         } as const;
       }
 
@@ -400,7 +422,7 @@ export const generateImageTool = (input: { dataStream: DataStreamWriter; userId:
             id,
             url: `${Resource.Cdn.url}/generated-images/${key}`,
             userPrompt: prompt,
-            userId: input.userId,
+            userId: input.user.id,
           })
           .returning();
 
@@ -411,10 +433,14 @@ export const generateImageTool = (input: { dataStream: DataStreamWriter; userId:
         } as const;
       } catch (error) {
         console.error('Error generating image', error);
-        await restoreCreditsOnFailure(input.userId, 'image');
+        await ratelimit.resetUsedTokens(input.user.id).then(() =>
+          ratelimit.limit(input.user.id, {
+            rate: ratelimitResult.limit - ratelimitResult.remaining,
+          }),
+        );
         return {
           status: 'error',
-          message: 'An unknown error occurred. Please try again later.',
+          message: error instanceof Error ? error.message : 'An unknown error occurred',
         } as const;
       }
     },
@@ -422,14 +448,19 @@ export const generateImageTool = (input: { dataStream: DataStreamWriter; userId:
 
 export const tools = (input: {
   dataStream: DataStreamWriter;
-  userId: string;
+  user: User;
+  roles?: Role[] | null;
   bibleId?: string | null;
 }) => ({
   thinking: thinkingTool({ dataStream: input.dataStream }),
   askForHighlightColor: askForHighlightColorTool({ dataStream: input.dataStream }),
-  highlightVerse: highlightVerseTool({ dataStream: input.dataStream, userId: input.userId }),
-  bookmarkVerse: bookmarkVerseTool({ dataStream: input.dataStream, userId: input.userId }),
-  bookmarkChapter: bookmarkChapterTool({ dataStream: input.dataStream, userId: input.userId }),
-  generateImage: generateImageTool({ dataStream: input.dataStream, userId: input.userId }),
+  highlightVerse: highlightVerseTool({ dataStream: input.dataStream, userId: input.user.id }),
+  bookmarkVerse: bookmarkVerseTool({ dataStream: input.dataStream, userId: input.user.id }),
+  bookmarkChapter: bookmarkChapterTool({ dataStream: input.dataStream, userId: input.user.id }),
+  generateImage: generateImageTool({
+    dataStream: input.dataStream,
+    user: input.user,
+    roles: input.roles,
+  }),
   vectorStore: vectorStoreTool({ dataStream: input.dataStream, bibleId: input.bibleId }),
 });

@@ -7,7 +7,6 @@ import { LogoSmall } from '../branding/logo-small';
 import { ThemeToggleButton } from '../theme/toggle-button';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
-import { CreditDisplay } from './credit-display';
 import { NavigationDrawer } from './drawer';
 import { Menu } from './menu';
 
@@ -40,7 +39,6 @@ export function NavigationHeader() {
         <ThemeToggleButton />
         <AuthLoaded fallback={<Spinner size='sm' />}>
           <SignedIn fallback={<Button as={SignInButton} />}>
-            <CreditDisplay />
             <UserButton />
           </SignedIn>
         </AuthLoaded>

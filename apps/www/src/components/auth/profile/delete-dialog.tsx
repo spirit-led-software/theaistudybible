@@ -1,6 +1,8 @@
 import { lucia } from '@/core/auth';
 import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
+import { stripe } from '@/core/stripe';
+import { getStripeData } from '@/core/stripe/utils';
 import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/auth';
 import { action, redirect, useAction } from '@solidjs/router';
@@ -21,6 +23,14 @@ import {
 const deleteUserAction = action(async () => {
   'use server';
   const { user } = requireAuth();
+  if (user.stripeCustomerId) {
+    const subData = await getStripeData(user.stripeCustomerId);
+    if (subData?.status === 'active') {
+      await stripe.subscriptions.update(subData.subscriptionId, {
+        cancel_at_period_end: true,
+      });
+    }
+  }
   await db.delete(users).where(eq(users.id, user.id));
   const cookie = lucia.cookies.createBlankSessionCookie();
   return redirect('/', { headers: { 'Set-Cookie': cookie.serialize() } });

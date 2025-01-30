@@ -91,6 +91,10 @@ declare module "sst" {
       "type": "asb.asb.Constant"
       "value": string
     }
+    "DonationLink": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
     "Email": {
       "configSet": string
       "sender": string
@@ -147,6 +151,43 @@ declare module "sst" {
     "PostHogUiHost": {
       "type": "asb.asb.Constant"
       "value": string
+    }
+    "ProSubMonthlyPrice": {
+      "active": boolean
+      "currency": string
+      "id": string
+      "product": string
+      "recurring": {
+        "aggregateUsage": string
+        "interval": string
+        "intervalCount": number
+        "usageType": string
+      }
+      "type": "stripe.index/price.Price"
+      "unitAmount": number
+    }
+    "ProSubProduct": {
+      "active": boolean
+      "default_price": string
+      "description": string
+      "features": any
+      "id": string
+      "name": string
+      "type": "stripe.index/product.Product"
+    }
+    "ProSubYearlyPrice": {
+      "active": boolean
+      "currency": string
+      "id": string
+      "product": string
+      "recurring": {
+        "aggregateUsage": string
+        "interval": string
+        "intervalCount": number
+        "usageType": string
+      }
+      "type": "stripe.index/price.Price"
+      "unitAmount": number
     }
     "ProfileImagesBucket": {
       "name": string

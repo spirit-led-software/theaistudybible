@@ -15,6 +15,7 @@ import { Output, generateText } from 'ai';
 import { isNull } from 'drizzle-orm';
 import { type Accessor, createEffect, mergeProps, on, untrack } from 'solid-js';
 import { z } from 'zod';
+import { getChatRateLimit } from '../server/api/utils/chat';
 import { requireAuth } from '../server/auth';
 
 const getChat = GET(async (chatId: string) => {
@@ -117,6 +118,20 @@ export const getChatSuggestionsQueryProps = (chatId: string) => ({
   placeholderData: { suggestions: [] },
 });
 
+export const getRemainingMessages = GET(async () => {
+  'use server';
+  const { user, roles } = requireAuth();
+  const rateLimit = await getChatRateLimit(user, roles);
+  const remaining = await rateLimit.getRemaining(user.id);
+  return { remaining };
+});
+
+export const getRemainingMessagesQueryProps = () => ({
+  queryKey: ['remaining-messages'],
+  queryFn: () => getRemainingMessages(),
+  refetchInterval: 10000,
+});
+
 export type UseChatProps = Prettify<
   Omit<UseChatOptions, 'api' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'>
 >;
@@ -143,8 +158,8 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
     onFinish: (event, options) => {
       chatQuery.refetch();
       followUpSuggestionsQuery.refetch();
+      remainingMessagesQuery.refetch();
       qc.invalidateQueries({ queryKey: ['chats'] });
-      qc.invalidateQueries({ queryKey: ['user-credits'] });
       props?.().onFinish?.(event, options);
     },
   }));
@@ -155,12 +170,15 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
       if (
         typeof lastStreamData === 'object' &&
         lastStreamData !== null &&
-        !Array.isArray(lastStreamData) &&
-        'chatId' in lastStreamData &&
-        typeof lastStreamData.chatId === 'string' &&
-        lastStreamData.chatId !== chatId()
+        !Array.isArray(lastStreamData)
       ) {
-        setChatId(lastStreamData.chatId);
+        if (
+          'chatId' in lastStreamData &&
+          typeof lastStreamData.chatId === 'string' &&
+          lastStreamData.chatId !== chatId()
+        ) {
+          setChatId(lastStreamData.chatId);
+        }
       }
     }),
   );
@@ -192,10 +210,13 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
 
   const followUpSuggestionsQuery = createQuery(() => getChatSuggestionsQueryProps(chatId()));
 
+  const remainingMessagesQuery = createQuery(() => getRemainingMessagesQueryProps());
+
   return mergeProps(useChatResult, {
     id: chatId,
     messagesQuery,
     chatQuery,
     followUpSuggestionsQuery,
+    remainingMessagesQuery,
   });
 };

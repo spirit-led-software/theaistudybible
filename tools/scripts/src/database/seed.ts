@@ -1,6 +1,6 @@
 import { hashPassword } from '@/core/auth/providers/credentials/utils';
 import { db } from '@/core/database';
-import { passwords, roles, userCredits, users, usersToRoles } from '@/core/database/schema';
+import { passwords, roles, users, usersToRoles } from '@/core/database/schema';
 import { and, eq, sql } from 'drizzle-orm';
 import { Resource } from 'sst';
 
@@ -43,20 +43,6 @@ async function createInitialAdminUser() {
     })
     .onConflictDoNothing();
 
-  console.log('Adding credits to admin user');
-  await db
-    .insert(userCredits)
-    .values({
-      userId: admin.id,
-      balance: Number.MAX_SAFE_INTEGER / 2,
-    })
-    .onConflictDoUpdate({
-      target: userCredits.userId,
-      set: {
-        balance: sql`excluded.balance`,
-      },
-    });
-
   console.log('Initial admin user created');
 }
 
@@ -66,18 +52,20 @@ async function createTestUser() {
   const [testUser] = await db
     .insert(users)
     .values({
-      email: 'test@test.com',
+      email: Resource.TestUserEmail.value,
       firstName: 'Test',
+      lastName: 'User',
     })
     .onConflictDoUpdate({
       target: users.email,
       set: {
         firstName: sql`excluded.first_name`,
+        lastName: sql`excluded.last_name`,
       },
     })
     .returning();
 
-  const pwHash = await hashPassword(Resource.AdminPassword.value);
+  const pwHash = await hashPassword(Resource.TestUserPassword.value);
 
   const existingPassword = await db.query.passwords.findFirst({
     where: and(

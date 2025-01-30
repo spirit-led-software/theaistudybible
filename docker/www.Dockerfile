@@ -46,6 +46,8 @@ ARG sentry_project_id
 ARG sentry_project_name
 ARG sentry_auth_token
 
+ARG donation_link
+
 ENV PUBLIC_STAGE ${stage}
 ENV PUBLIC_WEBAPP_URL ${webapp_url}
 ENV PUBLIC_CDN_URL ${cdn_url}
@@ -60,6 +62,8 @@ ENV PUBLIC_SENTRY_ORG ${sentry_org}
 ENV PUBLIC_SENTRY_PROJECT_ID ${sentry_project_id}
 ENV PUBLIC_SENTRY_PROJECT_NAME ${sentry_project_name}
 ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
+
+ENV PUBLIC_DONATION_LINK ${donation_link}
 
 WORKDIR /build
 
@@ -96,6 +100,8 @@ ENV PUBLIC_SENTRY_PROJECT_ID ${sentry_project_id}
 ENV PUBLIC_SENTRY_PROJECT_NAME ${sentry_project_name}
 ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
 
+ENV PUBLIC_DONATION_LINK ${donation_link}
+
 WORKDIR /app
 
 RUN apt-get -qq update && \
@@ -103,13 +109,13 @@ RUN apt-get -qq update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /build/apps/www/.output .
-COPY --link ./apps/www/instrument.mjs ./server/instrument.mjs
 
 RUN cd /app/server && \
-    bun add --trust @sentry/bun posthog-node && \
+    bun add --trust @sentry/solidstart && \
+    bun add --trust posthog-node && \
     bun pm cache rm
 
-ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
+ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.server.mjs", "./server/index.mjs" ]
 EXPOSE ${PORT}
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \

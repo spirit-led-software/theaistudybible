@@ -34,12 +34,18 @@ const getReferences = GET(async ({ text, bibleId }: { text: string; bibleId: str
                 .optional()
                 .default(1)
                 .describe('The weight of the search term between 0 and 1.'),
+              category: z
+                .string()
+                .optional()
+                .describe(
+                  'The category of resources to search for. "bible" will only search for resources from the Bible. "theology" will only search for popular theology resources such as commentaries, sermons, and theological books. "general" will search for resources from all types. The default is "general".',
+                ),
             }),
           )
           .min(1)
           .max(4)
           .describe(
-            '1 to 4 search terms or phrases that will be used to find relevant resources. The search terms are searched separately and should not rely on each other.',
+            'A list of 1 to 4 search terms, their weights, and their category. The search terms are searched separately and should not rely on each other.',
           ),
       }),
     }),
@@ -53,21 +59,27 @@ Here is the passage:
 ${text}`,
   });
   const results = await Promise.all(
-    terms.map(({ term, weight }) =>
-      vectorStore
+    terms.map(({ term, weight, category }) => {
+      let filter = `bibleId = "${bibleId}" or (type != "bible" and type != "BIBLE")`;
+      if (category === 'bible') {
+        filter = `(type = "bible" or type = "BIBLE") and bibleId = "${bibleId}"`;
+      } else if (category === 'theology') {
+        filter = 'category = "theology"';
+      }
+      return vectorStore
         .searchDocuments(term, {
           withMetadata: true,
           withEmbedding: false,
           limit: 12,
-          filter: `bibleId = "${bibleId}" or (type != "bible" and type != "BIBLE"`, // Get references from the same bible OR non-bible references like commentaries
+          filter,
         })
         .then((docs) =>
           docs.map((doc) => ({
             ...doc,
             score: doc.score * weight,
           })),
-        ),
-    ),
+        );
+    }),
   ).then((results) =>
     results
       .flat()

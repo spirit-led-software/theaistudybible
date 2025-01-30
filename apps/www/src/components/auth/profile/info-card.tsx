@@ -3,22 +3,22 @@ import { Mail } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
 import { Card, CardContent, CardFooter, CardHeader } from '../../ui/card';
-import { GradientH1, H4 } from '../../ui/typography';
+import { H4 } from '../../ui/typography';
 import { UpdateAvatarDialog } from './avatar/update-dialog';
 import { DeleteProfileDialog } from './delete-dialog';
 import { LinkedAccounts } from './linked-accounts';
+import { SubscriptionButton } from './subscription-button';
 import { EditProfileDialog } from './update-dialog';
 
 export const InfoCard = () => {
   const { user } = useAuth();
+
   return (
-    <Card class='h-full w-full'>
-      <CardHeader>
-        <GradientH1 class='text-center text-3xl sm:text-4xl md:text-5xl'>Profile</GradientH1>
-      </CardHeader>
+    <Card class='h-full w-full border-none bg-background shadow-none'>
+      <CardHeader />
       <CardContent class='flex flex-col items-center gap-6'>
         <div class='group relative'>
-          <Avatar class='size-24 border-4 border-primary/10 sm:size-32 md:size-40'>
+          <Avatar class='size-24 border-4 border-primary/10 shadow-md sm:size-32 md:size-40'>
             <AvatarImage src={user()?.image || undefined} />
             <AvatarFallback class='bg-linear-to-br from-primary to-secondary text-3xl text-primary-foreground sm:text-4xl md:text-5xl'>
               {user()?.firstName?.charAt(0) || user()?.email?.charAt(0) || '?'}
@@ -50,6 +50,10 @@ export const InfoCard = () => {
             <Mail class='size-4' />
             <h4 class='truncate text-sm sm:text-base'>{user()?.email}</h4>
           </div>
+        </div>
+        <div class='flex items-center gap-2'>
+          <span class='text-muted-foreground text-sm'>Subscription:</span>
+          <SubscriptionButton variant='outline' size='sm' />
         </div>
         <Show when={user()?.googleId || user()?.appleId}>
           <LinkedAccounts />
