@@ -111,7 +111,7 @@ RUN apt-get -qq update && \
 COPY --from=build /build/apps/www/.output .
 
 RUN cd /app/server && \
-    bun add --trust @sentry/solidstart posthog-node && \
+    bun add @sentry/solidstart posthog-node && \
     bun pm cache rm
 
 ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.server.mjs", "./server/index.mjs" ]
