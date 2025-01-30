@@ -1,5 +1,5 @@
-import { $ } from 'bun';
 import { readdirSync } from 'node:fs';
+import { $ } from 'bun';
 
 export const upgradePackages = async () => {
   const apps = readdirSync('./apps', { withFileTypes: true }).filter((d) => d.isDirectory());
@@ -24,4 +24,9 @@ export const upgradePackages = async () => {
 
   console.log('Upgrading root...');
   await $`bun update --latest --save`;
+
+  console.log('Running clean install...');
+  await $`bun run clean-install`;
+
+  console.log('Done!');
 };
