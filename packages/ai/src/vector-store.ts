@@ -152,7 +152,11 @@ export class VectorStore {
       };
     });
 
-    return await this.reranker.rerankDocuments(query, docs);
+    if (options.rerank) {
+      return await this.reranker.rerankDocuments(query, docs);
+    }
+
+    return docs;
   }
 
   async getDocuments(

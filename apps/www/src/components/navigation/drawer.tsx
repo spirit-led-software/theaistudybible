@@ -19,6 +19,7 @@ import {
 import { createSignal } from 'solid-js';
 import { Show } from 'solid-js';
 import { LogoSmall } from '../branding/logo-small';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { Button } from '../ui/button';
 import {
   Sheet,
@@ -47,8 +48,8 @@ export const NavigationDrawer = () => {
         defaultCloseButton={false}
         class='w-2/3 pt-safe pb-safe pl-safe'
       >
-        <div class='relative flex h-full w-full flex-1 flex-col p-6'>
-          <SheetHeader class='flex flex-row items-center justify-between'>
+        <div class='relative flex h-full w-full flex-1 flex-col'>
+          <SheetHeader class='flex flex-row items-center justify-between px-4 pt-4'>
             <SheetTitle as={A} href='/'>
               <LogoSmall width={150} height={150} />
             </SheetTitle>
@@ -57,92 +58,113 @@ export const NavigationDrawer = () => {
             </SheetClose>
           </SheetHeader>
 
-          <nav class='mt-2 flex h-full w-full flex-1 flex-col gap-4 overflow-y-auto'>
-            <A href='/about/install' class='flex items-center gap-2 font-medium text-primary'>
-              Install
-            </A>
+          <div class='flex h-full w-full flex-col overflow-y-auto px-4 pb-6'>
+            <nav class='mt-2 flex h-full w-full flex-1 flex-col gap-4'>
+              <Button as={A} href='/about/install'>
+                Install
+              </Button>
 
-            <div class='flex flex-col gap-2'>
-              <div class='font-medium text-muted-foreground text-sm'>About</div>
-              <div class='flex flex-col gap-4 pl-2'>
-                <A href='/about' class='flex items-center gap-2'>
-                  <Info size={18} />
-                  About
-                </A>
-                <A href='/about/faq' class='flex items-center gap-2'>
-                  <HelpCircle size={18} />
-                  FAQ
-                </A>
-                <A href='/privacy' class='flex items-center gap-2'>
-                  <Shield size={18} />
-                  Privacy
-                </A>
-                <A href='/terms' class='flex items-center gap-2'>
-                  <FileText size={18} />
-                  Terms
-                </A>
-                <a href='mailto:support@theaistudybible.com' class='flex items-center gap-2'>
-                  <Mail size={18} />
-                  Contact
-                </a>
-                <a
-                  href='https://donate.stripe.com/cN23fc1mFdW2dXOcMM'
-                  target='_blank'
-                  class='flex items-center gap-2'
-                  rel='noreferrer'
-                >
-                  <CreditCard size={18} />
-                  Donate
-                </a>
-              </div>
-            </div>
+              <Accordion multiple collapsible>
+                <AccordionItem value='about'>
+                  <AccordionTrigger>
+                    <div class='font-medium text-muted-foreground text-sm'>About</div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div class='flex flex-col gap-4'>
+                      <Button as={A} href='/about' variant='ghost' class='justify-start'>
+                        <Info size={18} />
+                        About
+                      </Button>
+                      <Button as={A} href='/about/faq' variant='ghost' class='justify-start'>
+                        <HelpCircle size={18} />
+                        FAQ
+                      </Button>
+                      <Button as={A} href='/privacy' variant='ghost' class='justify-start'>
+                        <Shield size={18} />
+                        Privacy
+                      </Button>
+                      <Button as={A} href='/terms' variant='ghost' class='justify-start'>
+                        <FileText size={18} />
+                        Terms
+                      </Button>
+                      <Button
+                        as='a'
+                        href='mailto:support@theaistudybible.com'
+                        variant='ghost'
+                        class='justify-start'
+                      >
+                        <Mail size={18} />
+                        Contact
+                      </Button>
+                      <Button
+                        as='a'
+                        href='https://donate.stripe.com/cN23fc1mFdW2dXOcMM'
+                        target='_blank'
+                        rel='noreferrer'
+                        variant='ghost'
+                        class='justify-start'
+                      >
+                        <CreditCard size={18} />
+                        Donate
+                      </Button>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value='bible'>
+                  <AccordionTrigger>
+                    <div class='font-medium text-muted-foreground text-sm'>Bible</div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div class='flex flex-col gap-4'>
+                      <Button as={A} href='/bible' variant='ghost' class='justify-start'>
+                        <BookOpen size={18} />
+                        Read
+                      </Button>
+                      <Button as={A} href='/bible/highlights' variant='ghost' class='justify-start'>
+                        <Highlighter size={18} />
+                        Highlights
+                      </Button>
+                      <Button as={A} href='/bible/notes' variant='ghost' class='justify-start'>
+                        <Notebook size={18} />
+                        Notes
+                      </Button>
+                      <Button as={A} href='/bible/bookmarks' variant='ghost' class='justify-start'>
+                        <Bookmark size={18} />
+                        Bookmarks
+                      </Button>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value='ai'>
+                  <AccordionTrigger>
+                    <div class='font-medium text-muted-foreground text-sm'>AI</div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div class='flex flex-col gap-4'>
+                      <Button as={A} href='/chat' variant='ghost' class='justify-start'>
+                        <MessageCircle size={18} />
+                        Chat
+                      </Button>
+                      <Button as={A} href='/devotion' variant='ghost' class='justify-start'>
+                        <Lightbulb size={18} />
+                        Devotions
+                      </Button>
+                      <Button as={A} href='/credits' variant='ghost' class='justify-start'>
+                        <HandCoins size={18} />
+                        Credits
+                      </Button>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
 
-            <div class='flex flex-col gap-2'>
-              <div class='font-medium text-muted-foreground text-sm'>Bible</div>
-              <div class='flex flex-col gap-4 pl-2'>
-                <A href='/bible' class='flex items-center gap-2'>
-                  <BookOpen size={18} />
-                  Read
-                </A>
-                <A href='/bible/highlights' class='flex items-center gap-2'>
-                  <Highlighter size={18} />
-                  Highlights
-                </A>
-                <A href='/bible/notes' class='flex items-center gap-2'>
-                  <Notebook size={18} />
-                  Notes
-                </A>
-                <A href='/bible/bookmarks' class='flex items-center gap-2'>
-                  <Bookmark size={18} />
-                  Bookmarks
-                </A>
-              </div>
-            </div>
-
-            <div class='flex flex-col gap-2'>
-              <div class='font-medium text-muted-foreground text-sm'>AI</div>
-              <div class='flex flex-col gap-4 pl-2'>
-                <A href='/chat' class='flex items-center gap-2'>
-                  <MessageCircle size={18} />
-                  Chat
-                </A>
-                <A href='/devotion' class='flex items-center gap-2'>
-                  <Lightbulb size={18} />
-                  Devotions
-                </A>
-                <A href='/credits' class='flex items-center gap-2'>
-                  <HandCoins size={18} />
-                  Credits
-                </A>
-              </div>
-            </div>
-
-            <Show when={isAdmin()}>
-              <A href='/admin' class='flex items-center gap-2 font-medium'>
-                Admin
-              </A>
-            </Show>
-          </nav>
+              <Show when={isAdmin()}>
+                <Button as={A} href='/admin' variant='ghost' class='justify-start'>
+                  Admin
+                </Button>
+              </Show>
+            </nav>
+          </div>
         </div>
       </SheetContent>
     </Sheet>

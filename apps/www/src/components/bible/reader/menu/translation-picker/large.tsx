@@ -8,7 +8,7 @@ import { A } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Search } from 'lucide-solid';
-import { createMemo, createSignal } from 'solid-js';
+import { For, createMemo, createSignal } from 'solid-js';
 
 const getBibles = GET(async () => {
   'use server';
@@ -73,32 +73,36 @@ export function LargeTranslationPicker() {
               <P class='text-accent-foreground text-xs'>{filteredBibles().length}</P>
             </div>
             <div class='mt-2 flex w-full flex-col space-y-4'>
-              {uniqueLanguages().map((language) => (
-                <div class='flex w-full flex-col space-y-2'>
-                  <div class='font-bold text-lg'>{language.nameLocal}</div>
+              <For each={uniqueLanguages()}>
+                {(language) => (
                   <div class='flex w-full flex-col space-y-2'>
-                    {bibles
-                      .filter((bible) => bible.biblesToLanguages[0].language.iso === language.iso)
-                      .filter(
-                        (bible) =>
-                          bible.nameLocal.toLowerCase().includes(search().toLowerCase()) ||
-                          bible.abbreviationLocal.toLowerCase().includes(search().toLowerCase()),
-                      )
-                      .map((bible) => (
-                        <Button
-                          class='flex h-fit w-full flex-col items-start justify-start text-wrap text-start'
-                          as={A}
-                          href={`/bible/${bible.abbreviation}`}
-                        >
-                          <p class='font-bold text-lg'>
-                            {bible.abbreviationLocal} - {bible.nameLocal}
-                          </p>
-                          <p class='text-accent-foreground text-xs'>{bible.description}</p>
-                        </Button>
-                      ))}
+                    <div class='font-bold text-lg'>{language.nameLocal}</div>
+                    <div class='flex w-full flex-col space-y-2'>
+                      <For
+                        each={bibles.filter(
+                          (bible) => bible.biblesToLanguages[0].language.iso === language.iso,
+                        )}
+                      >
+                        {(bible) => (
+                          <Button
+                            class='flex h-fit w-full flex-col items-start justify-start overflow-hidden text-start'
+                            as={A}
+                            href={`/bible/${bible.abbreviation}`}
+                          >
+                            <div class='line-clamp-2 text-wrap font-bold text-lg'>
+                              {bible.abbreviationLocal}
+                            </div>
+                            <div class='line-clamp-2 text-wrap'>{bible.nameLocal}</div>
+                            <div class='line-clamp-2 text-wrap text-accent-foreground text-xs'>
+                              {bible.description}
+                            </div>
+                          </Button>
+                        )}
+                      </For>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )}
+              </For>
             </div>
           </div>
         </div>
