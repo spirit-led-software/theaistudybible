@@ -109,12 +109,13 @@ RUN apt-get -qq update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /build/apps/www/.output .
+COPY --link ./apps/www/instrument.mjs ./server/instrument.mjs
 
 RUN cd /app/server && \
     bun add @sentry/solidstart posthog-node && \
     bun pm cache rm
 
-ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.server.mjs", "./server/index.mjs" ]
+ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.mjs", "./server/index.mjs" ]
 EXPOSE ${PORT}
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
