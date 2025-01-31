@@ -16,6 +16,10 @@ const staticCacheControlHeaders = {
   'cache-control': 'public,max-age=31536000,immutable',
 };
 
+const doNotCacheHeaders = {
+  'cache-control': 'public,max-age=0,s-maxage=0,must-revalidate',
+};
+
 export default defineConfig(
   withSentry(
     {
@@ -26,8 +30,8 @@ export default defineConfig(
         compatibilityDate: '2024-12-02',
         routeRules: {
           '/_build/assets/**': { headers: defaultCacheControlHeaders },
-          '/_build/manifest.webmanifest': { headers: defaultCacheControlHeaders },
-          '/_build/service-worker.js*': { headers: defaultCacheControlHeaders },
+          '/_build/manifest.webmanifest': { headers: doNotCacheHeaders },
+          '/_build/service-worker.js*': { headers: doNotCacheHeaders },
           '/_server/assets/**': { headers: defaultCacheControlHeaders },
           '/assets/**': { headers: defaultCacheControlHeaders },
           '/logos/**': { headers: staticCacheControlHeaders },
@@ -36,7 +40,7 @@ export default defineConfig(
           '/favicon.ico': { headers: staticCacheControlHeaders },
           '/icon.png': { headers: staticCacheControlHeaders },
           '/maskable-icon-512x512.png': { headers: staticCacheControlHeaders },
-          '/robots.txt': { headers: staticCacheControlHeaders },
+          '/robots.txt': { headers: doNotCacheHeaders },
         },
       },
       vite: {
