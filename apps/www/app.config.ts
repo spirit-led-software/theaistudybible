@@ -13,7 +13,7 @@ const defaultCacheControlHeaders = {
 
 const staticCacheControlHeaders = {
   ...defaultCacheControlHeaders,
-  'cache-control': 'public,max-age=31536000,immutable',
+  'cache-control': 'public,max-age=31536000,s-maxage=31536000,immutable',
 };
 
 const doNotCacheHeaders = {
