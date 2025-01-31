@@ -30,12 +30,12 @@ export default defineConfig(
         compatibilityDate: '2024-12-02',
         routeRules: {
           '/_build/assets/**': { headers: staticCacheControlHeaders },
-          '/_build/manifest.webmanifest': { 
-              headers: {
-                ...doNotCacheHeaders,
-                'content-type': 'application/manifest+json',
-              },
-           },
+          '/_build/manifest.webmanifest': {
+            headers: {
+              ...doNotCacheHeaders,
+              'content-type': 'application/manifest+json',
+            },
+          },
           '/_build/service-worker.js*': { headers: doNotCacheHeaders },
           '/_server/assets/**': { headers: defaultCacheControlHeaders },
           '/assets/**': { headers: staticCacheControlHeaders },
