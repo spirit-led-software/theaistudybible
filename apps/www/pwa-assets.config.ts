@@ -15,6 +15,15 @@ export default defineConfig({
       ...minimal2023Preset.maskable,
       resizeOptions: {
         ...minimal2023Preset.maskable.resizeOptions,
+        fit: 'contain',
+        background: '#030527',
+      },
+    },
+    apple: {
+      ...minimal2023Preset.apple,
+      resizeOptions: {
+        ...minimal2023Preset.apple.resizeOptions,
+        fit: 'contain',
         background: '#030527',
       },
     },
