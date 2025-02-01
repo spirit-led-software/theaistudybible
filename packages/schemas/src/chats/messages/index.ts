@@ -1,6 +1,6 @@
 import { messages } from '@/core/database/schema';
 import { defaultRefine } from '@/schemas/utils/refine';
-import type { FinishReason, JSONValue, ToolInvocation } from 'ai';
+import type { Attachment, FinishReason, JSONValue, ToolInvocation } from 'ai';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
@@ -43,12 +43,19 @@ export const FinishReasonSchema: z.ZodType<FinishReason> = z.enum([
   'stop',
 ]);
 
+export const AttachmentSchema: z.ZodType<Attachment> = z.object({
+  name: z.string().optional(),
+  contentType: z.string().optional(),
+  url: z.string().url(),
+});
+
 const refine = {
   ...defaultRefine,
   annotations: z.array(JSONSchema).nullish(),
   data: JSONSchema.nullish(),
   finishReason: FinishReasonSchema.nullish(),
   toolInvocations: z.array(ToolInvocationSchema).nullish(),
+  experimental_attachments: z.array(AttachmentSchema).nullish(),
 };
 
 // @ts-expect-error - Circular dependency

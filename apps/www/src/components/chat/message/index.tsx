@@ -51,6 +51,17 @@ export const Message = (props: MessageProps) => {
         </Show>
       </div>
       <div class='flex w-full flex-col gap-4 overflow-hidden'>
+        <Show
+          when={(props.message.toolInvocations?.length ?? 0) > 0 && props.message.toolInvocations}
+        >
+          {(toolInvocations) => (
+            <Tools
+              toolInvocations={toolInvocations()}
+              addToolResult={props.addToolResult}
+              isLoading={props.isLoading && !props.nextMessage}
+            />
+          )}
+        </Show>
         <Show when={props.message.content}>
           {(content) => (
             <Show
@@ -59,17 +70,6 @@ export const Message = (props: MessageProps) => {
             >
               <AnimatedMarkdown>{content()}</AnimatedMarkdown>
             </Show>
-          )}
-        </Show>
-        <Show
-          when={Boolean(props.message.toolInvocations?.length) && props.message.toolInvocations}
-        >
-          {(toolInvocations) => (
-            <Tools
-              toolInvocations={toolInvocations()}
-              addToolResult={props.addToolResult}
-              isLoading={props.isLoading && !props.nextMessage}
-            />
           )}
         </Show>
         <Show

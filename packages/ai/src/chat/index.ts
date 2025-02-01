@@ -5,6 +5,7 @@ import {
   messagesToSourceDocuments,
   userGeneratedImagesToSourceDocuments,
 } from '@/core/database/schema';
+import { createId } from '@/core/utils/id';
 import type { Bible } from '@/schemas/bibles/types';
 import type { Message } from '@/schemas/chats/messages/types';
 import type { Chat } from '@/schemas/chats/types';
@@ -12,15 +13,17 @@ import type { Role } from '@/schemas/roles/types';
 import type { UserSettings } from '@/schemas/users/types';
 import type { User } from '@/schemas/users/types';
 import type { DataStreamWriter } from 'ai';
-import { Output, generateText, streamText } from 'ai';
+import { Output, appendResponseMessages, generateText, streamText } from 'ai';
 import { initLogger, wrapAISDKModel } from 'braintrust';
 import { eq } from 'drizzle-orm';
 import { Resource } from 'sst';
 import { z } from 'zod';
 import { type ChatModelInfo, defaultChatModel } from '../models';
 import { registry } from '../provider-registry';
+import type { DocumentWithScore } from '../types/document';
 import { messagesToString, numTokensFromString } from '../utils';
 import { getValidMessages } from '../utils/get-valid-messages';
+import { normalizeMessage } from '../utils/normalize-message';
 import { systemPrompt } from './system-prompt';
 import { tools } from './tools';
 
@@ -106,7 +109,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
   const systemTokens = numTokensFromString({ text: system });
 
   console.time('getValidMessages');
-  const messages = await getValidMessages({
+  const dbMessages = await getValidMessages({
     userId: options.user.id,
     chatId: options.chat.id,
     maxTokens: options.modelInfo.contextSize - systemTokens - maxResponseTokens,
@@ -114,13 +117,13 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
   });
   console.timeEnd('getValidMessages');
 
-  const lastUserMessage = messages.find((m) => m.role === 'user')!;
+  const lastUserMessage = dbMessages.find((m) => m.role === 'user')!;
 
   if (!options.chat.customName) {
     pendingPromises.push(
       renameChat({
         chatId: options.chat.id,
-        messages,
+        messages: dbMessages,
         additionalContext: options.additionalContext,
       }),
     );
@@ -151,80 +154,50 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
     model = wrapAISDKModel(model);
   }
 
-  return () => {
-    return streamText({
+  const normalizedMessages = dbMessages.map(normalizeMessage);
+
+  return () =>
+    streamText({
       ...options,
       model,
       system,
-      // @ts-expect-error - Messages are not typed correctly
-      messages,
+      messages: normalizedMessages,
       tools: resolvedTools,
       maxSteps: options.maxSteps ?? 5,
-      onStepFinish: async (step) => {
-        const onStepFinish = async () => {
-          const [response] = await db
-            .insert(messagesTable)
-            .values({
-              role: 'assistant',
-              content: step.text,
-              toolInvocations: step.toolCalls?.map((t) => ({
-                ...t,
-                state: 'execute' in resolvedTools[t.toolName] ? 'call' : 'partial-call',
-              })),
-              annotations: [{ modelId: `${options.modelInfo.host}:${options.modelInfo.id}` }],
-              finishReason: step.finishReason,
-              originMessageId: lastUserMessage.id,
-              userId: options.user.id,
-              chatId: options.chat.id,
-            })
-            .returning();
+      experimental_generateMessageId: createId,
+      onFinish: async (event) => {
+        async function onFinish() {
+          const newMessages = appendResponseMessages({
+            messages: normalizedMessages,
+            responseMessages: event.response.messages,
+          }).filter((m) => normalizedMessages.find((nm) => nm.id === m.id));
 
-          options.dataStream.writeMessageAnnotation({
-            dbId: response.id,
-          });
-
-          if (step.toolResults?.length) {
-            await db
-              .update(messagesTable)
-              .set({
-                toolInvocations: step.toolResults.map((t) => ({
-                  ...t,
-                  state: 'result',
-                })),
+          for (const message of newMessages) {
+            const [response] = await db
+              .insert(messagesTable)
+              .values({
+                ...message,
+                originMessageId: lastUserMessage.id,
+                userId: options.user.id,
+                chatId: options.chat.id,
               })
-              .where(eq(messagesTable.id, response.id))
               .returning();
 
-            for (const toolResult of step.toolResults) {
-              if (toolResult.toolName === 'vectorStore' && toolResult.result.status === 'success') {
-                await db
-                  .insert(messagesToSourceDocuments)
-                  .values(
-                    toolResult.result.documents.map((d) => ({
-                      messageId: response.id,
-                      sourceDocumentId: d.id,
-                      distance: 1 - d.score,
-                      distanceMetric: 'cosine' as const,
-                    })),
-                  )
-                  // In case there are multiple results with the same document
-                  .onConflictDoNothing();
+            options.dataStream.writeMessageAnnotation({
+              dbId: response.id,
+            });
 
-                const generateImageToolResult = step.toolResults.find(
-                  (t) => t.toolName === 'generateImage',
-                );
+            for (const toolInvocation of message.toolInvocations ?? []) {
+              if ('result' in toolInvocation) {
                 if (
-                  generateImageToolResult &&
-                  generateImageToolResult.result.status === 'success'
+                  toolInvocation.toolName === 'vectorStore' &&
+                  toolInvocation.result.status === 'success'
                 ) {
-                  options.dataStream.writeMessageAnnotation({
-                    generatedImageId: generateImageToolResult.result.image.id,
-                  });
                   await db
-                    .insert(userGeneratedImagesToSourceDocuments)
+                    .insert(messagesToSourceDocuments)
                     .values(
-                      toolResult.result.documents.map((d) => ({
-                        userGeneratedImageId: generateImageToolResult.result.image!.id,
+                      toolInvocation.result.documents.map((d: DocumentWithScore) => ({
+                        messageId: response.id,
                         sourceDocumentId: d.id,
                         distance: 1 - d.score,
                         distanceMetric: 'cosine' as const,
@@ -232,16 +205,38 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
                     )
                     // In case there are multiple results with the same document
                     .onConflictDoNothing();
+
+                  const generateImageToolResult = message.toolInvocations?.find(
+                    (t) => t.toolName === 'generateImage',
+                  );
+                  if (
+                    generateImageToolResult &&
+                    'result' in generateImageToolResult &&
+                    generateImageToolResult.result.status === 'success'
+                  ) {
+                    options.dataStream.writeMessageAnnotation({
+                      generatedImageId: generateImageToolResult.result.image.id,
+                    });
+                    await db
+                      .insert(userGeneratedImagesToSourceDocuments)
+                      .values(
+                        toolInvocation.result.documents.map((d: DocumentWithScore) => ({
+                          userGeneratedImageId: generateImageToolResult.result.image!.id,
+                          sourceDocumentId: d.id,
+                          distance: 1 - d.score,
+                          distanceMetric: 'cosine' as const,
+                        })),
+                      )
+                      // In case there are multiple results with the same document
+                      .onConflictDoNothing();
+                  }
                 }
               }
             }
           }
-        };
-        await Promise.all([onStepFinish(), options.onStepFinish?.(step)]);
-      },
-      onFinish: async (event) => {
-        await Promise.all([...pendingPromises, options.onFinish?.(event)]);
+        }
+
+        await Promise.all([...pendingPromises, onFinish(), options.onFinish?.(event)]);
       },
     });
-  };
 };

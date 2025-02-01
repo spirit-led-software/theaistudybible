@@ -1,6 +1,6 @@
 import type { Content } from '@/schemas/bibles/contents';
 import type { Metadata } from '@/schemas/utils/types';
-import type { FinishReason, JSONValue, ToolInvocation } from 'ai';
+import type { Attachment, FinishReason, JSONValue, ToolInvocation } from 'ai';
 import { add } from 'date-fns';
 import { relations } from 'drizzle-orm';
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
@@ -301,7 +301,8 @@ export const messages = sqliteTable(
     }),
 
     // Fields required by the ai sdk
-    content: text('content'),
+    content: text('content').notNull().default(''),
+    reasoning: text('reasoning'),
     tool_call_id: text('tool_call_id'),
     role: text('role', {
       enum: ['system', 'user', 'assistant', 'data'],
@@ -310,6 +311,7 @@ export const messages = sqliteTable(
     annotations: text('annotations', { mode: 'json' }).$type<JSONValue[]>(),
     toolInvocations: text('tool_invocations', { mode: 'json' }).$type<ToolInvocation[]>(),
     finishReason: text('finish_reason').$type<FinishReason>(),
+    experimental_attachments: text('attachments', { mode: 'json' }).$type<Attachment[]>(),
 
     // Custom fields
     anonymous: integer('anonymous', { mode: 'boolean' }).notNull().default(false),

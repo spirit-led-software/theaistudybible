@@ -2,6 +2,7 @@ import { defaultChatModel } from '@/ai/models';
 import { registry } from '@/ai/provider-registry';
 import { getValidMessages } from '@/ai/utils/get-valid-messages';
 import { messagesToString } from '@/ai/utils/messages-to-string';
+import { normalizeMessage } from '@/ai/utils/normalize-message';
 import { db } from '@/core/database';
 import type { Prettify } from '@/core/types/util';
 import { createId } from '@/core/utils/id';
@@ -196,14 +197,7 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
         messagesQuery.data.pages
           .flatMap((page) => page.messages)
           .toReversed()
-          .map((message) => ({
-            ...message,
-            createdAt: new Date(message.createdAt),
-            content: message.content ?? '',
-            annotations: message.annotations ?? undefined,
-            toolInvocations: message.toolInvocations ?? undefined,
-            tool_call_id: message.tool_call_id ?? undefined,
-          })),
+          .map(normalizeMessage),
       );
     }
   });
