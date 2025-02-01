@@ -170,7 +170,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
           const newMessages = appendResponseMessages({
             messages: normalizedMessages,
             responseMessages: event.response.messages,
-          }).filter((m) => normalizedMessages.find((nm) => nm.id === m.id));
+          }).filter((m) => !normalizedMessages.some((nm) => nm.id === m.id)); // filter out messages that already exist
 
           for (const message of newMessages) {
             const [response] = await db
