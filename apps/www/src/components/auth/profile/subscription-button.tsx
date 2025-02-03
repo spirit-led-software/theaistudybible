@@ -1,5 +1,6 @@
 import { stripe } from '@/core/stripe';
-import { type SubscriptionData, getStripeData } from '@/core/stripe/utils';
+import type { SubscriptionData } from '@/core/stripe/types';
+import { getStripeData } from '@/core/stripe/utils';
 import { useProSubscription } from '@/www/hooks/use-pro-subscription';
 import { requireAuth } from '@/www/server/auth';
 import { A, action, useAction } from '@solidjs/router';

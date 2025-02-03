@@ -3,7 +3,6 @@ import { verseBookmarks } from '@/core/database/schema';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { DropdownMenuItem } from '@/www/components/ui/dropdown-menu';
 import { Spinner } from '@/www/components/ui/spinner';
-import {} from '@/www/components/ui/tooltip';
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth, requireAuth } from '@/www/server/auth';

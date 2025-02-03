@@ -20,6 +20,12 @@ declare global {
     interface Chainable {
       login(email: string, password: string): Chainable<void>;
     }
+    interface Env {
+      ADMIN_EMAIL: string;
+      ADMIN_PASSWORD: string;
+      TEST_USER_EMAIL: string;
+      TEST_USER_PASSWORD: string;
+    }
   }
 }
 

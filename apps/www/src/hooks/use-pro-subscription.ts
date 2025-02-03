@@ -1,4 +1,5 @@
-import { type SubscriptionData, getStripeData } from '@/core/stripe/utils';
+import type { SubscriptionData } from '@/core/stripe/types';
+import { getStripeData } from '@/core/stripe/utils';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { createEffect, createSignal } from 'solid-js';

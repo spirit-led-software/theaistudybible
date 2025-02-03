@@ -73,18 +73,18 @@ export class VectorStore {
       );
 
       let existingDocs: Document[] = [];
-      if (options.overwrite === false) {
+      if (!options.overwrite) {
         existingDocs = await this.client
           .fetch(
             batch.map((d) => d.id),
-            {
-              includeMetadata: false,
-              includeVectors: false,
-              namespace: options.namespace,
-            },
+            { includeMetadata: false, includeVectors: false, namespace: options.namespace },
           )
           .then((r) => r.filter((d) => d !== null) as Document[]);
-        batch = batch.filter((d) => !existingDocs.some((e) => e.id === d.id));
+        if (existingDocs.length > 0) {
+          throw new Error('Overwrite is false but some documents already exist');
+        }
+        batch = batch.filter((d) => !existingDocs.some((ed) => ed.id === d.id));
+        if (batch.length === 0) continue;
       }
 
       await Promise.all([
@@ -92,21 +92,14 @@ export class VectorStore {
           batch.map((d) => ({
             id: d.id,
             vector: d.embedding,
-            metadata: {
-              content: d.content,
-              ...d.metadata,
-            },
+            metadata: { content: d.content, ...d.metadata },
           })),
           { namespace: options.namespace },
         ),
-        db.insert(sourceDocuments).values(
-          batch.map(
-            (d) =>
-              ({
-                id: d.id,
-              }) satisfies typeof sourceDocuments.$inferInsert,
-          ),
-        ),
+        db
+          .insert(sourceDocuments)
+          .values(batch.map((d) => ({ id: d.id })))
+          .onConflictDoNothing(),
       ]);
     }
     return docsWithEmbeddings.map((d) => d.id);

@@ -5,7 +5,7 @@ describe('Chat', () => {
   });
 
   it('should show the chat page if logged in', () => {
-    cy.login(Cypress.env('ADMIN_EMAIL'), Cypress.env('ADMIN_PASSWORD'));
+    cy.login(Cypress.env('TEST_USER_EMAIL'), Cypress.env('TEST_USER_PASSWORD'));
     cy.visit('/chat');
     cy.url().should('include', '/chat');
   });

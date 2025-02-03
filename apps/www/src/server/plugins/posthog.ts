@@ -1,4 +1,8 @@
-import { addEventProcessor, addIntegration, getCurrentScope } from '@sentry/solidstart';
+import {
+  addEventProcessor as addSentryEventProcessor,
+  addIntegration as addSentryIntegration,
+  getCurrentScope as getSentryScope,
+} from '@sentry/solidstart';
 import { defineNitroPlugin } from 'nitropack/runtime/plugin';
 import { PostHog, PostHogSentryIntegration } from 'posthog-node';
 
@@ -14,9 +18,9 @@ export default defineNitroPlugin((nitroApp) => {
     posthog.optOut();
   }
 
-  addIntegration({
+  addSentryIntegration({
     ...posthogSentry,
-    setupOnce: () => posthogSentry.setupOnce(addEventProcessor, getCurrentScope),
+    setupOnce: () => posthogSentry.setupOnce(addSentryEventProcessor, getSentryScope),
   });
 
   nitroApp.hooks.hookOnce('close', async () => {

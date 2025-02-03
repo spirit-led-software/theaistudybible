@@ -47,9 +47,6 @@ export class Reranker {
       throw new Error(`Failed to rerank documents: ${response.statusText}`);
     }
     const { data }: VoyageAiRerankResponse = await response.json();
-    return data.map((item) => ({
-      ...documents[item.index],
-      score: item.relevance_score,
-    }));
+    return data.map((item) => ({ ...documents[item.index], score: item.relevance_score }));
   }
 }

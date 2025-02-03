@@ -4,7 +4,7 @@ import type { SQSHandler } from 'aws-lambda';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
   try {
-    console.log('Processing dead-letter event:', JSON.stringify(event, null, 2));
+    console.log('Processing dead-letter event:', JSON.stringify(event));
 
     const batchSize = 5;
     const errors: Error[] = [];

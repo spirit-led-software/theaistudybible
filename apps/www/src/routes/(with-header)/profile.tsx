@@ -1,5 +1,6 @@
 import { Protected } from '@/www/components/auth/control';
 import { InfoCard } from '@/www/components/auth/profile/info-card';
+import { LinkedAccountsCard } from '@/www/components/auth/profile/linked-accounts-card';
 import { PasskeysCard } from '@/www/components/auth/profile/passkeys-card';
 import { SettingsCard } from '@/www/components/auth/profile/settings-card';
 import { Card } from '@/www/components/ui/card';
@@ -61,7 +62,8 @@ export default function Profile() {
                   <SettingsCard />
                 </TabsContent>
 
-                <TabsContent value='security' class='mt-6'>
+                <TabsContent value='security' class='mt-6 flex flex-col gap-6'>
+                  <LinkedAccountsCard />
                   <PasskeysCard />
                 </TabsContent>
               </Tabs>

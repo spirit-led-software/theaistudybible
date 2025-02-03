@@ -15,7 +15,6 @@ import { PushNotificationToggle } from '../../push-notification-toggle';
 import { Button } from '../../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
 import { Label } from '../../ui/label';
-import {} from '../../ui/select';
 import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from '../../ui/switch';
 import {
   TextField,
@@ -84,35 +83,39 @@ export function SettingsCard() {
           onSubmit={(values) => handleSubmit.mutateAsync(values)}
         >
           <div class='flex h-full flex-1 flex-col gap-6'>
-            <PushNotificationToggle />
-            <Field name='emailNotifications' type='boolean'>
-              {(field, props) => (
-                <Switch
-                  checked={field.value}
-                  onChange={(v) => {
-                    setValue(form, field.name, v);
-                  }}
-                  class='flex items-center gap-2'
-                >
-                  <SwitchControl {...props}>
-                    <SwitchThumb />
-                  </SwitchControl>
-                  <SwitchLabel>Email Notifications</SwitchLabel>
-                </Switch>
-              )}
-            </Field>
-            <Field name='preferredBibleId'>
-              {(field) => (
-                <div class='flex flex-col gap-2'>
-                  <Label>Preferred Bible</Label>
-                  <SmallBiblePicker
-                    value={field.value ?? undefined}
-                    onValueChange={(b) => setValue(form, field.name, b?.id)}
-                    class='w-fit'
-                  />
-                </div>
-              )}
-            </Field>
+            <div class='flex items-center gap-12'>
+              <div class='flex flex-col gap-6'>
+                <PushNotificationToggle />
+                <Field name='emailNotifications' type='boolean'>
+                  {(field, props) => (
+                    <Switch
+                      checked={field.value}
+                      onChange={(v) => {
+                        setValue(form, field.name, v);
+                      }}
+                      class='flex items-center gap-2'
+                    >
+                      <SwitchLabel>Email Notifications</SwitchLabel>
+                      <SwitchControl {...props}>
+                        <SwitchThumb />
+                      </SwitchControl>
+                    </Switch>
+                  )}
+                </Field>
+              </div>
+              <Field name='preferredBibleId'>
+                {(field) => (
+                  <div class='flex flex-col gap-2'>
+                    <Label>Preferred Bible</Label>
+                    <SmallBiblePicker
+                      value={field.value ?? undefined}
+                      onValueChange={(b) => setValue(form, field.name, b?.id)}
+                      class='w-fit'
+                    />
+                  </div>
+                )}
+              </Field>
+            </div>
             <Field name='aiInstructions'>
               {(field, props) => (
                 <TextField

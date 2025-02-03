@@ -10,7 +10,7 @@ import { eq } from 'drizzle-orm';
 import { Resource } from 'sst';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
-  console.log('Processing data-sources event:', JSON.stringify(event, null, 2));
+  console.log('Processing data-sources event:', JSON.stringify(event));
   const batchItemFailures: SQSBatchItemFailure[] = [];
   for (const r of event.Records) {
     try {

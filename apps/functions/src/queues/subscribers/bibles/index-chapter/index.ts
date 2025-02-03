@@ -8,7 +8,7 @@ import type { IndexChapterEvent } from './types';
 import { insertChapter, insertVerses } from './utils';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
-  console.log('Processing index bible chapter event:', JSON.stringify(event, null, 2));
+  console.log('Processing index bible chapter event:', JSON.stringify(event));
 
   const batchItemFailures: SQSBatchItemFailure[] = [];
   for (const record of event.Records) {
@@ -82,6 +82,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
               ...v,
               content: content.verseContents[v.number].contents,
             })),
+            overwrite,
           });
         }
       }

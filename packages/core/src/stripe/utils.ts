@@ -1,20 +1,6 @@
 import { stripe } from '.';
 import { cache } from '../cache';
-
-export type SubscriptionData =
-  | { status: 'none' }
-  | {
-      subscriptionId: string;
-      status: string;
-      priceId: string;
-      currentPeriodEnd: number;
-      currentPeriodStart: number;
-      cancelAtPeriodEnd: boolean;
-      paymentMethod: {
-        brand: string | null;
-        last4: string | null;
-      } | null;
-    };
+import type { SubscriptionData } from './types';
 
 // The contents of this function should probably be wrapped in a try/catch
 export async function syncStripeData(customerId?: string | null): Promise<SubscriptionData> {

@@ -138,7 +138,7 @@ export const BiblesContent = () => {
               <NumberFieldDecrementTrigger />
             </div>
           </NumberField>
-          <div class='flex items-center'>
+          <div class='flex items-center gap-1'>
             <Label>Generate embeddings</Label>
             <Checkbox checked={generateEmbeddings()} onChange={(v) => setGenerateEmbeddings(v)} />
           </div>

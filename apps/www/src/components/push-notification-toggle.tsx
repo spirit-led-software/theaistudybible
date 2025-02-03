@@ -157,10 +157,10 @@ export function PushNotificationToggle(props: PushNotificationToggleProps) {
           : handleUnsubscribeFromPushNotifications.mutate()
       }
     >
+      <SwitchLabel>Push Notifications</SwitchLabel>
       <SwitchControl>
         <SwitchThumb />
       </SwitchControl>
-      <SwitchLabel>Push Notifications</SwitchLabel>
     </Switch>
   );
 }

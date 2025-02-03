@@ -6,7 +6,6 @@ import { Card, CardContent, CardFooter, CardHeader } from '../../ui/card';
 import { H4 } from '../../ui/typography';
 import { UpdateAvatarDialog } from './avatar/update-dialog';
 import { DeleteProfileDialog } from './delete-dialog';
-import { LinkedAccounts } from './linked-accounts';
 import { SubscriptionButton } from './subscription-button';
 import { EditProfileDialog } from './update-dialog';
 
@@ -55,9 +54,6 @@ export const InfoCard = () => {
           <span class='text-muted-foreground text-sm'>Subscription:</span>
           <SubscriptionButton variant='outline' size='sm' />
         </div>
-        <Show when={user()?.googleId || user()?.appleId}>
-          <LinkedAccounts />
-        </Show>
       </CardContent>
       <CardFooter class='flex justify-center gap-2'>
         <EditProfileDialog />

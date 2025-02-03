@@ -12,7 +12,7 @@ import { Menu } from './menu';
 
 export function NavigationHeader() {
   return (
-    <nav class='fixed inset-x-safe top-safe z-50 flex h-20 w-full items-center justify-between border-b border-b-border bg-background/80 py-6 pr-4 pl-2 backdrop-blur-md transition-all duration-300 ease-in-out'>
+    <nav class='fixed inset-x-safe top-safe z-50 flex h-20 w-full items-center justify-between border-b border-b-border bg-background/80 py-6 pr-4 pl-2 shadow-xs backdrop-blur-md transition-all duration-300 ease-in-out'>
       <div class='flex justify-start sm:hidden'>
         <NavigationDrawer />
       </div>

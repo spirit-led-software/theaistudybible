@@ -1,35 +1,13 @@
-import {} from '@/core/database/schema';
 import { stripe } from '@/core/stripe';
+import { allowedStripeEvents } from '@/core/stripe/constants';
 import { syncStripeData } from '@/core/stripe/utils';
-import {} from 'drizzle-orm';
 import { Hono } from 'hono/quick';
 import { Resource } from 'sst';
 import type Stripe from 'stripe';
 
-const allowedEvents: Stripe.Event.Type[] = [
-  'checkout.session.completed',
-  'customer.subscription.created',
-  'customer.subscription.updated',
-  'customer.subscription.deleted',
-  'customer.subscription.paused',
-  'customer.subscription.resumed',
-  'customer.subscription.pending_update_applied',
-  'customer.subscription.pending_update_expired',
-  'customer.subscription.trial_will_end',
-  'invoice.paid',
-  'invoice.payment_failed',
-  'invoice.payment_action_required',
-  'invoice.upcoming',
-  'invoice.marked_uncollectible',
-  'invoice.payment_succeeded',
-  'payment_intent.succeeded',
-  'payment_intent.payment_failed',
-  'payment_intent.canceled',
-];
-
 async function processEvent(event: Stripe.Event) {
   // Skip processing if the event isn't one I'm tracking (list of all events below)
-  if (!allowedEvents.includes(event.type)) return;
+  if (!allowedStripeEvents.includes(event.type)) return;
 
   // All the events I track have a customerId
   const { customer: customerId } = event?.data?.object as {

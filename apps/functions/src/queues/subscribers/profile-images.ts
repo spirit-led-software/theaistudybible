@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm';
 import { Resource } from 'sst';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
-  console.log('Processing profile images event:', JSON.stringify(event, null, 2));
+  console.log('Processing profile images event:', JSON.stringify(event));
 
   const batchItemFailures: SQSBatchItemFailure[] = [];
   for (const record of event.Records) {

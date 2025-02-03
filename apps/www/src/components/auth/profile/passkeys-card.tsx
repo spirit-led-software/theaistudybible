@@ -30,7 +30,14 @@ import { For, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 import { Button } from '../../ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '../../ui/card';
 import {
   Dialog,
   DialogContent,
@@ -38,6 +45,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../ui/dialog';
+import { P } from '../../ui/typography';
 
 const getPasskeys = GET(async () => {
   'use server';
@@ -254,22 +262,16 @@ export function PasskeysCard() {
     <Card class='h-full w-full'>
       <CardHeader>
         <CardTitle>Passkeys</CardTitle>
-        <CardDescription>Manage your passkeys for passwordless authentication</CardDescription>
+        <CardDescription>Manage your passkeys for passwordless authentication.</CardDescription>
       </CardHeader>
       <CardContent class='space-y-4'>
-        <div class='flex justify-end'>
-          <Button onClick={() => setIsAddingPasskey(true)} disabled={addPasskeyMutation.isPending}>
-            Add Passkey
-          </Button>
-        </div>
-
         <QueryBoundary
           query={passkeysQuery}
           notFoundFallback={<div class='text-center text-muted-foreground'>No passkeys found</div>}
         >
           {({ passkeys }) => (
             <div class='space-y-2'>
-              <For each={passkeys}>
+              <For each={passkeys} fallback={<P>No passkeys found</P>}>
                 {(passkey) => (
                   <div class='flex items-center justify-between rounded-lg border p-3'>
                     <div>
@@ -337,6 +339,11 @@ export function PasskeysCard() {
           </DialogContent>
         </Dialog>
       </CardContent>
+      <CardFooter class='flex justify-end'>
+        <Button onClick={() => setIsAddingPasskey(true)} disabled={addPasskeyMutation.isPending}>
+          Add Passkey
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

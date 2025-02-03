@@ -352,7 +352,7 @@ async function sendChaptersToIndexBucket(
   overwrite: boolean,
 ) {
   const entries = Object.entries(contents).toSorted(([a], [b]) => Number(a) - Number(b));
-  const batchSize = 20;
+  const batchSize = 50;
   for (let i = 0; i < entries.length; i += batchSize) {
     const batch = entries.slice(i, i + batchSize);
     const messages = batch.map(

@@ -9,12 +9,20 @@ export const generateChapterEmbeddings = async ({
   chapter,
   book,
   bible,
+  overwrite,
 }: {
   verses: Verse[];
   chapter: Omit<Chapter, 'content'>;
   book: Book;
   bible: Bible;
+  overwrite?: boolean;
 }) => {
+  const existingDocs = await db.query.chaptersToSourceDocuments.findMany({
+    where: (chaptersToSourceDocuments, { eq }) =>
+      eq(chaptersToSourceDocuments.chapterId, chapter.id),
+  });
+  await vectorStore.deleteDocuments(existingDocs.map((doc) => doc.sourceDocumentId));
+
   const docs = versesToDocs({
     bible,
     book,
@@ -26,7 +34,7 @@ export const generateChapterEmbeddings = async ({
   const batchSize = 100;
   for (let i = 0; i < docs.length; i += batchSize) {
     const batch = docs.slice(i, i + batchSize);
-    await vectorStore.addDocuments(batch);
+    await vectorStore.addDocuments(batch, { overwrite });
     await db
       .insert(chaptersToSourceDocuments)
       .values(

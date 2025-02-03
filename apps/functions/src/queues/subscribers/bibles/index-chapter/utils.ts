@@ -38,9 +38,9 @@ export async function insertChapter({
       content: contents.contents,
     })
     .onConflictDoUpdate({
-      target: chapters.id,
+      target: [chapters.bibleId, chapters.code],
       set: overwrite
-        ? buildConflictUpdateColumns(chapters, ['code', 'content', 'name', 'number'])
+        ? buildConflictUpdateColumns(chapters, ['name', 'number', 'content'])
         : { id: sql`id` },
     })
     .returning({
@@ -92,9 +92,9 @@ export async function insertVerses({
         ),
       )
       .onConflictDoUpdate({
-        target: verses.id,
+        target: [verses.bibleId, verses.code],
         set: overwrite
-          ? buildConflictUpdateColumns(verses, ['code', 'content', 'name', 'number'])
+          ? buildConflictUpdateColumns(verses, ['name', 'number', 'content'])
           : { id: sql`id` },
       })
       .returning({

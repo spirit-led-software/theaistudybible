@@ -5,7 +5,7 @@ import { getHeader } from 'vinxi/http';
 
 const ratelimit = new Ratelimit({
   redis: cache,
-  limiter: Ratelimit.slidingWindow(2000, '1 m'),
+  limiter: Ratelimit.slidingWindow(2000, '1m'),
 });
 
 export const rateLimitingMiddleware = () => {

@@ -7,7 +7,7 @@ import type { SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
 import { Resource } from 'sst';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
-  console.log('Processing email event:', JSON.stringify(event, null, 2));
+  console.log('Processing email event:', JSON.stringify(event));
 
   const batchItemFailures: SQSBatchItemFailure[] = [];
   for (const r of event.Records) {

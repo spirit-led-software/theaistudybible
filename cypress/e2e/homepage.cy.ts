@@ -62,7 +62,7 @@ describe('Homepage', () => {
   });
 
   it('redirects signed-in users to the Bible page', () => {
-    cy.login(Cypress.env('ADMIN_EMAIL'), Cypress.env('ADMIN_PASSWORD'));
+    cy.login(Cypress.env('TEST_USER_EMAIL'), Cypress.env('TEST_USER_PASSWORD'));
     cy.visit('/');
     cy.url().should('include', '/bible');
   });

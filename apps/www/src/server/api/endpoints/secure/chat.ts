@@ -3,6 +3,7 @@ import { allChatModels, basicChatModels } from '@/ai/models';
 import { db } from '@/core/database';
 import { chats, messages as messagesTable } from '@/core/database/schema';
 import { createId } from '@/core/utils/id';
+import { getPosthog } from '@/core/utils/posthog';
 import type { Bible } from '@/schemas/bibles/types';
 import { MessageSchema } from '@/schemas/chats';
 import type { Bindings, Variables } from '@/www/server/api/types';
@@ -166,7 +167,7 @@ const app = new Hono<{
             bible,
             onStepFinish: (step) => {
               dataStream.writeMessageAnnotation({ modelId });
-              globalThis.posthog?.capture({
+              getPosthog()?.capture({
                 distinctId: c.var.user!.id,
                 event: 'chat step finished',
                 properties: { modelId, step },
@@ -184,7 +185,7 @@ const app = new Hono<{
                 );
               }
               await Promise.all(pendingPromises);
-              globalThis.posthog?.capture({
+              getPosthog()?.capture({
                 distinctId: c.var.user!.id,
                 event: 'chat event finished',
                 properties: { modelId, event },

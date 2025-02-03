@@ -11,7 +11,8 @@ import { Show, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Apple, Google } from '../../ui/brand-icons';
 import { Button } from '../../ui/button';
-import { GradientH3 } from '../../ui/typography';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card';
+import { P } from '../../ui/typography';
 
 type Provider = 'google' | 'apple';
 
@@ -28,7 +29,7 @@ const unlinkAction = action(async (provider: Provider) => {
   return { success: true };
 });
 
-export const LinkedAccounts = () => {
+export const LinkedAccountsCard = () => {
   const unlink = useAction(unlinkAction);
   const { user, refetch } = useAuth();
 
@@ -55,24 +56,36 @@ export const LinkedAccounts = () => {
   }));
 
   return (
-    <div class='flex flex-col items-center gap-2'>
-      <GradientH3>Linked Accounts</GradientH3>
-      <div class='flex flex-wrap gap-2'>
-        <Show when={user()?.googleId}>
-          <Button variant='outline' onClick={() => handleUnlink.mutate('google')}>
-            <Google class='mr-2 size-4' />
-            Google
-            <X class='ml-2 size-4' />
-          </Button>
+    <Card>
+      <CardHeader>
+        <CardTitle>Linked Accounts</CardTitle>
+        <CardDescription>
+          Manage your linked accounts to easily sign in to your account.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Show
+          when={user()?.googleId || user()?.appleId}
+          fallback={<P>You do not have any linked accounts</P>}
+        >
+          <div class='flex flex-wrap gap-2'>
+            <Show when={user()?.googleId}>
+              <Button variant='outline' onClick={() => handleUnlink.mutate('google')}>
+                <Google class='mr-2 size-4' />
+                Google
+                <X class='ml-2 size-4' />
+              </Button>
+            </Show>
+            <Show when={user()?.appleId}>
+              <Button variant='outline' onClick={() => handleUnlink.mutate('apple')}>
+                <Apple class='mr-2 size-4' />
+                Apple
+                <X class='ml-2 size-4' />
+              </Button>
+            </Show>
+          </div>
         </Show>
-        <Show when={user()?.appleId}>
-          <Button variant='outline' onClick={() => handleUnlink.mutate('apple')}>
-            <Apple class='mr-2 size-4' />
-            Apple
-            <X class='ml-2 size-4' />
-          </Button>
-        </Show>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

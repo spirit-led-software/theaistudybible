@@ -14,7 +14,7 @@ import { eq } from 'drizzle-orm';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
-  console.log('Processing data source files event:', JSON.stringify(event, null, 2));
+  console.log('Processing data source files event:', JSON.stringify(event));
 
   const batchItemFailures: SQSBatchItemFailure[] = [];
   for (const record of event.Records) {

@@ -5,7 +5,7 @@ import { wrapHandler } from '@sentry/aws-serverless';
 import type { S3EventRecord, SQSBatchItemFailure, SQSHandler } from 'aws-lambda';
 
 export const handler: SQSHandler = wrapHandler(async (event) => {
-  console.log('Processing index bible event:', JSON.stringify(event, null, 2));
+  console.log('Processing index bible event:', JSON.stringify(event));
 
   const batchItemFailures: SQSBatchItemFailure[] = [];
   for (const record of event.Records) {

@@ -1,6 +1,5 @@
 import type { Role } from '@/schemas/roles/types';
 import type { Session, User, UserSettings } from '@/schemas/users/types';
-import type { PostHog } from 'posthog-node';
 
 declare module '@solidjs/start/server' {
   export interface RequestEventLocals {
@@ -29,7 +28,6 @@ interface Env {
 }
 
 declare global {
-  export var posthog: PostHog | undefined;
   namespace NodeJS {
     interface ProcessEnv extends Env {}
   }
