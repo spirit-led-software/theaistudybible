@@ -25,3 +25,6 @@ dump.sql
 
 # Apple
 apple-auth-key.p8
+
+# GCP
+gcp-key.json
