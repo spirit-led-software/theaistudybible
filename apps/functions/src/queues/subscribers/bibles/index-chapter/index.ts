@@ -35,8 +35,16 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
           throw new Error('Content not found');
         }
 
-        const { bibleId, bookId, previousId, nextId, chapterNumber, content, generateEmbeddings } =
-          JSON.parse(messageContent) as IndexChapterEvent;
+        const {
+          bibleId,
+          bookId,
+          previousId,
+          nextId,
+          chapterNumber,
+          content,
+          generateEmbeddings,
+          overwrite,
+        } = JSON.parse(messageContent) as IndexChapterEvent;
 
         const bibleData = await db.query.bibles.findFirst({
           where: (bibles, { eq }) => eq(bibles.id, bibleId),
@@ -62,8 +70,9 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
           nextId,
           chapterNumber,
           contents: content,
+          overwrite,
         });
-        const verses = await insertVerses({ bible, book, chapter, content });
+        const verses = await insertVerses({ bible, book, chapter, content, overwrite });
         if (generateEmbeddings) {
           await generateChapterEmbeddings({
             bible,

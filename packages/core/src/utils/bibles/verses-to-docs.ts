@@ -1,7 +1,7 @@
 import { embeddingModel } from '@/ai/models';
 import type { Document } from '@/ai/types/document';
 import { numTokensFromString } from '@/ai/utils/num-tokens-from-string';
-import { contentsToText } from '@/core/utils/bible';
+import { contentsToText } from '@/core/utils/bibles/contents-to-text';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import { murmurHash } from 'ohash';
 

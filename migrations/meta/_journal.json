@@ -169,6 +169,13 @@
       "when": 1738418083191,
       "tag": "0023_chemical_azazel",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1738579328398,
+      "tag": "0024_daily_master_mold",
+      "breakpoints": true
     }
   ]
 }

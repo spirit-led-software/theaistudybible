@@ -8,4 +8,5 @@ export type IndexChapterEvent = {
   chapterNumber: string;
   content: ReturnType<typeof parseUsx>[number];
   generateEmbeddings: boolean;
+  overwrite: boolean;
 };

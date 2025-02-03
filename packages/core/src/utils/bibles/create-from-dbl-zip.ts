@@ -1,12 +1,10 @@
-import { vectorStore } from '@/ai/vector-store';
 import { db } from '@/core/database';
 import * as schema from '@/core/database/schema';
 import { buildConflictUpdateColumns } from '@/core/database/utils';
 import { s3 } from '@/core/storage';
 import type { IndexChapterEvent } from '@/functions/queues/subscribers/bibles/index-chapter/types';
-import type { Bible } from '@/schemas/bibles/types';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import JSZip from 'jszip';
 import { Resource } from 'sst';
@@ -32,18 +30,16 @@ export async function createBibleFromDblZip({
   const abbreviation = publication.abbreviation ?? metadata.identification.abbreviation;
 
   console.log(`Checking if bible ${abbreviation} already exists...`);
-  let bible: Bible | undefined = await findExistingBible(abbreviation, overwrite);
+  let bible = await findExistingBible(abbreviation, overwrite);
 
-  if (!bible) {
-    bible = await createNewBible(metadata, abbreviation);
-    await createBibleRelations(bible, metadata);
-  }
+  bible = await createBible(metadata, abbreviation, overwrite);
+  await createBibleRelations(bible, metadata);
 
   console.log(`Bible created with ID ${bible.id}`);
 
   const bookInfos = getBookInfos(publication, metadata);
-  const newBooks = await createBooks(bible.id, bookInfos);
-  await processBooks(zipFile, bible, newBooks, bookInfos, generateEmbeddings);
+  const newBooks = await createBooks(bible.id, bookInfos, overwrite);
+  await processBooks(zipFile, bible, newBooks, bookInfos, generateEmbeddings, overwrite);
 }
 
 async function extractMetadataAndPublication(zipFile: JSZip, publicationId?: string) {
@@ -93,43 +89,16 @@ async function findExistingBible(abbreviation: string, overwrite: boolean) {
         `Bible ${abbreviation} already exists. ID: ${bible.id}. Use --overwrite to replace it.`,
       );
     }
-
-    console.log(`Bible ${abbreviation} already exists. Deleting...`);
-    await deleteBibleAndEmbeddings(bible.id);
-    return undefined;
   }
 
   return bible;
 }
 
-async function deleteBibleAndEmbeddings(bibleId: string) {
-  const sourceDocumentIds = await db.query.bibles
-    .findMany({
-      columns: {},
-      with: {
-        chapters: {
-          columns: {},
-          with: { chaptersToSourceDocuments: { columns: { sourceDocumentId: true } } },
-        },
-      },
-    })
-    .then((result) =>
-      result.flatMap((bible) =>
-        bible.chapters.flatMap((chapter) =>
-          chapter.chaptersToSourceDocuments.map(({ sourceDocumentId }) => sourceDocumentId),
-        ),
-      ),
-    );
-  await Promise.all([
-    db.delete(schema.bibles).where(eq(schema.bibles.id, bibleId)),
-    vectorStore.deleteDocuments(sourceDocumentIds),
-  ]);
-}
-
-async function createNewBible(metadata: DBLMetadata, abbreviation: string) {
+async function createBible(metadata: DBLMetadata, abbreviation: string, overwrite: boolean) {
   const copyRightHtml = new XMLBuilder({
     ignoreAttributes: false,
   }).build(metadata.copyright.fullStatement.statementContent);
+
   const [bible] = await db
     .insert(schema.bibles)
     .values({
@@ -139,6 +108,19 @@ async function createNewBible(metadata: DBLMetadata, abbreviation: string) {
       nameLocal: metadata.identification.nameLocal,
       description: metadata.identification.description,
       copyrightStatement: copyRightHtml,
+    })
+    .onConflictDoUpdate({
+      target: [schema.bibles.abbreviation],
+      set: overwrite
+        ? buildConflictUpdateColumns(schema.bibles, [
+            'abbreviation',
+            'abbreviationLocal',
+            'name',
+            'nameLocal',
+            'description',
+            'copyrightStatement',
+          ])
+        : { id: sql`id` },
     })
     .returning();
 
@@ -167,10 +149,13 @@ async function createBibleLanguage(bibleId: string, dblLanguage: DBLMetadata['la
       set: rest,
     })
     .returning();
-  await db.insert(schema.biblesToLanguages).values({
-    bibleId,
-    languageId: language.id,
-  });
+  await db
+    .insert(schema.biblesToLanguages)
+    .values({
+      bibleId,
+      languageId: language.id,
+    })
+    .onConflictDoNothing();
 }
 
 async function createBibleCountries(
@@ -191,12 +176,15 @@ async function createBibleCountries(
       ),
     })
     .returning();
-  await db.insert(schema.biblesToCountries).values(
-    countries.map((country) => ({
-      bibleId,
-      countryId: country.id,
-    })),
-  );
+  await db
+    .insert(schema.biblesToCountries)
+    .values(
+      countries.map((country) => ({
+        bibleId,
+        countryId: country.id,
+      })),
+    )
+    .onConflictDoNothing();
 }
 
 async function createBibleRightsHolder(
@@ -212,10 +200,13 @@ async function createBibleRightsHolder(
       set: rest,
     })
     .returning();
-  await db.insert(schema.biblesToRightsHolders).values({
-    bibleId,
-    rightsHolderId: rightsHolder.id,
-  });
+  await db
+    .insert(schema.biblesToRightsHolders)
+    .values({
+      bibleId,
+      rightsHolderId: rightsHolder.id,
+    })
+    .onConflictDoNothing();
 }
 
 async function createBibleRightsAdmin(
@@ -231,10 +222,13 @@ async function createBibleRightsAdmin(
       set: rest,
     })
     .returning();
-  await db.insert(schema.biblesToRightsAdmins).values({
-    bibleId,
-    rightsAdminId: rightsAdmin.id,
-  });
+  await db
+    .insert(schema.biblesToRightsAdmins)
+    .values({
+      bibleId,
+      rightsAdminId: rightsAdmin.id,
+    })
+    .onConflictDoNothing();
 }
 
 async function createBibleContributor(
@@ -256,12 +250,15 @@ async function createBibleContributor(
     })
     .returning();
 
-  await db.insert(schema.biblesToContributors).values(
-    contributors.map((contributor) => ({
-      bibleId,
-      contributorId: contributor.id,
-    })),
-  );
+  await db
+    .insert(schema.biblesToContributors)
+    .values(
+      contributors.map((contributor) => ({
+        bibleId,
+        contributorId: contributor.id,
+      })),
+    )
+    .onConflictDoNothing();
 }
 
 function getBookInfos(publication: Publication, metadata: DBLMetadata) {
@@ -279,7 +276,11 @@ function getBookInfos(publication: Publication, metadata: DBLMetadata) {
   });
 }
 
-async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBookInfos>) {
+async function createBooks(
+  bibleId: string,
+  bookInfos: ReturnType<typeof getBookInfos>,
+  overwrite: boolean,
+) {
   const batchSize = 50;
   const allBooks = [];
 
@@ -301,6 +302,17 @@ async function createBooks(bibleId: string, bookInfos: ReturnType<typeof getBook
           } satisfies typeof schema.books.$inferInsert;
         }),
       )
+      .onConflictDoUpdate({
+        target: [schema.books.bibleId, schema.books.code],
+        set: overwrite
+          ? buildConflictUpdateColumns(schema.books, [
+              'shortName',
+              'longName',
+              'abbreviation',
+              'number',
+            ])
+          : { id: sql`id` },
+      })
       .returning();
     allBooks.push(...insertedBooks);
   }
@@ -314,6 +326,7 @@ async function processBooks(
   books: (typeof schema.books.$inferSelect)[],
   bookInfos: ReturnType<typeof getBookInfos>,
   generateEmbeddings: boolean,
+  overwrite: boolean,
 ) {
   for (const bookInfo of bookInfos) {
     console.log(`Processing book: ${bookInfo.code}...`);
@@ -327,7 +340,7 @@ async function processBooks(
     const contents = parseUsx(bookXml);
 
     console.log('Book content parsed, sending chapters to queue...');
-    await sendChaptersToIndexBucket(contents, bible, book, generateEmbeddings);
+    await sendChaptersToIndexBucket(contents, bible, book, generateEmbeddings, overwrite);
   }
 }
 
@@ -336,6 +349,7 @@ async function sendChaptersToIndexBucket(
   bible: typeof schema.bibles.$inferSelect,
   book: typeof schema.books.$inferSelect,
   generateEmbeddings: boolean,
+  overwrite: boolean,
 ) {
   const entries = Object.entries(contents).toSorted(([a], [b]) => Number(a) - Number(b));
   const batchSize = 20;
@@ -351,6 +365,7 @@ async function sendChaptersToIndexBucket(
           chapterNumber,
           content,
           generateEmbeddings,
+          overwrite,
         }) satisfies IndexChapterEvent,
     );
 

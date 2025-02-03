@@ -3,7 +3,7 @@ import { type bibles, type books, chapters, verses } from '@/core/database/schem
 import { buildConflictUpdateColumns } from '@/core/database/utils';
 import type { parseUsx } from '@/core/utils/bibles/usx';
 import type { Bible, Book } from '@/schemas/bibles/types';
-import { getTableColumns } from 'drizzle-orm';
+import { getTableColumns, sql } from 'drizzle-orm';
 
 export async function insertChapter({
   bible,
@@ -12,6 +12,7 @@ export async function insertChapter({
   nextId,
   chapterNumber,
   contents,
+  overwrite,
 }: {
   bible: Bible;
   book: Book;
@@ -19,6 +20,7 @@ export async function insertChapter({
   nextId: string | undefined;
   chapterNumber: string;
   contents: ReturnType<typeof parseUsx>[number];
+  overwrite: boolean;
 }) {
   const { content, ...columnsWithoutContent } = getTableColumns(chapters);
 
@@ -35,17 +37,11 @@ export async function insertChapter({
       number: Number.parseInt(chapterNumber),
       content: contents.contents,
     })
-    // Since the queue can retry, we need to account for conflicts
     .onConflictDoUpdate({
       target: chapters.id,
-      set: buildConflictUpdateColumns(chapters, [
-        'code',
-        'content',
-        'name',
-        'number',
-        'nextId',
-        'previousId',
-      ]),
+      set: overwrite
+        ? buildConflictUpdateColumns(chapters, ['code', 'content', 'name', 'number'])
+        : { id: sql`id` },
     })
     .returning({
       ...columnsWithoutContent,
@@ -59,11 +55,13 @@ export async function insertVerses({
   book,
   chapter,
   content,
+  overwrite,
 }: {
   bible: typeof bibles.$inferSelect;
   book: typeof books.$inferSelect;
   chapter: Omit<typeof chapters.$inferSelect, 'content'>;
   content: ReturnType<typeof parseUsx>[number];
+  overwrite: boolean;
 }) {
   const { content: verseContent, ...columnsWithoutContent } = getTableColumns(verses);
   const insertVerseBatchSize = 40;
@@ -93,17 +91,11 @@ export async function insertVerses({
             }) satisfies typeof verses.$inferInsert,
         ),
       )
-      // Since the queue can retry, we need to account for conflicts
       .onConflictDoUpdate({
         target: verses.id,
-        set: buildConflictUpdateColumns(verses, [
-          'code',
-          'content',
-          'name',
-          'number',
-          'nextId',
-          'previousId',
-        ]),
+        set: overwrite
+          ? buildConflictUpdateColumns(verses, ['code', 'content', 'name', 'number'])
+          : { id: sql`id` },
       })
       .returning({
         ...columnsWithoutContent,

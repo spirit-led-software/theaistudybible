@@ -1034,6 +1034,7 @@ export const books = sqliteTable(
     longName: text('long_name').notNull(),
   },
   (table) => [
+    uniqueIndex('books_unique_bible_code_idx').on(table.bibleId, table.code),
     index('books_bible_id_idx').on(table.bibleId),
     index('books_previous_id_idx').on(table.previousId),
     index('books_next_id_idx').on(table.nextId),
@@ -1080,6 +1081,7 @@ export const chapters = sqliteTable(
     content: text('content', { mode: 'json' }).notNull().$type<Content[]>(),
   },
   (table) => [
+    uniqueIndex('chapters_unique_bible_code_idx').on(table.bibleId, table.code),
     index('chapters_bible_id_idx').on(table.bibleId),
     index('chapters_book_id_idx').on(table.bookId),
     index('chapters_previous_id_idx').on(table.previousId),
@@ -1247,6 +1249,7 @@ export const verses = sqliteTable(
     content: text('content', { mode: 'json' }).notNull().$type<Content[]>(),
   },
   (table) => [
+    uniqueIndex('verses_unique_bible_code_idx').on(table.bibleId, table.code),
     index('verses_bible_id_idx').on(table.bibleId),
     index('verses_book_id_idx').on(table.bookId),
     index('verses_chapter_id_idx').on(table.chapterId),
