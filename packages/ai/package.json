@@ -21,7 +21,7 @@
     "@upstash/vector": "^1.2.0",
     "braintrust": "^0.0.184",
     "openai": "^4.82.0",
-    "tiktoken": "^1.0.18",
+    "tiktoken": "^1.0.19",
     "voyage-ai-provider": "^1.0.1"
   }
 }
