@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { verseHighlights } from '@/core/database/schema';
 import { ilike } from '@/core/database/utils';
-import { contentsToText } from '@/core/utils/bible';
+import { contentsToText } from '@/core/utils/bibles/contents-to-text';
 import { Protected } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';

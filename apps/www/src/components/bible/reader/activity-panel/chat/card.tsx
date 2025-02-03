@@ -1,4 +1,4 @@
-import { contentsToText } from '@/core/utils/bible';
+import { contentsToText } from '@/core/utils/bibles/contents-to-text';
 import { SignedIn } from '@/www/components/auth/control';
 import { SignInButton } from '@/www/components/auth/sign-in-button';
 import { ChatWindow } from '@/www/components/chat/window';

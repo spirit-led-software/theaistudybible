@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { chapterNotes, verseNotes } from '@/core/database/schema';
-import { contentsToText } from '@/core/utils/bible';
+import { contentsToText } from '@/core/utils/bibles/contents-to-text';
 import type { ChapterNote, VerseNote } from '@/schemas/bibles/types';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
