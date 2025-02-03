@@ -72,8 +72,9 @@ RUN apt-get -qq update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=install /install/node_modules ./node_modules
-
 COPY --link . .
+
+WORKDIR /build/apps/www
 RUN bun run build
 
 ########################################################
@@ -110,8 +111,8 @@ RUN apt-get -qq update && \
 
 COPY --from=build /build/apps/www/.output .
 
-ENTRYPOINT [ "bun", "run", "--preload", "./server/instrument.server.mjs", "./server/index.mjs" ]
+WORKDIR /app/server
+ENTRYPOINT [ "bun", "run", "--preload", "./instrument.server.mjs", "./index.mjs" ]
 EXPOSE ${PORT}
-
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
   CMD curl -f http://localhost:${PORT}/health || exit 1
