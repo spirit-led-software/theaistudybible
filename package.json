@@ -55,10 +55,10 @@
     "why-is-node-running": "^3.2.2"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.740.0",
-    "@aws-sdk/client-ses": "^3.738.0",
-    "@aws-sdk/client-sqs": "^3.738.0",
-    "@aws-sdk/s3-request-presigner": "^3.740.0",
+    "@aws-sdk/client-s3": "^3.741.0",
+    "@aws-sdk/client-ses": "^3.741.0",
+    "@aws-sdk/client-sqs": "^3.741.0",
+    "@aws-sdk/s3-request-presigner": "^3.741.0",
     "@langchain/community": "^0.3.28",
     "@langchain/core": "^0.3.37",
     "@libsql/client": "^0.14.0",
@@ -69,7 +69,7 @@
     "drizzle-orm": "^0.39.1",
     "drizzle-zod": "0.7.0",
     "langchain": "^0.3.15",
-    "sst": "3.7.2",
+    "sst": "3.7.3",
     "stripe": "^17.6.0",
     "web-push": "^3.6.7",
     "zod": "^3.24.1"
