@@ -119,7 +119,6 @@ export default defineConfig(
         excludeReplayShadowDom: true,
         excludeReplayWorker: true,
       },
-      sourceMapsUploadOptions: { filesToDeleteAfterUpload: ['**/*.map'] },
     },
   ),
 );

@@ -74,7 +74,11 @@ COPY --from=install /install/node_modules ./node_modules
 COPY --link . .
 
 WORKDIR /build/apps/www
-RUN bun run build
+RUN bun run build && \
+    while [ ! -f .output/server/assets/_sentry-release-injection-file-*.js ] || [ ! -f .output/server/instrument.server.mjs ]; do \
+        echo "Waiting for Sentry injection file..."; \
+        sleep 1; \
+    done
 
 ########################################################
 # Release
