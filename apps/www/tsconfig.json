@@ -37,6 +37,6 @@
       "@/scripts/*": ["../../tools/scripts/src/*"]
     }
   },
-  "include": ["../../packages/core/globals.d.ts", "**/*.ts", "**/*.tsx", "./instrument.mjs"],
+  "include": ["../../packages/core/globals.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", ".output", ".vinxi"]
 }

@@ -26,7 +26,7 @@ export default defineConfig(
       middleware: './src/middleware.ts',
       server: {
         preset: 'bun',
-        plugins: ['./src/server/plugins/compression.ts'],
+        plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/posthog.ts'],
         compatibilityDate: '2024-12-02',
         routeRules: {
           '/_build/assets/**': { headers: staticCacheControlHeaders },
