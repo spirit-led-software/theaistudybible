@@ -371,7 +371,7 @@ export const generateImageTool = (input: {
         .default('1024x1024')
         .describe('The size of the generated image. More detailed images need a larger size.'),
     }),
-    execute: async ({ prompt, size }) => {
+    execute: async ({ prompt, size }, { abortSignal }) => {
       let ratelimit = new Ratelimit({
         prefix: 'image-generation',
         redis: cache,
@@ -395,7 +395,12 @@ export const generateImageTool = (input: {
       }
 
       try {
-        const { image } = await generateImage({ prompt, model: openai.image('dall-e-3'), size });
+        const { image } = await generateImage({
+          prompt,
+          model: openai.image('dall-e-3'),
+          size,
+          abortSignal,
+        });
 
         const id = createId();
         const key = `${id}.png`;
