@@ -23,7 +23,7 @@ COPY --link ./tools/scripts/package.json ./tools/scripts/package.json
 COPY --link ./tools/tsconfig/package.json ./tools/tsconfig/package.json
 COPY --link ./bun.lock ./bun.lock
 
-RUN bun install --frozen-lockfile
+RUN bun install
 
 ########################################################
 # Build
