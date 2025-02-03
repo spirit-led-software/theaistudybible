@@ -65,9 +65,7 @@ export const NavigationDrawer = () => {
 
               <Accordion multiple collapsible>
                 <AccordionItem value='about'>
-                  <AccordionTrigger>
-                    <div class='font-medium text-muted-foreground text-sm'>About</div>
-                  </AccordionTrigger>
+                  <AccordionTrigger>About</AccordionTrigger>
                   <AccordionContent>
                     <div class='flex flex-col gap-4'>
                       <Button as={A} href='/about' variant='ghost' class='justify-start'>
@@ -110,9 +108,7 @@ export const NavigationDrawer = () => {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value='bible'>
-                  <AccordionTrigger>
-                    <div class='font-medium text-muted-foreground text-sm'>Bible</div>
-                  </AccordionTrigger>
+                  <AccordionTrigger>Bible</AccordionTrigger>
                   <AccordionContent>
                     <div class='flex flex-col gap-4'>
                       <Button as={A} href='/bible' variant='ghost' class='justify-start'>
@@ -135,9 +131,7 @@ export const NavigationDrawer = () => {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value='ai'>
-                  <AccordionTrigger>
-                    <div class='font-medium text-muted-foreground text-sm'>AI</div>
-                  </AccordionTrigger>
+                  <AccordionTrigger>AI</AccordionTrigger>
                   <AccordionContent>
                     <div class='flex flex-col gap-4'>
                       <Button as={A} href='/chat' variant='ghost' class='justify-start'>

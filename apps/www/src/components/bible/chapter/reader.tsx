@@ -199,12 +199,12 @@ export function ChapterReader(props: ChapterReaderProps) {
                         as={A}
                         class={cn(
                           buttonVariants(),
-                          'sm:-translate-y-1/2 fixed bottom-safe-offset-1 left-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:left-safe-offset-2 md:size-12 lg:left-[12%] lg:size-14',
+                          'sm:-translate-y-1/2 fixed bottom-safe-offset-1 left-safe-offset-1 flex size-10 items-center justify-center rounded-full p-2 sm:top-1/2 md:left-safe-offset-2 md:size-12 lg:left-[12%]',
                           isRouting() && 'pointer-events-none opacity-50',
                         )}
                         href={previousChapterRoute}
                       >
-                        <ChevronLeft />
+                        <ChevronLeft class='size-full' />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>{previousChapter.name}</p>
@@ -222,12 +222,12 @@ export function ChapterReader(props: ChapterReaderProps) {
                         as={A}
                         class={cn(
                           buttonVariants(),
-                          'sm:-translate-y-1/2 fixed right-safe-offset-1 bottom-safe-offset-1 flex size-10 items-center justify-center rounded-full p-0 sm:top-1/2 md:right-safe-offset-2 md:size-12 lg:right-[12%] lg:size-14',
+                          'sm:-translate-y-1/2 fixed right-safe-offset-1 bottom-safe-offset-1 flex size-10 items-center justify-center rounded-full p-2 sm:top-1/2 md:right-safe-offset-2 md:size-12 lg:right-[12%]',
                           isRouting() && 'pointer-events-none opacity-50',
                         )}
                         href={nextChapterRoute}
                       >
-                        <ChevronRight />
+                        <ChevronRight class='size-full' />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>{nextChapter.name}</p>

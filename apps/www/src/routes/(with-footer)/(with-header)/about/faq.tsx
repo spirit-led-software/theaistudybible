@@ -25,11 +25,6 @@ const faqs: FAQItem[] = [
       'Our platform includes: AI-powered insights and verse explanations, interactive conversations about scripture, advanced semantic search for discovering related verses, daily devotionals with personalized reflections, multiple Bible translations, verse highlighting, and seamless navigation between translations. We continuously add new features to enhance your study experience.',
   },
   {
-    question: 'How does the credit system work?',
-    answer:
-      'We use a credit-based system for our AI services. Basic access to biblical texts and study tools is free for all users. Credits are required for advanced AI features like generating insights, creating images, and accessing personalized study tools. You can purchase credits as needed, and we offer various credit packages to suit different needs.',
-  },
-  {
     question: 'Is my data private and secure?',
     answer:
       'Yes, we take your privacy and security seriously. We implement appropriate technical and organizational security measures to protect your personal information. We only collect necessary data to provide our services, and we never share your personal information without your consent. You can read our detailed privacy policy for more information about how we handle your data.',

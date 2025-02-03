@@ -4,17 +4,12 @@ import { PostHog, PostHogSentryIntegration } from 'posthog-node';
 
 const isProd = process.env.STAGE === 'production';
 
-const posthog = new PostHog(process.env.POSTHOG_API_KEY, {
-  host: process.env.POSTHOG_API_HOST,
-  flushAt: 1,
-  flushInterval: 0,
-});
-const posthogSentry = new PostHogSentryIntegration(posthog);
+const posthog = new PostHog(process.env.POSTHOG_API_KEY, { host: process.env.POSTHOG_API_HOST });
 globalThis.posthog = posthog;
-if (!isProd) {
-  posthog.optOut();
-}
 
+if (!isProd) posthog.optOut();
+
+const posthogSentry = new PostHogSentryIntegration(posthog);
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   integrations: [
@@ -25,7 +20,6 @@ Sentry.init({
     },
   ],
   tracesSampleRate: Number.parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE),
-  clientReportFlushInterval: 0,
 });
 
 process.on('beforeExit', async () => {

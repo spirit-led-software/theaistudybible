@@ -92,7 +92,7 @@ export const ActivityPanelMenu = () => {
   );
 
   createEffect(() => {
-    const minHeight = window.width >= 1024 ? 64 : window.width >= 768 ? 56 : 48; // ! Match size-x below in pixels
+    const minHeight = 56; // ! Match size-x below in pixels
     const minWidth = brStore.selectedIds.length ? 176 : minHeight; // ! Match size-x and w-x below in pixels
     const currentButton = buttonRef();
     if (currentButton) {
@@ -115,7 +115,7 @@ export const ActivityPanelMenu = () => {
         as={Button}
         ref={setButtonRef}
         class={cn(
-          '-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 flex size-12 items-center justify-center rounded-full transition-all duration-300 ease-in-out sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 md:size-14 lg:right-[15%] lg:size-16',
+          '-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 flex size-14 max-w-52 items-center justify-center rounded-full transition-all duration-300 ease-in-out sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 lg:right-[15%]',
           brStore.selectedIds.length && 'w-44 md:w-44',
         )}
       >
@@ -124,11 +124,11 @@ export const ActivityPanelMenu = () => {
           class='flex items-center justify-center gap-2 p-2 transition-all duration-300 ease-in-out'
         >
           <Sparkles
-            class='size-5 shrink-0 transition-all duration-300 ease-in-out'
+            class='h-full w-auto shrink-0 transition-all duration-300 ease-in-out'
             fill='hsl(var(--primary-foreground))'
           />
           <Show when={brStore.selectedIds.length}>
-            <span class='line-clamp-2 animate-nowrap-to-wrap text-sm transition-all duration-300 ease-in-out'>
+            <span class='line-clamp-2 animate-nowrap-to-wrap text-wrap text-sm transition-all duration-300 ease-in-out'>
               {brStore.selectedTitle.replace(/\(.*\)/, '')}
             </span>
           </Show>
