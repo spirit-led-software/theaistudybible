@@ -2,7 +2,7 @@ import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth } from '@/www/server/auth';
-import { gatherElementIdsByVerseCode, gatherElementIdsByVerseNumber } from '@/www/utils';
+import { gatherElementIdsByVerseNumber } from '@/www/utils';
 import { Meta, Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
@@ -83,19 +83,7 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
   const [searchParams] = useSearchParams();
   onMount(() => {
-    if (!searchParams.verseCode && !searchParams.verseNumber) return;
-
-    if (searchParams.verseCode) {
-      const verseCodes = Array.isArray(searchParams.verseCode)
-        ? searchParams.verseCode
-        : searchParams.verseCode.split(',');
-      if (!verseCodes.length) return;
-
-      const ids = gatherElementIdsByVerseCode(verseCodes[0]);
-      if (ids.length) {
-        document.getElementById(ids[0])?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
+    if (!searchParams.verseNumber) return;
 
     if (searchParams.verseNumber) {
       const verseNumbers = Array.isArray(searchParams.verseNumber)

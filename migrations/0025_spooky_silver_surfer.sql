@@ -7,8 +7,7 @@ CREATE TABLE `__new_verse_bookmarks` (
 	`verse_code` text NOT NULL,
 	`user_id` text NOT NULL,
 	PRIMARY KEY(`bible_abbreviation`, `verse_code`, `user_id`),
-	FOREIGN KEY (`bible_abbreviation`) REFERENCES `bibles`(`abbreviation`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`verse_code`) REFERENCES `verses`(`code`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`bible_abbreviation`, `verse_code`) REFERENCES `verses`(`bible_abbreviation`, `code`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -26,7 +25,6 @@ SELECT "verse_bookmarks"."created_at" AS `created_at`,
 	"verse_bookmarks"."user_id" AS `user_id`
 FROM `verse_bookmarks`
 	JOIN `verses` ON `verses`.`id` = `verse_bookmarks`.`verse_id`
-	JOIN `users` ON `users`.`id` = `verse_bookmarks`.`user_id`
 	JOIN `bibles` ON `bibles`.`id` = `verses`.`bible_id`;
 --> statement-breakpoint
 DROP TABLE `verse_bookmarks`;
@@ -48,8 +46,7 @@ CREATE TABLE `__new_verse_highlights` (
 	`user_id` text NOT NULL,
 	`color` text NOT NULL,
 	PRIMARY KEY(`bible_abbreviation`, `verse_code`, `user_id`),
-	FOREIGN KEY (`bible_abbreviation`) REFERENCES `bibles`(`abbreviation`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`verse_code`) REFERENCES `verses`(`code`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`bible_abbreviation`, `verse_code`) REFERENCES `verses`(`bible_abbreviation`, `code`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -91,8 +88,7 @@ CREATE TABLE `__new_verse_notes` (
 	`user_id` text NOT NULL,
 	`content` text NOT NULL,
 	PRIMARY KEY(`bible_abbreviation`, `verse_code`, `user_id`),
-	FOREIGN KEY (`bible_abbreviation`) REFERENCES `bibles`(`abbreviation`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`verse_code`) REFERENCES `verses`(`code`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`bible_abbreviation`, `verse_code`) REFERENCES `verses`(`bible_abbreviation`, `code`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -172,8 +168,8 @@ FROM `verses`
 	JOIN `bibles` ON `bibles`.`id` = `verses`.`bible_id`
 	JOIN `books` ON `books`.`id` = `verses`.`book_id`
 	JOIN `chapters` ON `chapters`.`id` = `verses`.`chapter_id`
-	JOIN `chapters` AS `previous_chapters` ON `previous_chapters`.`id` = `chapters`.`previous_id`
-	JOIN `chapters` AS `next_chapters` ON `next_chapters`.`id` = `chapters`.`next_id`;
+	LEFT JOIN `chapters` AS `previous_chapters` ON `previous_chapters`.`id` = `chapters`.`previous_id`
+	LEFT JOIN `chapters` AS `next_chapters` ON `next_chapters`.`id` = `chapters`.`next_id`;
 --> statement-breakpoint
 DROP TABLE `verses`;
 --> statement-breakpoint
@@ -203,8 +199,7 @@ CREATE TABLE `__new_chapter_bookmarks` (
 	`chapter_code` text NOT NULL,
 	`user_id` text NOT NULL,
 	PRIMARY KEY(`bible_abbreviation`, `chapter_code`, `user_id`),
-	FOREIGN KEY (`bible_abbreviation`) REFERENCES `bibles`(`abbreviation`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`chapter_code`) REFERENCES `chapters`(`code`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`bible_abbreviation`, `chapter_code`) REFERENCES `chapters`(`bible_abbreviation`, `code`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -221,8 +216,8 @@ SELECT "chapter_bookmarks"."created_at" AS `created_at`,
 	"chapters"."code" AS `chapter_code`,
 	"chapter_bookmarks"."user_id" AS `user_id`
 FROM `chapter_bookmarks`
-	JOIN `bibles` ON `bibles`.`id` = `chapter_bookmarks`.`bible_id`
-	JOIN `chapters` ON `chapters`.`id` = `chapter_bookmarks`.`chapter_id`;
+	JOIN `chapters` ON `chapters`.`id` = `chapter_bookmarks`.`chapter_id`
+	JOIN `bibles` ON `bibles`.`id` = `chapters`.`bible_id`;
 --> statement-breakpoint
 DROP TABLE `chapter_bookmarks`;
 --> statement-breakpoint
@@ -243,8 +238,7 @@ CREATE TABLE `__new_chapter_notes` (
 	`user_id` text NOT NULL,
 	`content` text NOT NULL,
 	PRIMARY KEY(`bible_abbreviation`, `chapter_code`, `user_id`),
-	FOREIGN KEY (`bible_abbreviation`) REFERENCES `bibles`(`abbreviation`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`chapter_code`) REFERENCES `chapters`(`code`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`bible_abbreviation`, `chapter_code`) REFERENCES `chapters`(`bible_abbreviation`, `code`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -263,8 +257,8 @@ SELECT "chapter_notes"."created_at" AS `created_at`,
 	"chapter_notes"."user_id" AS `user_id`,
 	"chapter_notes"."content" AS `content`
 FROM `chapter_notes`
-	JOIN `bibles` ON `bibles`.`id` = `chapter_notes`.`bible_id`
-	JOIN `chapters` ON `chapters`.`id` = `chapter_notes`.`chapter_id`;
+	JOIN `chapters` ON `chapters`.`id` = `chapter_notes`.`chapter_id`
+	JOIN `bibles` ON `bibles`.`id` = `chapters`.`bible_id`;
 --> statement-breakpoint
 DROP TABLE `chapter_notes`;
 --> statement-breakpoint
@@ -286,8 +280,7 @@ CREATE TABLE `__new_chapters_to_source_documents` (
 		`chapter_code`,
 		`source_document_id`
 	),
-	FOREIGN KEY (`bible_abbreviation`) REFERENCES `bibles`(`abbreviation`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`chapter_code`) REFERENCES `chapters`(`code`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`bible_abbreviation`, `chapter_code`) REFERENCES `chapters`(`bible_abbreviation`, `code`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`source_document_id`) REFERENCES `source_documents`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -356,8 +349,8 @@ SELECT "chapters"."created_at" AS `created_at`,
 FROM `chapters`
 	JOIN `bibles` ON `bibles`.`id` = `chapters`.`bible_id`
 	JOIN `books` ON `books`.`id` = `chapters`.`book_id`
-	JOIN `chapters` AS `previous_chapters` ON `previous_chapters`.`id` = `chapters`.`previous_id`
-	JOIN `chapters` AS `next_chapters` ON `next_chapters`.`id` = `chapters`.`next_id`;
+	LEFT JOIN `chapters` AS `previous_chapters` ON `previous_chapters`.`id` = `chapters`.`previous_id`
+	LEFT JOIN `chapters` AS `next_chapters` ON `next_chapters`.`id` = `chapters`.`next_id`;
 --> statement-breakpoint
 DROP TABLE `chapters`;
 --> statement-breakpoint
@@ -417,8 +410,8 @@ SELECT "books"."created_at" AS `created_at`,
 	"books"."long_name" AS `long_name`
 FROM `books`
 	JOIN `bibles` ON `bibles`.`id` = `books`.`bible_id`
-	JOIN `books` AS `previous_books` ON `previous_books`.`id` = `books`.`previous_id`
-	JOIN `books` AS `next_books` ON `next_books`.`id` = `books`.`next_id`;
+	LEFT JOIN `books` AS `previous_books` ON `previous_books`.`id` = `books`.`previous_id`
+	LEFT JOIN `books` AS `next_books` ON `next_books`.`id` = `books`.`next_id`;
 --> statement-breakpoint
 DROP TABLE `books`;
 --> statement-breakpoint

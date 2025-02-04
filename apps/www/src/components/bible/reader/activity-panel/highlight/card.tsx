@@ -22,18 +22,20 @@ const updateHighlightsAction = action(
   async ({
     color,
     bibleAbbreviation,
-    verseCodes,
-  }: { color: string; bibleAbbreviation: string; verseCodes: string[] }) => {
+    chapterCode,
+    verseNumbers,
+  }: { color: string; bibleAbbreviation: string; chapterCode: string; verseNumbers: number[] }) => {
     'use server';
+    console.log('updateHighlightsAction', { color, bibleAbbreviation, chapterCode, verseNumbers });
     const { user } = requireAuth();
-    const highlights = await db
+    const query = db
       .insert(verseHighlights)
       .values(
-        verseCodes.map((code) => ({
+        verseNumbers.map((vn) => ({
           color,
           userId: user.id,
           bibleAbbreviation,
-          verseCode: code,
+          verseCode: `${chapterCode}.${vn}`,
         })),
       )
       .onConflictDoUpdate({
@@ -45,6 +47,9 @@ const updateHighlightsAction = action(
         set: { color },
       })
       .returning();
+    console.log('query:', query.toSQL().sql);
+    console.log('params:', query.toSQL().params);
+    const highlights = await query;
 
     return { highlights };
   },
@@ -53,19 +58,21 @@ const updateHighlightsAction = action(
 const deleteHighlightsAction = action(
   async ({
     bibleAbbreviation,
-    verseCodes,
-  }: { bibleAbbreviation: string; verseCodes: string[] }) => {
+    chapterCode,
+    verseNumbers,
+  }: { bibleAbbreviation: string; chapterCode: string; verseNumbers: number[] }) => {
     'use server';
     const { user } = requireAuth();
-    await db
-      .delete(verseHighlights)
-      .where(
-        and(
-          eq(verseHighlights.userId, user.id),
-          eq(verseHighlights.bibleAbbreviation, bibleAbbreviation),
-          inArray(verseHighlights.verseCode, verseCodes),
+    await db.delete(verseHighlights).where(
+      and(
+        eq(verseHighlights.userId, user.id),
+        eq(verseHighlights.bibleAbbreviation, bibleAbbreviation),
+        inArray(
+          verseHighlights.verseCode,
+          verseNumbers.map((vn) => `${chapterCode}.${vn}`),
         ),
-      );
+      ),
+    );
     return { success: true };
   },
 );
@@ -79,13 +86,19 @@ export const HighlightCard = () => {
   const { setValue } = useActivityPanel();
 
   const addHighlightsMutation = createMutation(() => ({
-    mutationFn: ({ color = '#FFD700', verseCodes }: { color?: string; verseCodes: string[] }) =>
-      updateHighlights({ bibleAbbreviation: brStore.bible.abbreviation, verseCodes, color }),
+    mutationFn: (props: { color?: string; verseNumbers: number[] }) =>
+      updateHighlights({
+        ...props,
+        chapterCode: brStore.chapter.code,
+        bibleAbbreviation: brStore.bible.abbreviation,
+        color: props.color ?? '#FFD700',
+      }),
     onSuccess: () => {
       setBrStore('selectedVerseInfos', []);
       setValue(undefined);
     },
     onError: (err) => {
+      console.error(err);
       toast.error(`Failed to save highlights: ${err.message}`);
     },
     onSettled: () =>
@@ -95,8 +108,12 @@ export const HighlightCard = () => {
   }));
 
   const deleteHighlightsMutation = createMutation(() => ({
-    mutationFn: ({ verseCodes }: { verseCodes: string[] }) =>
-      deleteHighlights({ bibleAbbreviation: brStore.bible.abbreviation, verseCodes }),
+    mutationFn: (props: { verseNumbers: number[] }) =>
+      deleteHighlights({
+        ...props,
+        bibleAbbreviation: brStore.bible.abbreviation,
+        chapterCode: brStore.chapter.code,
+      }),
     onSuccess: () => {
       setBrStore('selectedVerseInfos', []);
       setValue(undefined);
@@ -164,11 +181,11 @@ export const HighlightCard = () => {
             onClick={() => {
               if (tgValue() === 'clear') {
                 deleteHighlightsMutation.mutate({
-                  verseCodes: brStore.selectedVerseInfos.map((v) => v.code),
+                  verseNumbers: brStore.selectedVerseInfos.map((v) => v.number),
                 });
               } else {
                 addHighlightsMutation.mutate({
-                  verseCodes: brStore.selectedVerseInfos.map((v) => v.code),
+                  verseNumbers: brStore.selectedVerseInfos.map((v) => v.number),
                   color: tgValue() || undefined,
                 });
               }

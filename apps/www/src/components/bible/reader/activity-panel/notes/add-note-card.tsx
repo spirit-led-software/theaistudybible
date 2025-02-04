@@ -33,19 +33,23 @@ const addNoteAction = action(
   async (props: {
     type: 'verse' | 'chapter';
     bibleAbbreviation: string;
-    code: string;
+    chapterCode: string;
+    verseNumber?: number;
     content: string;
   }) => {
     'use server';
     const { user } = requireAuth();
     let note: VerseNote | ChapterNote;
     if (props.type === 'verse') {
+      if (!props.verseNumber) {
+        throw new Error('Verse number is required');
+      }
       [note] = await db
         .insert(verseNotes)
         .values({
           userId: user.id,
           bibleAbbreviation: props.bibleAbbreviation,
-          verseCode: props.code,
+          verseCode: `${props.chapterCode}.${props.verseNumber}`,
           content: props.content,
         })
         .returning();
@@ -55,7 +59,7 @@ const addNoteAction = action(
         .values({
           userId: user.id,
           bibleAbbreviation: props.bibleAbbreviation,
-          chapterCode: props.code,
+          chapterCode: props.chapterCode,
           content: props.content,
         })
         .returning();
@@ -87,7 +91,8 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
     mutationFn: (props: {
       type: 'verse' | 'chapter';
       bibleAbbreviation: string;
-      code: string;
+      chapterCode: string;
+      verseNumber?: number;
       content: string;
     }) => addNote(props),
     onSettled: () =>
@@ -188,8 +193,9 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
           onClick={() => {
             addNoteMutation.mutate({
               type: brStore.verse ? 'verse' : 'chapter',
-              code: brStore.verse?.code ?? selectedVerseInfo()?.code ?? brStore.chapter.code,
               bibleAbbreviation: brStore.bible.abbreviation,
+              chapterCode: brStore.chapter.code,
+              verseNumber: brStore.verse?.number ?? selectedVerseInfo()?.number,
               content: contentValue(),
             });
             props.onAdd?.();

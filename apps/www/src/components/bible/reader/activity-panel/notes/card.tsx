@@ -22,7 +22,7 @@ const getNotes = GET(
   async (props: {
     bibleAbbreviation: string;
     chapterCode: string;
-    verseCodes?: string[];
+    verseNumbers?: number[];
     offset: number;
     limit: number;
   }) => {
@@ -33,13 +33,16 @@ const getNotes = GET(
     }
 
     let notes = [];
-    if (props.verseCodes?.length) {
+    if (props.verseNumbers?.length) {
       notes = await db.query.verseNotes.findMany({
         where: (verseNotes, { and, eq, inArray }) =>
           and(
             eq(verseNotes.userId, user.id),
             eq(verseNotes.bibleAbbreviation, props.bibleAbbreviation),
-            inArray(verseNotes.verseCode, props.verseCodes!),
+            inArray(
+              verseNotes.verseCode,
+              props.verseNumbers!.map((vn) => `${props.chapterCode}.${vn}`),
+            ),
           ),
         orderBy: (verseNotes, { desc }) => desc(verseNotes.updatedAt),
         offset: props.offset,
@@ -91,9 +94,9 @@ export const NotesCard = () => {
       getNotes({
         bibleAbbreviation: brStore.bible.abbreviation,
         chapterCode: brStore.chapter.code,
-        verseCodes: brStore.verse
-          ? [brStore.verse.code]
-          : brStore.selectedVerseInfos.map((v) => v.code),
+        verseNumbers: brStore.verse
+          ? [brStore.verse.number]
+          : brStore.selectedVerseInfos.map((v) => v.number),
         offset: pageParam,
         limit: 9,
       }),

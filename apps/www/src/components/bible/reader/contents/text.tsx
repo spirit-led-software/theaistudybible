@@ -2,7 +2,7 @@ import type { TextContent as TextContentType } from '@/schemas/bibles/contents';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
 import type { HighlightInfo } from '@/www/types/bible';
-import { gatherElementIdsByVerseCode, hexToRgb } from '@/www/utils';
+import { gatherElementIdsByVerseNumber, hexToRgb } from '@/www/utils';
 import { createMemo } from 'solid-js';
 
 export type TextContentProps = {
@@ -25,10 +25,10 @@ export function TextContent(props: TextContentProps) {
 
   const handleClick = () => {
     setBrStore('selectedVerseInfos', (prev) => {
-      if (prev.find(({ code }) => code === props.content.verseCode)) {
-        return prev.filter(({ code }) => code !== props.content.verseCode);
+      if (prev.find(({ number }) => number === props.content.verseNumber)) {
+        return prev.filter(({ number }) => number !== props.content.verseNumber);
       }
-      const contentIds = gatherElementIdsByVerseCode(props.content.verseCode);
+      const contentIds = gatherElementIdsByVerseNumber(props.content.verseNumber);
       const text = contentIds
         .map((id) => document.getElementById(id)?.textContent)
         .join('')

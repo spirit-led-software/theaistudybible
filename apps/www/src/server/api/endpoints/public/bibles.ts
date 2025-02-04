@@ -99,12 +99,15 @@ export const app = new Hono<{
     c.set('book', book);
     await next();
   })
-  .use('/:id/chapters/:chapterId/*', async (c, next) => {
+  .use('/:id/chapters/:chapterCode/*', async (c, next) => {
     const bible = c.get('bible');
-    const chapterId = c.req.param('chapterId');
+    const chapterCode = c.req.param('chapterCode');
 
     const chapter = await db.query.chapters.findFirst({
-      where: and(eq(chapters.bibleAbbreviation, bible.abbreviation), eq(chapters.code, chapterId)),
+      where: and(
+        eq(chapters.bibleAbbreviation, bible.abbreviation),
+        eq(chapters.code, chapterCode),
+      ),
       with: {
         previous: {
           columns: {
@@ -128,12 +131,12 @@ export const app = new Hono<{
     c.set('chapter', chapter);
     await next();
   })
-  .use('/:id/verses/:verseId/*', async (c, next) => {
+  .use('/:id/verses/:verseCode/*', async (c, next) => {
     const bible = c.get('bible');
-    const verseId = c.req.param('verseId');
+    const verseCode = c.req.param('verseCode');
 
     const verse = await db.query.verses.findFirst({
-      where: and(eq(verses.bibleAbbreviation, bible.abbreviation), eq(verses.code, verseId)),
+      where: and(eq(verses.bibleAbbreviation, bible.abbreviation), eq(verses.code, verseCode)),
       with: {
         previous: {
           columns: {
@@ -342,7 +345,7 @@ export const app = new Hono<{
     },
   )
   .get(
-    '/:id/chapters/:chapterId',
+    '/:id/chapters/:chapterCode',
     zValidator(
       'query',
       z
@@ -402,7 +405,7 @@ export const app = new Hono<{
       200,
     );
   })
-  .get('/:id/verses/:verseId', (c) => {
+  .get('/:id/verses/:verseCode', (c) => {
     return c.json({ data: c.var.verse }, 200);
   });
 

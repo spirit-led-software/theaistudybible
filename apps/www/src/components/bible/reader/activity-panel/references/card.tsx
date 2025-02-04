@@ -152,8 +152,9 @@ export const ReferencesCard = () => {
                       as={A}
                       href={`${reference.metadata!.url}?${
                         reference
-                          .metadata!.verseIds?.map(
-                            (verseId: string) => `verseId=${encodeURIComponent(verseId)}`,
+                          .metadata!.verseNumbers?.map(
+                            (verseNumber: string) =>
+                              `verseNumber=${encodeURIComponent(verseNumber)}`,
                           )
                           .join('&') ?? ''
                       }`}

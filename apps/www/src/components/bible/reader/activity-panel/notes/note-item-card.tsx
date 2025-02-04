@@ -48,7 +48,7 @@ const editNoteAction = action(
           ),
         )
         .returning();
-    } else {
+    } else if (props.type === 'verse') {
       [note] = await db
         .update(verseNotes)
         .set({ content: props.content })
@@ -60,13 +60,19 @@ const editNoteAction = action(
           ),
         )
         .returning();
+    } else {
+      throw new Error('Invalid note type');
     }
     return { note };
   },
 );
 
 const deleteNoteAction = action(
-  async (props: { type: 'chapter' | 'verse'; bibleAbbreviation: string; code: string }) => {
+  async (props: {
+    type: 'chapter' | 'verse';
+    bibleAbbreviation: string;
+    code: string;
+  }) => {
     'use server';
     const { user } = requireAuth();
     if (props.type === 'chapter') {
@@ -79,7 +85,7 @@ const deleteNoteAction = action(
             eq(chapterNotes.chapterCode, props.code),
           ),
         );
-    } else {
+    } else if (props.type === 'verse') {
       await db
         .delete(verseNotes)
         .where(
@@ -89,6 +95,8 @@ const deleteNoteAction = action(
             eq(verseNotes.verseCode, props.code),
           ),
         );
+    } else {
+      throw new Error('Invalid note type');
     }
     return { success: true };
   },
@@ -127,8 +135,11 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
   }));
 
   const deleteNoteMutation = createMutation(() => ({
-    mutationFn: (mProps: { type: 'verse' | 'chapter'; bibleAbbreviation: string; code: string }) =>
-      deleteNote(mProps),
+    mutationFn: (mProps: {
+      type: 'verse' | 'chapter';
+      bibleAbbreviation: string;
+      code: string;
+    }) => deleteNote(mProps),
     onSettled: () =>
       qc.invalidateQueries({
         queryKey: ['notes'],

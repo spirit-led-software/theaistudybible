@@ -21,9 +21,9 @@ export const versesToDocs = ({
   let i = 0;
   while (i < verses.length) {
     const doc = processVerseChunk(verses, i, bible, book, chapter);
-    if (doc?.metadata?.verseIds) {
+    if (doc?.metadata?.verseNumbers) {
       docs.push(doc);
-      i += (doc.metadata.verseIds as string[]).length;
+      i += (doc.metadata.verseNumbers as number[]).length;
     } else {
       i++; // Move to the next verse if processing failed
     }

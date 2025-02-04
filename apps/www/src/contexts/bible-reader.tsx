@@ -1,7 +1,4 @@
-import {
-  findTextContentByVerseCodes,
-  findTextContentByVerseNumbers,
-} from '@/core/utils/bibles/find-by-verse-id';
+import { findTextContentByVerseNumbers } from '@/core/utils/bibles/find-by-verse-id';
 import { formNumberSequenceString } from '@/core/utils/number';
 import type { Content } from '@/schemas/bibles/contents';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
@@ -56,27 +53,10 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const getVerseInfosFromVerseSearchParams = () => {
-    if (!searchParams.verseId && !searchParams.verseNumber) return [];
+    if (!searchParams.verseNumber) return [];
 
     const content = others.verse ? others.verse.content : others.chapter.content;
     if (!content || !content.length) return [];
-
-    if (searchParams.verseCode) {
-      const verseCodes = Array.isArray(searchParams.verseCode)
-        ? searchParams.verseCode
-        : searchParams.verseCode.split(',');
-      if (verseCodes.length) {
-        return verseCodes.map((verseCode) => {
-          const texts = findTextContentByVerseCodes(content, [verseCode]);
-          return {
-            code: verseCode,
-            number: texts[0].verseNumber,
-            contentIds: texts.map((t) => t.id),
-            text: texts.map((t) => t.text).join(''),
-          } satisfies SelectedVerseInfo;
-        });
-      }
-    }
 
     if (searchParams.verseNumber) {
       const verseNumbers = Array.isArray(searchParams.verseNumber)

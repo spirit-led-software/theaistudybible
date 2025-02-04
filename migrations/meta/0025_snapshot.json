@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "42b80c93-4119-4441-aa27-281ca032e3a6",
+  "id": "30451106-0276-469b-be85-2043e14165d3",
   "prevId": "48eeb55a-996c-4da2-b5ba-53748a5e1182",
   "tables": {
     "bible_contributors": {
@@ -1060,32 +1060,6 @@
         }
       },
       "foreignKeys": {
-        "chapter_bookmarks_bible_abbreviation_bibles_abbreviation_fk": {
-          "name": "chapter_bookmarks_bible_abbreviation_bibles_abbreviation_fk",
-          "tableFrom": "chapter_bookmarks",
-          "tableTo": "bibles",
-          "columnsFrom": [
-            "bible_abbreviation"
-          ],
-          "columnsTo": [
-            "abbreviation"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "chapter_bookmarks_chapter_code_chapters_code_fk": {
-          "name": "chapter_bookmarks_chapter_code_chapters_code_fk",
-          "tableFrom": "chapter_bookmarks",
-          "tableTo": "chapters",
-          "columnsFrom": [
-            "chapter_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "chapter_bookmarks_user_id_users_id_fk": {
           "name": "chapter_bookmarks_user_id_users_id_fk",
           "tableFrom": "chapter_bookmarks",
@@ -1095,6 +1069,21 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "chapter_bookmarks_bible_abbreviation_chapter_code_chapters_bible_abbreviation_code_fk": {
+          "name": "chapter_bookmarks_bible_abbreviation_chapter_code_chapters_bible_abbreviation_code_fk",
+          "tableFrom": "chapter_bookmarks",
+          "tableTo": "chapters",
+          "columnsFrom": [
+            "bible_abbreviation",
+            "chapter_code"
+          ],
+          "columnsTo": [
+            "bible_abbreviation",
+            "code"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -1183,32 +1172,6 @@
         }
       },
       "foreignKeys": {
-        "chapter_notes_bible_abbreviation_bibles_abbreviation_fk": {
-          "name": "chapter_notes_bible_abbreviation_bibles_abbreviation_fk",
-          "tableFrom": "chapter_notes",
-          "tableTo": "bibles",
-          "columnsFrom": [
-            "bible_abbreviation"
-          ],
-          "columnsTo": [
-            "abbreviation"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "chapter_notes_chapter_code_chapters_code_fk": {
-          "name": "chapter_notes_chapter_code_chapters_code_fk",
-          "tableFrom": "chapter_notes",
-          "tableTo": "chapters",
-          "columnsFrom": [
-            "chapter_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "chapter_notes_user_id_users_id_fk": {
           "name": "chapter_notes_user_id_users_id_fk",
           "tableFrom": "chapter_notes",
@@ -1218,6 +1181,21 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "chapter_notes_bible_abbreviation_chapter_code_chapters_bible_abbreviation_code_fk": {
+          "name": "chapter_notes_bible_abbreviation_chapter_code_chapters_bible_abbreviation_code_fk",
+          "tableFrom": "chapter_notes",
+          "tableTo": "chapters",
+          "columnsFrom": [
+            "bible_abbreviation",
+            "chapter_code"
+          ],
+          "columnsTo": [
+            "bible_abbreviation",
+            "code"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -1450,32 +1428,6 @@
         }
       },
       "foreignKeys": {
-        "chapters_to_source_documents_bible_abbreviation_bibles_abbreviation_fk": {
-          "name": "chapters_to_source_documents_bible_abbreviation_bibles_abbreviation_fk",
-          "tableFrom": "chapters_to_source_documents",
-          "tableTo": "bibles",
-          "columnsFrom": [
-            "bible_abbreviation"
-          ],
-          "columnsTo": [
-            "abbreviation"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "chapters_to_source_documents_chapter_code_chapters_code_fk": {
-          "name": "chapters_to_source_documents_chapter_code_chapters_code_fk",
-          "tableFrom": "chapters_to_source_documents",
-          "tableTo": "chapters",
-          "columnsFrom": [
-            "chapter_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "chapters_to_source_documents_source_document_id_source_documents_id_fk": {
           "name": "chapters_to_source_documents_source_document_id_source_documents_id_fk",
           "tableFrom": "chapters_to_source_documents",
@@ -1485,6 +1437,21 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "chapters_to_source_documents_bible_abbreviation_chapter_code_chapters_bible_abbreviation_code_fk": {
+          "name": "chapters_to_source_documents_bible_abbreviation_chapter_code_chapters_bible_abbreviation_code_fk",
+          "tableFrom": "chapters_to_source_documents",
+          "tableTo": "chapters",
+          "columnsFrom": [
+            "bible_abbreviation",
+            "chapter_code"
+          ],
+          "columnsTo": [
+            "bible_abbreviation",
+            "code"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -4025,32 +3992,6 @@
         }
       },
       "foreignKeys": {
-        "verse_bookmarks_bible_abbreviation_bibles_abbreviation_fk": {
-          "name": "verse_bookmarks_bible_abbreviation_bibles_abbreviation_fk",
-          "tableFrom": "verse_bookmarks",
-          "tableTo": "bibles",
-          "columnsFrom": [
-            "bible_abbreviation"
-          ],
-          "columnsTo": [
-            "abbreviation"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "verse_bookmarks_verse_code_verses_code_fk": {
-          "name": "verse_bookmarks_verse_code_verses_code_fk",
-          "tableFrom": "verse_bookmarks",
-          "tableTo": "verses",
-          "columnsFrom": [
-            "verse_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "verse_bookmarks_user_id_users_id_fk": {
           "name": "verse_bookmarks_user_id_users_id_fk",
           "tableFrom": "verse_bookmarks",
@@ -4060,6 +4001,21 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "verse_bookmarks_bible_abbreviation_verse_code_verses_bible_abbreviation_code_fk": {
+          "name": "verse_bookmarks_bible_abbreviation_verse_code_verses_bible_abbreviation_code_fk",
+          "tableFrom": "verse_bookmarks",
+          "tableTo": "verses",
+          "columnsFrom": [
+            "bible_abbreviation",
+            "verse_code"
+          ],
+          "columnsTo": [
+            "bible_abbreviation",
+            "code"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -4148,32 +4104,6 @@
         }
       },
       "foreignKeys": {
-        "verse_highlights_bible_abbreviation_bibles_abbreviation_fk": {
-          "name": "verse_highlights_bible_abbreviation_bibles_abbreviation_fk",
-          "tableFrom": "verse_highlights",
-          "tableTo": "bibles",
-          "columnsFrom": [
-            "bible_abbreviation"
-          ],
-          "columnsTo": [
-            "abbreviation"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "verse_highlights_verse_code_verses_code_fk": {
-          "name": "verse_highlights_verse_code_verses_code_fk",
-          "tableFrom": "verse_highlights",
-          "tableTo": "verses",
-          "columnsFrom": [
-            "verse_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "verse_highlights_user_id_users_id_fk": {
           "name": "verse_highlights_user_id_users_id_fk",
           "tableFrom": "verse_highlights",
@@ -4183,6 +4113,21 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "verse_highlights_bible_abbreviation_verse_code_verses_bible_abbreviation_code_fk": {
+          "name": "verse_highlights_bible_abbreviation_verse_code_verses_bible_abbreviation_code_fk",
+          "tableFrom": "verse_highlights",
+          "tableTo": "verses",
+          "columnsFrom": [
+            "bible_abbreviation",
+            "verse_code"
+          ],
+          "columnsTo": [
+            "bible_abbreviation",
+            "code"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -4271,32 +4216,6 @@
         }
       },
       "foreignKeys": {
-        "verse_notes_bible_abbreviation_bibles_abbreviation_fk": {
-          "name": "verse_notes_bible_abbreviation_bibles_abbreviation_fk",
-          "tableFrom": "verse_notes",
-          "tableTo": "bibles",
-          "columnsFrom": [
-            "bible_abbreviation"
-          ],
-          "columnsTo": [
-            "abbreviation"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "verse_notes_verse_code_verses_code_fk": {
-          "name": "verse_notes_verse_code_verses_code_fk",
-          "tableFrom": "verse_notes",
-          "tableTo": "verses",
-          "columnsFrom": [
-            "verse_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
         "verse_notes_user_id_users_id_fk": {
           "name": "verse_notes_user_id_users_id_fk",
           "tableFrom": "verse_notes",
@@ -4306,6 +4225,21 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "verse_notes_bible_abbreviation_verse_code_verses_bible_abbreviation_code_fk": {
+          "name": "verse_notes_bible_abbreviation_verse_code_verses_bible_abbreviation_code_fk",
+          "tableFrom": "verse_notes",
+          "tableTo": "verses",
+          "columnsFrom": [
+            "bible_abbreviation",
+            "verse_code"
+          ],
+          "columnsTo": [
+            "bible_abbreviation",
+            "code"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"

@@ -13,9 +13,9 @@ import { Bookmark } from 'lucide-solid';
 import { toast } from 'solid-sonner';
 
 const getSelectionBookmarked = GET(
-  async (props: { bibleAbbreviation: string; verseCodes: string[] }) => {
+  async (props: { bibleAbbreviation: string; chapterCode: string; verseNumbers: number[] }) => {
     'use server';
-    if (!props.verseCodes.length) {
+    if (!props.verseNumbers.length) {
       return { isBookmarked: false };
     }
 
@@ -31,22 +31,25 @@ const getSelectionBookmarked = GET(
         and(
           eq(verseBookmarks.userId, user.id),
           eq(verseBookmarks.bibleAbbreviation, props.bibleAbbreviation),
-          inArray(verseBookmarks.verseCode, props.verseCodes),
+          inArray(
+            verseBookmarks.verseCode,
+            props.verseNumbers.map((vn) => `${props.chapterCode}.${vn}`),
+          ),
         ),
       );
-    return { isBookmarked: bookmarks.length === props.verseCodes.length };
+    return { isBookmarked: bookmarks.length === props.verseNumbers.length };
   },
 );
 
 const bookmarkVersesAction = action(
-  async (props: { bibleAbbreviation: string; verseCodes: string[] }) => {
+  async (props: { bibleAbbreviation: string; chapterCode: string; verseNumbers: number[] }) => {
     'use server';
     const { user } = requireAuth();
     await db
       .insert(verseBookmarks)
       .values(
-        props.verseCodes.map((verseCode) => ({
-          verseCode,
+        props.verseNumbers.map((vn) => ({
+          verseCode: `${props.chapterCode}.${vn}`,
           userId: user.id,
           bibleAbbreviation: props.bibleAbbreviation,
         })),
@@ -57,18 +60,19 @@ const bookmarkVersesAction = action(
 );
 
 const unbookmarkVersesAction = action(
-  async (props: { bibleAbbreviation: string; verseCodes: string[] }) => {
+  async (props: { bibleAbbreviation: string; chapterCode: string; verseNumbers: number[] }) => {
     'use server';
     const { user } = requireAuth();
-    await db
-      .delete(verseBookmarks)
-      .where(
-        and(
-          eq(verseBookmarks.userId, user.id),
-          eq(verseBookmarks.bibleAbbreviation, props.bibleAbbreviation),
-          inArray(verseBookmarks.verseCode, props.verseCodes),
+    await db.delete(verseBookmarks).where(
+      and(
+        eq(verseBookmarks.userId, user.id),
+        eq(verseBookmarks.bibleAbbreviation, props.bibleAbbreviation),
+        inArray(
+          verseBookmarks.verseCode,
+          props.verseNumbers.map((vn) => `${props.chapterCode}.${vn}`),
         ),
-      );
+      ),
+    );
     return { success: true };
   },
 );
@@ -89,13 +93,15 @@ export const BookmarkMenuItem = (props: BookmarkMenuItemProps) => {
       'verses-bookmarked',
       {
         bibleAbbreviation: brStore.bible.abbreviation,
-        verseCodes: brStore.selectedVerseInfos.map((v) => v.code),
+        chapterCode: brStore.chapter.code,
+        verseNumbers: brStore.selectedVerseInfos.map((v) => v.number),
       },
     ],
     queryFn: () =>
       getSelectionBookmarked({
         bibleAbbreviation: brStore.bible.abbreviation,
-        verseCodes: brStore.selectedVerseInfos.map((v) => v.code),
+        chapterCode: brStore.chapter.code,
+        verseNumbers: brStore.selectedVerseInfos.map((v) => v.number),
       }),
   }));
 
@@ -103,12 +109,14 @@ export const BookmarkMenuItem = (props: BookmarkMenuItemProps) => {
     mutationFn: () =>
       bookmarkVerses({
         bibleAbbreviation: brStore.bible.abbreviation,
-        verseCodes: brStore.selectedVerseInfos.map((v) => v.code),
+        chapterCode: brStore.chapter.code,
+        verseNumbers: brStore.selectedVerseInfos.map((v) => v.number),
       }),
     onSuccess: () => {
       setBrStore('selectedVerseInfos', []);
     },
     onError: (err) => {
+      console.error(err);
       toast.error(`Failed to bookmark verses: ${err.message}`);
     },
     onSettled: () => getSelectionBookmarkedQuery.refetch(),
@@ -118,7 +126,8 @@ export const BookmarkMenuItem = (props: BookmarkMenuItemProps) => {
     mutationFn: () =>
       unbookmarkVerses({
         bibleAbbreviation: brStore.bible.abbreviation,
-        verseCodes: brStore.selectedVerseInfos.map((v) => v.code),
+        chapterCode: brStore.chapter.code,
+        verseNumbers: brStore.selectedVerseInfos.map((v) => v.number),
       }),
     onSuccess: () => {
       setBrStore('selectedVerseInfos', []);

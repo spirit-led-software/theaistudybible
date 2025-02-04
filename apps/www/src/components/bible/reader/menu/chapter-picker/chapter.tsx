@@ -106,7 +106,7 @@ export function ChapterPicker(props: ChapterPickerProps) {
                         size={10}
                         class={cn(
                           'mr-1 h-4 w-4 shrink-0',
-                          foundChapter.code === brStore.chapter.code && 'hidden',
+                          foundChapter.code !== brStore.chapter.code && 'hidden',
                         )}
                       />
                       {foundChapter.number}

@@ -1127,18 +1127,18 @@ export const chapterBookmarks = sqliteTable(
   'chapter_bookmarks',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation')
-      .notNull()
-      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
-    chapterCode: text('chapter_code')
-      .references(() => chapters.code, { onDelete: 'cascade' })
-      .notNull(),
+    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    chapterCode: text('chapter_code').notNull(),
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
   },
   (table) => [
     primaryKey({ columns: [table.bibleAbbreviation, table.chapterCode, table.userId] }),
+    foreignKey({
+      columns: [table.bibleAbbreviation, table.chapterCode],
+      foreignColumns: [chapters.bibleAbbreviation, chapters.code],
+    }).onDelete('cascade'),
     index('chapter_bookmarks_bible_abbreviation_idx').on(table.bibleAbbreviation),
     index('chapter_bookmarks_chapter_code_idx').on(table.chapterCode),
     index('chapter_bookmarks_user_id_idx').on(table.userId),
@@ -1160,12 +1160,8 @@ export const chapterNotes = sqliteTable(
   'chapter_notes',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation')
-      .notNull()
-      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
-    chapterCode: text('chapter_code')
-      .references(() => chapters.code, { onDelete: 'cascade' })
-      .notNull(),
+    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    chapterCode: text('chapter_code').notNull(),
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
@@ -1173,6 +1169,10 @@ export const chapterNotes = sqliteTable(
   },
   (table) => [
     primaryKey({ columns: [table.bibleAbbreviation, table.chapterCode, table.userId] }),
+    foreignKey({
+      columns: [table.bibleAbbreviation, table.chapterCode],
+      foreignColumns: [chapters.bibleAbbreviation, chapters.code],
+    }).onDelete('cascade'),
     index('chapter_notes_bible_abbreviation_idx').on(table.bibleAbbreviation),
     index('chapter_notes_chapter_code_idx').on(table.chapterCode),
     index('chapter_notes_user_id_idx').on(table.userId),
@@ -1193,12 +1193,8 @@ export const chapterNotesRelations = relations(chapterNotes, ({ one }) => ({
 export const chaptersToSourceDocuments = sqliteTable(
   'chapters_to_source_documents',
   {
-    bibleAbbreviation: text('bible_abbreviation')
-      .notNull()
-      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
-    chapterCode: text('chapter_code')
-      .notNull()
-      .references(() => chapters.code, { onDelete: 'cascade' }),
+    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    chapterCode: text('chapter_code').notNull(),
     sourceDocumentId: text('source_document_id')
       .notNull()
       .references(() => sourceDocuments.id, { onDelete: 'cascade' }),
@@ -1207,6 +1203,10 @@ export const chaptersToSourceDocuments = sqliteTable(
     primaryKey({
       columns: [table.bibleAbbreviation, table.chapterCode, table.sourceDocumentId],
     }),
+    foreignKey({
+      columns: [table.bibleAbbreviation, table.chapterCode],
+      foreignColumns: [chapters.bibleAbbreviation, chapters.code],
+    }).onDelete('cascade'),
     index('chapters_to_source_documents_bible_abbreviation_idx').on(table.bibleAbbreviation),
     index('chapters_to_source_documents_chapter_code_idx').on(table.chapterCode),
     index('chapters_to_source_documents_source_document_id_idx').on(table.sourceDocumentId),
@@ -1316,12 +1316,8 @@ export const verseHighlights = sqliteTable(
   'verse_highlights',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation')
-      .notNull()
-      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
-    verseCode: text('verse_code')
-      .references(() => verses.code, { onDelete: 'cascade' })
-      .notNull(),
+    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    verseCode: text('verse_code').notNull(),
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
@@ -1329,6 +1325,10 @@ export const verseHighlights = sqliteTable(
   },
   (table) => [
     primaryKey({ columns: [table.bibleAbbreviation, table.verseCode, table.userId] }),
+    foreignKey({
+      columns: [table.bibleAbbreviation, table.verseCode],
+      foreignColumns: [verses.bibleAbbreviation, verses.code],
+    }).onDelete('cascade'),
     index('verse_highlights_bible_abbreviation_idx').on(table.bibleAbbreviation),
     index('verse_highlights_verse_code_idx').on(table.verseCode),
     index('verse_highlights_user_id_idx').on(table.userId),
@@ -1350,18 +1350,18 @@ export const verseBookmarks = sqliteTable(
   'verse_bookmarks',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation')
-      .notNull()
-      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
-    verseCode: text('verse_code')
-      .references(() => verses.code, { onDelete: 'cascade' })
-      .notNull(),
+    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    verseCode: text('verse_code').notNull(),
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
   },
   (table) => [
     primaryKey({ columns: [table.bibleAbbreviation, table.verseCode, table.userId] }),
+    foreignKey({
+      columns: [table.bibleAbbreviation, table.verseCode],
+      foreignColumns: [verses.bibleAbbreviation, verses.code],
+    }).onDelete('cascade'),
     index('verse_bookmarks_bible_abbreviation_idx').on(table.bibleAbbreviation),
     index('verse_bookmarks_verse_code_idx').on(table.verseCode),
     index('verse_bookmarks_user_id_idx').on(table.userId),
@@ -1383,12 +1383,8 @@ export const verseNotes = sqliteTable(
   'verse_notes',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation')
-      .notNull()
-      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
-    verseCode: text('verse_code')
-      .references(() => verses.code, { onDelete: 'cascade' })
-      .notNull(),
+    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    verseCode: text('verse_code').notNull(),
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
@@ -1396,6 +1392,10 @@ export const verseNotes = sqliteTable(
   },
   (table) => [
     primaryKey({ columns: [table.bibleAbbreviation, table.verseCode, table.userId] }),
+    foreignKey({
+      columns: [table.bibleAbbreviation, table.verseCode],
+      foreignColumns: [verses.bibleAbbreviation, verses.code],
+    }).onDelete('cascade'),
     index('verse_notes_bible_abbreviation_idx').on(table.bibleAbbreviation),
     index('verse_notes_verse_code_idx').on(table.verseCode),
     index('verse_notes_user_id_idx').on(table.userId),
