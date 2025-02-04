@@ -37,17 +37,17 @@ const getBookmarks = GET(
       return { bookmarks: [], nextCursor: undefined };
     }
 
-    let verses: { id: string }[] = [];
-    let chapters: { id: string }[] = [];
+    let verses: { code: string }[] = [];
+    let chapters: { code: string }[] = [];
     if (search) {
       [verses, chapters] = await Promise.all([
         db.query.verses.findMany({
-          columns: { id: true },
+          columns: { code: true },
           where: (verses, { or }) =>
             or(ilike(verses.name, `%${search}%`), ilike(verses.content, `%${search}%`)),
         }),
         db.query.chapters.findMany({
-          columns: { id: true },
+          columns: { code: true },
           where: (chapters, { or }) =>
             or(ilike(chapters.name, `%${search}%`), ilike(chapters.content, `%${search}%`)),
         }),
@@ -63,8 +63,8 @@ const getBookmarks = GET(
           if (verses.length > 0) {
             conditions.push(
               inArray(
-                verseBookmarks.verseId,
-                verses.map((v) => v.id),
+                verseBookmarks.verseCode,
+                verses.map((v) => v.code),
               ),
             );
           }
@@ -79,8 +79,8 @@ const getBookmarks = GET(
           if (chapters.length > 0) {
             conditions.push(
               inArray(
-                chapterBookmarks.chapterId,
-                chapters.map((c) => c.id),
+                chapterBookmarks.chapterCode,
+                chapters.map((c) => c.code),
               ),
             );
           }
@@ -108,8 +108,8 @@ const getBookmarks = GET(
               if (verses.length > 0) {
                 conditions.push(
                   inArray(
-                    verseBookmarks.verseId,
-                    verses.map((v) => v.id),
+                    verseBookmarks.verseCode,
+                    verses.map((v) => v.code),
                   ),
                 );
               }
@@ -135,8 +135,8 @@ const getBookmarks = GET(
               if (chapters.length > 0) {
                 conditions.push(
                   inArray(
-                    chapterBookmarks.chapterId,
-                    chapters.map((c) => c.id),
+                    chapterBookmarks.chapterCode,
+                    chapters.map((c) => c.code),
                   ),
                 );
               }
@@ -168,19 +168,31 @@ const getBookmarks = GET(
 );
 
 const deleteBookmarkAction = action(
-  async (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => {
+  async (props: { type: 'verse' | 'chapter'; bibleAbbreviation: string; code: string }) => {
     'use server';
     const { user } = requireAuth();
     if (props.type === 'verse') {
       await db
         .delete(verseBookmarks)
-        .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.id, props.bookmarkId)));
-    } else {
+        .where(
+          and(
+            eq(verseBookmarks.userId, user.id),
+            eq(verseBookmarks.bibleAbbreviation, props.bibleAbbreviation),
+            eq(verseBookmarks.verseCode, props.code),
+          ),
+        );
+    } else if (props.type === 'chapter') {
       await db
         .delete(chapterBookmarks)
         .where(
-          and(eq(chapterBookmarks.userId, user.id), eq(chapterBookmarks.id, props.bookmarkId)),
+          and(
+            eq(chapterBookmarks.userId, user.id),
+            eq(chapterBookmarks.bibleAbbreviation, props.bibleAbbreviation),
+            eq(chapterBookmarks.chapterCode, props.code),
+          ),
         );
+    } else {
+      throw new Error('Invalid bookmark type');
     }
     return { success: true };
   },
@@ -219,7 +231,8 @@ export default function BookmarksPage() {
   });
 
   const deleteBookmarkMutation = createMutation(() => ({
-    mutationFn: (props: { type: 'verse' | 'chapter'; bookmarkId: string }) => deleteBookmark(props),
+    mutationFn: (props: { type: 'verse' | 'chapter'; bibleAbbreviation: string; code: string }) =>
+      deleteBookmark(props),
     onSettled: () => qc.invalidateQueries({ queryKey: ['bookmarks'] }),
   }));
 
@@ -313,7 +326,14 @@ export default function BookmarksPage() {
                                 onClick={() => {
                                   deleteBookmarkMutation.mutate({
                                     type: 'verse' in bookmark ? 'verse' : 'chapter',
-                                    bookmarkId: bookmark.id,
+                                    bibleAbbreviation:
+                                      'verse' in bookmark
+                                        ? bookmark.verse.bible.abbreviation
+                                        : bookmark.chapter.bible.abbreviation,
+                                    code:
+                                      'verse' in bookmark
+                                        ? bookmark.verse.code
+                                        : bookmark.chapter.code,
                                   });
                                 }}
                               >

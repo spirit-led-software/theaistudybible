@@ -8,16 +8,16 @@ import { getTableColumns, sql } from 'drizzle-orm';
 export async function insertChapter({
   bible,
   book,
-  previousId,
-  nextId,
+  previousCode,
+  nextCode,
   chapterNumber,
   contents,
   overwrite,
 }: {
   bible: Bible;
   book: Book;
-  previousId: string | undefined;
-  nextId: string | undefined;
+  previousCode: string | undefined;
+  nextCode: string | undefined;
   chapterNumber: string;
   contents: ReturnType<typeof parseUsx>[number];
   overwrite: boolean;
@@ -27,21 +27,20 @@ export async function insertChapter({
   const [insertedChapter] = await db
     .insert(chapters)
     .values({
-      id: contents.id,
-      bibleId: bible.id,
-      bookId: book.id,
-      previousId,
-      nextId,
+      bibleAbbreviation: bible.abbreviation,
+      bookCode: book.code,
+      previousCode,
+      nextCode,
       code: `${book.code}.${chapterNumber}`,
       name: `${book.shortName} ${chapterNumber}`,
       number: Number.parseInt(chapterNumber),
       content: contents.contents,
     })
     .onConflictDoUpdate({
-      target: [chapters.bibleId, chapters.code],
+      target: [chapters.bibleAbbreviation, chapters.code],
       set: overwrite
         ? buildConflictUpdateColumns(chapters, ['name', 'number', 'content'])
-        : { id: sql`id` },
+        : { code: sql`code` },
     })
     .returning({
       ...columnsWithoutContent,
@@ -78,12 +77,11 @@ export async function insertVerses({
         verseBatch.map(
           ([verseNumber, verseContent], idx) =>
             ({
-              id: verseContent.id,
-              bibleId: bible.id,
-              bookId: book.id,
-              chapterId: chapter.id,
-              previousId: verseEntries[i + idx - 1]?.[1]?.id,
-              nextId: verseEntries[i + idx + 1]?.[1]?.id,
+              bibleAbbreviation: bible.abbreviation,
+              bookCode: book.code,
+              chapterCode: chapter.code,
+              previousCode: verseEntries[i + idx - 1]?.[1]?.code,
+              nextCode: verseEntries[i + idx + 1]?.[1]?.code,
               code: `${chapter.code}.${verseNumber}`,
               name: `${chapter.name}:${verseNumber}`,
               number: Number.parseInt(verseNumber),
@@ -92,10 +90,10 @@ export async function insertVerses({
         ),
       )
       .onConflictDoUpdate({
-        target: [verses.bibleId, verses.code],
+        target: [verses.bibleAbbreviation, verses.code],
         set: overwrite
           ? buildConflictUpdateColumns(verses, ['name', 'number', 'content'])
-          : { id: sql`id` },
+          : { code: sql`code` },
       })
       .returning({
         ...columnsWithoutContent,

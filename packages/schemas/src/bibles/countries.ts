@@ -5,9 +5,8 @@ import { defaultRefine } from '../utils/refine';
 export const BibleCountrySchema = createSelectSchema(bibleCountries, defaultRefine);
 
 export const CreateBibleCountrySchema = createInsertSchema(bibleCountries, defaultRefine).omit({
-  id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const UpdateBibleCountrySchema = CreateBibleCountrySchema.partial();
+export const UpdateBibleCountrySchema = CreateBibleCountrySchema.omit({ iso: true }).partial();

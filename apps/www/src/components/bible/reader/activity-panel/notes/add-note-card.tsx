@@ -30,28 +30,37 @@ import { HelpCircle } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
 const addNoteAction = action(
-  async (props: { chapterId: string; verseId?: string; content: string }) => {
+  async (props: {
+    type: 'verse' | 'chapter';
+    bibleAbbreviation: string;
+    code: string;
+    content: string;
+  }) => {
     'use server';
     const { user } = requireAuth();
     let note: VerseNote | ChapterNote;
-    if (props.verseId) {
+    if (props.type === 'verse') {
       [note] = await db
         .insert(verseNotes)
         .values({
           userId: user.id,
-          verseId: props.verseId,
+          bibleAbbreviation: props.bibleAbbreviation,
+          verseCode: props.code,
           content: props.content,
         })
         .returning();
-    } else {
+    } else if (props.type === 'chapter') {
       [note] = await db
         .insert(chapterNotes)
         .values({
           userId: user.id,
-          chapterId: props.chapterId,
+          bibleAbbreviation: props.bibleAbbreviation,
+          chapterCode: props.code,
           content: props.content,
         })
         .returning();
+    } else {
+      throw new Error('Invalid note type');
     }
     return { note };
   },
@@ -75,7 +84,12 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
   const [showPreview, setShowPreview] = createSignal(false);
 
   const addNoteMutation = createMutation(() => ({
-    mutationFn: (props: { chapterId: string; verseId?: string; content: string }) => addNote(props),
+    mutationFn: (props: {
+      type: 'verse' | 'chapter';
+      bibleAbbreviation: string;
+      code: string;
+      content: string;
+    }) => addNote(props),
     onSettled: () =>
       qc.invalidateQueries({
         queryKey: ['notes'],
@@ -96,7 +110,7 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
               value={selectedVerseInfo()}
               onChange={setSelectedVerseInfo}
               options={brStore.selectedVerseInfos}
-              optionValue='id'
+              optionValue='code'
               optionTextValue='number'
               itemComponent={(props) => (
                 <SelectItem item={props.item}>{props.item.rawValue.number}</SelectItem>
@@ -115,7 +129,7 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
           <P>
             {brStore.verse
               ? contentsToText(brStore.verse.content!)
-              : brStore.selectedVerseInfos.find((v) => v.id === selectedVerseInfo()?.id)?.text}
+              : brStore.selectedVerseInfos.find((v) => v.code === selectedVerseInfo()?.code)?.text}
           </P>
         </Show>
         <TextField
@@ -173,8 +187,9 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
           disabled={!contentValue().trim()}
           onClick={() => {
             addNoteMutation.mutate({
-              chapterId: brStore.chapter.id,
-              verseId: brStore.verse?.id ?? selectedVerseInfo()?.id,
+              type: brStore.verse ? 'verse' : 'chapter',
+              code: brStore.verse?.code ?? selectedVerseInfo()?.code ?? brStore.chapter.code,
+              bibleAbbreviation: brStore.bible.abbreviation,
               content: contentValue(),
             });
             props.onAdd?.();

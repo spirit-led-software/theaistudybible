@@ -15,13 +15,11 @@ export const app = new Hono<{
     bible: Bible;
     book: Book & {
       previous: {
-        id: string;
         code: string;
         name: string;
         number: number;
       } | null;
       next: {
-        id: string;
         code: string;
         name: string;
         number: number;
@@ -29,13 +27,11 @@ export const app = new Hono<{
     };
     chapter: Chapter & {
       previous: {
-        id: string;
         code: string;
         name: string;
         number: number;
       } | null;
       next: {
-        id: string;
         code: string;
         name: string;
         number: number;
@@ -43,13 +39,11 @@ export const app = new Hono<{
     };
     verse: Verse & {
       previous: {
-        id: string;
         code: string;
         name: string;
         number: number;
       } | null;
       next: {
-        id: string;
         code: string;
         name: string;
         number: number;
@@ -61,7 +55,7 @@ export const app = new Hono<{
     const bibleId = c.req.param('id');
 
     const bible = await db.query.bibles.findFirst({
-      where: or(eq(bibles.id, bibleId), eq(bibles.abbreviation, bibleId)),
+      where: (bibles, { eq }) => eq(bibles.abbreviation, bibleId),
     });
     if (!bible) {
       return c.json({ message: 'Bible not found' }, 404);
@@ -75,13 +69,12 @@ export const app = new Hono<{
 
     const book = await db.query.books.findFirst({
       where: and(
-        eq(books.bibleId, bible.id),
-        or(eq(books.id, bookId), eq(books.code, bookId), eq(books.abbreviation, bookId)),
+        eq(books.bibleAbbreviation, bible.abbreviation),
+        or(eq(books.code, bookId), eq(books.abbreviation, bookId)),
       ),
       with: {
         previous: {
           columns: {
-            id: true,
             code: true,
             number: true,
           },
@@ -91,7 +84,6 @@ export const app = new Hono<{
         },
         next: {
           columns: {
-            id: true,
             code: true,
             number: true,
           },
@@ -112,14 +104,10 @@ export const app = new Hono<{
     const chapterId = c.req.param('chapterId');
 
     const chapter = await db.query.chapters.findFirst({
-      where: and(
-        eq(chapters.bibleId, bible.id),
-        or(eq(chapters.id, chapterId), eq(chapters.code, chapterId)),
-      ),
+      where: and(eq(chapters.bibleAbbreviation, bible.abbreviation), eq(chapters.code, chapterId)),
       with: {
         previous: {
           columns: {
-            id: true,
             code: true,
             name: true,
             number: true,
@@ -127,7 +115,6 @@ export const app = new Hono<{
         },
         next: {
           columns: {
-            id: true,
             code: true,
             name: true,
             number: true,
@@ -146,14 +133,10 @@ export const app = new Hono<{
     const verseId = c.req.param('verseId');
 
     const verse = await db.query.verses.findFirst({
-      where: and(
-        eq(verses.bibleId, bible.id),
-        or(eq(verses.id, verseId), eq(verses.code, verseId)),
-      ),
+      where: and(eq(verses.bibleAbbreviation, bible.abbreviation), eq(verses.code, verseId)),
       with: {
         previous: {
           columns: {
-            id: true,
             code: true,
             name: true,
             number: true,
@@ -161,7 +144,6 @@ export const app = new Hono<{
         },
         next: {
           columns: {
-            id: true,
             code: true,
             name: true,
             number: true,
@@ -215,7 +197,7 @@ export const app = new Hono<{
   .get('/:id/books', zValidator('query', PaginationSchema(books)), async (c) => {
     const { cursor, limit, sort, filter } = c.req.valid('query');
 
-    let where: SQL<unknown> | undefined = eq(books.bibleId, c.var.bible.id);
+    let where: SQL<unknown> | undefined = eq(books.bibleAbbreviation, c.var.bible.abbreviation);
     if (filter) {
       where = and(where, filter);
     }
@@ -229,7 +211,6 @@ export const app = new Hono<{
         with: {
           previous: {
             columns: {
-              id: true,
               abbreviation: true,
               number: true,
             },
@@ -239,7 +220,6 @@ export const app = new Hono<{
           },
           next: {
             columns: {
-              id: true,
               abbreviation: true,
               number: true,
             },
@@ -309,7 +289,7 @@ export const app = new Hono<{
         'include-content': includeContent,
       } = c.req.valid('query');
 
-      let where: SQL<unknown> | undefined = eq(chapters.bookId, c.var.book.id);
+      let where: SQL<unknown> | undefined = eq(chapters.bookCode, c.var.book.code);
       if (filter) {
         where = and(where, filter);
       }
@@ -328,14 +308,14 @@ export const app = new Hono<{
           with: {
             previous: {
               columns: {
-                id: true,
+                code: true,
                 name: true,
                 number: true,
               },
             },
             next: {
               columns: {
-                id: true,
+                code: true,
                 name: true,
                 number: true,
               },
@@ -392,7 +372,7 @@ export const app = new Hono<{
   .get('/:id/verses', zValidator('query', PaginationSchema(verses)), async (c) => {
     const { cursor, limit, sort, filter } = c.req.valid('query');
 
-    let where: SQL<unknown> | undefined = eq(verses.bibleId, c.var.bible.id);
+    let where: SQL<unknown> | undefined = eq(verses.bibleAbbreviation, c.var.bible.abbreviation);
     if (filter) {
       where = and(where, filter);
     }
@@ -423,12 +403,7 @@ export const app = new Hono<{
     );
   })
   .get('/:id/verses/:verseId', (c) => {
-    return c.json(
-      {
-        data: c.var.verse,
-      },
-      200,
-    );
+    return c.json({ data: c.var.verse }, 200);
   });
 
 export default app;

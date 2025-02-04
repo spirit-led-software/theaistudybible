@@ -32,7 +32,7 @@ export function RefContent(props: RefContentProps) {
     <A
       id={props.content.id}
       data-type={props.content.type}
-      data-verse-id={props.content.verseId}
+      data-verse-code={props.content.verseCode}
       data-verse-number={props.content.verseNumber}
       {...props.props}
       class={cn(props.style, 'hover:underline', props.class)}

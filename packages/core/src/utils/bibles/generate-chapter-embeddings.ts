@@ -18,8 +18,11 @@ export const generateChapterEmbeddings = async ({
   overwrite?: boolean;
 }) => {
   const existingDocs = await db.query.chaptersToSourceDocuments.findMany({
-    where: (chaptersToSourceDocuments, { eq }) =>
-      eq(chaptersToSourceDocuments.chapterId, chapter.id),
+    where: (chaptersToSourceDocuments, { and, eq }) =>
+      and(
+        eq(chaptersToSourceDocuments.bibleAbbreviation, bible.abbreviation),
+        eq(chaptersToSourceDocuments.chapterCode, chapter.code),
+      ),
   });
   await vectorStore.deleteDocuments(existingDocs.map((doc) => doc.sourceDocumentId));
 
@@ -39,7 +42,8 @@ export const generateChapterEmbeddings = async ({
       .insert(chaptersToSourceDocuments)
       .values(
         batch.map((doc) => ({
-          chapterId: chapter.id,
+          bibleAbbreviation: bible.abbreviation,
+          chapterCode: chapter.code,
           sourceDocumentId: doc.id,
         })),
       )

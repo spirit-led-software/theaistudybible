@@ -8,20 +8,20 @@ const refine = {
   content: ContentSchema.array(),
 };
 
+// @ts-ignore - Circular dependency
 export const VerseSchema = createSelectSchema(verses, refine);
 
 export const CreateVerseSchema = createInsertSchema(verses, refine).omit({
-  id: true,
   createdAt: true,
   updatedAt: true,
 });
 
 export const UpdateVerseSchema = CreateVerseSchema.partial().omit({
-  bibleId: true,
-  bookId: true,
-  chapterId: true,
-  previousId: true,
-  nextId: true,
+  bibleAbbreviation: true,
+  bookCode: true,
+  chapterCode: true,
+  previousCode: true,
+  nextCode: true,
 });
 
 export * from './notes';

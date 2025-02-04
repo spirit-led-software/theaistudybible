@@ -3,6 +3,7 @@ import type { Document } from '@/ai/types/document';
 import { numTokensFromString } from '@/ai/utils/num-tokens-from-string';
 import { contentsToText } from '@/core/utils/bibles/contents-to-text';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
+import { formatISO } from 'date-fns';
 import { murmurHash } from 'ohash';
 
 export const versesToDocs = ({
@@ -38,15 +39,12 @@ function processVerseChunk(
   book: Book,
   chapter: Omit<Chapter, 'content'>,
 ): Document {
-  const verseIds: string[] = [];
+  const verseNumbers = new Set<number>();
   let currentPageContent = '';
 
-  // Process verses in a single pass with a sliding window
-  const maxTokens = embeddingModel.chunkSize;
-  const overlapTokens = embeddingModel.chunkOverlap;
-  let currentTokens = 0;
-
   // First pass: collect verses until we hit max tokens
+  let currentTokens = 0;
+  const maxTokens = embeddingModel.chunkSize;
   let i = startIndex;
   while (i < verses.length && currentTokens < maxTokens) {
     const verse = verses[i];
@@ -56,12 +54,13 @@ function processVerseChunk(
     if (currentTokens + newTokens > maxTokens) break;
 
     currentPageContent += `${currentPageContent ? ' ' : ''}${verseText}`;
-    verseIds.push(verse.id);
+    verseNumbers.add(verse.number);
     currentTokens += newTokens;
     i++;
   }
 
   // Add overlap verses from before start if needed
+  const overlapTokens = embeddingModel.chunkOverlap;
   let j = startIndex - 1;
   while (j >= 0 && currentTokens < overlapTokens) {
     const verse = verses[j];
@@ -69,7 +68,7 @@ function processVerseChunk(
     const newTokens = numTokensFromString({ text: verseText });
 
     currentPageContent = `${verseText} ${currentPageContent}`;
-    verseIds.unshift(verse.id);
+    verseNumbers.add(verse.number);
     currentTokens += newTokens;
     j--;
   }
@@ -91,13 +90,15 @@ function processVerseChunk(
     content,
     metadata: {
       type: 'bible',
-      bibleId: bible.id,
-      bookId: book.id,
-      chapterId: chapter.id,
-      verseIds,
+      bibleAbbreviation: bible.abbreviation,
+      bookCode: book.code,
+      chapterCode: chapter.code,
+      verseNumbers: Array.from(verseNumbers),
       name,
-      url: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}?${verseIds.map((id) => `verseId=${encodeURIComponent(id)}`).join('&')}`,
-      indexDate: new Date().toISOString(),
+      url: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}?${Array.from(verseNumbers)
+        .map((number) => `verseNumber=${encodeURIComponent(number)}`)
+        .join('&')}`,
+      indexDate: formatISO(new Date()),
     },
   };
 }

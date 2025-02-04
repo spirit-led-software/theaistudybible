@@ -11,6 +11,7 @@ import { Button } from '@/www/components/ui/button';
 import { CommandItem } from '@/www/components/ui/command';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { cn } from '@/www/lib/utils';
 import { A } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
@@ -27,7 +28,7 @@ const getChapterPickerData = GET(async ({ bibleAbbr, bookCode }: GetChapterPicke
   const bibleData = await db.query.bibles.findFirst({
     where: (bibles, { and, eq }) =>
       and(eq(bibles.abbreviation, bibleAbbr), eq(bibles.readyForPublication, true)),
-    columns: { id: true },
+    columns: { abbreviation: true },
     with: {
       books: {
         limit: 1,
@@ -36,7 +37,7 @@ const getChapterPickerData = GET(async ({ bibleAbbr, bookCode }: GetChapterPicke
         with: {
           chapters: {
             orderBy: (chapters, { asc }) => asc(chapters.number),
-            columns: { id: true, number: true },
+            columns: { code: true, number: true },
           },
         },
       },
@@ -103,7 +104,10 @@ export function ChapterPicker(props: ChapterPickerProps) {
                     >
                       <Check
                         size={10}
-                        class={`mr-1 h-4 w-4 shrink-0 ${foundChapter.id === brStore.chapter.id ? '' : 'hidden'}`}
+                        class={cn(
+                          'mr-1 h-4 w-4 shrink-0',
+                          foundChapter.code === brStore.chapter.code && 'hidden',
+                        )}
                       />
                       {foundChapter.number}
                     </Button>

@@ -11,14 +11,11 @@ import { ChevronsUpDown } from 'lucide-solid';
 import { For, splitProps } from 'solid-js';
 import { ChapterPicker } from './chapter';
 
-const getBookPickerData = GET(async (bibleId: string) => {
+const getBookPickerData = GET(async (bibleAbbreviation: string) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
-    where: (bibles, { and, or, eq }) =>
-      and(
-        or(eq(bibles.abbreviation, bibleId), eq(bibles.id, bibleId)),
-        eq(bibles.readyForPublication, true),
-      ),
+    where: (bibles, { and, eq }) =>
+      and(eq(bibles.abbreviation, bibleAbbreviation), eq(bibles.readyForPublication, true)),
     with: {
       books: {
         orderBy: (books, { asc }) => asc(books.number),
@@ -35,9 +32,9 @@ const getBookPickerData = GET(async (bibleId: string) => {
   return { bible, books };
 });
 
-export const bookPickerQueryOptions = (bibleId: string) => ({
-  queryKey: ['book-picker', { bibleId }],
-  queryFn: () => getBookPickerData(bibleId),
+export const bookPickerQueryOptions = (bibleAbbreviation: string) => ({
+  queryKey: ['book-picker', { bibleAbbreviation }],
+  queryFn: () => getBookPickerData(bibleAbbreviation),
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 

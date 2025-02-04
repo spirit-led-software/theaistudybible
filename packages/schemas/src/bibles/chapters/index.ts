@@ -8,20 +8,19 @@ const refine = {
   content: ContentSchema.array(),
 };
 
-// @ts-expect-error - Circular dependency
+// @ts-ignore - Circular dependency
 export const ChapterSchema = createSelectSchema(chapters, refine);
 
 export const CreateChapterSchema = createInsertSchema(chapters, refine).omit({
-  id: true,
   createdAt: true,
   updatedAt: true,
 });
 
 export const UpdateChapterSchema = CreateChapterSchema.partial().omit({
-  bibleId: true,
-  bookId: true,
-  previousId: true,
-  nextId: true,
+  bibleAbbreviation: true,
+  bookCode: true,
+  previousCode: true,
+  nextCode: true,
 });
 
 export * from './notes';

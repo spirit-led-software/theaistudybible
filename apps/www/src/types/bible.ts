@@ -1,5 +1,5 @@
 export type HighlightInfo = {
-  id: string;
-  verseId: string;
+  bibleAbbreviation: string;
+  verseCode: string;
   color: string;
 };

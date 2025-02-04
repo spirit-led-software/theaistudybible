@@ -20,8 +20,9 @@ import { NoteItemCard } from './note-item-card';
 
 const getNotes = GET(
   async (props: {
-    chapterId: string;
-    verseIds?: string[];
+    bibleAbbreviation: string;
+    chapterCode: string;
+    verseCodes?: string[];
     offset: number;
     limit: number;
   }) => {
@@ -32,10 +33,14 @@ const getNotes = GET(
     }
 
     let notes = [];
-    if (props.verseIds?.length) {
+    if (props.verseCodes?.length) {
       notes = await db.query.verseNotes.findMany({
         where: (verseNotes, { and, eq, inArray }) =>
-          and(eq(verseNotes.userId, user.id), inArray(verseNotes.verseId, props.verseIds!)),
+          and(
+            eq(verseNotes.userId, user.id),
+            eq(verseNotes.bibleAbbreviation, props.bibleAbbreviation),
+            inArray(verseNotes.verseCode, props.verseCodes!),
+          ),
         orderBy: (verseNotes, { desc }) => desc(verseNotes.updatedAt),
         offset: props.offset,
         limit: props.limit,
@@ -49,7 +54,11 @@ const getNotes = GET(
     } else {
       notes = await db.query.chapterNotes.findMany({
         where: (chapterNotes, { and, eq }) =>
-          and(eq(chapterNotes.userId, user.id), eq(chapterNotes.chapterId, props.chapterId)),
+          and(
+            eq(chapterNotes.userId, user.id),
+            eq(chapterNotes.bibleAbbreviation, props.bibleAbbreviation),
+            eq(chapterNotes.chapterCode, props.chapterCode),
+          ),
         orderBy: (chapterNotes, { desc }) => desc(chapterNotes.updatedAt),
         offset: props.offset,
         limit: props.limit,
@@ -71,14 +80,20 @@ export const NotesCard = () => {
     queryKey: [
       'notes',
       {
-        chapterId: brStore.chapter.id,
-        verseIds: brStore.verse ? [brStore.verse.id] : brStore.selectedVerseInfos.map((v) => v.id),
+        bibleAbbreviation: brStore.bible.abbreviation,
+        chapterCode: brStore.chapter.code,
+        verseCodes: brStore.verse
+          ? [brStore.verse.code]
+          : brStore.selectedVerseInfos.map((v) => v.code),
       },
     ],
     queryFn: ({ pageParam }) =>
       getNotes({
-        chapterId: brStore.chapter.id,
-        verseIds: brStore.verse ? [brStore.verse.id] : brStore.selectedVerseInfos.map((v) => v.id),
+        bibleAbbreviation: brStore.bible.abbreviation,
+        chapterCode: brStore.chapter.code,
+        verseCodes: brStore.verse
+          ? [brStore.verse.code]
+          : brStore.selectedVerseInfos.map((v) => v.code),
         offset: pageParam,
         limit: 9,
       }),

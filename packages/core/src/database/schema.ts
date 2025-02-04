@@ -16,7 +16,7 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
 import { createId } from '../utils/id';
-import { baseModel, timestamp } from './utils';
+import { baseModel, baseModelNoId, timestamp } from './utils';
 
 export const users = sqliteTable(
   'users',
@@ -157,15 +157,16 @@ export const userSettings = sqliteTable(
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    preferredBibleId: text('preferred_bible_id').references(() => bibles.id, {
-      onDelete: 'cascade',
-    }),
+    preferredBibleAbbreviation: text('preferred_bible_abbreviation').references(
+      () => bibles.abbreviation,
+      { onDelete: 'cascade' },
+    ),
     emailNotifications: integer('email_notifications', { mode: 'boolean' }).notNull().default(true),
     aiInstructions: text('ai_instructions'),
   },
   (table) => [
     uniqueIndex('user_settings_user_id_idx').on(table.userId),
-    index('user_settings_preferred_bible_id_idx').on(table.preferredBibleId),
+    index('user_settings_preferred_bible_abbreviation_idx').on(table.preferredBibleAbbreviation),
   ],
 );
 
@@ -175,8 +176,8 @@ export const userSettingsRelations = relations(userSettings, ({ one }) => ({
     references: [users.id],
   }),
   preferredBible: one(bibles, {
-    fields: [userSettings.preferredBibleId],
-    references: [bibles.id],
+    fields: [userSettings.preferredBibleAbbreviation],
+    references: [bibles.abbreviation],
   }),
 }));
 
@@ -746,8 +747,8 @@ export const indexOperationsRelations = relations(indexOperations, ({ one }) => 
 export const bibles = sqliteTable(
   'bibles',
   {
-    ...baseModel,
-    abbreviation: text('abbreviation').notNull(),
+    ...baseModelNoId,
+    abbreviation: text('abbreviation').primaryKey(),
     abbreviationLocal: text('abbreviation_local').notNull(),
     name: text('name').notNull(),
     nameLocal: text('name_local').notNull(),
@@ -758,10 +759,10 @@ export const bibles = sqliteTable(
       .default(false),
   },
   (table) => [
-    uniqueIndex('bibles_abbreviation_idx').on(table.abbreviation),
     index('bibles_abbreviation_local_idx').on(table.abbreviationLocal),
     index('bibles_name_idx').on(table.name),
     index('bibles_name_local_idx').on(table.nameLocal),
+    index('bibles_ready_for_publication_idx').on(table.readyForPublication),
   ],
 );
 
@@ -780,8 +781,8 @@ export const biblesRelations = relations(bibles, ({ many }) => ({
 export const bibleLanguages = sqliteTable(
   'bible_languages',
   {
-    ...baseModel,
-    iso: text('iso').notNull(),
+    ...baseModelNoId,
+    iso: text('iso').primaryKey(),
     name: text('name').notNull(),
     nameLocal: text('name_local').notNull(),
     script: text('script').notNull(),
@@ -792,7 +793,6 @@ export const bibleLanguages = sqliteTable(
     numerals: text('numerals').notNull(),
   },
   (table) => [
-    uniqueIndex('bible_languages_iso_idx').on(table.iso),
     index('bible_languages_name_idx').on(table.name),
     index('bible_languages_name_local_idx').on(table.nameLocal),
     index('bible_languages_script_code_idx').on(table.scriptCode),
@@ -807,39 +807,39 @@ export const bibleLanguagesRelations = relations(bibleLanguages, ({ many }) => (
 export const biblesToLanguages = sqliteTable(
   'bibles_to_languages',
   {
-    bibleId: text('bible_id')
-      .references(() => bibles.id, { onDelete: 'cascade' })
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
-    languageId: text('language_id')
-      .references(() => bibleLanguages.id, { onDelete: 'cascade' })
+    languageIso: text('language_iso')
+      .references(() => bibleLanguages.iso, { onDelete: 'cascade' })
       .notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.bibleId, table.languageId] }),
-    index('bibles_to_languages_bible_id_idx').on(table.bibleId),
-    index('bibles_to_languages_language_id_idx').on(table.languageId),
+    primaryKey({ columns: [table.bibleAbbreviation, table.languageIso] }),
+    index('bibles_to_languages_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('bibles_to_languages_language_iso_idx').on(table.languageIso),
   ],
 );
 
 export const biblesToLanguagesRelations = relations(biblesToLanguages, ({ one }) => ({
   bible: one(bibles, {
-    fields: [biblesToLanguages.bibleId],
-    references: [bibles.id],
+    fields: [biblesToLanguages.bibleAbbreviation],
+    references: [bibles.abbreviation],
   }),
   language: one(bibleLanguages, {
-    fields: [biblesToLanguages.languageId],
-    references: [bibleLanguages.id],
+    fields: [biblesToLanguages.languageIso],
+    references: [bibleLanguages.iso],
   }),
 }));
 
 export const bibleCountries = sqliteTable(
   'bible_countries',
   {
-    ...baseModel,
-    iso: text('iso').notNull(),
+    ...baseModelNoId,
+    iso: text('iso').primaryKey(),
     name: text('name').notNull(),
   },
-  (table) => [uniqueIndex('bible_countries_iso_idx').on(table.iso)],
+  (table) => [index('bible_countries_name_idx').on(table.name)],
 );
 
 export const bibleCountriesRelations = relations(bibleCountries, ({ many }) => ({
@@ -849,43 +849,43 @@ export const bibleCountriesRelations = relations(bibleCountries, ({ many }) => (
 export const biblesToCountries = sqliteTable(
   'bibles_to_countries',
   {
-    bibleId: text('bible_id')
-      .references(() => bibles.id, { onDelete: 'cascade' })
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
-    countryId: text('country_id')
-      .references(() => bibleCountries.id, { onDelete: 'cascade' })
+    countryIso: text('country_iso')
+      .references(() => bibleCountries.iso, { onDelete: 'cascade' })
       .notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.bibleId, table.countryId] }),
-    index('bibles_to_countries_bible_id_idx').on(table.bibleId),
-    index('bibles_to_countries_country_id_idx').on(table.countryId),
+    primaryKey({ columns: [table.bibleAbbreviation, table.countryIso] }),
+    index('bibles_to_countries_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('bibles_to_countries_country_iso_idx').on(table.countryIso),
   ],
 );
 
 export const biblesToCountriesRelations = relations(biblesToCountries, ({ one }) => ({
   bible: one(bibles, {
-    fields: [biblesToCountries.bibleId],
-    references: [bibles.id],
+    fields: [biblesToCountries.bibleAbbreviation],
+    references: [bibles.abbreviation],
   }),
   country: one(bibleCountries, {
-    fields: [biblesToCountries.countryId],
-    references: [bibleCountries.id],
+    fields: [biblesToCountries.countryIso],
+    references: [bibleCountries.iso],
   }),
 }));
 
 export const bibleRightsHolders = sqliteTable(
   'bible_rights_holders',
   {
-    ...baseModel,
-    uid: text('uid').notNull(),
+    ...baseModelNoId,
+    uid: text('uid').primaryKey(),
     name: text('name').notNull(),
     nameLocal: text('name_local').notNull(),
     abbr: text('abbr').notNull(),
     url: text('url').notNull(),
   },
   (table) => [
-    uniqueIndex('bible_rights_holders_uid_idx').on(table.uid),
+    index('bible_rights_holders_name_idx').on(table.name),
     index('bible_rights_holders_abbr_idx').on(table.abbr),
   ],
 );
@@ -897,42 +897,42 @@ export const bibleRightsHoldersRelations = relations(bibleRightsHolders, ({ many
 export const biblesToRightsHolders = sqliteTable(
   'bibles_to_rights_holders',
   {
-    bibleId: text('bible_id')
-      .references(() => bibles.id, { onDelete: 'cascade' })
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
-    rightsHolderId: text('rights_holder_id')
-      .references(() => bibleRightsHolders.id, { onDelete: 'cascade' })
+    rightsHolderUid: text('rights_holder_uid')
+      .references(() => bibleRightsHolders.uid, { onDelete: 'cascade' })
       .notNull(),
   },
   (table) => [
     primaryKey({
-      columns: [table.bibleId, table.rightsHolderId],
+      columns: [table.bibleAbbreviation, table.rightsHolderUid],
     }),
-    index('bibles_to_rights_holders_bible_id_idx').on(table.bibleId),
-    index('bibles_to_rights_holders_rights_holder_id_idx').on(table.rightsHolderId),
+    index('bibles_to_rights_holders_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('bibles_to_rights_holders_rights_holder_uid_idx').on(table.rightsHolderUid),
   ],
 );
 
 export const biblesToRightsHoldersRelations = relations(biblesToRightsHolders, ({ one }) => ({
   bible: one(bibles, {
-    fields: [biblesToRightsHolders.bibleId],
-    references: [bibles.id],
+    fields: [biblesToRightsHolders.bibleAbbreviation],
+    references: [bibles.abbreviation],
   }),
   rightsHolder: one(bibleRightsHolders, {
-    fields: [biblesToRightsHolders.rightsHolderId],
-    references: [bibleRightsHolders.id],
+    fields: [biblesToRightsHolders.rightsHolderUid],
+    references: [bibleRightsHolders.uid],
   }),
 }));
 
 export const bibleRightsAdmins = sqliteTable(
   'bible_rights_admins',
   {
-    ...baseModel,
-    uid: text('uid').notNull(),
+    ...baseModelNoId,
+    uid: text('uid').primaryKey(),
     name: text('name').notNull(),
     url: text('url'),
   },
-  (table) => [uniqueIndex('bible_rights_admins_uid_idx').on(table.uid)],
+  (table) => [index('bible_rights_admins_name_idx').on(table.name)],
 );
 
 export const bibleRightsAdminsRelations = relations(bibleRightsAdmins, ({ many }) => ({
@@ -942,38 +942,38 @@ export const bibleRightsAdminsRelations = relations(bibleRightsAdmins, ({ many }
 export const biblesToRightsAdmins = sqliteTable(
   'bibles_to_rights_admins',
   {
-    bibleId: text('bible_id')
-      .references(() => bibles.id, { onDelete: 'cascade' })
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
-    rightsAdminId: text('rights_admin_id')
-      .references(() => bibleRightsAdmins.id, { onDelete: 'cascade' })
+    rightsAdminUid: text('rights_admin_uid')
+      .references(() => bibleRightsAdmins.uid, { onDelete: 'cascade' })
       .notNull(),
   },
   (table) => [
     primaryKey({
-      columns: [table.bibleId, table.rightsAdminId],
+      columns: [table.bibleAbbreviation, table.rightsAdminUid],
     }),
-    index('bibles_to_rights_admins_bible_id_idx').on(table.bibleId),
-    index('bibles_to_rights_admins_rights_admin_id_idx').on(table.rightsAdminId),
+    index('bibles_to_rights_admins_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('bibles_to_rights_admins_rights_admin_uid_idx').on(table.rightsAdminUid),
   ],
 );
 
 export const biblesToRightsAdminsRelations = relations(biblesToRightsAdmins, ({ one }) => ({
   bible: one(bibles, {
-    fields: [biblesToRightsAdmins.bibleId],
-    references: [bibles.id],
+    fields: [biblesToRightsAdmins.bibleAbbreviation],
+    references: [bibles.abbreviation],
   }),
   rightsAdmin: one(bibleRightsAdmins, {
-    fields: [biblesToRightsAdmins.rightsAdminId],
-    references: [bibleRightsAdmins.id],
+    fields: [biblesToRightsAdmins.rightsAdminUid],
+    references: [bibleRightsAdmins.uid],
   }),
 }));
 
 export const bibleContributors = sqliteTable(
   'bible_contributors',
   {
-    ...baseModel,
-    uid: text('uid').notNull(),
+    ...baseModelNoId,
+    uid: text('uid').primaryKey(),
     name: text('name').notNull(),
     content: integer('content', { mode: 'boolean' }).notNull().default(false),
     publication: integer('publication', { mode: 'boolean' }).notNull().default(false),
@@ -981,7 +981,7 @@ export const bibleContributors = sqliteTable(
     finance: integer('finance', { mode: 'boolean' }).notNull().default(false),
     qa: integer('qa', { mode: 'boolean' }).notNull().default(false),
   },
-  (table) => [uniqueIndex('bible_contributors_uid_idx').on(table.uid)],
+  (table) => [index('bible_contributors_name_idx').on(table.name)],
 );
 
 export const bibleContributorsRelations = relations(bibleContributors, ({ many }) => ({
@@ -991,42 +991,42 @@ export const bibleContributorsRelations = relations(bibleContributors, ({ many }
 export const biblesToContributors = sqliteTable(
   'bibles_to_contributors',
   {
-    bibleId: text('bible_id')
-      .references(() => bibles.id, { onDelete: 'cascade' })
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
-    contributorId: text('contributor_id')
-      .references(() => bibleContributors.id, { onDelete: 'cascade' })
+    contributorUid: text('contributor_uid')
+      .references(() => bibleContributors.uid, { onDelete: 'cascade' })
       .notNull(),
   },
   (table) => [
     primaryKey({
-      columns: [table.bibleId, table.contributorId],
+      columns: [table.bibleAbbreviation, table.contributorUid],
     }),
-    index('bibles_to_contributors_bible_id_idx').on(table.bibleId),
-    index('bibles_to_contributors_contributor_id_idx').on(table.contributorId),
+    index('bibles_to_contributors_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('bibles_to_contributors_contributor_uid_idx').on(table.contributorUid),
   ],
 );
 
 export const biblesToContributorsRelations = relations(biblesToContributors, ({ one }) => ({
   bible: one(bibles, {
-    fields: [biblesToContributors.bibleId],
-    references: [bibles.id],
+    fields: [biblesToContributors.bibleAbbreviation],
+    references: [bibles.abbreviation],
   }),
   contributor: one(bibleContributors, {
-    fields: [biblesToContributors.contributorId],
-    references: [bibleContributors.id],
+    fields: [biblesToContributors.contributorUid],
+    references: [bibleContributors.uid],
   }),
 }));
 
 export const books = sqliteTable(
   'books',
   {
-    ...baseModel,
-    bibleId: text('bible_id')
-      .references(() => bibles.id, { onDelete: 'cascade' })
+    ...baseModelNoId,
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
-    previousId: text('previous_id'),
-    nextId: text('next_id'),
+    previousCode: text('previous_code'),
+    nextCode: text('next_code'),
     number: integer('number').notNull(),
     code: text('code').notNull(),
     abbreviation: text('abbreviation'),
@@ -1034,10 +1034,13 @@ export const books = sqliteTable(
     longName: text('long_name').notNull(),
   },
   (table) => [
-    uniqueIndex('books_unique_bible_code_idx').on(table.bibleId, table.code),
-    index('books_bible_id_idx').on(table.bibleId),
-    index('books_previous_id_idx').on(table.previousId),
-    index('books_next_id_idx').on(table.nextId),
+    primaryKey({
+      name: 'books_unique_bible_code_pk',
+      columns: [table.bibleAbbreviation, table.code],
+    }),
+    index('books_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('books_previous_code_idx').on(table.previousCode),
+    index('books_next_code_idx').on(table.nextCode),
     index('books_number_idx').on(table.number),
     index('books_code_idx').on(table.code),
     index('books_abbreviation_idx').on(table.abbreviation),
@@ -1046,17 +1049,17 @@ export const books = sqliteTable(
 
 export const booksRelations = relations(books, ({ one, many }) => ({
   bible: one(bibles, {
-    fields: [books.bibleId],
-    references: [bibles.id],
+    fields: [books.bibleAbbreviation],
+    references: [bibles.abbreviation],
   }),
   previous: one(books, {
-    fields: [books.previousId],
-    references: [books.id],
+    fields: [books.bibleAbbreviation, books.previousCode],
+    references: [books.bibleAbbreviation, books.code],
     relationName: 'previous',
   }),
   next: one(books, {
-    fields: [books.nextId],
-    references: [books.id],
+    fields: [books.bibleAbbreviation, books.nextCode],
+    references: [books.bibleAbbreviation, books.code],
     relationName: 'next',
   }),
   chapters: many(chapters),
@@ -1066,26 +1069,29 @@ export const booksRelations = relations(books, ({ one, many }) => ({
 export const chapters = sqliteTable(
   'chapters',
   {
-    ...baseModel,
-    bibleId: text('bible_id')
-      .references(() => bibles.id, { onDelete: 'cascade' })
+    ...baseModelNoId,
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
-    bookId: text('book_id')
-      .references(() => books.id, { onDelete: 'cascade' })
+    bookCode: text('book_code')
+      .references(() => books.code, { onDelete: 'cascade' })
       .notNull(),
-    previousId: text('previous_id'),
-    nextId: text('next_id'),
+    previousCode: text('previous_code'),
+    nextCode: text('next_code'),
     code: text('code').notNull(),
     name: text('name').notNull(),
     number: integer('number').notNull(),
     content: text('content', { mode: 'json' }).notNull().$type<Content[]>(),
   },
   (table) => [
-    uniqueIndex('chapters_unique_bible_code_idx').on(table.bibleId, table.code),
-    index('chapters_bible_id_idx').on(table.bibleId),
-    index('chapters_book_id_idx').on(table.bookId),
-    index('chapters_previous_id_idx').on(table.previousId),
-    index('chapters_next_id_idx').on(table.nextId),
+    primaryKey({
+      name: 'chapters_unique_bible_code_pk',
+      columns: [table.bibleAbbreviation, table.code],
+    }),
+    index('chapters_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('chapters_book_code_idx').on(table.bookCode),
+    index('chapters_previous_code_idx').on(table.previousCode),
+    index('chapters_next_code_idx').on(table.nextCode),
     index('chapters_code_idx').on(table.code),
     index('chapters_name_idx').on(table.name),
     index('chapters_number_idx').on(table.number),
@@ -1094,21 +1100,21 @@ export const chapters = sqliteTable(
 
 export const chaptersRelations = relations(chapters, ({ one, many }) => ({
   bible: one(bibles, {
-    fields: [chapters.bibleId],
-    references: [bibles.id],
+    fields: [chapters.bibleAbbreviation],
+    references: [bibles.abbreviation],
   }),
   book: one(books, {
-    fields: [chapters.bookId],
-    references: [books.id],
+    fields: [chapters.bibleAbbreviation, chapters.bookCode],
+    references: [books.bibleAbbreviation, books.code],
   }),
   previous: one(chapters, {
-    fields: [chapters.previousId],
-    references: [chapters.id],
+    fields: [chapters.bibleAbbreviation, chapters.previousCode],
+    references: [chapters.bibleAbbreviation, chapters.code],
     relationName: 'previous',
   }),
   next: one(chapters, {
-    fields: [chapters.nextId],
-    references: [chapters.id],
+    fields: [chapters.bibleAbbreviation, chapters.nextCode],
+    references: [chapters.bibleAbbreviation, chapters.code],
     relationName: 'next',
   }),
   verses: many(verses),
@@ -1120,17 +1126,21 @@ export const chaptersRelations = relations(chapters, ({ one, many }) => ({
 export const chapterBookmarks = sqliteTable(
   'chapter_bookmarks',
   {
-    ...baseModel,
-    chapterId: text('chapter_id')
-      .references(() => chapters.id, { onDelete: 'cascade' })
+    ...baseModelNoId,
+    bibleAbbreviation: text('bible_abbreviation')
+      .notNull()
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
+    chapterCode: text('chapter_code')
+      .references(() => chapters.code, { onDelete: 'cascade' })
       .notNull(),
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
   },
   (table) => [
-    uniqueIndex('chapter_bookmarks_unique_user_chapter_idx').on(table.chapterId, table.userId),
-    index('chapter_bookmarks_chapter_id_idx').on(table.chapterId),
+    primaryKey({ columns: [table.bibleAbbreviation, table.chapterCode, table.userId] }),
+    index('chapter_bookmarks_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('chapter_bookmarks_chapter_code_idx').on(table.chapterCode),
     index('chapter_bookmarks_user_id_idx').on(table.userId),
   ],
 );
@@ -1141,17 +1151,20 @@ export const chapterBookmarksRelations = relations(chapterBookmarks, ({ one }) =
     references: [users.id],
   }),
   chapter: one(chapters, {
-    fields: [chapterBookmarks.chapterId],
-    references: [chapters.id],
+    fields: [chapterBookmarks.bibleAbbreviation, chapterBookmarks.chapterCode],
+    references: [chapters.bibleAbbreviation, chapters.code],
   }),
 }));
 
 export const chapterNotes = sqliteTable(
   'chapter_notes',
   {
-    ...baseModel,
-    chapterId: text('chapter_id')
-      .references(() => chapters.id, { onDelete: 'cascade' })
+    ...baseModelNoId,
+    bibleAbbreviation: text('bible_abbreviation')
+      .notNull()
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
+    chapterCode: text('chapter_code')
+      .references(() => chapters.code, { onDelete: 'cascade' })
       .notNull(),
     userId: text('user_id')
       .notNull()
@@ -1159,7 +1172,9 @@ export const chapterNotes = sqliteTable(
     content: text('content').notNull(),
   },
   (table) => [
-    index('chapter_notes_chapter_id_idx').on(table.chapterId),
+    primaryKey({ columns: [table.bibleAbbreviation, table.chapterCode, table.userId] }),
+    index('chapter_notes_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('chapter_notes_chapter_code_idx').on(table.chapterCode),
     index('chapter_notes_user_id_idx').on(table.userId),
   ],
 );
@@ -1170,26 +1185,30 @@ export const chapterNotesRelations = relations(chapterNotes, ({ one }) => ({
     references: [users.id],
   }),
   chapter: one(chapters, {
-    fields: [chapterNotes.chapterId],
-    references: [chapters.id],
+    fields: [chapterNotes.bibleAbbreviation, chapterNotes.chapterCode],
+    references: [chapters.bibleAbbreviation, chapters.code],
   }),
 }));
 
 export const chaptersToSourceDocuments = sqliteTable(
   'chapters_to_source_documents',
   {
-    chapterId: text('chapter_id')
+    bibleAbbreviation: text('bible_abbreviation')
       .notNull()
-      .references(() => chapters.id, { onDelete: 'cascade' }),
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
+    chapterCode: text('chapter_code')
+      .notNull()
+      .references(() => chapters.code, { onDelete: 'cascade' }),
     sourceDocumentId: text('source_document_id')
       .notNull()
       .references(() => sourceDocuments.id, { onDelete: 'cascade' }),
   },
   (table) => [
     primaryKey({
-      columns: [table.chapterId, table.sourceDocumentId],
+      columns: [table.bibleAbbreviation, table.chapterCode, table.sourceDocumentId],
     }),
-    index('chapters_to_source_documents_chapter_id_idx').on(table.chapterId),
+    index('chapters_to_source_documents_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('chapters_to_source_documents_chapter_code_idx').on(table.chapterCode),
     index('chapters_to_source_documents_source_document_id_idx').on(table.sourceDocumentId),
   ],
 );
@@ -1198,8 +1217,12 @@ export const chaptersToSourceDocumentsRelations = relations(
   chaptersToSourceDocuments,
   ({ one }) => ({
     chapter: one(chapters, {
-      fields: [chaptersToSourceDocuments.chapterId],
-      references: [chapters.id],
+      fields: [chaptersToSourceDocuments.bibleAbbreviation, chaptersToSourceDocuments.chapterCode],
+      references: [chapters.bibleAbbreviation, chapters.code],
+    }),
+    sourceDocument: one(sourceDocuments, {
+      fields: [chaptersToSourceDocuments.sourceDocumentId],
+      references: [sourceDocuments.id],
     }),
   }),
 );
@@ -1231,30 +1254,30 @@ export const readingSessionsRelations = relations(readingSessions, ({ one }) => 
 export const verses = sqliteTable(
   'verses',
   {
-    ...baseModel,
-    bibleId: text('bible_id')
-      .references(() => bibles.id, { onDelete: 'cascade' })
+    ...baseModelNoId,
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
-    bookId: text('book_id')
-      .references(() => books.id, { onDelete: 'cascade' })
+    bookCode: text('book_code')
+      .references(() => books.code, { onDelete: 'cascade' })
       .notNull(),
-    chapterId: text('chapter_id')
-      .references(() => chapters.id, { onDelete: 'cascade' })
+    chapterCode: text('chapter_code')
+      .references(() => chapters.code, { onDelete: 'cascade' })
       .notNull(),
-    previousId: text('previous_id'),
-    nextId: text('next_id'),
+    previousCode: text('previous_code'),
+    nextCode: text('next_code'),
     code: text('code').notNull(),
     name: text('name').notNull(),
     number: integer('number').notNull(),
     content: text('content', { mode: 'json' }).notNull().$type<Content[]>(),
   },
   (table) => [
-    uniqueIndex('verses_unique_bible_code_idx').on(table.bibleId, table.code),
-    index('verses_bible_id_idx').on(table.bibleId),
-    index('verses_book_id_idx').on(table.bookId),
-    index('verses_chapter_id_idx').on(table.chapterId),
-    index('verses_previous_id_idx').on(table.previousId),
-    index('verses_next_id_idx').on(table.nextId),
+    primaryKey({ columns: [table.bibleAbbreviation, table.code] }),
+    index('verses_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('verses_book_code_idx').on(table.bookCode),
+    index('verses_chapter_code_idx').on(table.chapterCode),
+    index('verses_previous_code_idx').on(table.previousCode),
+    index('verses_next_code_idx').on(table.nextCode),
     index('verses_code_idx').on(table.code),
     index('verses_name_idx').on(table.name),
     index('verses_number_idx').on(table.number),
@@ -1263,25 +1286,25 @@ export const verses = sqliteTable(
 
 export const versesRelations = relations(verses, ({ one, many }) => ({
   bible: one(bibles, {
-    fields: [verses.bibleId],
-    references: [bibles.id],
+    fields: [verses.bibleAbbreviation],
+    references: [bibles.abbreviation],
   }),
   book: one(books, {
-    fields: [verses.bookId],
-    references: [books.id],
+    fields: [verses.bookCode],
+    references: [books.code],
   }),
   chapter: one(chapters, {
-    fields: [verses.chapterId],
-    references: [chapters.id],
+    fields: [verses.chapterCode],
+    references: [chapters.code],
   }),
   previous: one(verses, {
-    fields: [verses.previousId],
-    references: [verses.id],
+    fields: [verses.bibleAbbreviation, verses.previousCode],
+    references: [verses.bibleAbbreviation, verses.code],
     relationName: 'previous',
   }),
   next: one(verses, {
-    fields: [verses.nextId],
-    references: [verses.id],
+    fields: [verses.bibleAbbreviation, verses.nextCode],
+    references: [verses.bibleAbbreviation, verses.code],
     relationName: 'next',
   }),
   highlights: many(verseHighlights),
@@ -1292,9 +1315,12 @@ export const versesRelations = relations(verses, ({ one, many }) => ({
 export const verseHighlights = sqliteTable(
   'verse_highlights',
   {
-    ...baseModel,
-    verseId: text('verse_id')
-      .references(() => verses.id, { onDelete: 'cascade' })
+    ...baseModelNoId,
+    bibleAbbreviation: text('bible_abbreviation')
+      .notNull()
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
+    verseCode: text('verse_code')
+      .references(() => verses.code, { onDelete: 'cascade' })
       .notNull(),
     userId: text('user_id')
       .notNull()
@@ -1302,8 +1328,9 @@ export const verseHighlights = sqliteTable(
     color: text('color').notNull(),
   },
   (table) => [
-    uniqueIndex('verse_highlights_unique_user_verse_idx').on(table.userId, table.verseId),
-    index('verse_highlights_verse_id_idx').on(table.verseId),
+    primaryKey({ columns: [table.bibleAbbreviation, table.verseCode, table.userId] }),
+    index('verse_highlights_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('verse_highlights_verse_code_idx').on(table.verseCode),
     index('verse_highlights_user_id_idx').on(table.userId),
   ],
 );
@@ -1314,25 +1341,29 @@ export const verseHighlightsRelations = relations(verseHighlights, ({ one }) => 
     references: [users.id],
   }),
   verse: one(verses, {
-    fields: [verseHighlights.verseId],
-    references: [verses.id],
+    fields: [verseHighlights.bibleAbbreviation, verseHighlights.verseCode],
+    references: [verses.bibleAbbreviation, verses.code],
   }),
 }));
 
 export const verseBookmarks = sqliteTable(
   'verse_bookmarks',
   {
-    ...baseModel,
-    verseId: text('verse_id')
-      .references(() => verses.id, { onDelete: 'cascade' })
+    ...baseModelNoId,
+    bibleAbbreviation: text('bible_abbreviation')
+      .notNull()
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
+    verseCode: text('verse_code')
+      .references(() => verses.code, { onDelete: 'cascade' })
       .notNull(),
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
   },
   (table) => [
-    uniqueIndex('verse_bookmarks_unique_user_verse_idx').on(table.userId, table.verseId),
-    index('verse_bookmarks_verse_id_idx').on(table.verseId),
+    primaryKey({ columns: [table.bibleAbbreviation, table.verseCode, table.userId] }),
+    index('verse_bookmarks_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('verse_bookmarks_verse_code_idx').on(table.verseCode),
     index('verse_bookmarks_user_id_idx').on(table.userId),
   ],
 );
@@ -1343,17 +1374,20 @@ export const verseBookmarksRelations = relations(verseBookmarks, ({ one }) => ({
     references: [users.id],
   }),
   verse: one(verses, {
-    fields: [verseBookmarks.verseId],
-    references: [verses.id],
+    fields: [verseBookmarks.bibleAbbreviation, verseBookmarks.verseCode],
+    references: [verses.bibleAbbreviation, verses.code],
   }),
 }));
 
 export const verseNotes = sqliteTable(
   'verse_notes',
   {
-    ...baseModel,
-    verseId: text('verse_id')
-      .references(() => verses.id, { onDelete: 'cascade' })
+    ...baseModelNoId,
+    bibleAbbreviation: text('bible_abbreviation')
+      .notNull()
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' }),
+    verseCode: text('verse_code')
+      .references(() => verses.code, { onDelete: 'cascade' })
       .notNull(),
     userId: text('user_id')
       .notNull()
@@ -1361,7 +1395,9 @@ export const verseNotes = sqliteTable(
     content: text('content').notNull(),
   },
   (table) => [
-    index('verse_notes_verse_id_idx').on(table.verseId),
+    primaryKey({ columns: [table.bibleAbbreviation, table.verseCode, table.userId] }),
+    index('verse_notes_bible_abbreviation_idx').on(table.bibleAbbreviation),
+    index('verse_notes_verse_code_idx').on(table.verseCode),
     index('verse_notes_user_id_idx').on(table.userId),
   ],
 );
@@ -1372,8 +1408,8 @@ export const verseNotesRelations = relations(verseNotes, ({ one }) => ({
     references: [users.id],
   }),
   verse: one(verses, {
-    fields: [verseNotes.verseId],
-    references: [verses.id],
+    fields: [verseNotes.bibleAbbreviation, verseNotes.verseCode],
+    references: [verses.bibleAbbreviation, verses.code],
   }),
 }));
 

@@ -1,19 +1,22 @@
 import type { Content, TextContent } from '@/schemas/bibles/contents';
 
-export function findTextContentByVerseIds(contents: Content[], verseIds: string[]): TextContent[] {
+export function findTextContentByVerseCodes(
+  contents: Content[],
+  verseCodes: string[],
+): TextContent[] {
   const found: TextContent[] = [];
   for (const content of contents) {
-    if (content.type === 'text' && verseIds.includes(content.verseId)) {
+    if (content.type === 'text' && verseCodes.includes(content.verseCode)) {
       found.push(content);
     }
     if (content.type === 'para') {
-      found.push(...findTextContentByVerseIds(content.contents, verseIds));
+      found.push(...findTextContentByVerseCodes(content.contents, verseCodes));
     }
     if (content.type === 'char') {
-      found.push(...findTextContentByVerseIds(content.contents, verseIds));
+      found.push(...findTextContentByVerseCodes(content.contents, verseCodes));
     }
     if (content.type === 'note') {
-      found.push(...findTextContentByVerseIds(content.contents, verseIds));
+      found.push(...findTextContentByVerseCodes(content.contents, verseCodes));
     }
   }
   return found;

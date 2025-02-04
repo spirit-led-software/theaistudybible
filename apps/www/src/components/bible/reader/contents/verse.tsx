@@ -37,8 +37,8 @@ export const VerseContent = (props: VerseContentProps) => {
       </A>
       <Show
         when={
-          props.notes?.some((note) => note.verseId === props.content.id) &&
-          props.notes?.filter((note) => note.verseId === props.content.id)
+          props.notes?.some((note) => note.verseCode === props.content.code) &&
+          props.notes?.filter((note) => note.verseCode === props.content.code)
         }
         keyed
       >

@@ -8,7 +8,6 @@ import { eq, sql } from 'drizzle-orm';
 import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 import JSZip from 'jszip';
 import { Resource } from 'sst';
-import { createId } from '../id';
 import type { DBLMetadata, Publication } from './types';
 import { parseUsx } from './usx';
 
@@ -35,10 +34,10 @@ export async function createBibleFromDblZip({
   bible = await createBible(metadata, abbreviation, overwrite);
   await createBibleRelations(bible, metadata);
 
-  console.log(`Bible created with ID ${bible.id}`);
+  console.log(`Bible created with abbreviation ${bible.abbreviation}`);
 
   const bookInfos = getBookInfos(publication, metadata);
-  const newBooks = await createBooks(bible.id, bookInfos, overwrite);
+  const newBooks = await createBooks(bible.abbreviation, bookInfos, overwrite);
   await processBooks(zipFile, bible, newBooks, bookInfos, generateEmbeddings, overwrite);
 }
 
@@ -86,7 +85,7 @@ async function findExistingBible(abbreviation: string, overwrite: boolean) {
   if (bible) {
     if (!overwrite) {
       throw new Error(
-        `Bible ${abbreviation} already exists. ID: ${bible.id}. Use --overwrite to replace it.`,
+        `Bible ${abbreviation} already exists. Abbreviation: ${bible.abbreviation}. Use --overwrite to replace it.`,
       );
     }
   }
@@ -120,7 +119,7 @@ async function createBible(metadata: DBLMetadata, abbreviation: string, overwrit
             'description',
             'copyrightStatement',
           ])
-        : { id: sql`id` },
+        : { abbreviation: sql`abbreviation` },
     })
     .returning();
 
@@ -131,14 +130,17 @@ async function createBibleRelations(
   bible: typeof schema.bibles.$inferSelect,
   metadata: DBLMetadata,
 ) {
-  await createBibleLanguage(bible.id, metadata.language);
-  await createBibleCountries(bible.id, metadata.countries.country);
-  await createBibleRightsHolder(bible.id, metadata.agencies.rightsHolder);
-  await createBibleRightsAdmin(bible.id, metadata.agencies.rightsAdmin);
-  await createBibleContributor(bible.id, metadata.agencies.contributor);
+  await createBibleLanguage(bible.abbreviation, metadata.language);
+  await createBibleCountries(bible.abbreviation, metadata.countries.country);
+  await createBibleRightsHolder(bible.abbreviation, metadata.agencies.rightsHolder);
+  await createBibleRightsAdmin(bible.abbreviation, metadata.agencies.rightsAdmin);
+  await createBibleContributor(bible.abbreviation, metadata.agencies.contributor);
 }
 
-async function createBibleLanguage(bibleId: string, dblLanguage: DBLMetadata['language']) {
+async function createBibleLanguage(
+  bibleAbbreviation: string,
+  dblLanguage: DBLMetadata['language'],
+) {
   const { iso, ...rest } = dblLanguage;
 
   const [language] = await db
@@ -152,14 +154,14 @@ async function createBibleLanguage(bibleId: string, dblLanguage: DBLMetadata['la
   await db
     .insert(schema.biblesToLanguages)
     .values({
-      bibleId,
-      languageId: language.id,
+      bibleAbbreviation,
+      languageIso: language.iso,
     })
     .onConflictDoNothing();
 }
 
 async function createBibleCountries(
-  bibleId: string,
+  bibleAbbreviation: string,
   dblCountries: DBLMetadata['countries']['country'],
 ) {
   const countriesArray = Array.isArray(dblCountries) ? dblCountries : [dblCountries];
@@ -180,15 +182,15 @@ async function createBibleCountries(
     .insert(schema.biblesToCountries)
     .values(
       countries.map((country) => ({
-        bibleId,
-        countryId: country.id,
+        bibleAbbreviation,
+        countryIso: country.iso,
       })),
     )
     .onConflictDoNothing();
 }
 
 async function createBibleRightsHolder(
-  bibleId: string,
+  bibleAbbreviation: string,
   dblRightsHolder: DBLMetadata['agencies']['rightsHolder'],
 ) {
   const { uid, ...rest } = dblRightsHolder;
@@ -203,14 +205,14 @@ async function createBibleRightsHolder(
   await db
     .insert(schema.biblesToRightsHolders)
     .values({
-      bibleId,
-      rightsHolderId: rightsHolder.id,
+      bibleAbbreviation,
+      rightsHolderUid: rightsHolder.uid,
     })
     .onConflictDoNothing();
 }
 
 async function createBibleRightsAdmin(
-  bibleId: string,
+  bibleAbbreviation: string,
   dblRightsAdmin: DBLMetadata['agencies']['rightsAdmin'],
 ) {
   const { uid, ...rest } = dblRightsAdmin;
@@ -225,14 +227,14 @@ async function createBibleRightsAdmin(
   await db
     .insert(schema.biblesToRightsAdmins)
     .values({
-      bibleId,
-      rightsAdminId: rightsAdmin.id,
+      bibleAbbreviation,
+      rightsAdminUid: rightsAdmin.uid,
     })
     .onConflictDoNothing();
 }
 
 async function createBibleContributor(
-  bibleId: string,
+  bibleAbbreviation: string,
   dblContributor: DBLMetadata['agencies']['contributor'],
 ) {
   const contributorsArray = Array.isArray(dblContributor) ? dblContributor : [dblContributor];
@@ -254,8 +256,8 @@ async function createBibleContributor(
     .insert(schema.biblesToContributors)
     .values(
       contributors.map((contributor) => ({
-        bibleId,
-        contributorId: contributor.id,
+        bibleAbbreviation,
+        contributorUid: contributor.uid,
       })),
     )
     .onConflictDoNothing();
@@ -266,7 +268,6 @@ function getBookInfos(publication: Publication, metadata: DBLMetadata) {
     const name = metadata.names.name.find((name) => content['@_name'] === name['@_id']);
     if (!name) throw new Error(`Content ${content['@_name']} not found`);
     return {
-      id: createId(),
       src: content['@_src'],
       code: content['@_role'],
       abbreviation: name.abbr,
@@ -277,7 +278,7 @@ function getBookInfos(publication: Publication, metadata: DBLMetadata) {
 }
 
 async function createBooks(
-  bibleId: string,
+  bibleAbbreviation: string,
   bookInfos: ReturnType<typeof getBookInfos>,
   overwrite: boolean,
 ) {
@@ -290,20 +291,19 @@ async function createBooks(
       .insert(schema.books)
       .values(
         batch.map((book, idx) => {
-          const { id, src, code, ...rest } = book;
+          const { src, code, ...rest } = book;
           return {
             ...rest,
-            id,
-            previousId: bookInfos[i + idx - 1]?.id,
-            nextId: bookInfos[i + idx + 1]?.id,
+            previousCode: bookInfos[i + idx - 1]?.code,
+            nextCode: bookInfos[i + idx + 1]?.code,
             code: code.toUpperCase(),
             number: i + idx + 1,
-            bibleId,
+            bibleAbbreviation,
           } satisfies typeof schema.books.$inferInsert;
         }),
       )
       .onConflictDoUpdate({
-        target: [schema.books.bibleId, schema.books.code],
+        target: [schema.books.bibleAbbreviation, schema.books.code],
         set: overwrite
           ? buildConflictUpdateColumns(schema.books, [
               'shortName',
@@ -311,7 +311,7 @@ async function createBooks(
               'abbreviation',
               'number',
             ])
-          : { id: sql`id` },
+          : { code: sql`code` },
       })
       .returning();
     allBooks.push(...insertedBooks);
@@ -337,7 +337,7 @@ async function processBooks(
     if (!bookFile) throw new Error(`Book file ${bookInfo.src} not found`);
 
     const bookXml = await bookFile.async('text');
-    const contents = parseUsx(bookXml);
+    const contents = parseUsx(bookXml, book.code);
 
     console.log('Book content parsed, sending chapters to queue...');
     await sendChaptersToIndexBucket(contents, bible, book, generateEmbeddings, overwrite);
@@ -358,10 +358,10 @@ async function sendChaptersToIndexBucket(
     const messages = batch.map(
       ([chapterNumber, content], idx) =>
         ({
-          bibleId: bible.id,
-          bookId: book.id,
-          previousId: entries[i + idx - 1]?.[1]?.id,
-          nextId: entries[i + idx + 1]?.[1]?.id,
+          bibleAbbreviation: bible.abbreviation,
+          bookCode: book.code,
+          previousCode: entries[i + idx - 1]?.[1]?.code,
+          nextCode: entries[i + idx + 1]?.[1]?.code,
           chapterNumber,
           content,
           generateEmbeddings,
@@ -373,7 +373,7 @@ async function sendChaptersToIndexBucket(
       s3.send(
         new PutObjectCommand({
           Bucket: Resource.ChapterMessageBucket.name,
-          Key: `${message.content.id}.json`,
+          Key: `${message.content.code}.json`,
           Body: JSON.stringify(message),
           ContentType: 'application/json',
         }),

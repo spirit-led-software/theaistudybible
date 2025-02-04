@@ -141,7 +141,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
     dataStream: options.dataStream,
     user: options.user,
     roles: options.roles,
-    bibleId: options.bible?.id,
+    bibleAbbreviation: options.bible?.abbreviation,
   });
 
   // TODO: Uncomment this once bun fixes this issue: https://github.com/oven-sh/bun/issues/13072

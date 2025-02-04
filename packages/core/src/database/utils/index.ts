@@ -13,17 +13,24 @@ export const timestamp = customType<{
   fromDriver: (value) => parseISO(value),
 });
 
+const createdAt = timestamp('created_at')
+  .notNull()
+  .$defaultFn(() => new Date());
+const updatedAt = timestamp('updated_at')
+  .notNull()
+  .$defaultFn(() => new Date())
+  .$onUpdateFn(() => new Date());
 export const baseModel = {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => createId()),
-  createdAt: timestamp('created_at')
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: timestamp('updated_at')
-    .notNull()
-    .$defaultFn(() => new Date())
-    .$onUpdateFn(() => new Date()),
+  createdAt,
+  updatedAt,
+};
+
+export const baseModelNoId = {
+  createdAt,
+  updatedAt,
 };
 
 export const buildConflictUpdateColumns = <

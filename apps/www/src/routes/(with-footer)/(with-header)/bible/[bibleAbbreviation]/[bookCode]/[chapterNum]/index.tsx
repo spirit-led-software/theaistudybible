@@ -8,14 +8,20 @@ import { createMemo } from 'solid-js';
 
 export const route: RouteDefinition = {
   preload: ({ params }) => {
-    const { bibleAbbr, bookCode } = params;
+    const { bibleAbbreviation, bookCode } = params;
     const chapterNum = Number.parseInt(params.chapterNum);
 
     const qc = useQueryClient();
     Promise.all([
-      qc.prefetchQuery(bookPickerQueryOptions(bibleAbbr)),
+      qc.prefetchQuery(bookPickerQueryOptions(bibleAbbreviation)),
       qc.prefetchQuery(smallBiblePickerQueryOptions()),
-      qc.prefetchQuery(chapterReaderQueryOptions({ bibleAbbr, bookCode, chapterNum })),
+      qc.prefetchQuery(
+        chapterReaderQueryOptions({
+          bibleAbbreviation,
+          bookCode,
+          chapterNum,
+        }),
+      ),
     ]);
   },
 };
@@ -27,7 +33,7 @@ export default function ChapterPage() {
 
   return (
     <ChapterReader
-      bibleAbbr={params.bibleAbbr}
+      bibleAbbreviation={params.bibleAbbreviation}
       bookCode={params.bookCode}
       chapterNum={chapterNum()}
     />

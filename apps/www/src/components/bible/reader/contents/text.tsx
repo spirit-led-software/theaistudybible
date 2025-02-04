@@ -2,7 +2,7 @@ import type { TextContent as TextContentType } from '@/schemas/bibles/contents';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
 import type { HighlightInfo } from '@/www/types/bible';
-import { gatherElementIdsByVerseId, hexToRgb } from '@/www/utils';
+import { gatherElementIdsByVerseCode, hexToRgb } from '@/www/utils';
 import { createMemo } from 'solid-js';
 
 export type TextContentProps = {
@@ -17,7 +17,7 @@ export type TextContentProps = {
 export function TextContent(props: TextContentProps) {
   const [brStore, setBrStore] = useBibleReaderStore();
   const highlightColor = createMemo(
-    () => props.highlights?.find(({ verseId }) => verseId === props.content.verseId)?.color,
+    () => props.highlights?.find(({ verseCode }) => verseCode === props.content.verseCode)?.color,
   );
   const selected = createMemo(() =>
     brStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id)),
@@ -25,22 +25,17 @@ export function TextContent(props: TextContentProps) {
 
   const handleClick = () => {
     setBrStore('selectedVerseInfos', (prev) => {
-      if (prev.find(({ id }) => id === props.content.verseId)) {
-        return prev.filter(({ id }) => id !== props.content.verseId);
+      if (prev.find(({ code }) => code === props.content.verseCode)) {
+        return prev.filter(({ code }) => code !== props.content.verseCode);
       }
-      const contentIds = gatherElementIdsByVerseId(props.content.verseId);
+      const contentIds = gatherElementIdsByVerseCode(props.content.verseCode);
       const text = contentIds
         .map((id) => document.getElementById(id)?.textContent)
         .join('')
         .trim();
       return [
         ...prev,
-        {
-          id: props.content.verseId,
-          number: props.content.verseNumber,
-          contentIds,
-          text,
-        },
+        { code: props.content.verseCode, number: props.content.verseNumber, contentIds, text },
       ];
     });
   };
@@ -60,7 +55,7 @@ export function TextContent(props: TextContentProps) {
     <span
       id={props.content.id}
       data-type={props.content.type}
-      data-verse-id={props.content.verseId}
+      data-verse-code={props.content.verseCode}
       data-verse-number={props.content.verseNumber}
       {...props.props}
       class={cn(

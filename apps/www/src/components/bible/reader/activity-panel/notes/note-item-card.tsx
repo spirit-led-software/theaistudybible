@@ -27,7 +27,12 @@ import { HelpCircle } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
 
 const editNoteAction = action(
-  async (props: { type: 'chapter' | 'verse'; noteId: string; content: string }) => {
+  async (props: {
+    type: 'chapter' | 'verse';
+    bibleAbbreviation: string;
+    code: string;
+    content: string;
+  }) => {
     'use server';
     const { user } = requireAuth();
     let note: VerseNote | ChapterNote;
@@ -35,33 +40,59 @@ const editNoteAction = action(
       [note] = await db
         .update(chapterNotes)
         .set({ content: props.content })
-        .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)))
+        .where(
+          and(
+            eq(chapterNotes.userId, user.id),
+            eq(chapterNotes.bibleAbbreviation, props.bibleAbbreviation),
+            eq(chapterNotes.chapterCode, props.code),
+          ),
+        )
         .returning();
     } else {
       [note] = await db
         .update(verseNotes)
         .set({ content: props.content })
-        .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)))
+        .where(
+          and(
+            eq(verseNotes.userId, user.id),
+            eq(verseNotes.bibleAbbreviation, props.bibleAbbreviation),
+            eq(verseNotes.verseCode, props.code),
+          ),
+        )
         .returning();
     }
     return { note };
   },
 );
 
-const deleteNoteAction = action(async (props: { type: 'chapter' | 'verse'; noteId: string }) => {
-  'use server';
-  const { user } = requireAuth();
-  if (props.type === 'chapter') {
-    await db
-      .delete(chapterNotes)
-      .where(and(eq(chapterNotes.userId, user.id), eq(chapterNotes.id, props.noteId)));
-  } else {
-    await db
-      .delete(verseNotes)
-      .where(and(eq(verseNotes.userId, user.id), eq(verseNotes.id, props.noteId)));
-  }
-  return { success: true };
-});
+const deleteNoteAction = action(
+  async (props: { type: 'chapter' | 'verse'; bibleAbbreviation: string; code: string }) => {
+    'use server';
+    const { user } = requireAuth();
+    if (props.type === 'chapter') {
+      await db
+        .delete(chapterNotes)
+        .where(
+          and(
+            eq(chapterNotes.userId, user.id),
+            eq(chapterNotes.bibleAbbreviation, props.bibleAbbreviation),
+            eq(chapterNotes.chapterCode, props.code),
+          ),
+        );
+    } else {
+      await db
+        .delete(verseNotes)
+        .where(
+          and(
+            eq(verseNotes.userId, user.id),
+            eq(verseNotes.bibleAbbreviation, props.bibleAbbreviation),
+            eq(verseNotes.verseCode, props.code),
+          ),
+        );
+    }
+    return { success: true };
+  },
+);
 
 export type NoteItemCardProps = {
   note: ChapterNote | VerseNote;
@@ -83,11 +114,12 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
   const [showPreview, setShowPreview] = createSignal(false);
 
   const editNoteMutation = createMutation(() => ({
-    mutationFn: (mProps: { noteId: string; content: string }) =>
-      editNote({
-        type: 'verseId' in props.note ? 'verse' : 'chapter',
-        ...mProps,
-      }),
+    mutationFn: (mProps: {
+      type: 'verse' | 'chapter';
+      bibleAbbreviation: string;
+      code: string;
+      content: string;
+    }) => editNote(mProps),
     onSettled: () =>
       qc.invalidateQueries({
         queryKey: ['notes'],
@@ -95,11 +127,8 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
   }));
 
   const deleteNoteMutation = createMutation(() => ({
-    mutationFn: (mProps: { noteId: string }) =>
-      deleteNote({
-        type: 'verseId' in props.note ? 'verse' : 'chapter',
-        ...mProps,
-      }),
+    mutationFn: (mProps: { type: 'verse' | 'chapter'; bibleAbbreviation: string; code: string }) =>
+      deleteNote(mProps),
     onSettled: () =>
       qc.invalidateQueries({
         queryKey: ['notes'],
@@ -185,7 +214,9 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
                 onClick={() => {
                   setIsEditingNote(false);
                   editNoteMutation.mutate({
-                    noteId: props.note.id,
+                    type: 'verseCode' in props.note ? 'verse' : 'chapter',
+                    bibleAbbreviation: props.bible.abbreviation,
+                    code: 'verseCode' in props.note ? props.note.verseCode : props.note.chapterCode,
                     content: editNoteContent(),
                   });
                 }}
@@ -214,7 +245,12 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
                   type='submit'
                   variant='destructive'
                   onClick={() => {
-                    deleteNoteMutation.mutate({ noteId: props.note.id });
+                    deleteNoteMutation.mutate({
+                      type: 'verseCode' in props.note ? 'verse' : 'chapter',
+                      bibleAbbreviation: props.bible.abbreviation,
+                      code:
+                        'verseCode' in props.note ? props.note.verseCode : props.note.chapterCode,
+                    });
                   }}
                 >
                   Delete

@@ -18,7 +18,7 @@ export const authMiddleware = () => {
     const [settings, roles] = await Promise.all([
       db
         .insert(userSettings)
-        .values({ userId: user.id, emailNotifications: true, preferredBibleId: null })
+        .values({ userId: user.id, emailNotifications: true, preferredBibleAbbreviation: null })
         .onConflictDoUpdate({
           target: [userSettings.userId],
           set: { id: sql`id` }, // No-op to return the existing row

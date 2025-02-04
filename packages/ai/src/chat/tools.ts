@@ -63,11 +63,11 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
     execute: async ({ bibleAbbr, bookName, chapterNumber, verseNumbers, color }) => {
       try {
         const queryResult = await db.query.bibles.findFirst({
-          columns: { id: true, abbreviation: true },
+          columns: { abbreviation: true },
           where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
           with: {
             books: {
-              columns: { id: true, code: true, abbreviation: true, shortName: true },
+              columns: { code: true, abbreviation: true, shortName: true },
               where: (books, { or, eq }) =>
                 or(
                   eq(books.shortName, bookName),
@@ -76,11 +76,11 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
                 ),
               with: {
                 chapters: {
-                  columns: { id: true, number: true },
+                  columns: { code: true, number: true },
                   where: (chapters, { eq }) => eq(chapters.number, chapterNumber),
                   with: {
                     verses: {
-                      columns: { id: true, number: true },
+                      columns: { code: true, number: true },
                       where: (verses, { inArray }) => inArray(verses.number, verseNumbers),
                     },
                   },
@@ -103,12 +103,13 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
           .values(
             verses.map((verse) => ({
               userId: input.userId,
-              verseId: verse.id,
+              bibleAbbreviation: bibleAbbr,
+              verseCode: verse.code,
               color: color ?? '#FFD700',
             })),
           )
           .onConflictDoUpdate({
-            target: [verseHighlights.userId, verseHighlights.verseId],
+            target: [verseHighlights.userId, verseHighlights.verseCode],
             set: { color: color ?? '#FFD700' },
           });
 
@@ -142,11 +143,11 @@ export const bookmarkVerseTool = (input: { dataStream: DataStreamWriter; userId:
     execute: async ({ bibleAbbr, bookName, chapterNumber, verseNumbers }) => {
       try {
         const queryResult = await db.query.bibles.findFirst({
-          columns: { id: true, abbreviation: true },
+          columns: { abbreviation: true },
           where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
           with: {
             books: {
-              columns: { id: true, code: true, abbreviation: true, shortName: true },
+              columns: { code: true, abbreviation: true, shortName: true },
               where: (books, { or, eq }) =>
                 or(
                   eq(books.shortName, bookName),
@@ -155,11 +156,11 @@ export const bookmarkVerseTool = (input: { dataStream: DataStreamWriter; userId:
                 ),
               with: {
                 chapters: {
-                  columns: { id: true, number: true },
+                  columns: { code: true, number: true },
                   where: (chapters, { eq }) => eq(chapters.number, chapterNumber),
                   with: {
                     verses: {
-                      columns: { id: true, number: true },
+                      columns: { code: true, number: true },
                       where: (verses, { inArray }) => inArray(verses.number, verseNumbers),
                     },
                   },
@@ -182,7 +183,8 @@ export const bookmarkVerseTool = (input: { dataStream: DataStreamWriter; userId:
           .values(
             verses.map((verse) => ({
               userId: input.userId,
-              verseId: verse.id,
+              bibleAbbreviation: bibleAbbr,
+              verseCode: verse.code,
             })),
           )
           .onConflictDoNothing();
@@ -216,11 +218,11 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
     execute: async ({ bibleAbbr, bookName, chapterNumbers }) => {
       try {
         const queryResult = await db.query.bibles.findFirst({
-          columns: { id: true, abbreviation: true },
+          columns: { abbreviation: true },
           where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
           with: {
             books: {
-              columns: { id: true, code: true, abbreviation: true, shortName: true },
+              columns: { code: true, abbreviation: true, shortName: true },
               where: (books, { or, eq }) =>
                 or(
                   eq(books.shortName, bookName),
@@ -229,7 +231,7 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
                 ),
               with: {
                 chapters: {
-                  columns: { id: true, number: true },
+                  columns: { code: true, number: true },
                   where: (chapters, { inArray }) => inArray(chapters.number, chapterNumbers),
                 },
               },
@@ -249,7 +251,8 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
           .values(
             chapters.map((chapter) => ({
               userId: input.userId,
-              chapterId: chapter.id,
+              bibleAbbreviation: bibleAbbr,
+              chapterCode: chapter.code,
             })),
           )
           .onConflictDoNothing();
@@ -271,7 +274,10 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
     },
   });
 
-export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?: string | null }) =>
+export const vectorStoreTool = (input: {
+  dataStream: DataStreamWriter;
+  bibleAbbreviation?: string | null;
+}) =>
   tool({
     description: 'Vector Store: Fetch relevant resources for your answer.',
     parameters: z.object({
@@ -308,9 +314,9 @@ export const vectorStoreTool = (input: { dataStream: DataStreamWriter; bibleId?:
         // Get initial results from vector search
         const docs = await Promise.all(
           terms.map(async ({ term, weight, category }) => {
-            let filter = `bibleId = "${input.bibleId}" or (type != "bible" and type != "BIBLE")`;
+            let filter = `bibleAbbreviation = "${input.bibleAbbreviation}" or (type != "bible" and type != "BIBLE")`;
             if (category === 'bible') {
-              filter = `(type = "bible" or type = "BIBLE") and bibleId = "${input.bibleId}"`;
+              filter = `(type = "bible" or type = "BIBLE") and bibleAbbreviation = "${input.bibleAbbreviation}"`;
             } else if (category === 'theology') {
               filter = 'category = "theology"';
             }
@@ -455,7 +461,7 @@ export const tools = (input: {
   dataStream: DataStreamWriter;
   user: User;
   roles?: Role[] | null;
-  bibleId?: string | null;
+  bibleAbbreviation?: string | null;
 }) => ({
   thinking: thinkingTool({ dataStream: input.dataStream }),
   askForHighlightColor: askForHighlightColorTool({ dataStream: input.dataStream }),
@@ -467,5 +473,8 @@ export const tools = (input: {
     user: input.user,
     roles: input.roles,
   }),
-  vectorStore: vectorStoreTool({ dataStream: input.dataStream, bibleId: input.bibleId }),
+  vectorStore: vectorStoreTool({
+    dataStream: input.dataStream,
+    bibleAbbreviation: input.bibleAbbreviation,
+  }),
 });

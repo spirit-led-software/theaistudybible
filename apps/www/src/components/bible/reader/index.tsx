@@ -2,7 +2,7 @@ import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { auth } from '@/www/server/auth';
-import { gatherElementIdsByVerseId, gatherElementIdsByVerseNumber } from '@/www/utils';
+import { gatherElementIdsByVerseCode, gatherElementIdsByVerseNumber } from '@/www/utils';
 import { Meta, Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
@@ -13,7 +13,7 @@ import { Contents } from './contents';
 
 import './contents/contents.css';
 
-const getHighlights = GET(async (chapterId: string) => {
+const getHighlights = GET(async (bibleAbbreviation: string, chapterCode: string) => {
   'use server';
   const { user } = auth();
   if (!user) {
@@ -22,11 +22,12 @@ const getHighlights = GET(async (chapterId: string) => {
 
   const highlights = await db.query.chapters
     .findFirst({
-      where: (chapters, { eq }) => eq(chapters.id, chapterId),
-      columns: { id: true },
+      where: (chapters, { and, eq }) =>
+        and(eq(chapters.bibleAbbreviation, bibleAbbreviation), eq(chapters.code, chapterCode)),
+      columns: { code: true },
       with: {
         verses: {
-          columns: { id: true },
+          columns: { code: true },
           with: { highlights: { where: (highlights, { eq }) => eq(highlights.userId, user.id) } },
         },
       },
@@ -38,7 +39,7 @@ const getHighlights = GET(async (chapterId: string) => {
   return { highlights };
 });
 
-const getNotes = GET(async (chapterId: string) => {
+const getNotes = GET(async (bibleAbbreviation: string, chapterCode: string) => {
   'use server';
   const { user } = auth();
   if (!user) {
@@ -47,11 +48,12 @@ const getNotes = GET(async (chapterId: string) => {
 
   const notes = await db.query.chapters
     .findFirst({
-      where: (chapters, { eq }) => eq(chapters.id, chapterId),
-      columns: { id: true },
+      where: (chapters, { and, eq }) =>
+        and(eq(chapters.bibleAbbreviation, bibleAbbreviation), eq(chapters.code, chapterCode)),
+      columns: { code: true },
       with: {
         verses: {
-          columns: { id: true },
+          columns: { code: true },
           with: { notes: { where: (notes, { eq }) => eq(notes.userId, user.id) } },
         },
       },
@@ -81,15 +83,15 @@ export const ReaderContent = (props: ReaderContentProps) => {
 
   const [searchParams] = useSearchParams();
   onMount(() => {
-    if (!searchParams.verseId && !searchParams.verseNumber) return;
+    if (!searchParams.verseCode && !searchParams.verseNumber) return;
 
-    if (searchParams.verseId) {
-      const verseIds = Array.isArray(searchParams.verseId)
-        ? searchParams.verseId
-        : searchParams.verseId.split(',');
-      if (!verseIds.length) return;
+    if (searchParams.verseCode) {
+      const verseCodes = Array.isArray(searchParams.verseCode)
+        ? searchParams.verseCode
+        : searchParams.verseCode.split(',');
+      if (!verseCodes.length) return;
 
-      const ids = gatherElementIdsByVerseId(verseIds[0]);
+      const ids = gatherElementIdsByVerseCode(verseCodes[0]);
       if (ids.length) {
         document.getElementById(ids[0])?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
@@ -109,14 +111,20 @@ export const ReaderContent = (props: ReaderContentProps) => {
   });
 
   const highlightsQuery = createQuery(() => ({
-    queryKey: ['highlights', { chapterId: brStore.chapter.id }],
-    queryFn: () => getHighlights(brStore.chapter.id),
+    queryKey: [
+      'highlights',
+      { bibleAbbreviation: brStore.bible.abbreviation, chapterCode: brStore.chapter.code },
+    ],
+    queryFn: () => getHighlights(brStore.bible.abbreviation, brStore.chapter.code),
     placeholderData: { highlights: [] },
   }));
 
   const notesQuery = createQuery(() => ({
-    queryKey: ['notes', { chapterId: brStore.chapter.id }],
-    queryFn: () => getNotes(brStore.chapter.id),
+    queryKey: [
+      'notes',
+      { bibleAbbreviation: brStore.bible.abbreviation, chapterCode: brStore.chapter.code },
+    ],
+    queryFn: () => getNotes(brStore.bible.abbreviation, brStore.chapter.code),
     placeholderData: { notes: [] },
   }));
 
@@ -131,8 +139,8 @@ export const ReaderContent = (props: ReaderContentProps) => {
           contents={props.contents}
           highlights={
             highlightsQuery.data?.highlights.map((hl) => ({
-              id: hl.id,
-              verseId: hl.verseId,
+              bibleAbbreviation: hl.bibleAbbreviation,
+              verseCode: hl.verseCode,
               color: hl.color,
             })) || []
           }

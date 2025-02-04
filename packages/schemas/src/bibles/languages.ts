@@ -5,9 +5,8 @@ import { defaultRefine } from '../utils/refine';
 export const BibleLanguageSchema = createSelectSchema(bibleLanguages, defaultRefine);
 
 export const CreateBibleLanguageSchema = createInsertSchema(bibleLanguages, defaultRefine).omit({
-  id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const UpdateBibleLanguageSchema = CreateBibleLanguageSchema.partial();
+export const UpdateBibleLanguageSchema = CreateBibleLanguageSchema.omit({ iso: true }).partial();

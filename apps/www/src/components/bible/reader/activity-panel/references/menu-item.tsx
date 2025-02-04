@@ -7,15 +7,15 @@ import { createQuery } from '@tanstack/solid-query';
 import { TextSearch } from 'lucide-solid';
 import { useActivityPanel } from '../../activity-panel';
 
-const getHasReferences = GET(async (bibleId: string) => {
+const getHasReferences = GET(async (bibleAbbreviation: string) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
     columns: {},
-    where: (bibles, { eq }) => eq(bibles.id, bibleId),
+    where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbreviation),
     with: { chapters: { columns: {}, with: { chaptersToSourceDocuments: true } } },
   });
   if (!bibleData) {
-    throw new Error(`Bible not found: ${bibleId}`);
+    throw new Error(`Bible not found: ${bibleAbbreviation}`);
   }
   return { hasReferences: bibleData.chapters.some((c) => c.chaptersToSourceDocuments.length) };
 });
@@ -29,8 +29,8 @@ export function ReferencesMenuItem(props: ReferencesMenuItemProps) {
   const { setValue } = useActivityPanel();
 
   const query = createQuery(() => ({
-    queryKey: ['has-references', { bibleId: brStore.bible.id }],
-    queryFn: () => getHasReferences(brStore.bible.id),
+    queryKey: ['has-references', { bibleAbbreviation: brStore.bible.abbreviation }],
+    queryFn: () => getHasReferences(brStore.bible.abbreviation),
   }));
 
   const DisabledMenuItem = () => (

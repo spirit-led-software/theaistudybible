@@ -103,13 +103,13 @@ export function SettingsCard() {
                   )}
                 </Field>
               </div>
-              <Field name='preferredBibleId'>
+              <Field name='preferredBibleAbbreviation'>
                 {(field) => (
                   <div class='flex flex-col gap-2'>
                     <Label>Preferred Bible</Label>
                     <SmallBiblePicker
                       value={field.value ?? undefined}
-                      onValueChange={(b) => setValue(form, field.name, b?.id)}
+                      onValueChange={(b) => setValue(form, field.name, b?.abbreviation)}
                       class='w-fit'
                     />
                   </div>

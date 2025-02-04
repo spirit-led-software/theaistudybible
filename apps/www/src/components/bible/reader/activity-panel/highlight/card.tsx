@@ -19,23 +19,30 @@ import { useActivityPanel } from '..';
 import { ColorItem } from './color-item';
 
 const updateHighlightsAction = action(
-  async ({ color, verseIds }: { color: string; verseIds: string[] }) => {
+  async ({
+    color,
+    bibleAbbreviation,
+    verseCodes,
+  }: { color: string; bibleAbbreviation: string; verseCodes: string[] }) => {
     'use server';
     const { user } = requireAuth();
     const highlights = await db
       .insert(verseHighlights)
       .values(
-        verseIds.map((id) => ({
+        verseCodes.map((code) => ({
           color,
           userId: user.id,
-          verseId: id,
+          bibleAbbreviation,
+          verseCode: code,
         })),
       )
       .onConflictDoUpdate({
-        target: [verseHighlights.userId, verseHighlights.verseId],
-        set: {
-          color,
-        },
+        target: [
+          verseHighlights.userId,
+          verseHighlights.bibleAbbreviation,
+          verseHighlights.verseCode,
+        ],
+        set: { color },
       })
       .returning();
 
@@ -43,14 +50,25 @@ const updateHighlightsAction = action(
   },
 );
 
-const deleteHighlightsAction = action(async ({ verseIds }: { verseIds: string[] }) => {
-  'use server';
-  const { user } = requireAuth();
-  await db
-    .delete(verseHighlights)
-    .where(and(eq(verseHighlights.userId, user.id), inArray(verseHighlights.verseId, verseIds)));
-  return { success: true };
-});
+const deleteHighlightsAction = action(
+  async ({
+    bibleAbbreviation,
+    verseCodes,
+  }: { bibleAbbreviation: string; verseCodes: string[] }) => {
+    'use server';
+    const { user } = requireAuth();
+    await db
+      .delete(verseHighlights)
+      .where(
+        and(
+          eq(verseHighlights.userId, user.id),
+          eq(verseHighlights.bibleAbbreviation, bibleAbbreviation),
+          inArray(verseHighlights.verseCode, verseCodes),
+        ),
+      );
+    return { success: true };
+  },
+);
 
 export const HighlightCard = () => {
   const updateHighlights = useAction(updateHighlightsAction);
@@ -61,8 +79,8 @@ export const HighlightCard = () => {
   const { setValue } = useActivityPanel();
 
   const addHighlightsMutation = createMutation(() => ({
-    mutationFn: ({ color = '#FFD700', verseIds }: { color?: string; verseIds: string[] }) =>
-      updateHighlights({ verseIds, color }),
+    mutationFn: ({ color = '#FFD700', verseCodes }: { color?: string; verseCodes: string[] }) =>
+      updateHighlights({ bibleAbbreviation: brStore.bible.abbreviation, verseCodes, color }),
     onSuccess: () => {
       setBrStore('selectedVerseInfos', []);
       setValue(undefined);
@@ -77,7 +95,8 @@ export const HighlightCard = () => {
   }));
 
   const deleteHighlightsMutation = createMutation(() => ({
-    mutationFn: ({ verseIds }: { verseIds: string[] }) => deleteHighlights({ verseIds }),
+    mutationFn: ({ verseCodes }: { verseCodes: string[] }) =>
+      deleteHighlights({ bibleAbbreviation: brStore.bible.abbreviation, verseCodes }),
     onSuccess: () => {
       setBrStore('selectedVerseInfos', []);
       setValue(undefined);
@@ -145,11 +164,11 @@ export const HighlightCard = () => {
             onClick={() => {
               if (tgValue() === 'clear') {
                 deleteHighlightsMutation.mutate({
-                  verseIds: brStore.selectedVerseInfos.map((v) => v.id),
+                  verseCodes: brStore.selectedVerseInfos.map((v) => v.code),
                 });
               } else {
                 addHighlightsMutation.mutate({
-                  verseIds: brStore.selectedVerseInfos.map((v) => v.id),
+                  verseCodes: brStore.selectedVerseInfos.map((v) => v.code),
                   color: tgValue() || undefined,
                 });
               }

@@ -6,7 +6,7 @@ import { describe, expect, test } from 'vitest';
 describe('USX Tests', () => {
   test('Parse USX test', () => {
     const file = fs.readFileSync(path.resolve(__dirname, 'MAT.usx'), 'utf-8');
-    const usx = parseUsx(file);
+    const usx = parseUsx(file, 'MAT');
     fs.writeFileSync(path.resolve(__dirname, 'MAT.json'), JSON.stringify(usx, null, 2));
     expect(usx).toBeDefined();
   });

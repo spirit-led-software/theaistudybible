@@ -14,9 +14,9 @@ export const app = new Hono<{
   };
 }>()
   .use('/:id/*', async (c, next) => {
-    const id = c.req.param('id');
+    const abbreviation = c.req.param('id');
     const bible = await db.query.bibles.findFirst({
-      where: eq(bibles.id, id),
+      where: eq(bibles.abbreviation, abbreviation),
     });
     if (!bible) {
       return c.json({ message: 'Bible not found' }, 404);
@@ -61,7 +61,7 @@ export const app = new Hono<{
   })
   .delete('/:id', async (c) => {
     const bible = c.get('bible');
-    await db.delete(bibles).where(eq(bibles.id, bible.id));
+    await db.delete(bibles).where(eq(bibles.abbreviation, bible.abbreviation));
     return c.json({ message: 'Bible deleted' }, 200);
   });
 

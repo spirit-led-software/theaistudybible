@@ -1,5 +1,5 @@
 import {
-  findTextContentByVerseIds,
+  findTextContentByVerseCodes,
   findTextContentByVerseNumbers,
 } from '@/core/utils/bibles/find-by-verse-id';
 import { formNumberSequenceString } from '@/core/utils/number';
@@ -14,7 +14,7 @@ import { createStore } from 'solid-js/store';
 import { useBibleStore } from './bible';
 
 export type SelectedVerseInfo = {
-  id: string;
+  code: string;
   number: number;
   contentIds: string[];
   text: string;
@@ -61,15 +61,15 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     const content = others.verse ? others.verse.content : others.chapter.content;
     if (!content || !content.length) return [];
 
-    if (searchParams.verseId) {
-      const verseIds = Array.isArray(searchParams.verseId)
-        ? searchParams.verseId
-        : searchParams.verseId.split(',');
-      if (verseIds.length) {
-        return verseIds.map((verseId) => {
-          const texts = findTextContentByVerseIds(content, [verseId]);
+    if (searchParams.verseCode) {
+      const verseCodes = Array.isArray(searchParams.verseCode)
+        ? searchParams.verseCode
+        : searchParams.verseCode.split(',');
+      if (verseCodes.length) {
+        return verseCodes.map((verseCode) => {
+          const texts = findTextContentByVerseCodes(content, [verseCode]);
           return {
-            id: verseId,
+            code: verseCode,
             number: texts[0].verseNumber,
             contentIds: texts.map((t) => t.id),
             text: texts.map((t) => t.text).join(''),
@@ -86,7 +86,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
         return verseNumbers.map(Number).map((verseNumber) => {
           const texts = findTextContentByVerseNumbers(content, [verseNumber]);
           return {
-            id: texts[0].verseId,
+            code: texts[0].verseCode,
             number: verseNumber,
             contentIds: texts.map((t) => t.id),
             text: texts.map((t) => t.text).join(''),

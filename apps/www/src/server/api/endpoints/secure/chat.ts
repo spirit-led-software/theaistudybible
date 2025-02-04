@@ -44,7 +44,7 @@ const app = new Hono<{
         ),
         chatId: z.string().nullish(),
         modelId: z.string().nullish(),
-        bibleId: z.string().nullish(),
+        bibleAbbreviation: z.string().nullish(),
         additionalContext: z.string().nullish(),
       }),
     ),
@@ -102,14 +102,15 @@ const app = new Hono<{
 
       console.time('validateBibleId');
       let bible: Bible | undefined;
-      if (input.bibleId) {
+      if (input.bibleAbbreviation) {
         bible = await db.query.bibles.findFirst({
-          where: (bibles, { eq }) => eq(bibles.id, input.bibleId!),
+          where: (bibles, { eq }) => eq(bibles.abbreviation, input.bibleAbbreviation!),
         });
         if (!bible) return c.json({ message: 'Invalid Bible ID' }, 400);
-      } else if (c.var.settings?.preferredBibleId) {
+      } else if (c.var.settings?.preferredBibleAbbreviation) {
         bible = await db.query.bibles.findFirst({
-          where: (bibles, { eq }) => eq(bibles.id, c.var.settings!.preferredBibleId!),
+          where: (bibles, { eq }) =>
+            eq(bibles.abbreviation, c.var.settings!.preferredBibleAbbreviation!),
         });
       }
       console.timeEnd('validateBibleId');

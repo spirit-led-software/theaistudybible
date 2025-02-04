@@ -39,7 +39,7 @@ export const bibleVectorStoreTool = tool({
         terms.map(({ term, weight }) =>
           vectorStore
             .searchDocuments(term, {
-              filter: `(type = "bible" or type = "BIBLE") and bibleId = "${bible.id}"`,
+              filter: `(type = "bible" or type = "BIBLE") and bibleAbbreviation = "${bible.abbreviation}"`,
               limit: 10,
               withMetadata: true,
               withEmbedding: false,

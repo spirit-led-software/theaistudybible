@@ -14,7 +14,7 @@ import { Bookmark } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { toast } from 'solid-sonner';
 
-const getHasBookmark = GET(async (verseId: string) => {
+const getHasBookmark = GET(async (bibleAbbreviation: string, verseCode: string) => {
   'use server';
   const { user } = auth();
   if (!user) {
@@ -23,30 +23,49 @@ const getHasBookmark = GET(async (verseId: string) => {
 
   const bookmark = await db.query.verseBookmarks.findFirst({
     where: (verseBookmarks, { and, eq }) =>
-      and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.verseId, verseId)),
+      and(
+        eq(verseBookmarks.userId, user.id),
+        eq(verseBookmarks.bibleAbbreviation, bibleAbbreviation),
+        eq(verseBookmarks.verseCode, verseCode),
+      ),
   });
   return { hasBookmark: !!bookmark };
 });
 
-const addBookmarkAction = action(async (verseId: string) => {
+const addBookmarkAction = action(async (bibleAbbreviation: string, verseCode: string) => {
   'use server';
   const { user } = requireAuth();
-  await db.insert(verseBookmarks).values({ verseId, userId: user.id }).onConflictDoNothing();
+  await db
+    .insert(verseBookmarks)
+    .values({ bibleAbbreviation, verseCode, userId: user.id })
+    .onConflictDoNothing();
   return { success: true };
 });
 
-const deleteBookmarkAction = action(async (verseId: string) => {
+const deleteBookmarkAction = action(async (bibleAbbreviation: string, verseCode: string) => {
   'use server';
   const { user } = requireAuth();
   await db
     .delete(verseBookmarks)
-    .where(and(eq(verseBookmarks.userId, user.id), eq(verseBookmarks.verseId, verseId)));
+    .where(
+      and(
+        eq(verseBookmarks.userId, user.id),
+        eq(verseBookmarks.bibleAbbreviation, bibleAbbreviation),
+        eq(verseBookmarks.verseCode, verseCode),
+      ),
+    );
   return { success: true };
 });
 
-export const getVerseBookmarkQueryOptions = ({ verseId }: { verseId: string }) => ({
-  queryKey: ['bookmark', { verseId }],
-  queryFn: () => getHasBookmark(verseId),
+export const getVerseBookmarkQueryOptions = ({
+  bibleAbbreviation,
+  verseCode,
+}: {
+  bibleAbbreviation: string;
+  verseCode: string;
+}) => ({
+  queryKey: ['bookmark', { bibleAbbreviation, verseCode }],
+  queryFn: () => getHasBookmark(bibleAbbreviation, verseCode),
 });
 
 export const VerseBookmarkMenuItem = () => {
@@ -58,12 +77,13 @@ export const VerseBookmarkMenuItem = () => {
 
   const query = createQuery(() =>
     getVerseBookmarkQueryOptions({
-      verseId: brStore.verse!.id,
+      bibleAbbreviation: brStore.bible.abbreviation,
+      verseCode: brStore.verse!.code,
     }),
   );
 
   const addBookmarkMutation = createMutation(() => ({
-    mutationFn: () => addBookmark(brStore.verse!.id),
+    mutationFn: () => addBookmark(brStore.bible.abbreviation, brStore.verse!.code),
     onSettled: () => query.refetch(),
     onError: (error) => {
       toast.error(error.message);
@@ -71,7 +91,7 @@ export const VerseBookmarkMenuItem = () => {
   }));
 
   const deleteBookmarkMutation = createMutation(() => ({
-    mutationFn: () => deleteBookmark(brStore.verse!.id),
+    mutationFn: () => deleteBookmark(brStore.bible.abbreviation, brStore.verse!.code),
     onSettled: () => query.refetch(),
     onError: (error) => {
       toast.error(error.message);

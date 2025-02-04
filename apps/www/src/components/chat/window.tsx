@@ -50,7 +50,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
     body: {
       additionalContext: props.additionalContext,
       modelId: chatStore.modelId,
-      bibleId: bibleStore.bible?.id,
+      bibleAbbreviation: bibleStore.bible?.abbreviation,
     },
   }));
   createEffect(() => {

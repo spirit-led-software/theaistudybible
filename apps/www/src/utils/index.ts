@@ -1,5 +1,5 @@
-export function gatherElementIdsByVerseId(id: string) {
-  const els = document.querySelectorAll(`[data-verse-id="${id}"][data-type="text"]`);
+export function gatherElementIdsByVerseCode(code: string) {
+  const els = document.querySelectorAll(`[data-verse-code="${code}"][data-type="text"]`);
   return Array.from(new Set(Array.from(els).map((el) => el.id)));
 }
 
@@ -8,8 +8,8 @@ export function gatherElementIdsByVerseNumber(verseNumber: number) {
   return Array.from(new Set(Array.from(els).map((el) => el.id)));
 }
 
-export function gatherElementIdsAndVerseNumberByVerseId(id: string) {
-  const els = document.querySelectorAll(`[data-verse-id="${id}"][data-type="text"]`);
+export function gatherElementIdsAndVerseNumberByVerseCode(code: string) {
+  const els = document.querySelectorAll(`[data-verse-code="${code}"][data-type="text"]`);
   return {
     ids: Array.from(new Set(Array.from(els).map((el) => el.id))),
     verseNumber: els[0]?.getAttribute('data-verse-number'),

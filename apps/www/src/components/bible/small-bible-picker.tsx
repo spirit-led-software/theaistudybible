@@ -71,8 +71,8 @@ export function SmallBiblePicker(props: SmallBiblePickerProps) {
         _setValue(
           data.bibles.find((bible) =>
             typeof local.defaultValue === 'string'
-              ? bible.id === local.defaultValue
-              : bible.id === local.defaultValue?.id,
+              ? bible.abbreviation === local.defaultValue
+              : bible.abbreviation === local.defaultValue?.abbreviation,
           ),
         );
       }
@@ -83,7 +83,7 @@ export function SmallBiblePicker(props: SmallBiblePickerProps) {
     if (local.value) {
       if (typeof local.value === 'string') {
         if (query.status === 'success') {
-          const val = query.data.bibles.find((bible) => bible.id === local.value);
+          const val = query.data.bibles.find((bible) => bible.abbreviation === local.value);
           _setValue(val);
           return val;
         }
@@ -136,17 +136,17 @@ export function SmallBiblePicker(props: SmallBiblePickerProps) {
             <ChevronsUpDown class='ml-2 size-4 shrink-0 opacity-50' />
           </PopoverTrigger>
           <PopoverContent class='w-[200px] p-0'>
-            <Command value={value()?.id}>
+            <Command value={value()?.abbreviation}>
               <CommandInput placeholder='Search bibles...' />
               <CommandList>
                 <CommandEmpty>Not Found</CommandEmpty>
                 {uniqueLanguages().map((language) => (
-                  <CommandGroup id={language.id} heading={language.nameLocal}>
+                  <CommandGroup id={language.iso} heading={language.nameLocal}>
                     {bibles
                       .filter((bible) => bible.biblesToLanguages[0].language.iso === language.iso)
                       .map((foundBible) => (
                         <CommandItem
-                          value={foundBible.id}
+                          value={foundBible.abbreviation}
                           keywords={[
                             foundBible.name,
                             foundBible.nameLocal,
@@ -157,7 +157,10 @@ export function SmallBiblePicker(props: SmallBiblePickerProps) {
                           onSelect={() => setValue(foundBible)}
                         >
                           <Check
-                            class={cn('mr-2 size-4', foundBible.id !== value()?.id && 'hidden')}
+                            class={cn(
+                              'mr-2 size-4',
+                              foundBible.abbreviation !== value()?.abbreviation && 'hidden',
+                            )}
                           />
                           <div class='flex w-full flex-col justify-end text-end'>
                             <p class='font-medium text-lg'>{foundBible.abbreviationLocal}</p>

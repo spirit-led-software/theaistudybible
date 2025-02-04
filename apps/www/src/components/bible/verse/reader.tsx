@@ -47,7 +47,7 @@ const getVerseReaderData = GET(
                   },
                 },
                 previous: {
-                  columns: { id: true },
+                  columns: { code: true },
                   with: {
                     verses: {
                       columns: { code: true, number: true, name: true },
@@ -57,7 +57,7 @@ const getVerseReaderData = GET(
                   },
                 },
                 next: {
-                  columns: { id: true },
+                  columns: { code: true },
                   with: {
                     verses: {
                       columns: { code: true, number: true, name: true },
@@ -69,10 +69,10 @@ const getVerseReaderData = GET(
               },
             },
             previous: {
-              columns: { id: true },
+              columns: { code: true },
               with: {
                 chapters: {
-                  columns: { id: true, number: true },
+                  columns: { code: true, number: true },
                   orderBy: (chapters, { desc }) => desc(chapters.number),
                   with: {
                     verses: {
@@ -85,10 +85,10 @@ const getVerseReaderData = GET(
               },
             },
             next: {
-              columns: { id: true },
+              columns: { code: true },
               with: {
                 chapters: {
-                  columns: { id: true, number: true },
+                  columns: { code: true, number: true },
                   orderBy: (chapters, { asc }) => asc(chapters.number),
                   with: {
                     verses: {

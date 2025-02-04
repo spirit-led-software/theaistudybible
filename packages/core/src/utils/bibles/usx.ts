@@ -92,18 +92,18 @@ export const ignoredParaStyles = [
 
 export type ParserState = {
   chapterNumber: number;
-  chapterId: string;
+  chapterCode: string;
   verseNumber: number;
-  verseId: string;
+  verseCode: string;
   chapterOwningObj?: OwningContent;
   verseOwningObj?: OwningContent;
   contents: {
     [key: number]: {
-      id: string;
+      code: string;
       contents: Content[];
       verseContents: {
         [key: number]: {
-          id: string;
+          code: string;
           contents: Content[];
         };
       };
@@ -111,7 +111,7 @@ export type ParserState = {
   };
 };
 
-export function parseUsx(xmlString: string) {
+export function parseUsx(xmlString: string, bookCode: string) {
   const doc = new JSDOM(xmlString, {
     contentType: 'application/xml',
   });
@@ -123,9 +123,9 @@ export function parseUsx(xmlString: string) {
 
   const state: ParserState = {
     chapterNumber: 0,
-    chapterId: `chap_${createId()}`,
+    chapterCode: '',
     verseNumber: 0,
-    verseId: `ver_${createId()}`,
+    verseCode: '',
     contents: {},
   };
 
@@ -150,12 +150,11 @@ export function parseUsx(xmlString: string) {
       if (chapterNumber < 1) {
         throw new Error(`Invalid chapter number ${chapterNumber}`);
       }
-      const id = `chap_${createId()}`;
       state.chapterNumber = chapterNumber;
-      state.chapterId = id;
+      state.chapterCode = `${bookCode}.${chapterNumber}`;
       state.verseNumber = 0;
       state.contents[state.chapterNumber] = {
-        id,
+        code: state.chapterCode,
         contents: [],
         verseContents: {},
       };
@@ -228,7 +227,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
       addContent(state, {
         type: 'text',
         id: `txt_${createId()}`,
-        verseId: state.verseId,
+        verseCode: state.verseCode,
         verseNumber: state.verseNumber,
         text: text.replaceAll('\n', ''),
         attrs: element.attributes
@@ -264,11 +263,10 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
         throw new Error(`Invalid verse number ${verseNumber}`);
       }
 
-      const id = `ver_${createId()}`;
       state.verseNumber = verseNumber;
-      state.verseId = id;
+      state.verseCode = `${state.chapterCode}.${verseNumber}`;
       state.contents[state.chapterNumber].verseContents[state.verseNumber] = {
-        id,
+        code: state.verseCode,
         contents: [],
       };
 
@@ -281,7 +279,8 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
 
       addContent(state, {
         type: 'verse',
-        id,
+        id: `ver_${createId()}`,
+        code: state.verseCode,
         number: verseNumber,
         attrs: element.attributes
           ? Array.from(element.attributes).reduce(
@@ -300,7 +299,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
       const char = {
         type: element.nodeName as 'char',
         id: `char_${createId()}`,
-        verseId: state.verseId,
+        verseCode: state.verseCode,
         verseNumber: state.verseNumber,
         attrs: element.attributes
           ? Array.from(element.attributes).reduce(
@@ -344,7 +343,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
       const char = {
         type: element.nodeName as 'note',
         id: `note_${createId()}`,
-        verseId: state.verseId,
+        verseCode: state.verseCode,
         verseNumber: state.verseNumber,
         attrs: element.attributes
           ? Array.from(element.attributes).reduce(
@@ -388,7 +387,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
       addContent(state, {
         type: 'ref',
         id: `ref_${createId()}`,
-        verseId: state.verseId,
+        verseCode: state.verseCode,
         verseNumber: state.verseNumber,
         text: element.textContent ?? '',
         attrs: element.attributes

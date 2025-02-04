@@ -37,10 +37,10 @@ const getHighlights = GET(
       return { highlights: [], nextCursor: undefined };
     }
 
-    let verses: { id: string }[] = [];
+    let verses: { code: string }[] = [];
     if (search) {
       verses = await db.query.verses.findMany({
-        columns: { id: true },
+        columns: { code: true },
         where: (verses, { or }) =>
           or(ilike(verses.name, `%${search}%`), ilike(verses.content, `%${search}%`)),
       });
@@ -53,8 +53,8 @@ const getHighlights = GET(
           condition = and(
             condition,
             inArray(
-              verseHighlights.verseId,
-              verses.map((v) => v.id),
+              verseHighlights.verseCode,
+              verses.map((v) => v.code),
             ),
           );
         }
@@ -80,12 +80,18 @@ const getHighlights = GET(
   },
 );
 
-const deleteHighlightAction = action(async (highlightId: string) => {
+const deleteHighlightAction = action(async (bibleAbbreviation: string, verseCode: string) => {
   'use server';
   const { user } = requireAuth();
   await db
     .delete(verseHighlights)
-    .where(and(eq(verseHighlights.userId, user.id), eq(verseHighlights.id, highlightId)));
+    .where(
+      and(
+        eq(verseHighlights.userId, user.id),
+        eq(verseHighlights.bibleAbbreviation, bibleAbbreviation),
+        eq(verseHighlights.verseCode, verseCode),
+      ),
+    );
   return { success: true };
 });
 
@@ -127,7 +133,11 @@ export default function HighlightsPage() {
   });
 
   const deleteHighlightMutation = createMutation(() => ({
-    mutationFn: (highlightId: string) => deleteHighlight(highlightId),
+    mutationFn: ({
+      bibleAbbreviation,
+      verseCode,
+    }: { bibleAbbreviation: string; verseCode: string }) =>
+      deleteHighlight(bibleAbbreviation, verseCode),
     onSettled: () => qc.invalidateQueries({ queryKey: ['highlights'] }),
   }));
 
@@ -215,7 +225,10 @@ export default function HighlightsPage() {
                               <Button
                                 variant='destructive'
                                 onClick={() => {
-                                  deleteHighlightMutation.mutate(highlight.id);
+                                  deleteHighlightMutation.mutate({
+                                    bibleAbbreviation: highlight.verse.bible.abbreviation,
+                                    verseCode: highlight.verse.code,
+                                  });
                                 }}
                               >
                                 Delete
