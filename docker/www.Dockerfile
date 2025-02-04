@@ -74,16 +74,7 @@ COPY --from=install /install/node_modules ./node_modules
 COPY --link . .
 
 WORKDIR /build/apps/www
-RUN bun run build && \
-    timeout=15; \
-    while [ $timeout -gt 0 ] && { [ ! -f .output/server/assets/_sentry-release-injection-file-*.js ] || [ ! -f .output/server/instrument.server.mjs ]; }; do \
-        echo "Waiting for Sentry injection file... ($timeout seconds remaining)"; \
-        sleep 1; \
-        timeout=$((timeout-1)); \
-    done && \
-    if [ $timeout -eq 0 ]; then \
-        echo "Timeout waiting for Sentry files" && exit 1; \
-    fi
+RUN bun run build
 
 ########################################################
 # Release
