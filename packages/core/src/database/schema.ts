@@ -1069,12 +1069,8 @@ export const chapters = sqliteTable(
   'chapters',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation')
-      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
-      .notNull(),
-    bookCode: text('book_code')
-      .references(() => books.code, { onDelete: 'cascade' })
-      .notNull(),
+    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    bookCode: text('book_code').notNull(),
     previousCode: text('previous_code'),
     nextCode: text('next_code'),
     code: text('code').notNull(),
@@ -1087,6 +1083,10 @@ export const chapters = sqliteTable(
       name: 'chapters_unique_bible_code_pk',
       columns: [table.bibleAbbreviation, table.code],
     }),
+    foreignKey({
+      columns: [table.bibleAbbreviation, table.bookCode],
+      foreignColumns: [books.bibleAbbreviation, books.code],
+    }).onDelete('cascade'),
     index('chapters_bible_abbreviation_idx').on(table.bibleAbbreviation),
     index('chapters_book_code_idx').on(table.bookCode),
     index('chapters_previous_code_idx').on(table.previousCode),
@@ -1254,15 +1254,9 @@ export const verses = sqliteTable(
   'verses',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation')
-      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
-      .notNull(),
-    bookCode: text('book_code')
-      .references(() => books.code, { onDelete: 'cascade' })
-      .notNull(),
-    chapterCode: text('chapter_code')
-      .references(() => chapters.code, { onDelete: 'cascade' })
-      .notNull(),
+    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    bookCode: text('book_code').notNull(),
+    chapterCode: text('chapter_code').notNull(),
     previousCode: text('previous_code'),
     nextCode: text('next_code'),
     code: text('code').notNull(),
@@ -1272,10 +1266,13 @@ export const verses = sqliteTable(
   },
   (table) => [
     primaryKey({ columns: [table.bibleAbbreviation, table.code] }),
+    foreignKey({
+      columns: [table.bibleAbbreviation, table.bookCode, table.chapterCode],
+      foreignColumns: [books.bibleAbbreviation, books.code, chapters.code],
+    }).onDelete('cascade'),
     index('verses_bible_abbreviation_idx').on(table.bibleAbbreviation),
     index('verses_book_code_idx').on(table.bookCode),
     index('verses_chapter_code_idx').on(table.chapterCode),
-    index('verses_previous_code_idx').on(table.previousCode),
     index('verses_next_code_idx').on(table.nextCode),
     index('verses_code_idx').on(table.code),
     index('verses_name_idx').on(table.name),
