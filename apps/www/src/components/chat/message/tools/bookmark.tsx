@@ -30,7 +30,7 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
               <For each={toolArgs.chapterNumbers}>
                 {(chapterNumber) => (
                   <span class='text-sm'>
-                    {toolArgs.bookName} {chapterNumber}
+                    {toolArgs.bookCode}.{chapterNumber}
                   </span>
                 )}
               </For>

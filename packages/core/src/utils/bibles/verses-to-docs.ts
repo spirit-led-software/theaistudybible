@@ -89,13 +89,15 @@ function processVerseChunk(
     id,
     content,
     metadata: {
-      type: 'bible',
+      type: 'BIBLE',
+      category: 'bible',
       bibleAbbreviation: bible.abbreviation,
       bookCode: book.code,
-      chapterCode: chapter.code,
-      verseNumbers: Array.from(verseNumbers),
+      chapterNumber: chapter.number,
+      verseNumbers: Array.from(verseNumbers).sort((a, b) => a - b),
       name,
       url: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}?${Array.from(verseNumbers)
+        .sort((a, b) => a - b)
         .map((number) => `verseNumber=${encodeURIComponent(number)}`)
         .join('&')}`,
       indexDate: formatISO(new Date()),
