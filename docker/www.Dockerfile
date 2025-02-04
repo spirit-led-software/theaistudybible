@@ -23,7 +23,7 @@ COPY --link ./tools/scripts/package.json ./tools/scripts/package.json
 COPY --link ./tools/tsconfig/package.json ./tools/tsconfig/package.json
 COPY --link ./bun.lock ./bun.lock
 
-RUN bun install
+RUN bun install --frozen-lockfile
 
 ########################################################
 # Build
@@ -75,10 +75,15 @@ COPY --link . .
 
 WORKDIR /build/apps/www
 RUN bun run build && \
-    while [ ! -f .output/server/assets/_sentry-release-injection-file-*.js ] || [ ! -f .output/server/instrument.server.mjs ]; do \
-        echo "Waiting for Sentry injection file..."; \
+    timeout=15; \
+    while [ $timeout -gt 0 ] && { [ ! -f .output/server/assets/_sentry-release-injection-file-*.js ] || [ ! -f .output/server/instrument.server.mjs ]; }; do \
+        echo "Waiting for Sentry injection file... ($timeout seconds remaining)"; \
         sleep 1; \
-    done
+        timeout=$((timeout-1)); \
+    done && \
+    if [ $timeout -eq 0 ]; then \
+        echo "Timeout waiting for Sentry files" && exit 1; \
+    fi
 
 ########################################################
 # Release
