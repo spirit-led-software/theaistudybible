@@ -18,7 +18,7 @@ import { BibleReaderMenu } from '../reader/menu';
 
 const getVerseReaderData = GET(
   async (props: {
-    bibleAbbr: string;
+    bibleAbbreviation: string;
     bookCode: string;
     chapterNum: number;
     verseNum: number;
@@ -26,7 +26,7 @@ const getVerseReaderData = GET(
     'use server';
     const bibleData = await db.query.bibles.findFirst({
       where: (bibles, { and, eq }) =>
-        and(eq(bibles.abbreviation, props.bibleAbbr), eq(bibles.readyForPublication, true)),
+        and(eq(bibles.abbreviation, props.bibleAbbreviation), eq(bibles.readyForPublication, true)),
       with: {
         biblesToRightsHolders: { with: { rightsHolder: true } },
         books: {
@@ -129,7 +129,7 @@ const getVerseReaderData = GET(
 );
 
 export const getVerseReaderQueryOptions = (props: {
-  bibleAbbr: string;
+  bibleAbbreviation: string;
   bookCode: string;
   chapterNum: number;
   verseNum: number;
@@ -140,7 +140,7 @@ export const getVerseReaderQueryOptions = (props: {
 });
 
 export type VerseReaderProps = {
-  bibleAbbr: string;
+  bibleAbbreviation: string;
   bookCode: string;
   chapterNum: number;
   verseNum: number;
@@ -157,7 +157,7 @@ export function VerseReader(props: VerseReaderProps) {
 
   const query = createQuery(() =>
     getVerseReaderQueryOptions({
-      bibleAbbr: props.bibleAbbr,
+      bibleAbbreviation: props.bibleAbbreviation,
       bookCode: props.bookCode,
       chapterNum: props.chapterNum,
       verseNum: props.verseNum,

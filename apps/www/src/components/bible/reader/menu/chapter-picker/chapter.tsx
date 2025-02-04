@@ -19,44 +19,46 @@ import { Check } from 'lucide-solid';
 import { For } from 'solid-js';
 
 type GetChapterPickerDataProps = {
-  bibleAbbr: string;
+  bibleAbbreviation: string;
   bookCode: string;
 };
 
-const getChapterPickerData = GET(async ({ bibleAbbr, bookCode }: GetChapterPickerDataProps) => {
-  'use server';
-  const bibleData = await db.query.bibles.findFirst({
-    where: (bibles, { and, eq }) =>
-      and(eq(bibles.abbreviation, bibleAbbr), eq(bibles.readyForPublication, true)),
-    columns: { abbreviation: true },
-    with: {
-      books: {
-        limit: 1,
-        where: (books, { eq }) => eq(books.code, bookCode),
-        columns: { code: true },
-        with: {
-          chapters: {
-            orderBy: (chapters, { asc }) => asc(chapters.number),
-            columns: { code: true, number: true },
+const getChapterPickerData = GET(
+  async ({ bibleAbbreviation, bookCode }: GetChapterPickerDataProps) => {
+    'use server';
+    const bibleData = await db.query.bibles.findFirst({
+      where: (bibles, { and, eq }) =>
+        and(eq(bibles.abbreviation, bibleAbbreviation), eq(bibles.readyForPublication, true)),
+      columns: { abbreviation: true },
+      with: {
+        books: {
+          limit: 1,
+          where: (books, { eq }) => eq(books.code, bookCode),
+          columns: { code: true },
+          with: {
+            chapters: {
+              orderBy: (chapters, { asc }) => asc(chapters.number),
+              columns: { code: true, number: true },
+            },
           },
         },
       },
-    },
-  });
+    });
 
-  if (!bibleData) {
-    throw new Error('Bible not found');
-  }
+    if (!bibleData) {
+      throw new Error('Bible not found');
+    }
 
-  const { books, ...bible } = bibleData;
-  if (!books[0]) {
-    throw new Error('Book not found');
-  }
+    const { books, ...bible } = bibleData;
+    if (!books[0]) {
+      throw new Error('Book not found');
+    }
 
-  const { chapters, ...book } = books[0];
+    const { chapters, ...book } = books[0];
 
-  return { bible, book, chapters };
-});
+    return { bible, book, chapters };
+  },
+);
 
 export const chapterPickerQueryOptions = (props: GetChapterPickerDataProps) => ({
   queryKey: ['chapter-picker', props],
@@ -73,7 +75,7 @@ export function ChapterPicker(props: ChapterPickerProps) {
 
   const query = createQuery(() => ({
     ...chapterPickerQueryOptions({
-      bibleAbbr: brStore.bible.abbreviation,
+      bibleAbbreviation: brStore.bible.abbreviation,
       bookCode: props.book.code,
     }),
   }));

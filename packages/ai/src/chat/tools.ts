@@ -46,7 +46,7 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
     description:
       'Highlight Verse: Highlight a verse in the Bible. You must always ask the user for the highlight color using the "Ask for Highlight Color" tool before using this tool.',
     parameters: z.object({
-      bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
+      bibleAbbreviation: z.string().describe('The abbreviation of the Bible the verse is from.'),
       bookCode: z
         .string()
         .describe(
@@ -59,11 +59,11 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
         .optional()
         .describe('The color of the highlight. Must be in valid hex format.'),
     }),
-    execute: async ({ bibleAbbr, bookCode, chapterNumber, verseNumbers, color }) => {
+    execute: async ({ bibleAbbreviation, bookCode, chapterNumber, verseNumbers, color }) => {
       try {
         const queryResult = await db.query.bibles.findFirst({
           columns: { abbreviation: true },
-          where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+          where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbreviation),
           with: {
             books: {
               columns: { code: true, abbreviation: true, shortName: true },
@@ -102,7 +102,7 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
           .values(
             verses.map((verse) => ({
               userId: input.userId,
-              bibleAbbreviation: bibleAbbr,
+              bibleAbbreviation: bibleAbbreviation,
               verseCode: verse.code,
               color: color ?? '#FFD700',
             })),
@@ -134,7 +134,7 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
   tool({
     description: 'Bookmark Chapter: Bookmark a chapter in the Bible.',
     parameters: z.object({
-      bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
+      bibleAbbreviation: z.string().describe('The abbreviation of the Bible the verse is from.'),
       bookCode: z
         .string()
         .describe(
@@ -142,11 +142,11 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
         ),
       chapterNumbers: z.array(z.number().describe('The number of the chapter the verse is from.')),
     }),
-    execute: async ({ bibleAbbr, bookCode, chapterNumbers }) => {
+    execute: async ({ bibleAbbreviation, bookCode, chapterNumbers }) => {
       try {
         const queryResult = await db.query.bibles.findFirst({
           columns: { abbreviation: true },
-          where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+          where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbreviation),
           with: {
             books: {
               columns: { code: true, abbreviation: true, shortName: true },
@@ -178,7 +178,7 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
           .values(
             chapters.map((chapter) => ({
               userId: input.userId,
-              bibleAbbreviation: bibleAbbr,
+              bibleAbbreviation: bibleAbbreviation,
               chapterCode: chapter.code,
             })),
           )

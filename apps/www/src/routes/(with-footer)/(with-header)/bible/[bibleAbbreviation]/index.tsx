@@ -6,21 +6,21 @@ import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 
 export type BibleRedirectUrlParams = {
-  bibleAbbr: string;
+  bibleAbbreviation: string;
 };
 
 export const route: RouteDefinition = {
   preload: async ({ params }) => {
-    const { bibleAbbr } = params;
+    const { bibleAbbreviation } = params;
     const qc = useQueryClient();
-    await qc.prefetchQuery(getBibleRedirectUrlQueryOptions({ bibleAbbr }));
+    await qc.prefetchQuery(getBibleRedirectUrlQueryOptions({ bibleAbbreviation }));
   },
 };
 
-const getBibleRedirectUrl = GET(async ({ bibleAbbr }: BibleRedirectUrlParams) => {
+const getBibleRedirectUrl = GET(async ({ bibleAbbreviation }: BibleRedirectUrlParams) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
-    where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+    where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbreviation),
     columns: { abbreviation: true },
     with: {
       books: {
@@ -56,14 +56,16 @@ const getBibleRedirectUrl = GET(async ({ bibleAbbr }: BibleRedirectUrlParams) =>
   return { redirectUrl: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}` };
 });
 
-const getBibleRedirectUrlQueryOptions = ({ bibleAbbr }: BibleRedirectUrlParams) => ({
-  queryKey: ['bible-redirect', bibleAbbr],
-  queryFn: () => getBibleRedirectUrl({ bibleAbbr }),
+const getBibleRedirectUrlQueryOptions = ({ bibleAbbreviation }: BibleRedirectUrlParams) => ({
+  queryKey: ['bible-redirect', { bibleAbbreviation }],
+  queryFn: () => getBibleRedirectUrl({ bibleAbbreviation }),
 });
 
 export default function BiblePage() {
   const params = useParams();
-  const query = createQuery(() => getBibleRedirectUrlQueryOptions({ bibleAbbr: params.bibleAbbr }));
+  const query = createQuery(() =>
+    getBibleRedirectUrlQueryOptions({ bibleAbbreviation: params.bibleAbbreviation }),
+  );
 
   return (
     <QueryBoundary query={query}>

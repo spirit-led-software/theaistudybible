@@ -6,14 +6,14 @@ import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
 
 export type BookRedirectUrlParams = {
-  bibleAbbr: string;
+  bibleAbbreviation: string;
   bookCode: string;
 };
 
-const getBookRedirectUrl = GET(async ({ bibleAbbr, bookCode }: BookRedirectUrlParams) => {
+const getBookRedirectUrl = GET(async ({ bibleAbbreviation, bookCode }: BookRedirectUrlParams) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
-    where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
+    where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbreviation),
     columns: { abbreviation: true },
     with: {
       books: {
@@ -48,16 +48,19 @@ const getBookRedirectUrl = GET(async ({ bibleAbbr, bookCode }: BookRedirectUrlPa
   return { redirectUrl: `/bible/${bible.abbreviation}/${book.code}/${chapter.number}` };
 });
 
-const getBookRedirectUrlQueryOptions = ({ bibleAbbr, bookCode }: BookRedirectUrlParams) => ({
-  queryKey: ['book-redirect', bibleAbbr, bookCode],
-  queryFn: () => getBookRedirectUrl({ bibleAbbr, bookCode }),
+const getBookRedirectUrlQueryOptions = ({
+  bibleAbbreviation,
+  bookCode,
+}: BookRedirectUrlParams) => ({
+  queryKey: ['book-redirect', { bibleAbbreviation, bookCode }],
+  queryFn: () => getBookRedirectUrl({ bibleAbbreviation, bookCode }),
 });
 
 export const route: RouteDefinition = {
   preload: ({ params }) => {
-    const { bibleAbbr, bookCode } = params;
+    const { bibleAbbreviation, bookCode } = params;
     const qc = useQueryClient();
-    qc.prefetchQuery(getBookRedirectUrlQueryOptions({ bibleAbbr, bookCode }));
+    qc.prefetchQuery(getBookRedirectUrlQueryOptions({ bibleAbbreviation, bookCode }));
   },
 };
 
@@ -65,7 +68,7 @@ export default function BookPage() {
   const params = useParams();
   const query = createQuery(() =>
     getBookRedirectUrlQueryOptions({
-      bibleAbbr: params.bibleAbbr,
+      bibleAbbreviation: params.bibleAbbreviation,
       bookCode: params.bookCode,
     }),
   );

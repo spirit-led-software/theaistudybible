@@ -29,7 +29,7 @@ export const HighlightVerseTool = (props: HighlightVerseToolProps) => {
         {(toolArgs) => (
           <div class='flex items-center space-x-2 text-sm'>
             <span>
-              {toolArgs.bibleAbbr}.{toolArgs.bookCode}.{toolArgs.chapterNumber}.
+              {toolArgs.bibleAbbreviation}.{toolArgs.bookCode}.{toolArgs.chapterNumber}.
               {formNumberSequenceString(toolArgs.verseNumbers)}
             </span>
             <div
