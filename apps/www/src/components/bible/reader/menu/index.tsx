@@ -6,9 +6,8 @@ import {
 } from '@/www/components/ui/dropdown-menu';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { EllipsisVertical } from 'lucide-solid';
-import { Match, Switch } from 'solid-js';
+import { Show } from 'solid-js';
 import { ChapterBookmarkMenuItem } from './bookmark/chapter';
-import { VerseBookmarkMenuItem } from './bookmark/verse';
 import { BookPicker } from './chapter-picker/book';
 import { TextSizeMenuItem } from './text-size';
 import { SmallTranslationPicker } from './translation-picker/small';
@@ -25,14 +24,9 @@ export const BibleReaderMenu = () => {
             <EllipsisVertical />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <Switch>
-              <Match when={brStore.verse}>
-                <VerseBookmarkMenuItem />
-              </Match>
-              <Match when={brStore.chapter}>
-                <ChapterBookmarkMenuItem />
-              </Match>
-            </Switch>
+            <Show when={brStore.chapter}>
+              <ChapterBookmarkMenuItem />
+            </Show>
             <TextSizeMenuItem />
           </DropdownMenuContent>
         </DropdownMenu>

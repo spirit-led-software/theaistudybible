@@ -31,7 +31,6 @@ import { Show, createSignal } from 'solid-js';
 
 const addNoteAction = action(
   async (props: {
-    type: 'verse' | 'chapter';
     bibleAbbreviation: string;
     chapterCode: string;
     verseNumber?: number;
@@ -40,10 +39,7 @@ const addNoteAction = action(
     'use server';
     const { user } = requireAuth();
     let note: VerseNote | ChapterNote;
-    if (props.type === 'verse') {
-      if (!props.verseNumber) {
-        throw new Error('Verse number is required');
-      }
+    if (props.verseNumber) {
       [note] = await db
         .insert(verseNotes)
         .values({
@@ -53,7 +49,7 @@ const addNoteAction = action(
           content: props.content,
         })
         .returning();
-    } else if (props.type === 'chapter') {
+    } else {
       [note] = await db
         .insert(chapterNotes)
         .values({
@@ -63,8 +59,6 @@ const addNoteAction = action(
           content: props.content,
         })
         .returning();
-    } else {
-      throw new Error('Invalid note type');
     }
     return { note };
   },
@@ -89,7 +83,6 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
 
   const addNoteMutation = createMutation(() => ({
     mutationFn: (props: {
-      type: 'verse' | 'chapter';
       bibleAbbreviation: string;
       chapterCode: string;
       verseNumber?: number;
@@ -192,7 +185,6 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
           disabled={!contentValue().trim()}
           onClick={() => {
             addNoteMutation.mutate({
-              type: brStore.verse ? 'verse' : 'chapter',
               bibleAbbreviation: brStore.bible.abbreviation,
               chapterCode: brStore.chapter.code,
               verseNumber: brStore.verse?.number ?? selectedVerseInfo()?.number,

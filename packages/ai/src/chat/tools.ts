@@ -1,11 +1,6 @@
 import { cache } from '@/core/cache';
 import { db } from '@/core/database';
-import {
-  chapterBookmarks,
-  userGeneratedImages,
-  verseBookmarks,
-  verseHighlights,
-} from '@/core/database/schema';
+import { chapterBookmarks, userGeneratedImages, verseHighlights } from '@/core/database/schema';
 import { s3 } from '@/core/storage';
 import { getStripeData } from '@/core/stripe/utils';
 import { createId } from '@/core/utils/id';
@@ -123,82 +118,6 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
         } as const;
       } catch (err) {
         console.error('Error highlighting verse', err);
-        return {
-          status: 'error',
-          message: err instanceof Error ? err.message : 'An unknown error occurred',
-        } as const;
-      }
-    },
-  });
-
-export const bookmarkVerseTool = (input: { dataStream: DataStreamWriter; userId: string }) =>
-  tool({
-    description: 'Bookmark Verse: Bookmark a verse in the Bible.',
-    parameters: z.object({
-      bibleAbbr: z.string().describe('The abbreviation of the Bible the verse is from.'),
-      bookName: z.string().describe('The name or abbreviation of the book the verse is from.'),
-      chapterNumber: z.number().describe('The number of the chapter the verse is from.'),
-      verseNumbers: z.array(z.number().describe('The number of the verse to bookmark.')),
-    }),
-    execute: async ({ bibleAbbr, bookName, chapterNumber, verseNumbers }) => {
-      try {
-        const queryResult = await db.query.bibles.findFirst({
-          columns: { abbreviation: true },
-          where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbr),
-          with: {
-            books: {
-              columns: { code: true, abbreviation: true, shortName: true },
-              where: (books, { or, eq }) =>
-                or(
-                  eq(books.shortName, bookName),
-                  eq(books.code, bookName),
-                  eq(books.abbreviation, bookName),
-                ),
-              with: {
-                chapters: {
-                  columns: { code: true, number: true },
-                  where: (chapters, { eq }) => eq(chapters.number, chapterNumber),
-                  with: {
-                    verses: {
-                      columns: { code: true, number: true },
-                      where: (verses, { inArray }) => inArray(verses.number, verseNumbers),
-                    },
-                  },
-                },
-              },
-            },
-          },
-        });
-
-        const bible = queryResult;
-        const book = bible?.books[0];
-        const chapter = book?.chapters[0];
-        const verses = chapter?.verses;
-        if (!verses?.length) {
-          throw new Error('Verse(s) not found');
-        }
-
-        await db
-          .insert(verseBookmarks)
-          .values(
-            verses.map((verse) => ({
-              userId: input.userId,
-              bibleAbbreviation: bibleAbbr,
-              verseCode: verse.code,
-            })),
-          )
-          .onConflictDoNothing();
-
-        return {
-          status: 'success',
-          message: 'Verse bookmarked',
-          bible: bible!,
-          book: book!,
-          chapter: chapter!,
-          verses: verses,
-        } as const;
-      } catch (err) {
-        console.error('Error bookmarking verse', err);
         return {
           status: 'error',
           message: err instanceof Error ? err.message : 'An unknown error occurred',
@@ -466,7 +385,6 @@ export const tools = (input: {
   thinking: thinkingTool({ dataStream: input.dataStream }),
   askForHighlightColor: askForHighlightColorTool({ dataStream: input.dataStream }),
   highlightVerse: highlightVerseTool({ dataStream: input.dataStream, userId: input.user.id }),
-  bookmarkVerse: bookmarkVerseTool({ dataStream: input.dataStream, userId: input.user.id }),
   bookmarkChapter: bookmarkChapterTool({ dataStream: input.dataStream, userId: input.user.id }),
   generateImage: generateImageTool({
     dataStream: input.dataStream,

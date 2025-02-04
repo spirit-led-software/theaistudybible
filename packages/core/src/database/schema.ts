@@ -55,7 +55,6 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   chapterBookmarks: many(chapterBookmarks),
   chapterNotes: many(chapterNotes),
   verseHighlights: many(verseHighlights),
-  verseBookmarks: many(verseBookmarks),
   verseNotes: many(verseNotes),
 }));
 
@@ -1308,7 +1307,6 @@ export const versesRelations = relations(verses, ({ one, many }) => ({
     relationName: 'next',
   }),
   highlights: many(verseHighlights),
-  bookmarks: many(verseBookmarks),
   notes: many(verseNotes),
 }));
 
@@ -1342,39 +1340,6 @@ export const verseHighlightsRelations = relations(verseHighlights, ({ one }) => 
   }),
   verse: one(verses, {
     fields: [verseHighlights.bibleAbbreviation, verseHighlights.verseCode],
-    references: [verses.bibleAbbreviation, verses.code],
-  }),
-}));
-
-export const verseBookmarks = sqliteTable(
-  'verse_bookmarks',
-  {
-    ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation').notNull(),
-    verseCode: text('verse_code').notNull(),
-    userId: text('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-  },
-  (table) => [
-    primaryKey({ columns: [table.bibleAbbreviation, table.verseCode, table.userId] }),
-    foreignKey({
-      columns: [table.bibleAbbreviation, table.verseCode],
-      foreignColumns: [verses.bibleAbbreviation, verses.code],
-    }).onDelete('cascade'),
-    index('verse_bookmarks_bible_abbreviation_idx').on(table.bibleAbbreviation),
-    index('verse_bookmarks_verse_code_idx').on(table.verseCode),
-    index('verse_bookmarks_user_id_idx').on(table.userId),
-  ],
-);
-
-export const verseBookmarksRelations = relations(verseBookmarks, ({ one }) => ({
-  user: one(users, {
-    fields: [verseBookmarks.userId],
-    references: [users.id],
-  }),
-  verse: one(verses, {
-    fields: [verseBookmarks.bibleAbbreviation, verseBookmarks.verseCode],
     references: [verses.bibleAbbreviation, verses.code],
   }),
 }));

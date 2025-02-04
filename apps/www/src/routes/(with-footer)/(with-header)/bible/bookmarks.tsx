@@ -1,7 +1,6 @@
 import { db } from '@/core/database';
-import { chapterBookmarks, verseBookmarks } from '@/core/database/schema';
+import { chapterBookmarks } from '@/core/database/schema';
 import { ilike } from '@/core/database/utils';
-import { contentsToText } from '@/core/utils/bibles/contents-to-text';
 import { Protected } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
@@ -24,7 +23,7 @@ import type { RouteDefinition } from '@solidjs/router';
 import { A, Navigate, action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
-import { and, count, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { Search, X } from 'lucide-solid';
 import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
@@ -37,166 +36,62 @@ const getBookmarks = GET(
       return { bookmarks: [], nextCursor: undefined };
     }
 
-    let verses: { code: string }[] = [];
     let chapters: { code: string }[] = [];
     if (search) {
-      [verses, chapters] = await Promise.all([
-        db.query.verses.findMany({
-          columns: { code: true },
-          where: (verses, { or }) =>
-            or(ilike(verses.name, `%${search}%`), ilike(verses.content, `%${search}%`)),
-        }),
-        db.query.chapters.findMany({
-          columns: { code: true },
-          where: (chapters, { or }) =>
-            or(ilike(chapters.name, `%${search}%`), ilike(chapters.content, `%${search}%`)),
-        }),
-      ]);
+      chapters = await db.query.verses.findMany({
+        columns: { code: true },
+        where: (verses, { or }) =>
+          or(ilike(verses.name, `%${search}%`), ilike(verses.content, `%${search}%`)),
+      });
     }
 
-    // First get total counts to help with pagination
-    const [verseCountResult, chapterCountResult] = await Promise.all([
-      db.query.verseBookmarks.findMany({
-        columns: {},
-        where: (verseBookmarks, { and, eq }) => {
-          const conditions = [eq(verseBookmarks.userId, user.id)];
-          if (verses.length > 0) {
-            conditions.push(
-              inArray(
-                verseBookmarks.verseCode,
-                verses.map((v) => v.code),
-              ),
-            );
-          }
-          return and(...conditions);
+    const bookmarks = await db.query.chapterBookmarks.findMany({
+      where: (chapterBookmarks, { and, eq }) => {
+        const conditions = [eq(chapterBookmarks.userId, user.id)];
+        if (chapters.length > 0) {
+          conditions.push(
+            inArray(
+              chapterBookmarks.chapterCode,
+              chapters.map((c) => c.code),
+            ),
+          );
+        }
+        return and(...conditions);
+      },
+      with: {
+        chapter: {
+          columns: { content: false },
+          with: {
+            bible: { columns: { abbreviation: true } },
+            book: { columns: { code: true } },
+          },
         },
-        extras: { count: count().as('count') },
-      }),
-      db.query.chapterBookmarks.findMany({
-        columns: {},
-        where: (chapterBookmarks, { and, eq }) => {
-          const conditions = [eq(chapterBookmarks.userId, user.id)];
-          if (chapters.length > 0) {
-            conditions.push(
-              inArray(
-                chapterBookmarks.chapterCode,
-                chapters.map((c) => c.code),
-              ),
-            );
-          }
-          return and(...conditions);
-        },
-        extras: { count: count().as('count') },
-      }),
-    ]);
-
-    const verseCount = verseCountResult[0].count;
-    const chapterCount = chapterCountResult[0].count;
-
-    // Calculate proper offset and limit for each query
-    const verseOffset = offset > verseCount ? 0 : offset;
-    const verseLimit = Math.min(limit, Math.max(0, verseCount - verseOffset));
-
-    const chapterOffset = Math.max(0, offset - verseCount);
-    const chapterLimit = Math.min(limit - verseLimit, Math.max(0, chapterCount - chapterOffset));
-
-    const [verseBookmarks, chapterBookmarks] = await Promise.all([
-      verseLimit > 0
-        ? db.query.verseBookmarks.findMany({
-            where: (verseBookmarks, { and, eq }) => {
-              const conditions = [eq(verseBookmarks.userId, user.id)];
-              if (verses.length > 0) {
-                conditions.push(
-                  inArray(
-                    verseBookmarks.verseCode,
-                    verses.map((v) => v.code),
-                  ),
-                );
-              }
-              return and(...conditions);
-            },
-            with: {
-              verse: {
-                with: {
-                  bible: { columns: { abbreviation: true } },
-                  book: { columns: { code: true } },
-                  chapter: { columns: { number: true } },
-                },
-              },
-            },
-            limit: verseLimit,
-            offset: verseOffset,
-          })
-        : Promise.resolve([]),
-      chapterLimit > 0
-        ? db.query.chapterBookmarks.findMany({
-            where: (chapterBookmarks, { and, eq }) => {
-              const conditions = [eq(chapterBookmarks.userId, user.id)];
-              if (chapters.length > 0) {
-                conditions.push(
-                  inArray(
-                    chapterBookmarks.chapterCode,
-                    chapters.map((c) => c.code),
-                  ),
-                );
-              }
-              return and(...conditions);
-            },
-            with: {
-              chapter: {
-                columns: { content: false },
-                with: {
-                  bible: { columns: { abbreviation: true } },
-                  book: { columns: { code: true } },
-                },
-              },
-            },
-            limit: chapterLimit,
-            offset: chapterOffset,
-          })
-        : Promise.resolve([]),
-    ]);
-
-    const bookmarks = [...verseBookmarks, ...chapterBookmarks];
-    const totalCount = verseCount + chapterCount;
+      },
+      limit,
+      offset,
+    });
 
     return {
       bookmarks,
-      nextCursor: offset + bookmarks.length < totalCount ? offset + limit : undefined,
+      nextCursor: offset + bookmarks.length === limit ? offset + limit : undefined,
     };
   },
 );
 
-const deleteBookmarkAction = action(
-  async (props: { type: 'verse' | 'chapter'; bibleAbbreviation: string; code: string }) => {
-    'use server';
-    const { user } = requireAuth();
-    if (props.type === 'verse') {
-      await db
-        .delete(verseBookmarks)
-        .where(
-          and(
-            eq(verseBookmarks.userId, user.id),
-            eq(verseBookmarks.bibleAbbreviation, props.bibleAbbreviation),
-            eq(verseBookmarks.verseCode, props.code),
-          ),
-        );
-    } else if (props.type === 'chapter') {
-      await db
-        .delete(chapterBookmarks)
-        .where(
-          and(
-            eq(chapterBookmarks.userId, user.id),
-            eq(chapterBookmarks.bibleAbbreviation, props.bibleAbbreviation),
-            eq(chapterBookmarks.chapterCode, props.code),
-          ),
-        );
-    } else {
-      throw new Error('Invalid bookmark type');
-    }
-    return { success: true };
-  },
-);
+const deleteBookmarkAction = action(async (props: { bibleAbbreviation: string; code: string }) => {
+  'use server';
+  const { user } = requireAuth();
+  await db
+    .delete(chapterBookmarks)
+    .where(
+      and(
+        eq(chapterBookmarks.userId, user.id),
+        eq(chapterBookmarks.bibleAbbreviation, props.bibleAbbreviation),
+        eq(chapterBookmarks.chapterCode, props.code),
+      ),
+    );
+  return { success: true };
+});
 
 const getBookmarksQueryOptions = (input: { search?: string } = {}) => ({
   queryKey: ['bookmarks', input],
@@ -231,8 +126,7 @@ export default function BookmarksPage() {
   });
 
   const deleteBookmarkMutation = createMutation(() => ({
-    mutationFn: (props: { type: 'verse' | 'chapter'; bibleAbbreviation: string; code: string }) =>
-      deleteBookmark(props),
+    mutationFn: (props: { bibleAbbreviation: string; code: string }) => deleteBookmark(props),
     onSettled: () => qc.invalidateQueries({ queryKey: ['bookmarks'] }),
   }));
 
@@ -290,25 +184,10 @@ export default function BookmarksPage() {
                     <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
                       <CardHeader>
                         <CardTitle>
-                          {getHighlightedVerseContent(
-                            'verse' in bookmark ? bookmark.verse.name : bookmark.chapter.name,
-                            search(),
-                          )}
+                          {getHighlightedVerseContent(bookmark.chapter.name, search())}
                         </CardTitle>
                       </CardHeader>
-                      <Show
-                        when={'verse' in bookmark && bookmark.verse}
-                        fallback={<CardContent class='flex grow flex-col' />}
-                        keyed
-                      >
-                        {(verse) => (
-                          <CardContent class='flex grow flex-col'>
-                            <p>
-                              {getHighlightedVerseContent(contentsToText(verse.content), search())}
-                            </p>
-                          </CardContent>
-                        )}
-                      </Show>
+                      <CardContent class='flex grow flex-col' />
                       <CardFooter class='flex items-end justify-end gap-2'>
                         <Dialog>
                           <DialogTrigger as={Button} variant='outline'>
@@ -325,15 +204,8 @@ export default function BookmarksPage() {
                                 variant='destructive'
                                 onClick={() => {
                                   deleteBookmarkMutation.mutate({
-                                    type: 'verse' in bookmark ? 'verse' : 'chapter',
-                                    bibleAbbreviation:
-                                      'verse' in bookmark
-                                        ? bookmark.verse.bible.abbreviation
-                                        : bookmark.chapter.bible.abbreviation,
-                                    code:
-                                      'verse' in bookmark
-                                        ? bookmark.verse.code
-                                        : bookmark.chapter.code,
+                                    bibleAbbreviation: bookmark.chapter.bible.abbreviation,
+                                    code: bookmark.chapter.code,
                                   });
                                 }}
                               >
@@ -344,11 +216,7 @@ export default function BookmarksPage() {
                         </Dialog>
                         <Button
                           as={A}
-                          href={
-                            'verse' in bookmark
-                              ? `/bible/${bookmark.verse.bible.abbreviation}/${bookmark.verse.book.code}/${bookmark.verse.chapter.number}/${bookmark.verse.number}`
-                              : `/bible/${bookmark.chapter.bible.abbreviation}/${bookmark.chapter.book.code}/${bookmark.chapter.number}`
-                          }
+                          href={`/bible/${bookmark.chapter.bible.abbreviation}/${bookmark.chapter.book.code}/${bookmark.chapter.number}`}
                         >
                           View
                         </Button>

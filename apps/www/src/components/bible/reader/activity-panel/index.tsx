@@ -25,7 +25,6 @@ import {
   useContext,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { BookmarkMenuItem } from './bookmark/menu-item';
 import { ChatCard } from './chat/card';
 import { HighlightCard } from './highlight/card';
 import { NotesCard } from './notes/card';
@@ -176,7 +175,6 @@ export const ActivityPanelMenu = () => {
             <Highlighter class='mr-3' />
             Highlight
           </DropdownMenuItem>
-          <BookmarkMenuItem />
         </Show>
       </DropdownMenuContent>
     </DropdownMenu>

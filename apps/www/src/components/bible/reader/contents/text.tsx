@@ -17,7 +17,8 @@ export type TextContentProps = {
 export function TextContent(props: TextContentProps) {
   const [brStore, setBrStore] = useBibleReaderStore();
   const highlightColor = createMemo(
-    () => props.highlights?.find(({ verseCode }) => verseCode === props.content.verseCode)?.color,
+    () =>
+      props.highlights?.find(({ verseNumber }) => verseNumber === props.content.verseNumber)?.color,
   );
   const selected = createMemo(() =>
     brStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id)),

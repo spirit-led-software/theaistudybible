@@ -27,13 +27,20 @@ const getHighlights = GET(async (bibleAbbreviation: string, chapterCode: string)
       columns: { code: true },
       with: {
         verses: {
-          columns: { code: true },
+          columns: { code: true, number: true },
           with: { highlights: { where: (highlights, { eq }) => eq(highlights.userId, user.id) } },
         },
       },
     })
     .then((chapter) => {
-      return chapter?.verses.flatMap((verse) => verse.highlights) || [];
+      return (
+        chapter?.verses.flatMap((verse) =>
+          verse.highlights.map((hl) => ({
+            ...hl,
+            verseNumber: verse.number,
+          })),
+        ) || []
+      );
     });
 
   return { highlights };
@@ -128,6 +135,7 @@ export const ReaderContent = (props: ReaderContentProps) => {
           highlights={
             highlightsQuery.data?.highlights.map((hl) => ({
               bibleAbbreviation: hl.bibleAbbreviation,
+              verseNumber: hl.verseNumber,
               verseCode: hl.verseCode,
               color: hl.color,
             })) || []
