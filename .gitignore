@@ -18,6 +18,7 @@ node_modules
 
 # Local LibSQL DB
 .libsql.db*
+dump.sql
 
 # SSH key
 *key_rsa
