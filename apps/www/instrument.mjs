@@ -1,3 +1,4 @@
+// @ts-check
 import * as Sentry from '@sentry/solidstart';
 
 const isProd = process.env.PUBLIC_STAGE === 'production';

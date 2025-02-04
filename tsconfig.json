@@ -19,6 +19,6 @@
       "@/scripts/*": ["./tools/scripts/src/*"]
     }
   },
-  "include": [".sst/platform/config.d.ts", "**/*.ts", "**/*.tsx", "apps/www/src/instrument.mjs"],
+  "include": [".sst/platform/config.d.ts", "**/*.ts", "**/*.tsx", "apps/www/instrument.mjs"],
   "exclude": ["node_modules", "apps", "packages", "tools"]
 }
