@@ -1,4 +1,3 @@
-import { db } from '@/core/database';
 import { tool } from 'ai';
 import { z } from 'zod';
 import { vectorStore } from '../vector-store';
@@ -29,17 +28,11 @@ export const bibleVectorStoreTool = tool({
   }),
   execute: async ({ terms }) => {
     try {
-      const bible = await db.query.bibles.findFirst({
-        where: (bibles, { eq }) => eq(bibles.abbreviation, 'NASB'),
-      });
-      if (!bible) {
-        throw new Error('Bible not found');
-      }
       const docs = await Promise.all(
         terms.map(({ term, weight }) =>
           vectorStore
             .searchDocuments(term, {
-              filter: `(type = "bible" or type = "BIBLE") and bibleAbbreviation = "${bible.abbreviation}"`,
+              filter: `(type = "bible" or type = "BIBLE") and bibleAbbreviation = "NASB"`,
               limit: 10,
               withMetadata: true,
               withEmbedding: false,
