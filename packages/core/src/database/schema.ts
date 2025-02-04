@@ -1069,7 +1069,9 @@ export const chapters = sqliteTable(
   'chapters',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
+      .notNull(),
     bookCode: text('book_code').notNull(),
     previousCode: text('previous_code'),
     nextCode: text('next_code'),
@@ -1126,7 +1128,9 @@ export const chapterBookmarks = sqliteTable(
   'chapter_bookmarks',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
+      .notNull(),
     chapterCode: text('chapter_code').notNull(),
     userId: text('user_id')
       .notNull()
@@ -1159,7 +1163,9 @@ export const chapterNotes = sqliteTable(
   'chapter_notes',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
+      .notNull(),
     chapterCode: text('chapter_code').notNull(),
     userId: text('user_id')
       .notNull()
@@ -1192,7 +1198,9 @@ export const chapterNotesRelations = relations(chapterNotes, ({ one }) => ({
 export const chaptersToSourceDocuments = sqliteTable(
   'chapters_to_source_documents',
   {
-    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
+      .notNull(),
     chapterCode: text('chapter_code').notNull(),
     sourceDocumentId: text('source_document_id')
       .notNull()
@@ -1254,7 +1262,9 @@ export const verses = sqliteTable(
   'verses',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
+      .notNull(),
     bookCode: text('book_code').notNull(),
     chapterCode: text('chapter_code').notNull(),
     previousCode: text('previous_code'),
@@ -1267,8 +1277,12 @@ export const verses = sqliteTable(
   (table) => [
     primaryKey({ columns: [table.bibleAbbreviation, table.code] }),
     foreignKey({
-      columns: [table.bibleAbbreviation, table.bookCode, table.chapterCode],
-      foreignColumns: [books.bibleAbbreviation, books.code, chapters.code],
+      columns: [table.bibleAbbreviation, table.bookCode],
+      foreignColumns: [books.bibleAbbreviation, books.code],
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.bibleAbbreviation, table.chapterCode],
+      foreignColumns: [chapters.bibleAbbreviation, chapters.code],
     }).onDelete('cascade'),
     index('verses_bible_abbreviation_idx').on(table.bibleAbbreviation),
     index('verses_book_code_idx').on(table.bookCode),
@@ -1286,12 +1300,12 @@ export const versesRelations = relations(verses, ({ one, many }) => ({
     references: [bibles.abbreviation],
   }),
   book: one(books, {
-    fields: [verses.bookCode],
-    references: [books.code],
+    fields: [verses.bibleAbbreviation, verses.bookCode],
+    references: [books.bibleAbbreviation, books.code],
   }),
   chapter: one(chapters, {
-    fields: [verses.chapterCode],
-    references: [chapters.code],
+    fields: [verses.bibleAbbreviation, verses.chapterCode],
+    references: [chapters.bibleAbbreviation, chapters.code],
   }),
   previous: one(verses, {
     fields: [verses.bibleAbbreviation, verses.previousCode],
@@ -1311,7 +1325,9 @@ export const verseHighlights = sqliteTable(
   'verse_highlights',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
+      .notNull(),
     verseCode: text('verse_code').notNull(),
     userId: text('user_id')
       .notNull()
@@ -1345,7 +1361,9 @@ export const verseNotes = sqliteTable(
   'verse_notes',
   {
     ...baseModelNoId,
-    bibleAbbreviation: text('bible_abbreviation').notNull(),
+    bibleAbbreviation: text('bible_abbreviation')
+      .references(() => bibles.abbreviation, { onDelete: 'cascade' })
+      .notNull(),
     verseCode: text('verse_code').notNull(),
     userId: text('user_id')
       .notNull()

@@ -71,7 +71,11 @@ CREATE TABLE `__new_verses` (
 	`number` integer NOT NULL,
 	`content` text NOT NULL,
 	PRIMARY KEY(`bible_abbreviation`, `code`),
-	FOREIGN KEY (`bible_abbreviation`, `book_code`, `chapter_code`) REFERENCES `books`(`bible_abbreviation`, `code`, `code`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (
+		`bible_abbreviation`,
+		`book_code`,
+		`chapter_code`
+	) REFERENCES `books`(`bible_abbreviation`, `code`, `code`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 INSERT INTO `__new_verses`(
@@ -118,5 +122,5 @@ CREATE INDEX `verses_code_idx` ON `verses` (`code`);
 CREATE INDEX `verses_name_idx` ON `verses` (`name`);
 --> statement-breakpoint
 CREATE INDEX `verses_number_idx` ON `verses` (`number`);
-PRAGMA foreign_keys = ON;
 --> statement-breakpoint
+PRAGMA foreign_keys = ON;
