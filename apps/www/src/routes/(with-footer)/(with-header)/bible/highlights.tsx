@@ -1,5 +1,11 @@
 import { db } from '@/core/database';
-import { verseHighlights } from '@/core/database/schema';
+import {
+  bibles as biblesTable,
+  books as booksTable,
+  chapters as chaptersTable,
+  verseHighlights,
+  verses as versesTable,
+} from '@/core/database/schema';
 import { ilike } from '@/core/database/utils';
 import { contentsToText } from '@/core/utils/bibles/contents-to-text';
 import { Protected } from '@/www/components/auth/control';
@@ -18,13 +24,14 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { auth, requireAuth } from '@/www/server/auth';
+import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A, Navigate, action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
-import { type SQL, and, eq } from 'drizzle-orm';
+import { type SQL, and, desc, eq, getTableColumns, or } from 'drizzle-orm';
 import { Search, X } from 'lucide-solid';
 import { For, Match, Show, Switch, createSignal } from 'solid-js';
 import {} from 'solid-js/store';
@@ -37,41 +44,51 @@ const getHighlights = GET(
       return { highlights: [], nextCursor: null };
     }
 
-    let verses: { code: string }[] = [];
+    let joinCondition: SQL | undefined = and(
+      eq(verseHighlights.verseCode, versesTable.code),
+      eq(verseHighlights.bibleAbbreviation, versesTable.bibleAbbreviation),
+    );
     if (search) {
-      verses = await db.query.verses.findMany({
-        columns: { code: true },
-        where: (verses, { or }) =>
-          or(ilike(verses.name, `%${search}%`), ilike(verses.content, `%${search}%`)),
-      });
+      joinCondition = and(
+        joinCondition,
+        or(ilike(versesTable.name, `%${search}%`), ilike(versesTable.content, `%${search}%`)),
+      );
     }
 
-    const highlights = await db.query.verseHighlights.findMany({
-      where: (verseHighlights, { and, eq, inArray }) => {
-        let condition: SQL | undefined = eq(verseHighlights.userId, user.id);
-        if (verses.length > 0) {
-          condition = and(
-            condition,
-            inArray(
-              verseHighlights.verseCode,
-              verses.map((v) => v.code),
-            ),
-          );
-        }
-        return condition;
-      },
-      with: {
+    const highlights = await db
+      .select({
+        ...getTableColumns(verseHighlights),
+        bible: { abbreviation: biblesTable.abbreviation },
+        book: { code: booksTable.code },
+        chapter: { code: chaptersTable.code, number: chaptersTable.number },
         verse: {
-          with: {
-            bible: { columns: { abbreviation: true } },
-            book: { columns: { code: true } },
-            chapter: { columns: { number: true } },
-          },
+          code: versesTable.code,
+          name: versesTable.name,
+          number: versesTable.number,
+          content: versesTable.content,
         },
-      },
-      limit,
-      offset,
-    });
+      })
+      .from(verseHighlights)
+      .where(eq(verseHighlights.userId, user.id))
+      .innerJoin(versesTable, joinCondition)
+      .innerJoin(biblesTable, eq(versesTable.bibleAbbreviation, biblesTable.abbreviation))
+      .innerJoin(
+        booksTable,
+        and(
+          eq(versesTable.bookCode, booksTable.code),
+          eq(versesTable.bibleAbbreviation, booksTable.bibleAbbreviation),
+        ),
+      )
+      .innerJoin(
+        chaptersTable,
+        and(
+          eq(versesTable.chapterCode, chaptersTable.code),
+          eq(versesTable.bibleAbbreviation, chaptersTable.bibleAbbreviation),
+        ),
+      )
+      .orderBy(desc(verseHighlights.createdAt))
+      .limit(limit)
+      .offset(offset);
 
     return {
       highlights,
@@ -80,28 +97,29 @@ const getHighlights = GET(
   },
 );
 
-const deleteHighlightAction = action(async (bibleAbbreviation: string, verseCode: string) => {
-  'use server';
-  const { user } = requireAuth();
-  await db
-    .delete(verseHighlights)
-    .where(
-      and(
-        eq(verseHighlights.userId, user.id),
-        eq(verseHighlights.bibleAbbreviation, bibleAbbreviation),
-        eq(verseHighlights.verseCode, verseCode),
-      ),
-    );
-  return { success: true };
-});
+const deleteHighlightAction = action(
+  async (input: { bibleAbbreviation: string; verseCode: string }) => {
+    'use server';
+    const { user } = requireAuth();
+    await db
+      .delete(verseHighlights)
+      .where(
+        and(
+          eq(verseHighlights.userId, user.id),
+          eq(verseHighlights.bibleAbbreviation, input.bibleAbbreviation),
+          eq(verseHighlights.verseCode, input.verseCode),
+        ),
+      );
+    return { success: true };
+  },
+);
 
-const getHighlightsQueryOptions = (input: { search?: string } = {}) => ({
+const getHighlightsQueryOptions = (input?: { search?: string }) => ({
   queryKey: ['highlights', input],
   queryFn: ({ pageParam }: { pageParam: number }) =>
-    getHighlights({ limit: 9, offset: pageParam, search: input.search }),
+    getHighlights({ limit: 9, offset: pageParam, search: input?.search }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getHighlights>>) => lastPage.nextCursor,
-  keepPreviousData: true,
 });
 
 export const route: RouteDefinition = {
@@ -120,16 +138,13 @@ export default function HighlightsPage() {
 
   const [search, setSearch] = createSignal('');
 
-  const highlightsQuery = createInfiniteQuery(() =>
-    getHighlightsQueryOptions({ search: search() }),
-  );
+  const highlightsQuery = createInfiniteQuery(() => ({
+    ...getHighlightsQueryOptions({ search: search() }),
+    placeholderData: (prev) => prev,
+  }));
 
   const deleteHighlightMutation = createMutation(() => ({
-    mutationFn: ({
-      bibleAbbreviation,
-      verseCode,
-    }: { bibleAbbreviation: string; verseCode: string }) =>
-      deleteHighlight(bibleAbbreviation, verseCode),
+    mutationFn: (input: { bibleAbbreviation: string; verseCode: string }) => deleteHighlight(input),
     onSettled: () => qc.invalidateQueries({ queryKey: ['highlights'] }),
   }));
 
@@ -141,14 +156,14 @@ export default function HighlightsPage() {
     >
       <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
-        <div class='flex flex-col gap-2'>
-          <H2 class='inline-block bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-            Your Highlighted Verses
+        <div class='flex w-full max-w-lg flex-col items-center gap-2'>
+          <H2 class='inline-block w-fit bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+            Your Highlights
           </H2>
-          <div class='relative'>
+          <div class='relative w-full'>
             <Search class='-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground' />
             <TextField value={search()} onChange={setSearch}>
-              <TextFieldInput type='text' placeholder='Search chats' class='pr-8 pl-9' />
+              <TextFieldInput type='text' placeholder='Search highlights' class='pr-8 pl-9' />
             </TextField>
             <Show when={search()}>
               <Button
@@ -185,9 +200,7 @@ export default function HighlightsPage() {
                 {(highlight, idx) => (
                   <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
                     <CardHeader class='flex flex-row items-center justify-between'>
-                      <CardTitle>
-                        {getHighlightedVerseContent(highlight.verse.name, search())}
-                      </CardTitle>
+                      <CardTitle>{getHighlightedContent(highlight.verse.name, search())}</CardTitle>
                       <div
                         class='size-6 rounded-full'
                         style={{ 'background-color': highlight.color }}
@@ -195,9 +208,10 @@ export default function HighlightsPage() {
                     </CardHeader>
                     <CardContent class='flex grow flex-col'>
                       <p>
-                        {getHighlightedVerseContent(
+                        {getHighlightedContent(
                           contentsToText(highlight.verse.content),
                           search(),
+                          50,
                         )}
                       </p>
                     </CardContent>
@@ -217,7 +231,7 @@ export default function HighlightsPage() {
                               variant='destructive'
                               onClick={() => {
                                 deleteHighlightMutation.mutate({
-                                  bibleAbbreviation: highlight.verse.bible.abbreviation,
+                                  bibleAbbreviation: highlight.bible.abbreviation,
                                   verseCode: highlight.verse.code,
                                 });
                               }}
@@ -229,7 +243,7 @@ export default function HighlightsPage() {
                       </Dialog>
                       <Button
                         as={A}
-                        href={`/bible/${highlight.verse.bible.abbreviation}/${highlight.verse.book.code}/${highlight.verse.chapter.number}/${highlight.verse.number}`}
+                        href={`/bible/${highlight.bible.abbreviation}/${highlight.book.code}/${highlight.chapter.number}/${highlight.verse.number}`}
                       >
                         View
                       </Button>
@@ -277,20 +291,4 @@ const MetaTags = () => {
       <Meta name='twitter:description' content={description} />
     </>
   );
-};
-
-const getHighlightedVerseContent = (content: string, query: string) => {
-  if (!query || !content.toLowerCase().includes(query.toLowerCase())) {
-    return content;
-  }
-
-  return content
-    .split(new RegExp(`(${query.toLowerCase()})`, 'gi'))
-    .map((part) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span class='inline bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
-      ) : (
-        part
-      ),
-    );
 };

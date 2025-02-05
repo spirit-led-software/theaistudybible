@@ -1,6 +1,12 @@
 import { db } from '@/core/database';
-import { chapterBookmarks } from '@/core/database/schema';
+import {
+  bibles as biblesTable,
+  books as booksTable,
+  chapterBookmarks,
+  chapters as chaptersTable,
+} from '@/core/database/schema';
 import { ilike } from '@/core/database/utils';
+import { contentsToText } from '@/core/utils/bibles/contents-to-text';
 import { Protected } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
@@ -17,16 +23,16 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { auth, requireAuth } from '@/www/server/auth';
+import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A, Navigate, action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
-import { and, eq, inArray } from 'drizzle-orm';
+import { type SQL, and, desc, eq, getTableColumns, or } from 'drizzle-orm';
 import { Search, X } from 'lucide-solid';
 import { For, Match, Show, Switch, createSignal } from 'solid-js';
-import {} from 'solid-js/store';
 
 const getBookmarks = GET(
   async ({ limit, offset, search }: { limit: number; offset: number; search?: string }) => {
@@ -36,40 +42,43 @@ const getBookmarks = GET(
       return { bookmarks: [], nextCursor: null };
     }
 
-    let chapters: { code: string }[] = [];
+    let joinCondition: SQL | undefined = and(
+      eq(chapterBookmarks.bibleAbbreviation, chaptersTable.bibleAbbreviation),
+      eq(chapterBookmarks.chapterCode, chaptersTable.code),
+    );
     if (search) {
-      chapters = await db.query.verses.findMany({
-        columns: { code: true },
-        where: (verses, { or }) =>
-          or(ilike(verses.name, `%${search}%`), ilike(verses.content, `%${search}%`)),
-      });
+      joinCondition = and(
+        joinCondition,
+        or(ilike(chaptersTable.name, `%${search}%`), ilike(chaptersTable.content, `%${search}%`)),
+      );
     }
 
-    const bookmarks = await db.query.chapterBookmarks.findMany({
-      where: (chapterBookmarks, { and, eq }) => {
-        const conditions = [eq(chapterBookmarks.userId, user.id)];
-        if (chapters.length > 0) {
-          conditions.push(
-            inArray(
-              chapterBookmarks.chapterCode,
-              chapters.map((c) => c.code),
-            ),
-          );
-        }
-        return and(...conditions);
-      },
-      with: {
+    const bookmarks = await db
+      .select({
+        ...getTableColumns(chapterBookmarks),
         chapter: {
-          columns: { content: false },
-          with: {
-            bible: { columns: { abbreviation: true } },
-            book: { columns: { code: true } },
-          },
+          code: chaptersTable.code,
+          name: chaptersTable.name,
+          number: chaptersTable.number,
+          content: chaptersTable.content,
         },
-      },
-      limit,
-      offset,
-    });
+        bible: { abbreviation: biblesTable.abbreviation },
+        book: { code: booksTable.code },
+      })
+      .from(chapterBookmarks)
+      .where(eq(chapterBookmarks.userId, user.id))
+      .innerJoin(chaptersTable, joinCondition)
+      .innerJoin(biblesTable, eq(chapterBookmarks.bibleAbbreviation, biblesTable.abbreviation))
+      .innerJoin(
+        booksTable,
+        and(
+          eq(chaptersTable.bookCode, booksTable.code),
+          eq(chaptersTable.bibleAbbreviation, booksTable.bibleAbbreviation),
+        ),
+      )
+      .orderBy(desc(chapterBookmarks.createdAt))
+      .limit(limit)
+      .offset(offset);
 
     return {
       bookmarks,
@@ -99,7 +108,6 @@ const getBookmarksQueryOptions = (input: { search?: string } = {}) => ({
     getBookmarks({ limit: 9, offset: pageParam, search: input.search }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getBookmarks>>) => lastPage.nextCursor,
-  keepPreviousData: true,
 });
 
 export const route: RouteDefinition = {
@@ -115,7 +123,10 @@ export default function BookmarksPage() {
   const [autoAnimateRef] = createAutoAnimate();
   const [search, setSearch] = createSignal('');
 
-  const bookmarksQuery = createInfiniteQuery(() => getBookmarksQueryOptions({ search: search() }));
+  const bookmarksQuery = createInfiniteQuery(() => ({
+    ...getBookmarksQueryOptions({ search: search() }),
+    placeholderData: (prev) => prev,
+  }));
 
   const deleteBookmarkMutation = createMutation(() => ({
     mutationFn: (props: { bibleAbbreviation: string; code: string }) => deleteBookmark(props),
@@ -130,11 +141,11 @@ export default function BookmarksPage() {
     >
       <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
-        <div class='flex flex-col gap-2'>
-          <H2 class='inline-block bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+        <div class='flex w-full max-w-lg flex-col items-center gap-2'>
+          <H2 class='inline-block w-fit bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
             Your Bookmarks
           </H2>
-          <div class='relative'>
+          <div class='relative w-full'>
             <Search class='-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground' />
             <TextField value={search()} onChange={setSearch}>
               <TextFieldInput type='text' placeholder='Search bookmarks' class='pr-8 pl-9' />
@@ -171,49 +182,60 @@ export default function BookmarksPage() {
                   </div>
                 }
               >
-                {(bookmark, idx) => (
-                  <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
-                    <CardHeader>
-                      <CardTitle>
-                        {getHighlightedVerseContent(bookmark.chapter.name, search())}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent class='flex grow flex-col' />
-                    <CardFooter class='flex items-end justify-end gap-2'>
-                      <Dialog>
-                        <DialogTrigger as={Button} variant='outline'>
-                          Delete
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>
-                              Are you sure you want to delete this bookmark?
-                            </DialogTitle>
-                          </DialogHeader>
-                          <DialogFooter>
-                            <Button
-                              variant='destructive'
-                              onClick={() => {
-                                deleteBookmarkMutation.mutate({
-                                  bibleAbbreviation: bookmark.chapter.bible.abbreviation,
-                                  code: bookmark.chapter.code,
-                                });
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        as={A}
-                        href={`/bible/${bookmark.chapter.bible.abbreviation}/${bookmark.chapter.book.code}/${bookmark.chapter.number}`}
-                      >
-                        View
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                )}
+                {(bookmark, idx) => {
+                  const contentText = contentsToText(bookmark.chapter.content);
+                  return (
+                    <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
+                      <CardHeader>
+                        <CardTitle>
+                          {getHighlightedContent(bookmark.chapter.name, search())}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent class='flex grow flex-col'>
+                        <Show
+                          when={
+                            search() && contentText.toLowerCase().includes(search().toLowerCase())
+                          }
+                        >
+                          <p>{getHighlightedContent(contentText, search(), 50)}</p>
+                        </Show>
+                      </CardContent>
+                      <CardFooter class='flex items-end justify-end gap-2'>
+                        <Dialog>
+                          <DialogTrigger as={Button} variant='outline'>
+                            Delete
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                Are you sure you want to delete this bookmark?
+                              </DialogTitle>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <Button
+                                variant='destructive'
+                                onClick={() => {
+                                  deleteBookmarkMutation.mutate({
+                                    bibleAbbreviation: bookmark.bible.abbreviation,
+                                    code: bookmark.chapter.code,
+                                  });
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <Button
+                          as={A}
+                          href={`/bible/${bookmark.bible.abbreviation}/${bookmark.book.code}/${bookmark.chapter.number}`}
+                        >
+                          View
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
+                }}
               </For>
             )}
           </QueryBoundary>
@@ -255,20 +277,4 @@ const MetaTags = () => {
       <Meta name='twitter:description' content={description} />
     </>
   );
-};
-
-const getHighlightedVerseContent = (content: string, query: string) => {
-  if (!query || !content.toLowerCase().includes(query.toLowerCase())) {
-    return content;
-  }
-
-  return content
-    .split(new RegExp(`(${query.toLowerCase()})`, 'gi'))
-    .map((part) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span class='inline bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
-      ) : (
-        part
-      ),
-    );
 };

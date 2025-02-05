@@ -62,8 +62,6 @@ export const getChatMessagesQueryProps = (chatId: string) => ({
     getChatMessages({ chatId, limit: 10, offset: pageParam }),
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
   initialPageParam: 0,
-  keepPreviousData: true,
-  placeholderData: { pages: [{ messages: [], nextCursor: null }], pageParams: [0] },
 });
 
 const getChatSuggestions = GET(async (chatId: string) => {
@@ -186,7 +184,13 @@ export const useChat = (props?: Accessor<UseChatProps>) => {
 
   const chatQuery = createQuery(() => getChatQueryProps(chatId()));
 
-  const messagesQuery = createInfiniteQuery(() => getChatMessagesQueryProps(chatId()));
+  const messagesQuery = createInfiniteQuery(() => ({
+    ...getChatMessagesQueryProps(chatId()),
+    placeholderData: (prev) => ({
+      pageParams: prev?.pageParams ?? [0],
+      pages: prev?.pages ?? [{ messages: [], nextCursor: null }],
+    }),
+  }));
   createEffect(() => {
     if (untrack(useChatResult.isLoading)) {
       return;

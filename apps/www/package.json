@@ -24,7 +24,7 @@
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-safe-area": "^0.6.0",
     "vinxi": "^0.5.1",
-    "vite": "^6.0.11",
+    "vite": "^6.1.0",
     "vite-plugin-cjs-interop": "^2.1.6",
     "vite-plugin-pwa": "^0.21.1",
     "vite-plugin-solid": "^2.11.1",
@@ -36,7 +36,7 @@
     "workbox-window": "^7.3.0"
   },
   "dependencies": {
-    "@ai-sdk/solid": "^1.1.9",
+    "@ai-sdk/solid": "^1.1.12",
     "@corvu/drawer": "^0.2.3",
     "@fontsource-variable/inter": "^5.1.1",
     "@fontsource/goldman": "^5.1.1",
@@ -74,7 +74,7 @@
     "embla-carousel-solid": "^8.5.2",
     "hono": "^4.6.20",
     "lucide-solid": "^0.474.0",
-    "motion": "^12.1.0",
+    "motion": "^12.3.1",
     "posthog-js": "^1.215.3",
     "posthog-node": "^4.4.1",
     "rollup-plugin-typescript-paths": "^1.5.0",

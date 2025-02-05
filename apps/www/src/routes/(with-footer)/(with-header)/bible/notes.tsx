@@ -124,7 +124,6 @@ const getNotesQueryOptions = (input: { search?: string } = {}) => ({
     getNotes({ limit: 9, offset: pageParam, search: input.search }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getNotes>>) => lastPage.nextCursor,
-  keepPreviousData: true,
 });
 
 export const route: RouteDefinition = {
@@ -138,7 +137,10 @@ export default function NotesPage() {
   const [autoAnimateRef] = createAutoAnimate();
   const [search, setSearch] = createSignal('');
 
-  const notesQuery = createInfiniteQuery(() => getNotesQueryOptions({ search: search() }));
+  const notesQuery = createInfiniteQuery(() => ({
+    ...getNotesQueryOptions({ search: search() }),
+    placeholderData: (prev) => prev,
+  }));
 
   return (
     <Protected
@@ -148,11 +150,11 @@ export default function NotesPage() {
     >
       <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
-        <div class='flex flex-col gap-2'>
-          <H2 class='inline-block bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+        <div class='flex w-full max-w-lg flex-col items-center gap-2'>
+          <H2 class='inline-block w-fit bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
             Your Notes
           </H2>
-          <div class='relative'>
+          <div class='relative w-full'>
             <Search class='-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground' />
             <TextField value={search()} onChange={setSearch}>
               <TextFieldInput type='text' placeholder='Search notes' class='pr-8 pl-9' />

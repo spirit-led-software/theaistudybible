@@ -3,6 +3,7 @@ import { ilike } from '@/core/database/utils';
 import type { Chat, Message } from '@/schemas/chats/types';
 import { cn } from '@/www/lib/utils';
 import { requireAuth } from '@/www/server/auth';
+import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
 import { useLocation, useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
@@ -93,7 +94,6 @@ export const getChatsQueryOptions = (searchQuery?: string) => ({
     getChats({ offset: pageParam, limit: 7, searchQuery }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChats>>) => lastPage.nextCursor,
-  keepPreviousData: true,
 });
 
 export const ChatSidebar = () => {
@@ -104,7 +104,10 @@ export const ChatSidebar = () => {
   const { isMobile, toggleSidebar } = useSidebar();
 
   const [searchQuery, setSearchQuery] = createSignal('');
-  const chatsQuery = createInfiniteQuery(() => getChatsQueryOptions(searchQuery()));
+  const chatsQuery = createInfiniteQuery(() => ({
+    ...getChatsQueryOptions(searchQuery()),
+    placeholderData: (prev) => prev,
+  }));
 
   const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
 
@@ -175,7 +178,7 @@ export const ChatSidebar = () => {
                         >
                           <div class='flex w-full flex-col'>
                             <div class='truncate-fade'>
-                              {getHighlightedChatName(chat.name, searchQuery())}
+                              {getHighlightedContent(chat.name, searchQuery())}
                             </div>
                             <div class='text-muted-foreground text-xs'>
                               {formatDate(chat.updatedAt, 'MMMM d, yyyy')}
@@ -183,7 +186,7 @@ export const ChatSidebar = () => {
                             <Show when={chat.message?.content} keyed>
                               {(content) => (
                                 <div class='mt-1 text-xs'>
-                                  {getHighlightedMessageExcerpt(content, searchQuery())}
+                                  {getHighlightedContent(content, searchQuery(), 50)}
                                 </div>
                               )}
                             </Show>
@@ -214,45 +217,4 @@ export const ChatSidebar = () => {
       <SidebarFooter />
     </Sidebar>
   );
-};
-
-const getHighlightedChatName = (name: string, query: string) => {
-  if (!query || !name.toLowerCase().includes(query.toLowerCase())) {
-    return name;
-  }
-
-  return name
-    .split(new RegExp(`(${query.toLowerCase()})`, 'gi'))
-    .map((part) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span class='inline bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
-      ) : (
-        part
-      ),
-    );
-};
-
-const getHighlightedMessageExcerpt = (content: string, query: string) => {
-  if (!query || !content.toLowerCase().includes(query.toLowerCase())) {
-    return content;
-  }
-
-  const matchIndex = content.toLowerCase().indexOf(query.toLowerCase());
-  const remainingChars = Math.max(50 - query.length, 20);
-  const charsEachSide = Math.floor(remainingChars / 2);
-
-  const start = Math.max(0, matchIndex - charsEachSide);
-  const end = Math.min(content.length, matchIndex + query.length + charsEachSide);
-  const excerpt =
-    (start > 0 ? '...' : '') + content.slice(start, end) + (end < content.length ? '...' : '');
-
-  return excerpt
-    .split(new RegExp(`(${query})`, 'gi'))
-    .map((part) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span class='bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
-      ) : (
-        part
-      ),
-    );
 };

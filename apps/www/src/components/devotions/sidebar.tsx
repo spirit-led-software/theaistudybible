@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { ilike } from '@/core/database/utils';
-import { toTitleCase } from '@/core/utils/string';
 import { cn } from '@/www/lib/utils';
+import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
 import { useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
@@ -63,7 +63,6 @@ export const getDevotionsQueryOptions = (searchQuery?: string) => ({
     getDevotions({ offset: pageParam, limit: 10, searchQuery }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getDevotions>>) => lastPage.nextCursor,
-  keepPreviousData: true,
 });
 
 export const DevotionSidebar = () => {
@@ -72,7 +71,10 @@ export const DevotionSidebar = () => {
   const { isMobile, toggleSidebar } = useSidebar();
 
   const [searchQuery, setSearchQuery] = createSignal('');
-  const devotionsQuery = createInfiniteQuery(() => getDevotionsQueryOptions(searchQuery()));
+  const devotionsQuery = createInfiniteQuery(() => ({
+    ...getDevotionsQueryOptions(searchQuery()),
+    placeholderData: (prev) => prev,
+  }));
 
   return (
     <Sidebar
@@ -138,7 +140,7 @@ export const DevotionSidebar = () => {
                         >
                           <div class='flex w-full flex-col overflow-hidden'>
                             <span class='line-clamp-2'>
-                              {getHighlightedDevotionTopic(devotion.topic, searchQuery())}
+                              {getHighlightedContent(devotion.topic, searchQuery())}
                             </span>
                             <span class='text-muted-foreground text-xs'>
                               {formatDate(devotion.createdAt, 'MMMM d, yyyy')}
@@ -152,7 +154,7 @@ export const DevotionSidebar = () => {
                                       .includes(query.toLowerCase())}
                                   >
                                     <span class='mt-1 text-xs'>
-                                      {getHighlightedContentExcerpt(devotion.summary, query)}
+                                      {getHighlightedContent(devotion.summary, query, 50)}
                                     </span>
                                   </Match>
                                   <Match
@@ -161,7 +163,7 @@ export const DevotionSidebar = () => {
                                       .includes(query.toLowerCase())}
                                   >
                                     <span class='mt-1 text-xs'>
-                                      {getHighlightedContentExcerpt(devotion.summary, query)}
+                                      {getHighlightedContent(devotion.summary, query, 50)}
                                     </span>
                                   </Match>
                                   <Match
@@ -170,7 +172,7 @@ export const DevotionSidebar = () => {
                                       .includes(query.toLowerCase())}
                                   >
                                     <span class='mt-1 text-xs'>
-                                      {getHighlightedContentExcerpt(devotion.reflection, query)}
+                                      {getHighlightedContent(devotion.reflection, query, 50)}
                                     </span>
                                   </Match>
                                   <Match
@@ -179,7 +181,7 @@ export const DevotionSidebar = () => {
                                       .includes(query.toLowerCase())}
                                   >
                                     <span class='mt-1 text-xs'>
-                                      {getHighlightedContentExcerpt(devotion.prayer, query)}
+                                      {getHighlightedContent(devotion.prayer, query, 50)}
                                     </span>
                                   </Match>
                                 </Switch>
@@ -208,45 +210,4 @@ export const DevotionSidebar = () => {
       <SidebarFooter />
     </Sidebar>
   );
-};
-
-const getHighlightedDevotionTopic = (topic: string, query: string) => {
-  if (!query || !topic.toLowerCase().includes(query.toLowerCase())) {
-    return toTitleCase(topic);
-  }
-
-  return toTitleCase(topic)
-    .split(new RegExp(`(${query})`, 'gi'))
-    .map((part) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span class='bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
-      ) : (
-        part
-      ),
-    );
-};
-
-const getHighlightedContentExcerpt = (content: string, query: string) => {
-  if (!query || !content.toLowerCase().includes(query.toLowerCase())) {
-    return content;
-  }
-
-  const matchIndex = content.toLowerCase().indexOf(query.toLowerCase());
-  const remainingChars = Math.max(50 - query.length, 20);
-  const charsEachSide = Math.floor(remainingChars / 2);
-
-  const start = Math.max(0, matchIndex - charsEachSide);
-  const end = Math.min(content.length, matchIndex + query.length + charsEachSide);
-  const excerpt =
-    (start > 0 ? '...' : '') + content.slice(start, end) + (end < content.length ? '...' : '');
-
-  return excerpt
-    .split(new RegExp(`(${query})`, 'gi'))
-    .map((part) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span class='bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
-      ) : (
-        part
-      ),
-    );
 };
