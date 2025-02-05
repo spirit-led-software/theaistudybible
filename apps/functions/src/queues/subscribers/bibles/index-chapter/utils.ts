@@ -39,7 +39,13 @@ export async function insertChapter({
     .onConflictDoUpdate({
       target: [chapters.bibleAbbreviation, chapters.code],
       set: overwrite
-        ? buildConflictUpdateColumns(chapters, ['name', 'number', 'content'])
+        ? buildConflictUpdateColumns(chapters, [
+            'previousCode',
+            'nextCode',
+            'name',
+            'number',
+            'content',
+          ])
         : { code: sql`code` },
     })
     .returning({
@@ -63,9 +69,9 @@ export async function insertVerses({
   overwrite: boolean;
 }) {
   const { content: verseContent, ...columnsWithoutContent } = getTableColumns(verses);
-  const insertVerseBatchSize = 40;
+  const insertVerseBatchSize = 50;
   const allVerses = [];
-  const verseEntries = Object.entries(content.verseContents).toSorted(
+  const verseEntries = Object.entries(content.verseContents).sort(
     ([a], [b]) => Number(a) - Number(b),
   );
 
@@ -92,7 +98,13 @@ export async function insertVerses({
       .onConflictDoUpdate({
         target: [verses.bibleAbbreviation, verses.code],
         set: overwrite
-          ? buildConflictUpdateColumns(verses, ['name', 'number', 'content'])
+          ? buildConflictUpdateColumns(verses, [
+              'previousCode',
+              'nextCode',
+              'name',
+              'number',
+              'content',
+            ])
           : { code: sql`code` },
       })
       .returning({

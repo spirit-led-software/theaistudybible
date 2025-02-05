@@ -306,9 +306,11 @@ async function createBooks(
         target: [schema.books.bibleAbbreviation, schema.books.code],
         set: overwrite
           ? buildConflictUpdateColumns(schema.books, [
+              'previousCode',
+              'nextCode',
+              'abbreviation',
               'shortName',
               'longName',
-              'abbreviation',
               'number',
             ])
           : { code: sql`code` },
@@ -351,7 +353,7 @@ async function sendChaptersToIndexBucket(
   generateEmbeddings: boolean,
   overwrite: boolean,
 ) {
-  const entries = Object.entries(contents).toSorted(([a], [b]) => Number(a) - Number(b));
+  const entries = Object.entries(contents).sort(([a], [b]) => Number(a) - Number(b));
   const batchSize = 50;
   for (let i = 0; i < entries.length; i += batchSize) {
     const batch = entries.slice(i, i + batchSize);
