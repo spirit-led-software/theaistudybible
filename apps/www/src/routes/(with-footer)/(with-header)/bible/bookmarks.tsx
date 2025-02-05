@@ -25,15 +25,15 @@ import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Search, X } from 'lucide-solid';
-import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
+import { For, Match, Show, Switch, createSignal } from 'solid-js';
+import {} from 'solid-js/store';
 
 const getBookmarks = GET(
   async ({ limit, offset, search }: { limit: number; offset: number; search?: string }) => {
     'use server';
     const { user } = auth();
     if (!user) {
-      return { bookmarks: [], nextCursor: undefined };
+      return { bookmarks: [], nextCursor: null };
     }
 
     let chapters: { code: string }[] = [];
@@ -73,7 +73,7 @@ const getBookmarks = GET(
 
     return {
       bookmarks,
-      nextCursor: offset + bookmarks.length === limit ? offset + limit : undefined,
+      nextCursor: bookmarks.length === limit ? offset + limit : null,
     };
   },
 );
@@ -116,14 +116,6 @@ export default function BookmarksPage() {
   const [search, setSearch] = createSignal('');
 
   const bookmarksQuery = createInfiniteQuery(() => getBookmarksQueryOptions({ search: search() }));
-  const [bookmarks, setBookmarks] = createStore<
-    Awaited<ReturnType<typeof getBookmarks>>['bookmarks']
-  >([]);
-  createEffect(() => {
-    if (bookmarksQuery.status === 'success') {
-      setBookmarks(reconcile(bookmarksQuery.data.pages.flatMap((page) => page.bookmarks)));
-    }
-  });
 
   const deleteBookmarkMutation = createMutation(() => ({
     mutationFn: (props: { bibleAbbreviation: string; code: string }) => deleteBookmark(props),
@@ -164,85 +156,83 @@ export default function BookmarksPage() {
           class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'
         >
           <QueryBoundary query={bookmarksQuery}>
-            {() => (
-              <>
-                <For
-                  each={bookmarks}
-                  fallback={
-                    <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3'>
-                      <H6 class='text-center'>
-                        No bookmarks yet, get{' '}
-                        <A href='/bible' class='hover:underline'>
-                          reading
-                        </A>
-                        !
-                      </H6>
-                    </div>
-                  }
-                >
-                  {(bookmark, idx) => (
-                    <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
-                      <CardHeader>
-                        <CardTitle>
-                          {getHighlightedVerseContent(bookmark.chapter.name, search())}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent class='flex grow flex-col' />
-                      <CardFooter class='flex items-end justify-end gap-2'>
-                        <Dialog>
-                          <DialogTrigger as={Button} variant='outline'>
-                            Delete
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>
-                                Are you sure you want to delete this bookmark?
-                              </DialogTitle>
-                            </DialogHeader>
-                            <DialogFooter>
-                              <Button
-                                variant='destructive'
-                                onClick={() => {
-                                  deleteBookmarkMutation.mutate({
-                                    bibleAbbreviation: bookmark.chapter.bible.abbreviation,
-                                    code: bookmark.chapter.code,
-                                  });
-                                }}
-                              >
-                                Delete
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                        <Button
-                          as={A}
-                          href={`/bible/${bookmark.chapter.bible.abbreviation}/${bookmark.chapter.book.code}/${bookmark.chapter.number}`}
-                        >
-                          View
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  )}
-                </For>
-                <div class='flex w-full justify-center lg:col-span-3'>
-                  <Switch>
-                    <Match when={bookmarksQuery.isFetchingNextPage}>
-                      <Spinner size='sm' />
-                    </Match>
-                    <Match when={bookmarksQuery.hasNextPage}>
+            {({ pages }) => (
+              <For
+                each={pages.flatMap((page) => page.bookmarks)}
+                fallback={
+                  <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3'>
+                    <H6 class='text-center'>
+                      No bookmarks yet, get{' '}
+                      <A href='/bible' class='hover:underline'>
+                        reading
+                      </A>
+                      !
+                    </H6>
+                  </div>
+                }
+              >
+                {(bookmark, idx) => (
+                  <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
+                    <CardHeader>
+                      <CardTitle>
+                        {getHighlightedVerseContent(bookmark.chapter.name, search())}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent class='flex grow flex-col' />
+                    <CardFooter class='flex items-end justify-end gap-2'>
+                      <Dialog>
+                        <DialogTrigger as={Button} variant='outline'>
+                          Delete
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>
+                              Are you sure you want to delete this bookmark?
+                            </DialogTitle>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <Button
+                              variant='destructive'
+                              onClick={() => {
+                                deleteBookmarkMutation.mutate({
+                                  bibleAbbreviation: bookmark.chapter.bible.abbreviation,
+                                  code: bookmark.chapter.code,
+                                });
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                       <Button
-                        onClick={() => {
-                          void bookmarksQuery.fetchNextPage();
-                        }}
+                        as={A}
+                        href={`/bible/${bookmark.chapter.bible.abbreviation}/${bookmark.chapter.book.code}/${bookmark.chapter.number}`}
                       >
-                        Load more
+                        View
                       </Button>
-                    </Match>
-                  </Switch>
-                </div>
-              </>
+                    </CardFooter>
+                  </Card>
+                )}
+              </For>
             )}
           </QueryBoundary>
+          <div class='flex w-full justify-center lg:col-span-3'>
+            <Switch>
+              <Match when={bookmarksQuery.isFetchingNextPage}>
+                <Spinner size='sm' />
+              </Match>
+              <Match when={bookmarksQuery.hasNextPage}>
+                <Button
+                  onClick={() => {
+                    void bookmarksQuery.fetchNextPage();
+                  }}
+                >
+                  Load more
+                </Button>
+              </Match>
+            </Switch>
+          </div>
         </div>
       </div>
     </Protected>

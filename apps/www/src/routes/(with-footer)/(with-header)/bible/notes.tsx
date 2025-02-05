@@ -17,15 +17,15 @@ import { GET } from '@solidjs/start';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { count } from 'drizzle-orm';
 import { Search, X } from 'lucide-solid';
-import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
+import { For, Match, Show, Switch, createSignal } from 'solid-js';
+import {} from 'solid-js/store';
 
 const getNotes = GET(
   async ({ limit, offset, search }: { limit: number; offset: number; search?: string }) => {
     'use server';
     const { user } = auth();
     if (!user) {
-      return { notes: [], nextCursor: undefined };
+      return { notes: [], nextCursor: null };
     }
 
     // First get total counts to help with pagination
@@ -110,11 +110,10 @@ const getNotes = GET(
     ]);
 
     const notes = [...verseNotes, ...chapterNotes];
-    const totalCount = verseCount + chapterCount;
 
     return {
       notes,
-      nextCursor: offset + notes.length < totalCount ? offset + limit : undefined,
+      nextCursor: notes.length === limit ? offset + limit : null,
     };
   },
 );
@@ -140,12 +139,6 @@ export default function NotesPage() {
   const [search, setSearch] = createSignal('');
 
   const notesQuery = createInfiniteQuery(() => getNotesQueryOptions({ search: search() }));
-  const [notes, setNotes] = createStore<Awaited<ReturnType<typeof getNotes>>['notes']>([]);
-  createEffect(() => {
-    if (notesQuery.status === 'success') {
-      setNotes(reconcile(notesQuery.data.pages.flatMap((page) => page.notes)));
-    }
-  });
 
   return (
     <Protected
@@ -181,53 +174,51 @@ export default function NotesPage() {
           class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'
         >
           <QueryBoundary query={notesQuery}>
-            {() => (
-              <>
-                <For
-                  each={notes}
-                  fallback={
-                    <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3'>
-                      <H6 class='text-center'>
-                        No notes yet, get{' '}
-                        <A href='/bible' class='hover:underline'>
-                          reading
-                        </A>
-                        !
-                      </H6>
-                    </div>
-                  }
-                >
-                  {(note, idx) => (
-                    <NoteItemCard
-                      data-index={idx()}
-                      note={note}
-                      bible={'verse' in note ? note.verse.bible : note.chapter.bible}
-                      book={'verse' in note ? note.verse.book : note.chapter.book}
-                      chapter={'verse' in note ? note.verse.chapter : note.chapter}
-                      verse={'verse' in note ? note.verse : undefined}
-                      showViewButton
-                    />
-                  )}
-                </For>
-                <div class='flex w-full justify-center lg:col-span-3'>
-                  <Switch>
-                    <Match when={notesQuery.isFetchingNextPage}>
-                      <Spinner size='sm' />
-                    </Match>
-                    <Match when={notesQuery.hasNextPage}>
-                      <Button
-                        onClick={() => {
-                          void notesQuery.fetchNextPage();
-                        }}
-                      >
-                        Load more
-                      </Button>
-                    </Match>
-                  </Switch>
-                </div>
-              </>
+            {({ pages }) => (
+              <For
+                each={pages.flatMap((page) => page.notes)}
+                fallback={
+                  <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3'>
+                    <H6 class='text-center'>
+                      No notes yet, get{' '}
+                      <A href='/bible' class='hover:underline'>
+                        reading
+                      </A>
+                      !
+                    </H6>
+                  </div>
+                }
+              >
+                {(note, idx) => (
+                  <NoteItemCard
+                    data-index={idx()}
+                    note={note}
+                    bible={'verse' in note ? note.verse.bible : note.chapter.bible}
+                    book={'verse' in note ? note.verse.book : note.chapter.book}
+                    chapter={'verse' in note ? note.verse.chapter : note.chapter}
+                    verse={'verse' in note ? note.verse : undefined}
+                    showViewButton
+                  />
+                )}
+              </For>
             )}
           </QueryBoundary>
+          <div class='flex w-full justify-center lg:col-span-3'>
+            <Switch>
+              <Match when={notesQuery.isFetchingNextPage}>
+                <Spinner size='sm' />
+              </Match>
+              <Match when={notesQuery.hasNextPage}>
+                <Button
+                  onClick={() => {
+                    void notesQuery.fetchNextPage();
+                  }}
+                >
+                  Load more
+                </Button>
+              </Match>
+            </Switch>
+          </div>
         </div>
       </div>
     </Protected>

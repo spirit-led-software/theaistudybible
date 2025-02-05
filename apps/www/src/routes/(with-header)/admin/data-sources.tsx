@@ -19,7 +19,7 @@ const getSources = GET(async (input: { offset: number; limit: number }) => {
   });
   return {
     sources,
-    nextCursor: sources.length === input.limit ? input.offset + input.limit : undefined,
+    nextCursor: sources.length === input.limit ? input.offset + input.limit : null,
   };
 });
 

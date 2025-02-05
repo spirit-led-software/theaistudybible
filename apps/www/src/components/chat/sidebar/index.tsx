@@ -82,7 +82,7 @@ const getChats = GET(
 
     return {
       chats,
-      nextCursor: chats.length === limit ? offset + chats.length : undefined,
+      nextCursor: chats.length === limit ? offset + chats.length : null,
     };
   },
 );

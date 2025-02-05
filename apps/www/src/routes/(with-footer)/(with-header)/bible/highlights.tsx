@@ -26,15 +26,15 @@ import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
 import { type SQL, and, eq } from 'drizzle-orm';
 import { Search, X } from 'lucide-solid';
-import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
+import { For, Match, Show, Switch, createSignal } from 'solid-js';
+import {} from 'solid-js/store';
 
 const getHighlights = GET(
   async ({ limit, offset, search }: { limit: number; offset: number; search?: string }) => {
     'use server';
     const { user } = auth();
     if (!user) {
-      return { highlights: [], nextCursor: undefined };
+      return { highlights: [], nextCursor: null };
     }
 
     let verses: { code: string }[] = [];
@@ -75,7 +75,7 @@ const getHighlights = GET(
 
     return {
       highlights,
-      nextCursor: highlights.length === limit ? offset + limit : undefined,
+      nextCursor: highlights.length === limit ? offset + limit : null,
     };
   },
 );
@@ -123,14 +123,6 @@ export default function HighlightsPage() {
   const highlightsQuery = createInfiniteQuery(() =>
     getHighlightsQueryOptions({ search: search() }),
   );
-  const [highlights, setHighlights] = createStore<
-    Awaited<ReturnType<typeof getHighlights>>['highlights']
-  >([]);
-  createEffect(() => {
-    if (highlightsQuery.status === 'success') {
-      setHighlights(reconcile(highlightsQuery.data.pages.flatMap((page) => page.highlights)));
-    }
-  });
 
   const deleteHighlightMutation = createMutation(() => ({
     mutationFn: ({
@@ -175,96 +167,94 @@ export default function HighlightsPage() {
           class='mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'
         >
           <QueryBoundary query={highlightsQuery}>
-            {() => (
-              <>
-                <For
-                  each={highlights}
-                  fallback={
-                    <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3'>
-                      <H6 class='text-center'>
-                        No highlights yet, get{' '}
-                        <A href='/bible' class='hover:underline'>
-                          reading
-                        </A>
-                        !
-                      </H6>
-                    </div>
-                  }
-                >
-                  {(highlight, idx) => (
-                    <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
-                      <CardHeader class='flex flex-row items-center justify-between'>
-                        <CardTitle>
-                          {getHighlightedVerseContent(highlight.verse.name, search())}
-                        </CardTitle>
-                        <div
-                          class='size-6 rounded-full'
-                          style={{ 'background-color': highlight.color }}
-                        />
-                      </CardHeader>
-                      <CardContent class='flex grow flex-col'>
-                        <p>
-                          {getHighlightedVerseContent(
-                            contentsToText(highlight.verse.content),
-                            search(),
-                          )}
-                        </p>
-                      </CardContent>
-                      <CardFooter class='flex justify-end gap-2'>
-                        <Dialog>
-                          <DialogTrigger as={Button} variant='outline'>
-                            Delete
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>
-                                Are you sure you want to delete this highlight?
-                              </DialogTitle>
-                            </DialogHeader>
-                            <DialogFooter>
-                              <Button
-                                variant='destructive'
-                                onClick={() => {
-                                  deleteHighlightMutation.mutate({
-                                    bibleAbbreviation: highlight.verse.bible.abbreviation,
-                                    verseCode: highlight.verse.code,
-                                  });
-                                }}
-                              >
-                                Delete
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                        <Button
-                          as={A}
-                          href={`/bible/${highlight.verse.bible.abbreviation}/${highlight.verse.book.code}/${highlight.verse.chapter.number}/${highlight.verse.number}`}
-                        >
-                          View
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  )}
-                </For>
-                <div class='flex w-full justify-center lg:col-span-3'>
-                  <Switch>
-                    <Match when={highlightsQuery.isFetchingNextPage}>
-                      <Spinner size='sm' />
-                    </Match>
-                    <Match when={highlightsQuery.hasNextPage}>
+            {({ pages }) => (
+              <For
+                each={pages.flatMap((page) => page.highlights)}
+                fallback={
+                  <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3'>
+                    <H6 class='text-center'>
+                      No highlights yet, get{' '}
+                      <A href='/bible' class='hover:underline'>
+                        reading
+                      </A>
+                      !
+                    </H6>
+                  </div>
+                }
+              >
+                {(highlight, idx) => (
+                  <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
+                    <CardHeader class='flex flex-row items-center justify-between'>
+                      <CardTitle>
+                        {getHighlightedVerseContent(highlight.verse.name, search())}
+                      </CardTitle>
+                      <div
+                        class='size-6 rounded-full'
+                        style={{ 'background-color': highlight.color }}
+                      />
+                    </CardHeader>
+                    <CardContent class='flex grow flex-col'>
+                      <p>
+                        {getHighlightedVerseContent(
+                          contentsToText(highlight.verse.content),
+                          search(),
+                        )}
+                      </p>
+                    </CardContent>
+                    <CardFooter class='flex justify-end gap-2'>
+                      <Dialog>
+                        <DialogTrigger as={Button} variant='outline'>
+                          Delete
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>
+                              Are you sure you want to delete this highlight?
+                            </DialogTitle>
+                          </DialogHeader>
+                          <DialogFooter>
+                            <Button
+                              variant='destructive'
+                              onClick={() => {
+                                deleteHighlightMutation.mutate({
+                                  bibleAbbreviation: highlight.verse.bible.abbreviation,
+                                  verseCode: highlight.verse.code,
+                                });
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                       <Button
-                        onClick={() => {
-                          void highlightsQuery.fetchNextPage();
-                        }}
+                        as={A}
+                        href={`/bible/${highlight.verse.bible.abbreviation}/${highlight.verse.book.code}/${highlight.verse.chapter.number}/${highlight.verse.number}`}
                       >
-                        Load more
+                        View
                       </Button>
-                    </Match>
-                  </Switch>
-                </div>
-              </>
+                    </CardFooter>
+                  </Card>
+                )}
+              </For>
             )}
           </QueryBoundary>
+          <div class='flex w-full justify-center lg:col-span-3'>
+            <Switch>
+              <Match when={highlightsQuery.isFetchingNextPage}>
+                <Spinner size='sm' />
+              </Match>
+              <Match when={highlightsQuery.hasNextPage}>
+                <Button
+                  onClick={() => {
+                    void highlightsQuery.fetchNextPage();
+                  }}
+                >
+                  Load more
+                </Button>
+              </Match>
+            </Switch>
+          </div>
         </div>
       </div>
     </Protected>

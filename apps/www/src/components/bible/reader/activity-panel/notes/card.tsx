@@ -29,7 +29,7 @@ const getNotes = GET(
     'use server';
     const { user } = auth();
     if (!user) {
-      return { notes: [], nextCursor: undefined };
+      return { notes: [], nextCursor: null };
     }
 
     let notes = [];
@@ -71,7 +71,7 @@ const getNotes = GET(
 
     return {
       notes,
-      nextCursor: notes.length === props.limit ? props.offset + notes.length : undefined,
+      nextCursor: notes.length === props.limit ? props.offset + notes.length : null,
     };
   },
 );

@@ -51,7 +51,7 @@ const getChatMessages = GET(
     });
     return {
       messages,
-      nextCursor: messages.length === limit ? offset + messages.length : undefined,
+      nextCursor: messages.length === limit ? offset + messages.length : null,
     };
   },
 );
@@ -63,7 +63,7 @@ export const getChatMessagesQueryProps = (chatId: string) => ({
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChatMessages>>) => lastPage.nextCursor,
   initialPageParam: 0,
   keepPreviousData: true,
-  placeholderData: { pages: [{ messages: [], nextCursor: undefined }], pageParams: [0] },
+  placeholderData: { pages: [{ messages: [], nextCursor: null }], pageParams: [0] },
 });
 
 const getChatSuggestions = GET(async (chatId: string) => {

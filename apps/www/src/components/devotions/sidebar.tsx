@@ -52,7 +52,7 @@ const getDevotions = GET(
 
     return {
       devotions,
-      nextCursor: devotions.length === limit ? offset + devotions.length : undefined,
+      nextCursor: devotions.length === limit ? offset + devotions.length : null,
     };
   },
 );

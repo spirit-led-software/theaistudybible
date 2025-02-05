@@ -107,7 +107,7 @@ export const app = new Hono<{
     return c.json(
       {
         data: foundDevotions,
-        nextCursor: foundDevotions.length < limit ? undefined : cursor + limit,
+        nextCursor: foundDevotions.length < limit ? null : cursor + limit,
         count: devotionsCount,
       },
       200,
@@ -174,7 +174,7 @@ export const app = new Hono<{
     return c.json(
       {
         data: foundReactions,
-        nextCursor: foundReactions.length < limit ? undefined : cursor + limit,
+        nextCursor: foundReactions.length < limit ? null : cursor + limit,
         count: reactionsCount,
       },
       200,
