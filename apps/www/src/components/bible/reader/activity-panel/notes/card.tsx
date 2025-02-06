@@ -85,9 +85,9 @@ export const NotesCard = () => {
       {
         bibleAbbreviation: brStore.bible.abbreviation,
         chapterCode: brStore.chapter.code,
-        verseCodes: brStore.verse
-          ? [brStore.verse.code]
-          : brStore.selectedVerseInfos.map((v) => v.code),
+        verseNumbers: brStore.verse
+          ? [brStore.verse.number]
+          : brStore.selectedVerseInfos.map((v) => v.number),
       },
     ],
     queryFn: ({ pageParam }) =>

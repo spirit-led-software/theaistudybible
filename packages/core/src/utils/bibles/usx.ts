@@ -91,19 +91,15 @@ export const ignoredParaStyles = [
 ] as const;
 
 export type ParserState = {
-  chapterNumber: number;
-  chapterCode: string;
-  verseNumber: number;
-  verseCode: string;
+  chapterNumber?: number;
+  verseNumber?: number;
   chapterOwningObj?: OwningContent;
   verseOwningObj?: OwningContent;
   contents: {
     [key: number]: {
-      code: string;
       contents: Content[];
       verseContents: {
         [key: number]: {
-          code: string;
           contents: Content[];
         };
       };
@@ -111,7 +107,7 @@ export type ParserState = {
   };
 };
 
-export function parseUsx(xmlString: string, bookCode: string) {
+export function parseUsx(xmlString: string) {
   const doc = new JSDOM(xmlString, {
     contentType: 'application/xml',
   });
@@ -122,10 +118,6 @@ export function parseUsx(xmlString: string, bookCode: string) {
   }
 
   const state: ParserState = {
-    chapterNumber: 0,
-    chapterCode: '',
-    verseNumber: 0,
-    verseCode: '',
     contents: {},
   };
 
@@ -143,7 +135,8 @@ export function parseUsx(xmlString: string, bookCode: string) {
 
     if (child.nodeName === 'chapter') {
       if (element.hasAttribute('eid')) {
-        continue; // Ignore chapter end markers
+        state.chapterNumber = undefined;
+        continue;
       }
 
       const chapterNumber = Number.parseInt(element.getAttribute('number') ?? '0');
@@ -151,10 +144,7 @@ export function parseUsx(xmlString: string, bookCode: string) {
         throw new Error(`Invalid chapter number ${chapterNumber}`);
       }
       state.chapterNumber = chapterNumber;
-      state.chapterCode = `${bookCode}.${chapterNumber}`;
-      state.verseNumber = 0;
       state.contents[state.chapterNumber] = {
-        code: state.chapterCode,
         contents: [],
         verseContents: {},
       };
@@ -218,16 +208,15 @@ export function parseUsx(xmlString: string, bookCode: string) {
 export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) {
   for (const node of Array.from(nodes)) {
     if (node.nodeType === 3) {
+      if (state.chapterNumber === undefined) continue;
+
       const element = node as Element;
       const text = element.textContent;
-      if (!text) {
-        continue;
-      }
+      if (!text || text.trim() === '') continue;
 
       addContent(state, {
         type: 'text',
         id: `txt_${createId()}`,
-        verseCode: state.verseCode,
         verseNumber: state.verseNumber,
         text: text.replaceAll('\n', ''),
         attrs: element.attributes
@@ -256,6 +245,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
     const element = node as Element;
     if (element.nodeName === 'verse') {
       if (element.hasAttribute('eid')) {
+        state.verseNumber = undefined;
         continue;
       }
       const verseNumber = Number.parseInt(element.getAttribute('number') ?? '0');
@@ -263,10 +253,10 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
         throw new Error(`Invalid verse number ${verseNumber}`);
       }
 
+      if (state.chapterNumber === undefined) throw new Error('No chapter number found');
+
       state.verseNumber = verseNumber;
-      state.verseCode = `${state.chapterCode}.${verseNumber}`;
       state.contents[state.chapterNumber].verseContents[state.verseNumber] = {
-        code: state.verseCode,
         contents: [],
       };
 
@@ -280,7 +270,6 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
       addContent(state, {
         type: 'verse',
         id: `ver_${createId()}`,
-        code: state.verseCode,
         number: verseNumber,
         attrs: element.attributes
           ? Array.from(element.attributes).reduce(
@@ -296,10 +285,11 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
     }
 
     if (element.nodeName === 'char') {
+      if (state.chapterNumber === undefined) continue;
+
       const char = {
         type: element.nodeName as 'char',
         id: `char_${createId()}`,
-        verseCode: state.verseCode,
         verseNumber: state.verseNumber,
         attrs: element.attributes
           ? Array.from(element.attributes).reduce(
@@ -310,7 +300,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
               {} as Record<string, string>,
             )
           : undefined,
-      };
+      } as const;
 
       const chapterObj: CharContent = {
         ...char,
@@ -322,7 +312,7 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
       }
       state.chapterOwningObj = chapterObj;
 
-      const verseObj: OwningContent = {
+      const verseObj: CharContent = {
         ...char,
         contents: [],
       };
@@ -340,10 +330,11 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
     }
 
     if (element.nodeName === 'note') {
+      if (state.chapterNumber === undefined) continue;
+
       const char = {
         type: element.nodeName as 'note',
         id: `note_${createId()}`,
-        verseCode: state.verseCode,
         verseNumber: state.verseNumber,
         attrs: element.attributes
           ? Array.from(element.attributes).reduce(
@@ -384,10 +375,11 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
     }
 
     if (element.nodeName === 'ref') {
+      if (state.chapterNumber === undefined) continue;
+
       addContent(state, {
         type: 'ref',
         id: `ref_${createId()}`,
-        verseCode: state.verseCode,
         verseNumber: state.verseNumber,
         text: element.textContent ?? '',
         attrs: element.attributes
@@ -410,6 +402,8 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
 }
 
 export function addContent(state: ParserState, content: Content) {
+  if (state.chapterNumber === undefined) return;
+
   if (state.chapterOwningObj) {
     state.chapterOwningObj.contents.push(content);
     const owning = findOwning(
@@ -422,6 +416,8 @@ export function addContent(state: ParserState, content: Content) {
   } else {
     state.contents[state.chapterNumber].contents.push(content);
   }
+
+  if (state.verseNumber === undefined) return;
 
   if (state.verseOwningObj) {
     state.verseOwningObj.contents.push(content);

@@ -108,7 +108,7 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
               value={selectedVerseInfo()}
               onChange={setSelectedVerseInfo}
               options={brStore.selectedVerseInfos}
-              optionValue='code'
+              optionValue='number'
               optionTextValue='number'
               itemComponent={(props) => (
                 <SelectItem item={props.item}>{props.item.rawValue.number}</SelectItem>
@@ -127,7 +127,8 @@ export const AddNoteCard = (props: AddNoteCardProps) => {
           <P>
             {brStore.verse
               ? contentsToText(brStore.verse.content!)
-              : brStore.selectedVerseInfos.find((v) => v.code === selectedVerseInfo()?.code)?.text}
+              : brStore.selectedVerseInfos.find((v) => v.number === selectedVerseInfo()?.number)
+                  ?.text}
           </P>
         </Show>
         <TextField

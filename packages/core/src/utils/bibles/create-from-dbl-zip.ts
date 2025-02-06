@@ -339,7 +339,7 @@ async function processBooks(
     if (!bookFile) throw new Error(`Book file ${bookInfo.src} not found`);
 
     const bookXml = await bookFile.async('text');
-    const contents = parseUsx(bookXml, book.code);
+    const contents = parseUsx(bookXml);
 
     console.log('Book content parsed, sending chapters to queue...');
     await sendChaptersToIndexBucket(contents, bible, book, generateEmbeddings, overwrite);
@@ -357,25 +357,26 @@ async function sendChaptersToIndexBucket(
   const batchSize = 50;
   for (let i = 0; i < entries.length; i += batchSize) {
     const batch = entries.slice(i, i + batchSize);
-    const messages = batch.map(
-      ([chapterNumber, content], idx) =>
-        ({
-          bibleAbbreviation: bible.abbreviation,
-          bookCode: book.code,
-          previousCode: entries[i + idx - 1]?.[1]?.code,
-          nextCode: entries[i + idx + 1]?.[1]?.code,
-          chapterNumber,
-          content,
-          generateEmbeddings,
-          overwrite,
-        }) satisfies IndexChapterEvent,
-    );
+    const messages = batch.map(([chapterNumber, content], idx) => {
+      const previousNumber = entries[i + idx - 1]?.[0];
+      const nextNumber = entries[i + idx + 1]?.[0];
+      return {
+        bibleAbbreviation: bible.abbreviation,
+        bookCode: book.code,
+        previousCode: previousNumber ? `${book.code}.${previousNumber}` : undefined,
+        nextCode: nextNumber ? `${book.code}.${nextNumber}` : undefined,
+        chapterNumber,
+        content,
+        generateEmbeddings,
+        overwrite,
+      } satisfies IndexChapterEvent;
+    });
 
     const uploadPromises = messages.map((message) =>
       s3.send(
         new PutObjectCommand({
           Bucket: Resource.ChapterMessageBucket.name,
-          Key: `${message.content.code}.json`,
+          Key: `${message.bibleAbbreviation}.${message.bookCode}.${message.chapterNumber}.json`,
           Body: JSON.stringify(message),
           ContentType: 'application/json',
         }),

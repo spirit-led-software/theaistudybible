@@ -21,7 +21,6 @@ export function CharContent(props: CharContentProps) {
     <span
       id={props.content.id}
       data-type={props.content.type}
-      data-verse-code={props.content.verseCode}
       data-verse-number={props.content.verseNumber}
       {...props.props}
       class={cn(props.style, 'inline', props.class)}

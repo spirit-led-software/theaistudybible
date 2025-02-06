@@ -80,20 +80,21 @@ export async function insertVerses({
     const insertedVerses = await db
       .insert(verses)
       .values(
-        verseBatch.map(
-          ([verseNumber, verseContent], idx) =>
-            ({
-              bibleAbbreviation: bible.abbreviation,
-              bookCode: book.code,
-              chapterCode: chapter.code,
-              previousCode: verseEntries[i + idx - 1]?.[1]?.code,
-              nextCode: verseEntries[i + idx + 1]?.[1]?.code,
-              code: `${chapter.code}.${verseNumber}`,
-              name: `${chapter.name}:${verseNumber}`,
-              number: Number.parseInt(verseNumber),
-              content: verseContent.contents,
-            }) satisfies typeof verses.$inferInsert,
-        ),
+        verseBatch.map(([verseNumber, verseContent], idx) => {
+          const previousNumber = verseEntries[i + idx - 1]?.[0];
+          const nextNumber = verseEntries[i + idx + 1]?.[0];
+          return {
+            bibleAbbreviation: bible.abbreviation,
+            bookCode: book.code,
+            chapterCode: chapter.code,
+            previousCode: previousNumber ? `${chapter.code}.${previousNumber}` : undefined,
+            nextCode: nextNumber ? `${chapter.code}.${nextNumber}` : undefined,
+            code: `${chapter.code}.${verseNumber}`,
+            name: `${chapter.name}:${verseNumber}`,
+            number: Number.parseInt(verseNumber),
+            content: verseContent.contents,
+          } satisfies typeof verses.$inferInsert;
+        }),
       )
       .onConflictDoUpdate({
         target: [verses.bibleAbbreviation, verses.code],

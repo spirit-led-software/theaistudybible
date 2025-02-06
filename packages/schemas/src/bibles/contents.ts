@@ -8,7 +8,6 @@ export type BaseContent = z.infer<typeof BaseContentSchema>;
 
 export const VerseContentSchema = BaseContentSchema.extend({
   type: z.literal('verse'),
-  code: z.string(),
   number: z.number(),
 });
 export type VerseContent = z.infer<typeof VerseContentSchema>;
@@ -16,22 +15,19 @@ export type VerseContent = z.infer<typeof VerseContentSchema>;
 export const TextContentSchema = BaseContentSchema.extend({
   type: z.union([z.literal('text'), z.literal('ref')]),
   text: z.string(),
-  verseCode: z.string(),
-  verseNumber: z.number(),
+  verseNumber: z.number().optional(),
 });
 export type TextContent = z.infer<typeof TextContentSchema>;
 
 export type CharContent = BaseContent & {
   type: 'char';
   contents: Content[];
-  verseCode: string;
-  verseNumber: number;
+  verseNumber?: number;
 };
 export const CharContentSchema: z.ZodType<CharContent> = BaseContentSchema.extend({
   type: z.literal('char'),
   contents: z.lazy(() => ContentSchema.array()),
-  verseCode: z.string(),
-  verseNumber: z.number(),
+  verseNumber: z.number().optional(),
 });
 
 export type ParaContent = BaseContent & {
@@ -46,14 +42,12 @@ export const ParaContentSchema: z.ZodType<ParaContent> = BaseContentSchema.exten
 export type NoteContent = BaseContent & {
   type: 'note';
   contents: Content[];
-  verseCode: string;
-  verseNumber: number;
+  verseNumber?: number;
 };
 export const NoteContentSchema: z.ZodType<NoteContent> = BaseContentSchema.extend({
   type: z.literal('note'),
   contents: z.lazy(() => ContentSchema.array()),
-  verseCode: z.string(),
-  verseNumber: z.number(),
+  verseNumber: z.number().optional(),
 });
 
 export type Content = VerseContent | TextContent | CharContent | ParaContent | NoteContent;

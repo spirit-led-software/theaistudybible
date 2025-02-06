@@ -25,18 +25,26 @@ export function TextContent(props: TextContentProps) {
   );
 
   const handleClick = () => {
+    if (props.content.verseNumber === undefined) {
+      return;
+    }
+
     setBrStore('selectedVerseInfos', (prev) => {
       if (prev.find(({ number }) => number === props.content.verseNumber)) {
         return prev.filter(({ number }) => number !== props.content.verseNumber);
       }
-      const contentIds = gatherElementIdsByVerseNumber(props.content.verseNumber);
+      const contentIds = gatherElementIdsByVerseNumber(props.content.verseNumber!);
       const text = contentIds
         .map((id) => document.getElementById(id)?.textContent)
         .join('')
         .trim();
       return [
         ...prev,
-        { code: props.content.verseCode, number: props.content.verseNumber, contentIds, text },
+        {
+          number: props.content.verseNumber!,
+          contentIds,
+          text,
+        },
       ];
     });
   };
@@ -56,7 +64,6 @@ export function TextContent(props: TextContentProps) {
     <span
       id={props.content.id}
       data-type={props.content.type}
-      data-verse-code={props.content.verseCode}
       data-verse-number={props.content.verseNumber}
       {...props.props}
       class={cn(

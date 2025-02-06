@@ -37,8 +37,12 @@ export const VerseContent = (props: VerseContentProps) => {
       </A>
       <Show
         when={
-          props.notes?.some((note) => note.verseCode === props.content.code) &&
-          props.notes?.filter((note) => note.verseCode === props.content.code)
+          props.notes?.some(
+            (note) => note.verseCode.split('.').at(-1) === props.content.number.toString(),
+          ) &&
+          props.notes?.filter(
+            (note) => note.verseCode.split('.').at(-1) === props.content.number.toString(),
+          )
         }
         keyed
       >

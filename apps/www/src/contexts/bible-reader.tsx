@@ -11,7 +11,6 @@ import { createStore } from 'solid-js/store';
 import { useBibleStore } from './bible';
 
 export type SelectedVerseInfo = {
-  code: string;
   number: number;
   contentIds: string[];
   text: string;
@@ -66,7 +65,6 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
         return verseNumbers.map(Number).map((verseNumber) => {
           const texts = findTextContentByVerseNumbers(content, [verseNumber]);
           return {
-            code: texts[0].verseCode,
             number: verseNumber,
             contentIds: texts.map((t) => t.id),
             text: texts.map((t) => t.text).join(''),
