@@ -21,7 +21,7 @@ import {
 } from '@/www/components/ui/dialog';
 import { Spinner } from '@/www/components/ui/spinner';
 import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
-import { H2, H6 } from '@/www/components/ui/typography';
+import { H2, H6, P } from '@/www/components/ui/typography';
 import { auth, requireAuth } from '@/www/server/auth';
 import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
@@ -49,7 +49,11 @@ const getBookmarks = GET(
     if (search) {
       joinCondition = and(
         joinCondition,
-        or(ilike(chaptersTable.name, `%${search}%`), ilike(chaptersTable.content, `%${search}%`)),
+        or(
+          ilike(chaptersTable.bibleAbbreviation, `%${search}%`),
+          ilike(chaptersTable.name, `%${search}%`),
+          ilike(chaptersTable.content, `%${search}%`),
+        ),
       );
     }
 
@@ -188,7 +192,10 @@ export default function BookmarksPage() {
                     <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
                       <CardHeader>
                         <CardTitle>
-                          {getHighlightedContent(bookmark.chapter.name, search())}
+                          {getHighlightedContent(
+                            `${bookmark.chapter.name} (${bookmark.bible.abbreviation})`,
+                            search(),
+                          )}
                         </CardTitle>
                       </CardHeader>
                       <CardContent class='flex grow flex-col'>
@@ -197,7 +204,7 @@ export default function BookmarksPage() {
                             search() && contentText.toLowerCase().includes(search().toLowerCase())
                           }
                         >
-                          <p>{getHighlightedContent(contentText, search(), 50)}</p>
+                          <P>{getHighlightedContent(contentText, search(), 75)}</P>
                         </Show>
                       </CardContent>
                       <CardFooter class='flex items-end justify-end gap-2'>

@@ -22,10 +22,9 @@ import {
 } from '@/www/components/ui/dialog';
 import { Spinner } from '@/www/components/ui/spinner';
 import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
-import { H2, H6 } from '@/www/components/ui/typography';
+import { H2, H6, P } from '@/www/components/ui/typography';
 import { auth, requireAuth } from '@/www/server/auth';
 import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
-import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A, Navigate, action, useAction } from '@solidjs/router';
@@ -51,7 +50,11 @@ const getHighlights = GET(
     if (search) {
       joinCondition = and(
         joinCondition,
-        or(ilike(versesTable.name, `%${search}%`), ilike(versesTable.content, `%${search}%`)),
+        or(
+          ilike(versesTable.bibleAbbreviation, `%${search}%`),
+          ilike(versesTable.name, `%${search}%`),
+          ilike(versesTable.content, `%${search}%`),
+        ),
       );
     }
 
@@ -134,8 +137,6 @@ export default function HighlightsPage() {
 
   const qc = useQueryClient();
 
-  const [autoAnimateRef] = createAutoAnimate();
-
   const [search, setSearch] = createSignal('');
 
   const highlightsQuery = createInfiniteQuery(() => ({
@@ -177,10 +178,7 @@ export default function HighlightsPage() {
             </Show>
           </div>
         </div>
-        <div
-          ref={autoAnimateRef}
-          class='mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'
-        >
+        <div class='mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
           <QueryBoundary query={highlightsQuery}>
             {({ pages }) => (
               <For
@@ -197,59 +195,67 @@ export default function HighlightsPage() {
                   </div>
                 }
               >
-                {(highlight, idx) => (
-                  <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
-                    <CardHeader class='flex flex-row items-center justify-between'>
-                      <CardTitle>{getHighlightedContent(highlight.verse.name, search())}</CardTitle>
-                      <div
-                        class='size-6 rounded-full'
-                        style={{ 'background-color': highlight.color }}
-                      />
-                    </CardHeader>
-                    <CardContent class='flex grow flex-col'>
-                      <p>
-                        {getHighlightedContent(
-                          contentsToText(highlight.verse.content),
-                          search(),
-                          50,
-                        )}
-                      </p>
-                    </CardContent>
-                    <CardFooter class='flex justify-end gap-2'>
-                      <Dialog>
-                        <DialogTrigger as={Button} variant='outline'>
-                          Delete
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>
-                              Are you sure you want to delete this highlight?
-                            </DialogTitle>
-                          </DialogHeader>
-                          <DialogFooter>
-                            <Button
-                              variant='destructive'
-                              onClick={() => {
-                                deleteHighlightMutation.mutate({
-                                  bibleAbbreviation: highlight.bible.abbreviation,
-                                  verseCode: highlight.verse.code,
-                                });
-                              }}
-                            >
-                              Delete
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        as={A}
-                        href={`/bible/${highlight.bible.abbreviation}/${highlight.book.code}/${highlight.chapter.number}/${highlight.verse.number}`}
-                      >
-                        View
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                )}
+                {(highlight, idx) => {
+                  const contentText = contentsToText(highlight.verse.content);
+                  return (
+                    <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
+                      <CardHeader class='flex flex-row items-center justify-between'>
+                        <CardTitle>
+                          {getHighlightedContent(
+                            `${highlight.verse.name} (${highlight.bible.abbreviation})`,
+                            search(),
+                          )}
+                        </CardTitle>
+                        <div
+                          class='size-6 rounded-full'
+                          style={{ 'background-color': highlight.color }}
+                        />
+                      </CardHeader>
+                      <CardContent class='flex grow flex-col'>
+                        <Show
+                          when={
+                            search() && contentText.toLowerCase().includes(search().toLowerCase())
+                          }
+                        >
+                          <P>{getHighlightedContent(contentText, search(), 75)}</P>
+                        </Show>
+                      </CardContent>
+                      <CardFooter class='flex justify-end gap-2'>
+                        <Dialog>
+                          <DialogTrigger as={Button} variant='outline'>
+                            Delete
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                Are you sure you want to delete this highlight?
+                              </DialogTitle>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <Button
+                                variant='destructive'
+                                onClick={() => {
+                                  deleteHighlightMutation.mutate({
+                                    bibleAbbreviation: highlight.bible.abbreviation,
+                                    verseCode: highlight.verse.code,
+                                  });
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <Button
+                          as={A}
+                          href={`/bible/${highlight.bible.abbreviation}/${highlight.book.code}/${highlight.chapter.number}/${highlight.verse.number}`}
+                        >
+                          View
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
+                }}
               </For>
             )}
           </QueryBoundary>

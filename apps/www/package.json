@@ -75,7 +75,7 @@
     "hono": "^4.6.20",
     "lucide-solid": "^0.474.0",
     "motion": "^12.3.1",
-    "posthog-js": "^1.215.3",
+    "posthog-js": "^1.215.4",
     "posthog-node": "^4.4.1",
     "rollup-plugin-typescript-paths": "^1.5.0",
     "solid-js": "^1.9.4",

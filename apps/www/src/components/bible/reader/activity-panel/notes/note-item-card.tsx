@@ -146,14 +146,17 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
       }),
   }));
 
+  const title = () => {
+    if (props.verse) {
+      return `${props.book.shortName} ${props.chapter.number}:${props.verse.number} (${props.bible.abbreviation})`;
+    }
+    return `${props.book.shortName} ${props.chapter.number} (${props.bible.abbreviation})`;
+  };
+
   return (
     <Card class='flex h-full max-h-[400px] w-full flex-col transition-all'>
       <CardHeader>
-        <CardTitle>
-          {props.verse
-            ? `${props.book.shortName} ${props.chapter.number}:${props.verse.number}`
-            : `${props.book.shortName} ${props.chapter.number}`}
-        </CardTitle>
+        <CardTitle>{title()}</CardTitle>
       </CardHeader>
       <CardContent class='flex grow flex-col overflow-y-auto'>
         <Show

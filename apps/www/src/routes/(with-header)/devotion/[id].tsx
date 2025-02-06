@@ -92,7 +92,7 @@ export default function DevotionPage() {
                         {(image) => (
                           <img
                             src={image.url!}
-                            class='h-auto w-full'
+                            class='h-auto w-full rounded-lg shadow-sm'
                             alt='Illustration for the devotion'
                           />
                         )}

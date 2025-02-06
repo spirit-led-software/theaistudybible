@@ -8,7 +8,6 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6 } from '@/www/components/ui/typography';
 import { auth } from '@/www/server/auth';
-import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
@@ -134,7 +133,6 @@ export const route: RouteDefinition = {
 };
 
 export default function NotesPage() {
-  const [autoAnimateRef] = createAutoAnimate();
   const [search, setSearch] = createSignal('');
 
   const notesQuery = createInfiniteQuery(() => ({
@@ -171,10 +169,7 @@ export default function NotesPage() {
             </Show>
           </div>
         </div>
-        <div
-          ref={autoAnimateRef}
-          class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'
-        >
+        <div class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
           <QueryBoundary query={notesQuery}>
             {({ pages }) => (
               <For

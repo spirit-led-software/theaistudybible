@@ -14,23 +14,31 @@ export const getHighlightedContent = (content: string, query: string, truncateAt
     const excerpt =
       (start > 0 ? '...' : '') + content.slice(start, end) + (end < content.length ? '...' : '');
 
-    return excerpt
-      .split(new RegExp(`(${escapedQuery})`, 'gi'))
-      .map((part) =>
-        part.toLowerCase() === query.toLowerCase() ? (
-          <span class='bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
-        ) : (
-          part
-        ),
-      );
-  }
-  return content
-    .split(new RegExp(`(${escapedQuery})`, 'gi'))
-    .map((part) =>
-      part.toLowerCase() === query.toLowerCase() ? (
-        <span class='bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
-      ) : (
-        part
-      ),
+    return (
+      <span class='inline'>
+        {excerpt
+          .split(new RegExp(`(${escapedQuery})`, 'gi'))
+          .map((part) =>
+            part.toLowerCase() === query.toLowerCase() ? (
+              <span class='inline bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
+            ) : (
+              part
+            ),
+          )}
+      </span>
     );
+  }
+  return (
+    <span class='inline'>
+      {content
+        .split(new RegExp(`(${escapedQuery})`, 'gi'))
+        .map((part) =>
+          part.toLowerCase() === query.toLowerCase() ? (
+            <span class='inline bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
+          ) : (
+            part
+          ),
+        )}
+    </span>
+  );
 };
