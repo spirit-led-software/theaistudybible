@@ -68,7 +68,8 @@ export function TextContent(props: TextContentProps) {
       {...props.props}
       class={cn(
         props.style,
-        'inline decoration-transparent underline-offset-4 transition duration-500 hover:cursor-pointer',
+        'inline decoration-transparent underline-offset-4 transition duration-500',
+        props.content.verseNumber !== undefined && 'hover:cursor-pointer',
         selected() && 'underline decoration-foreground decoration-dotted',
         props.class,
       )}

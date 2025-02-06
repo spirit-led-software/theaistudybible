@@ -1,5 +1,11 @@
 import { createId } from '@/core/utils/id';
-import type { CharContent, Content, NoteContent, OwningContent } from '@/schemas/bibles/contents';
+import type {
+  CharContent,
+  Content,
+  NoteContent,
+  OwningContent,
+  ParaContent,
+} from '@/schemas/bibles/contents';
 import { JSDOM } from 'jsdom';
 
 export const ignoredElements = [
@@ -12,89 +18,12 @@ export const ignoredElements = [
   'figure', // Illustrations etc
   'optbreak', // Line breaks that are optional (and opting not to use)
   'ms', // TODO Multi-purpose markers (could be useful in future)
-] as const;
-
-export const ignoredParaStyles = [
-  // <para> Identification [exclude all] - Running headings & table of contents
-  'ide', // See https://github.com/schierlm/BibleMultiConverter/issues/67
-  'rem', // Remarks (valid in schema though missed in docs)
-  'h',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'toc1',
-  'toc2',
-  'toc3',
-  'toca1',
-  'toca2',
-  'toca3',
-
-  /* <para> Introductions [exclude all] - Introductionary (non-biblical) content
-      Which might be helpful in a printed book, but intro material in apps is usually bad UX,
-      and users that really care can research a translations methodology themselves
-  */
-  'imt',
-  'imt1',
-  'imt2',
-  'imt3',
-  'imt4',
-  'is',
-  'is1',
-  'is2',
-  'is3',
-  'is4',
-  'ip',
-  'ipi',
-  'im',
-  'imi',
-  'ipq',
-  'imq',
-  'ipr',
-  'iq',
-  'iq1',
-  'iq2',
-  'iq3',
-  'iq4',
-  'ib',
-  'ili',
-  'ili1',
-  'ili2',
-  'ili3',
-  'ili4',
-  'iot',
-  'io',
-  'io1',
-  'io2',
-  'io3',
-  'io4',
-  'iex',
-  'imte',
-  'ie',
-
-  /* <para> Headings [exclude some] - Exclude book & chapter headings but keep section headings
-      Not excluded: ms# | mr | s# | sr | d | sp | sd#
-  */
-  'mt',
-  'mt1',
-  'mt2',
-  'mt3',
-  'mt4',
-  'mte',
-  'mte1',
-  'mte2',
-  'mte3',
-  'mte4',
-  'cl',
-  'cd', // Non-biblical chapter summary, more than heading
-  'r', // Parallels to be provided by external data
-] as const;
+];
 
 export type ParserState = {
   chapterNumber?: number;
   verseNumber?: number;
-  chapterOwningObj?: OwningContent;
-  verseOwningObj?: OwningContent;
+  owningObjId?: string;
   contents: {
     [key: number]: {
       contents: Content[];
@@ -128,7 +57,7 @@ export function parseUsx(xmlString: string) {
 
     const element = child as Element;
     // Ignore extra-biblical elements
-    if (ignoredElements.includes(child.nodeName as (typeof ignoredElements)[number])) {
+    if (ignoredElements.includes(child.nodeName)) {
       console.log('Ignoring node:', child.nodeName);
       continue;
     }
@@ -144,21 +73,16 @@ export function parseUsx(xmlString: string) {
         throw new Error(`Invalid chapter number ${chapterNumber}`);
       }
       state.chapterNumber = chapterNumber;
-      state.contents[state.chapterNumber] = {
-        contents: [],
-        verseContents: {},
-      };
-      continue;
-    }
-
-    const style = element.getAttribute('style');
-    if (ignoredParaStyles.includes(style as (typeof ignoredParaStyles)[number])) {
-      console.log('Ignoring para with style:', style);
       continue;
     }
 
     if (child.nodeName === 'para') {
-      const obj = {
+      if (state.chapterNumber === undefined) {
+        console.log('Ignoring para outside chapter:', element.textContent);
+        continue;
+      }
+
+      const para: ParaContent = {
         type: 'para',
         id: `para_${createId()}`,
         attrs: element.attributes
@@ -170,32 +94,14 @@ export function parseUsx(xmlString: string) {
               {} as Record<string, string>,
             )
           : undefined,
+        contents: [],
       } as const;
 
-      const chapterObj: OwningContent = {
-        ...obj,
-        contents: [],
-      };
-      const previousChapterOwningObj = state.chapterOwningObj;
-      if (previousChapterOwningObj) {
-        previousChapterOwningObj.contents.push(chapterObj);
-      }
-      state.chapterOwningObj = chapterObj;
-
-      const verseObj: OwningContent = {
-        ...obj,
-        contents: [],
-      };
-      const previousVerseOwningObj = state.verseOwningObj;
-      if (previousVerseOwningObj) {
-        previousVerseOwningObj.contents.push(verseObj);
-      }
-      state.verseOwningObj = verseObj;
-
+      addContent(state, para);
+      const previousOwningObjId = state.owningObjId;
+      state.owningObjId = para.id;
       parseContents(state, child.childNodes);
-
-      state.chapterOwningObj = previousChapterOwningObj;
-      state.verseOwningObj = previousVerseOwningObj;
+      state.owningObjId = previousOwningObjId;
       continue;
     }
 
@@ -208,7 +114,10 @@ export function parseUsx(xmlString: string) {
 export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) {
   for (const node of Array.from(nodes)) {
     if (node.nodeType === 3) {
-      if (state.chapterNumber === undefined) continue;
+      if (state.chapterNumber === undefined) {
+        console.log('Ignoring text outside chapter:', node.textContent);
+        continue;
+      }
 
       const element = node as Element;
       const text = element.textContent;
@@ -234,11 +143,8 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
     }
 
     // Ignore all other node types that aren't elements (e.g. comments), or on ignored list
-    if (
-      node.nodeType !== 1 ||
-      ignoredElements.includes(node.nodeName as (typeof ignoredElements)[number])
-    ) {
-      console.log('Ignoring node:', node.nodeName);
+    if (node.nodeType !== 1 || ignoredElements.includes(node.nodeName)) {
+      console.log('Ignoring node:', node.nodeName, node.textContent);
       continue;
     }
 
@@ -248,24 +154,13 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
         state.verseNumber = undefined;
         continue;
       }
+      if (state.chapterNumber === undefined) throw new Error('No chapter number found');
+
       const verseNumber = Number.parseInt(element.getAttribute('number') ?? '0');
       if (verseNumber < 1) {
         throw new Error(`Invalid verse number ${verseNumber}`);
       }
-
-      if (state.chapterNumber === undefined) throw new Error('No chapter number found');
-
       state.verseNumber = verseNumber;
-      state.contents[state.chapterNumber].verseContents[state.verseNumber] = {
-        contents: [],
-      };
-
-      if (state.verseOwningObj) {
-        state.verseOwningObj = {
-          ...state.verseOwningObj,
-          contents: [],
-        };
-      }
 
       addContent(state, {
         type: 'verse',
@@ -285,9 +180,12 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
     }
 
     if (element.nodeName === 'char') {
-      if (state.chapterNumber === undefined) continue;
+      if (state.chapterNumber === undefined) {
+        console.log('Ignoring char outside chapter:', element.textContent);
+        continue;
+      }
 
-      const char = {
+      const char: CharContent = {
         type: element.nodeName as 'char',
         id: `char_${createId()}`,
         verseNumber: state.verseNumber,
@@ -300,39 +198,24 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
               {} as Record<string, string>,
             )
           : undefined,
-      } as const;
-
-      const chapterObj: CharContent = {
-        ...char,
         contents: [],
       };
-      const prevChapterOwningObj = state.chapterOwningObj;
-      if (prevChapterOwningObj) {
-        prevChapterOwningObj.contents.push(chapterObj);
-      }
-      state.chapterOwningObj = chapterObj;
 
-      const verseObj: CharContent = {
-        ...char,
-        contents: [],
-      };
-      const prevVerseOwningObj = state.verseOwningObj;
-      if (prevVerseOwningObj) {
-        prevVerseOwningObj.contents.push(verseObj);
-      }
-      state.verseOwningObj = verseObj;
-
+      addContent(state, char);
+      const prevOwningObjId = state.owningObjId;
+      state.owningObjId = char.id;
       parseContents(state, element.childNodes);
-
-      state.chapterOwningObj = prevChapterOwningObj;
-      state.verseOwningObj = prevVerseOwningObj;
+      state.owningObjId = prevOwningObjId;
       continue;
     }
 
     if (element.nodeName === 'note') {
-      if (state.chapterNumber === undefined) continue;
+      if (state.chapterNumber === undefined) {
+        console.log('Ignoring note outside chapter:', element.textContent);
+        continue;
+      }
 
-      const char = {
+      const note: NoteContent = {
         type: element.nodeName as 'note',
         id: `note_${createId()}`,
         verseNumber: state.verseNumber,
@@ -345,37 +228,22 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
               {} as Record<string, string>,
             )
           : undefined,
-      };
-
-      const chapterObj: NoteContent = {
-        ...char,
         contents: [],
       };
-      const prevChapterOwningObj = state.chapterOwningObj;
-      if (prevChapterOwningObj) {
-        prevChapterOwningObj.contents.push(chapterObj);
-      }
-      state.chapterOwningObj = chapterObj;
 
-      const verseObj: OwningContent = {
-        ...char,
-        contents: [],
-      };
-      const prevVerseOwningObj = state.verseOwningObj;
-      if (prevVerseOwningObj) {
-        prevVerseOwningObj.contents.push(verseObj);
-      }
-      state.verseOwningObj = verseObj;
-
+      addContent(state, note);
+      const prevOwningObjId = state.owningObjId;
+      state.owningObjId = note.id;
       parseContents(state, element.childNodes);
-
-      state.chapterOwningObj = prevChapterOwningObj;
-      state.verseOwningObj = prevVerseOwningObj;
+      state.owningObjId = prevOwningObjId;
       continue;
     }
 
     if (element.nodeName === 'ref') {
-      if (state.chapterNumber === undefined) continue;
+      if (state.chapterNumber === undefined) {
+        console.log('Ignoring ref outside chapter:', element.textContent);
+        continue;
+      }
 
       addContent(state, {
         type: 'ref',
@@ -404,46 +272,58 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
 export function addContent(state: ParserState, content: Content) {
   if (state.chapterNumber === undefined) return;
 
-  if (state.chapterOwningObj) {
-    state.chapterOwningObj.contents.push(content);
-    const owning = findOwning(
-      state.chapterOwningObj.id,
-      state.contents[state.chapterNumber].contents,
-    );
+  let chapter = state.contents[state.chapterNumber];
+  if (!chapter) {
+    chapter = { contents: [], verseContents: {} };
+    state.contents[state.chapterNumber] = chapter;
+  }
+
+  let clonedContent = JSON.parse(JSON.stringify(content)) as Content;
+  if (state.owningObjId) {
+    const owning = findOwning(state.owningObjId, state.contents[state.chapterNumber].contents);
     if (!owning) {
-      state.contents[state.chapterNumber].contents.push(state.chapterOwningObj);
+      console.log('Ignoring content without tracked owning content', content.type, content.id);
+      return;
     }
+    owning.contents.push(clonedContent);
   } else {
-    state.contents[state.chapterNumber].contents.push(content);
+    state.contents[state.chapterNumber].contents.push(clonedContent);
   }
 
   if (state.verseNumber === undefined) return;
 
-  if (state.verseOwningObj) {
-    state.verseOwningObj.contents.push(content);
-    const verse = state.contents[state.chapterNumber].verseContents[state.verseNumber];
-    if (verse) {
-      const owning = findOwning(state.verseOwningObj.id, verse.contents);
-      if (!owning) {
-        verse.contents.push(state.verseOwningObj);
-      }
+  clonedContent = JSON.parse(JSON.stringify(content)) as Content;
+  let verse = state.contents[state.chapterNumber].verseContents[state.verseNumber];
+  if (!verse) {
+    verse = { contents: [] };
+    state.contents[state.chapterNumber].verseContents[state.verseNumber] = verse;
+  }
+
+  if (state.owningObjId) {
+    const owning = findOwning(state.owningObjId, verse.contents);
+    if (!owning) {
+      console.log('Ignoring content without tracked owning content', content.type, content.id);
+      return;
     }
+    owning.contents.push(clonedContent);
   } else {
-    state.contents[state.chapterNumber].verseContents[state.verseNumber]?.contents.push(content);
+    verse.contents.push(clonedContent);
   }
 }
 
-export function findOwning(id: string, contents: Content[]): OwningContent | null {
+export function findOwning(
+  owningContentId: string,
+  contents: Content[],
+): OwningContent | undefined {
   for (const content of contents) {
     if (content.type === 'char' || content.type === 'note' || content.type === 'para') {
-      if (content.id === id) {
+      if (content.id === owningContentId) {
         return content;
       }
-      const found = findOwning(id, content.contents);
-      if (found) {
-        return found;
-      }
+
+      const found = findOwning(owningContentId, content.contents);
+      if (found) return found;
     }
   }
-  return null;
+  return undefined;
 }
