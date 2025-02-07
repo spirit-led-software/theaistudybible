@@ -271,7 +271,6 @@ export function parseContents(state: ParserState, nodes: NodeListOf<ChildNode>) 
 
 export function addContent(state: ParserState, content: Content) {
   if (state.chapterNumber === undefined) return;
-
   let chapter = state.contents[state.chapterNumber];
   if (!chapter) {
     chapter = { contents: [], verseContents: {} };
@@ -281,13 +280,14 @@ export function addContent(state: ParserState, content: Content) {
   let clonedContent = JSON.parse(JSON.stringify(content)) as Content;
   if (state.owningObjId) {
     const owning = findOwning(state.owningObjId, state.contents[state.chapterNumber].contents);
-    if (!owning) {
-      console.log('Ignoring content without tracked owning content', content.type, content.id);
-      return;
+    if (owning) {
+      owning.contents.push(clonedContent);
+    } else {
+      console.warn('Pushing chapter content without owning content', content.type, content.id);
+      chapter.contents.push(clonedContent);
     }
-    owning.contents.push(clonedContent);
   } else {
-    state.contents[state.chapterNumber].contents.push(clonedContent);
+    chapter.contents.push(clonedContent);
   }
 
   if (state.verseNumber === undefined) return;
@@ -301,11 +301,12 @@ export function addContent(state: ParserState, content: Content) {
 
   if (state.owningObjId) {
     const owning = findOwning(state.owningObjId, verse.contents);
-    if (!owning) {
-      console.log('Ignoring content without tracked owning content', content.type, content.id);
-      return;
+    if (owning) {
+      owning.contents.push(clonedContent);
+    } else {
+      console.warn('Pushing verse content without owning content', content.type, content.id);
+      verse.contents.push(clonedContent);
     }
-    owning.contents.push(clonedContent);
   } else {
     verse.contents.push(clonedContent);
   }
@@ -317,9 +318,7 @@ export function findOwning(
 ): OwningContent | undefined {
   for (const content of contents) {
     if (content.type === 'char' || content.type === 'note' || content.type === 'para') {
-      if (content.id === owningContentId) {
-        return content;
-      }
+      if (content.id === owningContentId) return content;
 
       const found = findOwning(owningContentId, content.contents);
       if (found) return found;
