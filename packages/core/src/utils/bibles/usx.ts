@@ -300,12 +300,20 @@ export function addContent(state: ParserState, content: Content) {
   }
 
   if (state.owningObjId) {
-    const owning = findOwning(state.owningObjId, verse.contents);
+    let owning = findOwning(state.owningObjId, verse.contents);
     if (owning) {
       owning.contents.push(clonedContent);
     } else {
-      console.warn('Pushing verse content without owning content', content.type, content.id);
-      verse.contents.push(clonedContent);
+      owning = findOwning(state.owningObjId, chapter.contents);
+      if (owning) {
+        const { contents: _contents, ...rest } = owning;
+        const clonedOwning = JSON.parse(JSON.stringify({ ...rest, contents: [] })) as OwningContent;
+        clonedOwning.contents.push(clonedContent);
+        verse.contents.push(clonedOwning);
+      } else {
+        console.warn('Pushing verse content without owning content', content.type, content.id);
+        verse.contents.push(clonedContent);
+      }
     }
   } else {
     verse.contents.push(clonedContent);
