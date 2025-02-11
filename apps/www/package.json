@@ -47,7 +47,7 @@
     "@modular-forms/solid": "0.25.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@pilcrowjs/object-parser": "^0.0.4",
-    "@sentry/solidstart": "^9.0.0",
+    "@sentry/solidstart": "^9.0.1",
     "@solid-primitives/clipboard": "^1.6.0",
     "@solid-primitives/context": "^0.3.0",
     "@solid-primitives/intersection-observer": "^2.2.0",
