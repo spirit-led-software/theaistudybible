@@ -12,7 +12,6 @@ Sentry.init({
   defaultIntegrations: Sentry.getDefaultIntegrations({}).filter((i) => i.name !== 'Http'),
   tracesSampleRate: isDev ? 0 : isProd ? 1.0 : 0.5,
   environment: process.env.PUBLIC_STAGE,
-  registerEsmLoaderHooks: { onlyIncludeInstrumentedModules: true },
 });
 
 process.on('beforeExit', async () => {

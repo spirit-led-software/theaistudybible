@@ -10,11 +10,11 @@
   "devDependencies": {
     "@theaistudybible/tsconfig": "workspace:*",
     "@types/react": "^19.0.8",
-    "react-email": "3.0.6"
+    "react-email": "3.0.7"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
-    "@react-email/components": "0.0.32",
+    "@react-email/components": "0.0.33",
     "@vitejs/plugin-react": "^4.3.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

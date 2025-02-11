@@ -1,13 +1,15 @@
 import type { Role } from '@/schemas/roles/types';
 import type { Session, User, UserSettings } from '@/schemas/users/types';
 
-declare module '@solidjs/start/server' {
-  export interface RequestEventLocals {
-    requestId: string;
-    session: Session | null;
-    user: User | null;
-    settings: UserSettings | null;
-    roles: Role[] | null;
+declare module 'solid-js/web' {
+  interface RequestEvent {
+    locals: {
+      requestId: string;
+      session: Session | null;
+      user: User | null;
+      settings: UserSettings | null;
+      roles: Role[] | null;
+    };
   }
 }
 

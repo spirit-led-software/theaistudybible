@@ -108,6 +108,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "GoogleAiApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "GoogleClientId": {
       "type": "sst.sst.Secret"
       "value": string

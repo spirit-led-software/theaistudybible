@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/pop
 import { useChatStore } from '@/www/contexts/chat';
 import { cn } from '@/www/lib/utils';
 import { For, Match, Switch, createMemo, createSignal } from 'solid-js';
-import { Anthropic, DeepSeek, Meta, Mistral, OpenAI } from '../ui/brand-icons';
+import { Anthropic, DeepSeek, Google, Meta, Mistral, OpenAI } from '../ui/brand-icons';
 
 export const SelectModelButton = () => {
   const [store, setStore] = useChatStore();
@@ -41,6 +41,9 @@ export const SelectModelButton = () => {
           <Match when={selectedModel().provider === 'deepseek'}>
             <DeepSeek fill='hsl(var(--foreground))' class='size-full' />
           </Match>
+          <Match when={selectedModel().provider === 'google'}>
+            <Google fill='hsl(var(--foreground))' monochrome class='size-full' />
+          </Match>
         </Switch>
       </PopoverTrigger>
       <PopoverContent class='w-fit p-0'>
@@ -75,6 +78,9 @@ export const SelectModelButton = () => {
                       </Match>
                       <Match when={model.provider === 'deepseek'}>
                         <DeepSeek fill='hsl(var(--foreground))' class='size-full' />
+                      </Match>
+                      <Match when={model.provider === 'google'}>
+                        <Google fill='hsl(var(--foreground))' monochrome class='size-full' />
                       </Match>
                     </Switch>
                   </div>

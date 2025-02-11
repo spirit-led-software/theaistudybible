@@ -2,6 +2,10 @@ export const OPENAI_API_KEY = new sst.Secret('OpenAiApiKey');
 export const ANTHROPIC_API_KEY = new sst.Secret('AnthropicApiKey');
 export const GROQ_API_KEY = new sst.Secret('GroqApiKey');
 export const DEEP_SEEK_API_KEY = new sst.Secret('DeepSeekApiKey');
+export const GOOGLE_AI_API_KEY = new sst.Secret('GoogleAiApiKey');
+export const VOYAGE_AI_API_KEY = new sst.Secret('VoyageAiApiKey');
+
+export const BRAIN_TRUST_API_KEY = new sst.Secret('BrainTrustApiKey');
 
 export const ADMIN_EMAIL = new sst.Secret('AdminEmail');
 export const ADMIN_PASSWORD = new sst.Secret('AdminPassword');
@@ -22,7 +26,3 @@ export const APPLE_CLIENT_ID = new sst.Secret('AppleClientId');
 export const APPLE_TEAM_ID = new sst.Secret('AppleTeamId');
 export const APPLE_KEY_ID = new sst.Secret('AppleKeyId');
 export const APPLE_AUTH_KEY = new sst.Secret('AppleAuthKey');
-
-export const BRAIN_TRUST_API_KEY = new sst.Secret('BrainTrustApiKey');
-
-export const VOYAGE_AI_API_KEY = new sst.Secret('VoyageAiApiKey');

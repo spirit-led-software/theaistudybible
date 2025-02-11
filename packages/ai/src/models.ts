@@ -3,6 +3,7 @@ import type { deepseek } from '@ai-sdk/deepseek';
 import type { groq } from '@ai-sdk/groq';
 import type { mistral } from '@ai-sdk/mistral';
 import type { openai } from '@ai-sdk/openai';
+import type { google } from './provider-registry';
 
 export type ChatModelInfo = {
   /**
@@ -13,15 +14,16 @@ export type ChatModelInfo = {
     | Parameters<typeof anthropic>[0]
     | Parameters<typeof mistral>[0]
     | Parameters<typeof groq>[0]
-    | Parameters<typeof deepseek>[0];
+    | Parameters<typeof deepseek>[0]
+    | Parameters<typeof google>[0];
   /**
    * The provider of the model. (Who owns and created the model)
    */
-  provider: 'openai' | 'anthropic' | 'mistral' | 'meta' | 'groq' | 'deepseek';
+  provider: 'openai' | 'anthropic' | 'mistral' | 'meta' | 'groq' | 'deepseek' | 'google';
   /**
    * Where the model is hosted.
    */
-  host: 'openai' | 'anthropic' | 'mistral' | 'groq' | 'deepseek';
+  host: 'openai' | 'anthropic' | 'mistral' | 'groq' | 'deepseek' | 'google';
   /**
    * The name of the model.
    */
@@ -46,6 +48,16 @@ export type ChatModelInfo = {
 
 export const basicChatModels: ChatModelInfo[] = [
   {
+    id: 'gemini-2.0-flash',
+    name: 'Gemini 2.0 Flash',
+    description: 'A fast and cost-efficient model trained by Google',
+    contextSize: 1_048_576,
+    provider: 'google',
+    host: 'google',
+    link: 'https://deepmind.google/technologies/gemini/flash/',
+    tier: 'basic',
+  },
+  {
     id: 'gpt-4o-mini',
     name: 'GPT-4o Mini',
     description: 'A fast and cost-efficient model trained by OpenAI',
@@ -58,6 +70,16 @@ export const basicChatModels: ChatModelInfo[] = [
 ];
 
 export const advancedChatModels: ChatModelInfo[] = [
+  {
+    id: 'gemini-1.5-pro',
+    name: 'Gemini 1.5 Pro',
+    description: 'A complex and powerful model trained by Google',
+    contextSize: 2_097_152,
+    provider: 'google',
+    host: 'google',
+    link: 'https://deepmind.google/technologies/gemini/pro/',
+    tier: 'advanced',
+  },
   {
     id: 'gpt-4o',
     name: 'GPT-4o',

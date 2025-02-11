@@ -13,7 +13,6 @@
       "@types/bun",
       "vinxi/types/client",
       "@solidjs/start/env",
-      "@solidjs/start/server",
       "vite-plugin-pwa/info",
       "vite-plugin-pwa/solid"
     ],
