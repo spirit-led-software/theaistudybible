@@ -6,7 +6,7 @@ import type { Message as AIMessage } from '@ai-sdk/solid';
 import { writeClipboard } from '@solid-primitives/clipboard';
 import { A } from '@solidjs/router';
 import { Copy } from 'lucide-solid';
-import { Match, Show, Switch } from 'solid-js';
+import { For, Match, Show, Switch } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { UserAvatar } from '../../auth/user-avatar';
 import { Icon } from '../../branding/icon';
@@ -14,7 +14,7 @@ import { AnimatedMarkdown } from '../../ui/animated-markdown';
 import { Button } from '../../ui/button';
 import { Markdown } from '../../ui/markdown';
 import { MessageReactionButtons } from './reaction-buttons';
-import { Tools } from './tools';
+import { Tool } from './tools';
 
 export type MessageProps = {
   previousMessage?: AIMessage;
@@ -52,24 +52,86 @@ export const Message = (props: MessageProps) => {
       </div>
       <div class='flex w-full flex-col gap-4 overflow-hidden'>
         <Show
-          when={(props.message.toolInvocations?.length ?? 0) > 0 && props.message.toolInvocations}
+          when={props.message.parts}
+          fallback={
+            <>
+              <Show
+                when={
+                  (props.message.toolInvocations?.length ?? 0) > 0 && props.message.toolInvocations
+                }
+              >
+                {(toolInvocations) => (
+                  <For each={toolInvocations()}>
+                    {(toolInvocation) => (
+                      <Tool
+                        toolInvocation={toolInvocation}
+                        addToolResult={props.addToolResult}
+                        isLoading={props.isLoading && !props.nextMessage}
+                      />
+                    )}
+                  </For>
+                )}
+              </Show>
+              <Show when={props.message.content}>
+                {(content) => (
+                  <Show
+                    when={
+                      props.isLoading && props.message.role === 'assistant' && !props.nextMessage
+                    }
+                    fallback={<Markdown>{content()}</Markdown>}
+                  >
+                    <AnimatedMarkdown>{content()}</AnimatedMarkdown>
+                  </Show>
+                )}
+              </Show>
+            </>
+          }
+          keyed
         >
-          {(toolInvocations) => (
-            <Tools
-              toolInvocations={toolInvocations()}
-              addToolResult={props.addToolResult}
-              isLoading={props.isLoading && !props.nextMessage}
-            />
-          )}
-        </Show>
-        <Show when={props.message.content}>
-          {(content) => (
-            <Show
-              when={props.isLoading && props.message.role === 'assistant' && !props.nextMessage}
-              fallback={<Markdown>{content()}</Markdown>}
-            >
-              <AnimatedMarkdown>{content()}</AnimatedMarkdown>
-            </Show>
+          {(parts) => (
+            <For each={parts}>
+              {(part, idx) => (
+                <Switch>
+                  <Match when={part.type === 'text' && part.text}>
+                    {(text) => (
+                      <Show
+                        when={
+                          props.isLoading &&
+                          props.message.role === 'assistant' &&
+                          (!props.nextMessage || idx() === parts.length - 1)
+                        }
+                        fallback={<Markdown>{text()}</Markdown>}
+                      >
+                        <AnimatedMarkdown>{text()}</AnimatedMarkdown>
+                      </Show>
+                    )}
+                  </Match>
+                  <Match when={part.type === 'tool-invocation' && part.toolInvocation}>
+                    {(toolInvocation) => (
+                      <Tool
+                        toolInvocation={toolInvocation()}
+                        addToolResult={props.addToolResult}
+                        isLoading={props.isLoading && !props.nextMessage}
+                      />
+                    )}
+                  </Match>
+                  <Match when={part.type === 'reasoning' && part.reasoning}>
+                    {(reasoning) => (
+                      <Show
+                        when={
+                          props.isLoading &&
+                          props.message.role === 'assistant' &&
+                          (!props.nextMessage || idx() === parts.length - 1)
+                        }
+                        fallback={<Markdown>{reasoning()}</Markdown>}
+                      >
+                        <AnimatedMarkdown>{reasoning()}</AnimatedMarkdown>
+                      </Show>
+                    )}
+                  </Match>
+                </Switch>
+              )}
+            </For>
           )}
         </Show>
         <Show

@@ -7,7 +7,7 @@ import {
 } from '@/core/database/schema';
 import { createId } from '@/core/utils/id';
 import type { Bible } from '@/schemas/bibles/types';
-import type { Message } from '@/schemas/chats/messages/types';
+import type { Message, ToolInvocationPart } from '@/schemas/chats/messages/types';
 import type { Chat } from '@/schemas/chats/types';
 import type { Role } from '@/schemas/roles/types';
 import type { UserSettings } from '@/schemas/users/types';
@@ -173,10 +173,12 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
           }).filter((m) => !normalizedMessages.some((nm) => nm.id === m.id)); // filter out messages that already exist
 
           for (const message of newMessages) {
+            // Remove deprecated fields
+            const { toolInvocations, data, ...rest } = message;
             const [response] = await db
               .insert(messagesTable)
               .values({
-                ...message,
+                ...rest,
                 originMessageId: lastUserMessage.id,
                 userId: options.user.id,
                 chatId: options.chat.id,
@@ -187,16 +189,17 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
               dbId: response.id,
             });
 
-            for (const toolInvocation of message.toolInvocations ?? []) {
-              if ('result' in toolInvocation) {
+            for (const part of message.parts ?? []) {
+              if (part.type === 'tool-invocation') {
                 if (
-                  toolInvocation.toolName === 'vectorStore' &&
-                  toolInvocation.result.status === 'success'
+                  'result' in part.toolInvocation &&
+                  part.toolInvocation.toolName === 'vectorStore' &&
+                  part.toolInvocation.result.status === 'success'
                 ) {
                   await db
                     .insert(messagesToSourceDocuments)
                     .values(
-                      toolInvocation.result.documents.map((d: DocumentWithScore) => ({
+                      part.toolInvocation.result.documents.map((d: DocumentWithScore) => ({
                         messageId: response.id,
                         sourceDocumentId: d.id,
                         distance: 1 - d.score,
@@ -206,22 +209,24 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
                     // In case there are multiple results with the same document
                     .onConflictDoNothing();
 
-                  const generateImageToolResult = message.toolInvocations?.find(
-                    (t) => t.toolName === 'generateImage',
-                  );
+                  const generateImageToolResult = message.parts?.find(
+                    (p) =>
+                      p.type === 'tool-invocation' && p.toolInvocation.toolName === 'generateImage',
+                  ) as ToolInvocationPart | undefined;
                   if (
                     generateImageToolResult &&
-                    'result' in generateImageToolResult &&
-                    generateImageToolResult.result.status === 'success'
+                    'result' in generateImageToolResult.toolInvocation &&
+                    generateImageToolResult.toolInvocation.result.status === 'success'
                   ) {
+                    const image = generateImageToolResult.toolInvocation.result.image;
                     options.dataStream.writeMessageAnnotation({
-                      generatedImageId: generateImageToolResult.result.image.id,
+                      generatedImageId: image.id,
                     });
                     await db
                       .insert(userGeneratedImagesToSourceDocuments)
                       .values(
-                        toolInvocation.result.documents.map((d: DocumentWithScore) => ({
-                          userGeneratedImageId: generateImageToolResult.result.image!.id,
+                        part.toolInvocation.result.documents.map((d: DocumentWithScore) => ({
+                          userGeneratedImageId: image.id,
                           sourceDocumentId: d.id,
                           distance: 1 - d.score,
                           distanceMetric: 'cosine' as const,

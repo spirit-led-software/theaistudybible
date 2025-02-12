@@ -1,6 +1,6 @@
 import type { Content } from '@/schemas/bibles/contents';
 import type { Metadata } from '@/schemas/utils/types';
-import type { Attachment, FinishReason, JSONValue, ToolInvocation } from 'ai';
+import type { Attachment, FinishReason, JSONValue, Message, ToolInvocation } from 'ai';
 import { add } from 'date-fns';
 import { relations } from 'drizzle-orm';
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
@@ -312,6 +312,7 @@ export const messages = sqliteTable(
     toolInvocations: text('tool_invocations', { mode: 'json' }).$type<ToolInvocation[]>(),
     finishReason: text('finish_reason').$type<FinishReason>(),
     experimental_attachments: text('attachments', { mode: 'json' }).$type<Attachment[]>(),
+    parts: text('parts', { mode: 'json' }).$type<NonNullable<Message['parts']>>(),
 
     // Custom fields
     anonymous: integer('anonymous', { mode: 'boolean' }).notNull().default(false),

@@ -1,6 +1,6 @@
 import { messages } from '@/core/database/schema';
 import { defaultRefine } from '@/schemas/utils/refine';
-import type { Attachment, FinishReason, JSONValue, ToolInvocation } from 'ai';
+import type { Attachment, FinishReason, JSONValue, Message, ToolInvocation } from 'ai';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
@@ -12,6 +12,7 @@ const JSONSchema: z.ZodType<JSONValue> = z.lazy(() =>
 export const ToolCallSchema = z
   .object({
     state: z.enum(['partial-call', 'call']),
+    step: z.number().optional(),
     toolName: z.string().min(1),
     toolCallId: z.string().min(1),
     args: z.record(JSONSchema),
@@ -21,6 +22,7 @@ export const ToolCallSchema = z
 export const ToolResultSchema = z
   .object({
     state: z.literal('result'),
+    step: z.number().optional(),
     toolName: z.string().min(1),
     toolCallId: z.string().min(1),
     args: z.record(JSONSchema),
@@ -35,12 +37,12 @@ export const ToolInvocationSchema: z.ZodType<ToolInvocation> = z.discriminatedUn
 
 export const FinishReasonSchema: z.ZodType<FinishReason> = z.enum([
   'content-filter',
-  'tool-calls',
   'error',
-  'other',
-  'unknown',
   'length',
+  'other',
   'stop',
+  'tool-calls',
+  'unknown',
 ]);
 
 export const AttachmentSchema: z.ZodType<Attachment> = z.object({
@@ -49,6 +51,24 @@ export const AttachmentSchema: z.ZodType<Attachment> = z.object({
   url: z.string().url(),
 });
 
+export const TextPartSchema = z.object({
+  type: z.literal('text'),
+  text: z.string(),
+});
+
+export const ReasoningPartSchema = z.object({
+  type: z.literal('reasoning'),
+  reasoning: z.string(),
+});
+
+export const ToolInvocationPartSchema = z.object({
+  type: z.literal('tool-invocation'),
+  toolInvocation: ToolInvocationSchema,
+});
+
+export const MessagePartSchema: z.ZodType<NonNullable<Message['parts']>[number]> =
+  z.discriminatedUnion('type', [TextPartSchema, ReasoningPartSchema, ToolInvocationPartSchema]);
+
 const refine = {
   ...defaultRefine,
   annotations: z.array(JSONSchema).nullish(),
@@ -56,9 +76,10 @@ const refine = {
   finishReason: FinishReasonSchema.nullish(),
   toolInvocations: z.array(ToolInvocationSchema).nullish(),
   experimental_attachments: z.array(AttachmentSchema).nullish(),
+  parts: z.array(MessagePartSchema).nullish(),
 };
 
-// @ts-expect-error - Circular dependency
+// @ts-ignore
 export const MessageSchema = createSelectSchema(messages, refine);
 
 export const CreateMessageSchema = createInsertSchema(messages, refine).omit({

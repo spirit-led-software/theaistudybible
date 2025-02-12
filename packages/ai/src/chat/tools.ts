@@ -16,23 +16,6 @@ import { z } from 'zod';
 import { openai } from '../provider-registry';
 import { vectorStore } from '../vector-store';
 
-export const thinkingTool = (_input: { dataStream: DataStreamWriter }) =>
-  tool({
-    description:
-      'Thinking: Share your concise step-by-step reasoning process. Keep it focused and brief while showing key logical steps.',
-    parameters: z.object({
-      thoughts: z
-        .string()
-        .describe('Brief step-by-step reasoning about the question, formatted in valid markdown.'),
-    }),
-    execute: ({ thoughts }) =>
-      Promise.resolve({
-        status: 'success',
-        message: 'Thoughts recorded',
-        thoughts,
-      } as const),
-  });
-
 export const askForHighlightColorTool = (_input: { dataStream: DataStreamWriter }) =>
   tool({
     description: 'Ask for Highlight Color: Ask which color to use when highlighting a verse.',
@@ -390,7 +373,6 @@ export const tools = (input: {
   roles?: Role[] | null;
   bibleAbbreviation?: string | null;
 }) => ({
-  thinking: thinkingTool({ dataStream: input.dataStream }),
   askForHighlightColor: askForHighlightColorTool({ dataStream: input.dataStream }),
   highlightVerse: highlightVerseTool({ dataStream: input.dataStream, userId: input.user.id }),
   bookmarkChapter: bookmarkChapterTool({ dataStream: input.dataStream, userId: input.user.id }),
