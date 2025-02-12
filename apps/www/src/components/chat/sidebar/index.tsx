@@ -8,9 +8,11 @@ import { useLocation, useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
-import { Search, X } from 'lucide-solid';
+import { Menu, PenBox, Search, X } from 'lucide-solid';
 import { For, Show, createMemo, createSignal } from 'solid-js';
 import { useChatStore } from '../../../contexts/chat';
+import { LogoSmall } from '../../branding/logo-small';
+import { NavigationDropdown } from '../../navigation/dropdown';
 import { QueryBoundary } from '../../query-boundary';
 import { Button } from '../../ui/button';
 import {
@@ -24,9 +26,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '../../ui/sidebar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { H3, H6 } from '../../ui/typography';
 import { DeleteChatButton } from './delete-chat-button';
-import { EditChatButton } from './edit-chat-button';
 
 const getChats = GET(
   async ({
@@ -91,7 +93,7 @@ const getChats = GET(
 export const getChatsQueryOptions = (searchQuery?: string) => ({
   queryKey: ['chats', { searchQuery }],
   queryFn: ({ pageParam }: { pageParam: number }) =>
-    getChats({ offset: pageParam, limit: 7, searchQuery }),
+    getChats({ offset: pageParam, limit: 15, searchQuery }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getChats>>) => lastPage.nextCursor,
 });
@@ -118,7 +120,26 @@ export const ChatSidebar = () => {
       variant={isChatPage() ? 'sidebar' : 'sheet'}
     >
       <SidebarHeader class='flex flex-col gap-2'>
-        <H3>Chat History</H3>
+        <div class='flex items-center justify-between'>
+          <H3>Chat History</H3>
+          <Tooltip>
+            <TooltipTrigger
+              as={Button}
+              size='icon'
+              variant='ghost'
+              onClick={() => {
+                setChatStore('chatId', null);
+                if (!isChatPage() || isMobile()) {
+                  toggleSidebar();
+                }
+              }}
+              aria-label='Start new chat'
+            >
+              <PenBox />
+            </TooltipTrigger>
+            <TooltipContent>New Chat</TooltipContent>
+          </Tooltip>
+        </div>
         <div class='relative'>
           <Search class='-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground' />
           <SidebarInput
@@ -177,7 +198,7 @@ export const ChatSidebar = () => {
                           class='flex min-h-fit w-full flex-1 grow p-3 text-left'
                         >
                           <div class='flex w-full flex-col'>
-                            <div class='truncate-fade'>
+                            <div class='truncate'>
                               {getHighlightedContent(chat.name, searchQuery())}
                             </div>
                             <div class='text-muted-foreground text-xs'>
@@ -192,10 +213,7 @@ export const ChatSidebar = () => {
                             </Show>
                           </div>
                         </SidebarMenuButton>
-                        <div class='flex flex-col'>
-                          <EditChatButton chat={chat} />
-                          <DeleteChatButton chat={chat} />
-                        </div>
+                        <DeleteChatButton chat={chat} />
                       </SidebarMenuItem>
                     )}
                   </For>
@@ -214,7 +232,17 @@ export const ChatSidebar = () => {
           }}
         </QueryBoundary>
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        <Show when={isChatPage()}>
+          <NavigationDropdown
+            variant='ghost'
+            class='flex h-fit w-full items-center justify-between px-4 py-1'
+          >
+            <LogoSmall width={128} height={64} class='h-auto w-24' lightClass='dark:hidden' />
+            <Menu />
+          </NavigationDropdown>
+        </Show>
+      </SidebarFooter>
     </Sidebar>
   );
 };

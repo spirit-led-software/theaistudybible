@@ -16,7 +16,7 @@ export const DevotionMenu = () => {
 
   return (
     <div
-      class='flex w-full justify-center border-b pt-2 shadow-xs'
+      class='sticky top-0 z-40 w-full justify-center border-b pt-2 shadow-xs'
       role='banner'
       aria-label='Devotion header'
     >

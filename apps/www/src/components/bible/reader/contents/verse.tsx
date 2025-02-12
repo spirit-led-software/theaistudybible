@@ -26,15 +26,10 @@ export const VerseContent = (props: VerseContentProps) => {
     <span
       id={props.content.id}
       data-type={props.content.type}
+      data-verse-number={props.content.number}
       {...props.props}
-      class={cn(props.style, 'inline-flex gap-1', props.class)}
+      class={cn(props.style, 'inline-flex transition-all duration-500 ease-in-out', props.class)}
     >
-      <A
-        href={`/bible/${brStore.bible.abbreviation}/${brStore.book.code}/${brStore.chapter.number}/${props.content.number}`}
-        class='hover:underline'
-      >
-        {props.content.number}
-      </A>
       <Show
         when={
           props.notes?.some(
@@ -48,7 +43,7 @@ export const VerseContent = (props: VerseContentProps) => {
       >
         {(notes) => (
           <Popover>
-            <PopoverTrigger as={Button} variant='ghost' size='icon' class='size-6 p-1'>
+            <PopoverTrigger as={Button} variant='ghost' size='icon' class='size-6 p-1.5 align-sub'>
               <Notebook />
             </PopoverTrigger>
             <PopoverContent class='flex max-h-96 w-80 flex-col gap-2 overflow-y-auto p-4'>
@@ -64,6 +59,12 @@ export const VerseContent = (props: VerseContentProps) => {
           </Popover>
         )}
       </Show>
+      <A
+        href={`/bible/${brStore.bible.abbreviation}/${brStore.book.code}/${brStore.chapter.number}/${props.content.number}`}
+        class='hover:underline'
+      >
+        {props.content.number}
+      </A>
     </span>
   );
 };

@@ -221,7 +221,7 @@ export function VerseReader(props: VerseReaderProps) {
           return (
             <BibleReaderProvider bible={bible} book={book} chapter={chapter} verse={verse}>
               <BibleReaderMenu />
-              <div class='mt-16 mb-5'>
+              <div class='my-5'>
                 <ReaderContent contents={verse.content} />
               </div>
               <div class='mb-20 flex flex-col items-center gap-2'>

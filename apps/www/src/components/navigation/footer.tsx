@@ -8,20 +8,23 @@ import { Copyright } from 'lucide-solid';
 
 export const NavigationFooter = () => {
   return (
-    <footer class='standalone:hidden bg-muted/30 py-8 text-muted-foreground sm:py-12'>
+    <footer class='standalone:hidden bg-muted/30 py-2 text-muted-foreground sm:py-4'>
       <div class='container mx-auto px-4'>
-        <div class='mb-6 flex flex-col items-center sm:mb-8'>
+        <div class='mb-6 flex flex-col items-center'>
           <Logo class='mb-4 h-8 sm:h-12' />
-          <div class='mb-4 text-center text-xs sm:text-sm'>
-            <Copyright class='mr-1 inline-block' /> {new Date().getFullYear()} Spirit-Led Software.
+          <div class='mb-4 flex items-center gap-2 text-center text-xs sm:text-sm'>
+            <Copyright class='inline-block' /> {new Date().getFullYear()}{' '}
+            <A href='https://spiritledsoftware.com' target='_blank' class='inline-block'>
+              <SpiritLedSoftwareLogo class='h-5 sm:h-6' />
+            </A>
             All rights reserved.
           </div>
         </div>
 
-        <Separator class='my-6 h-[2px] bg-primary/20 sm:my-8' />
+        <Separator class='my-4 h-[2px] bg-primary/20' />
 
-        <div class='flex flex-col items-center'>
-          <div class='mb-6 flex flex-col items-center space-y-4 sm:mb-8 sm:flex-row sm:space-x-4 sm:space-y-0'>
+        <div class='flex flex-col items-center gap-3'>
+          <div class='grid grid-cols-3 xs:grid-cols-2 gap-2 text-center text-sm sm:flex sm:gap-2'>
             <Button variant='link' size='sm' as={A} href='/about'>
               About
             </Button>
@@ -39,10 +42,10 @@ export const NavigationFooter = () => {
               Donate
             </Button>
             <Button variant='link' size='sm' as={A} href='/privacy'>
-              Privacy Policy
+              Privacy
             </Button>
             <Button variant='link' size='sm' as={A} href='/terms'>
-              Terms of Service
+              Terms
             </Button>
             <Button
               variant='link'
@@ -52,13 +55,10 @@ export const NavigationFooter = () => {
               target='_blank'
               rel='noopener noreferrer'
             >
-              <GitHub class='mr-1 inline-block size-4 sm:size-6' />
+              <GitHub class='mr-1 inline-block size-3' />
               GitHub
             </Button>
           </div>
-          <A href='https://spiritledsoftware.com' target='_blank'>
-            <SpiritLedSoftwareLogo class='h-6 sm:h-8' />
-          </A>
         </div>
       </div>
     </footer>

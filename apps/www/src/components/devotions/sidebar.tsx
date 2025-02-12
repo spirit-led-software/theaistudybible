@@ -1,5 +1,6 @@
 import { db } from '@/core/database';
 import { ilike } from '@/core/database/utils';
+import { toTitleCase } from '@/core/utils/string';
 import { cn } from '@/www/lib/utils';
 import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
 import { useNavigate } from '@solidjs/router';
@@ -60,7 +61,7 @@ const getDevotions = GET(
 export const getDevotionsQueryOptions = (searchQuery?: string) => ({
   queryKey: ['devotions', { searchQuery }],
   queryFn: ({ pageParam }: { pageParam: number }) =>
-    getDevotions({ offset: pageParam, limit: 10, searchQuery }),
+    getDevotions({ offset: pageParam, limit: 150, searchQuery }),
   initialPageParam: 0,
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getDevotions>>) => lastPage.nextCursor,
 });
@@ -140,7 +141,7 @@ export const DevotionSidebar = () => {
                         >
                           <div class='flex w-full flex-col overflow-hidden'>
                             <span class='line-clamp-2'>
-                              {getHighlightedContent(devotion.topic, searchQuery())}
+                              {getHighlightedContent(toTitleCase(devotion.topic), searchQuery())}
                             </span>
                             <span class='text-muted-foreground text-xs'>
                               {formatDate(devotion.createdAt, 'MMMM d, yyyy')}

@@ -1,3 +1,4 @@
+import { useNavigationHeader } from '@/www/components/navigation/header';
 import { Button } from '@/www/components/ui/button';
 import {
   DropdownMenu,
@@ -5,6 +6,7 @@ import {
   DropdownMenuTrigger,
 } from '@/www/components/ui/dropdown-menu';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { cn } from '@/www/lib/utils';
 import { EllipsisVertical } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { ChapterBookmarkMenuItem } from './bookmark/chapter';
@@ -13,24 +15,28 @@ import { TextSizeMenuItem } from './text-size';
 import { SmallTranslationPicker } from './translation-picker/small';
 
 export const BibleReaderMenu = () => {
+  const { isVisible: isHeaderVisible } = useNavigationHeader();
   const [brStore] = useBibleReaderStore();
   return (
-    <div class='fixed inset-x-safe top-20 flex w-full border-b bg-background/80 px-4 py-2 shadow-xs backdrop-blur-md'>
-      <div class='flex w-full items-center justify-center gap-2 sm:mx-auto sm:max-w-3xl'>
-        <BookPicker />
-        <SmallTranslationPicker />
-        <DropdownMenu>
-          <DropdownMenuTrigger as={Button} size='icon' variant='outline'>
-            <EllipsisVertical />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <Show when={brStore.chapter}>
-              <ChapterBookmarkMenuItem />
-            </Show>
-            <TextSizeMenuItem />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+    <div
+      class={cn(
+        'sm:-translate-x-1/2 sticky right-0 flex w-fit items-center gap-2 rounded-b-md border bg-background/90 p-1 shadow-xs backdrop-blur-md transition-all duration-300 ease-in-out sm:inset-x-1/2',
+        isHeaderVisible() ? 'top-18' : 'top-0',
+      )}
+    >
+      <BookPicker />
+      <SmallTranslationPicker />
+      <DropdownMenu>
+        <DropdownMenuTrigger as={Button} size='icon' variant='outline'>
+          <EllipsisVertical />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <Show when={brStore.chapter}>
+            <ChapterBookmarkMenuItem />
+          </Show>
+          <TextSizeMenuItem />
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };

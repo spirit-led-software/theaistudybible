@@ -123,9 +123,14 @@ export const ChatWindow = (props: ChatWindowProps) => {
     return idx;
   });
 
-  const remainingMessagesString = createMemo(() => {
+  const remainingMessagesAlert = createMemo(() => {
     if (remainingMessagesQuery.status === 'success') {
-      return `You have ${remainingMessagesQuery.data.remaining.remaining} messages remaining until ${formatDate(remainingMessagesQuery.data.remaining.reset, 'M/d/yy h:mm a')}`;
+      return (
+        <span class='fade-in animate-in text-muted-foreground text-xs'>
+          You have {remainingMessagesQuery.data.remaining.remaining} messages remaining until{' '}
+          {formatDate(remainingMessagesQuery.data.remaining.reset, 'M/d/yy h:mm a')}
+        </span>
+      );
     }
     return undefined;
   });
@@ -145,17 +150,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
       <ChatSidebar />
       <div class='relative flex w-full flex-1 flex-col overflow-hidden' aria-label='Chat window'>
         <ChatMenu />
-        <Show when={!isAtBottom()}>
-          <Button
-            variant='outline'
-            size='icon'
-            class='-translate-x-1/2 absolute bottom-22 left-1/2 z-40 rounded-full bg-background shadow-lg'
-            onClick={scrollToBottom}
-            aria-label='Scroll to bottom of chat'
-          >
-            <ChevronDown />
-          </Button>
-        </Show>
         <div
           ref={setScrollRef}
           class='flex w-full flex-1 flex-col overflow-y-auto overflow-x-hidden'
@@ -223,7 +217,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           </div>
         </div>
         <form
-          class='absolute inset-x-0 bottom-0 flex w-full flex-col items-center justify-center gap-1 px-2 pb-2'
+          class='absolute inset-x-0 bottom-0 flex w-full flex-col items-center justify-center gap-1 px-2'
           onSubmit={handleSubmit}
           onKeyDown={(e) => {
             if (windowSize.width < 768) return;
@@ -234,33 +228,46 @@ export const ChatWindow = (props: ChatWindowProps) => {
           }}
           aria-label='Message input form'
         >
-          <div class='flex h-fit w-full max-w-3xl items-center gap-1 rounded-full border bg-background/80 px-1 py-2 backdrop-blur-md'>
-            <SelectModelButton />
-            <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>
-              <TextFieldTextArea
-                placeholder='Type a message'
-                class='flex max-h-24 min-h-fit w-full resize-none items-center justify-center border-none bg-transparent px-2 py-0 placeholder:text-wrap focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
-                rows={1}
-                minlength={1}
-                autoResize
-                autoCapitalize='sentences'
-                aria-label='Message input'
-              />
-            </TextField>
-            <Button
-              type='submit'
-              size='icon'
-              variant='outline'
-              class='rounded-full'
-              aria-label={isLoading() ? 'Stop generating response' : 'Send message'}
-              onClick={() => isLoading() && stop()}
-            >
-              <Show when={isLoading()} fallback={<ArrowUp size={20} />}>
-                <StopCircle size={20} />
-              </Show>
-            </Button>
+          <div class='relative flex h-fit w-full max-w-3xl flex-col gap-2 rounded-t-lg border bg-background/80 px-3 pt-2 pb-4 backdrop-blur-md'>
+            <Show when={!isAtBottom()}>
+              <Button
+                variant='outline'
+                size='icon'
+                class='-translate-x-1/2 -top-12 absolute bottom-22 left-1/2 z-40 size-10 rounded-full border-2 bg-background shadow-xl'
+                onClick={scrollToBottom}
+                aria-label='Scroll to bottom of chat'
+              >
+                <ChevronDown />
+              </Button>
+            </Show>
+            <div class='flex flex-1 items-center gap-2'>
+              <SelectModelButton />
+              <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>
+                <TextFieldTextArea
+                  placeholder='Type a message'
+                  class='flex max-h-24 min-h-fit w-full resize-none items-center justify-center border-none bg-transparent px-2 py-0 placeholder:text-wrap focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
+                  rows={1}
+                  minlength={1}
+                  autoResize
+                  autoCapitalize='sentences'
+                  aria-label='Message input'
+                />
+              </TextField>
+              <Button
+                type='submit'
+                size='icon'
+                variant='outline'
+                class='rounded-full'
+                aria-label={isLoading() ? 'Stop generating response' : 'Send message'}
+                onClick={() => isLoading() && stop()}
+              >
+                <Show when={isLoading()} fallback={<ArrowUp size={20} />}>
+                  <StopCircle size={20} />
+                </Show>
+              </Button>
+            </div>
+            <div class='mx-auto h-3 w-fit'>{remainingMessagesAlert()}</div>
           </div>
-          <div class='h-3 text-muted-foreground text-xs'>{remainingMessagesString()}</div>
         </form>
       </div>
     </SidebarProvider>

@@ -119,13 +119,13 @@ export function ChapterReader(props: ChapterReaderProps) {
 
   return (
     <div
-      class='flex h-full w-full max-w-3xl flex-1 flex-col justify-center py-5'
+      class='flex h-full w-full max-w-3xl flex-1 flex-col justify-center pb-5'
       ref={setContainerRef}
     >
       <QueryBoundary
         query={query}
         notFoundFallback={
-          <div class='flex h-full w-full flex-1 flex-col place-items-center justify-center'>
+          <div class='flex h-full w-full flex-1 flex-col items-center justify-center'>
             <H1>Chapter Not Found</H1>
             <div class='flex items-center gap-2'>
               <Button
@@ -168,7 +168,7 @@ export function ChapterReader(props: ChapterReaderProps) {
           return (
             <BibleReaderProvider bible={bible} book={book} chapter={chapter}>
               <BibleReaderMenu />
-              <div class='mt-16 mb-5'>
+              <div class='my-5 w-full'>
                 <ReaderContent contents={chapter.content} />
               </div>
               <div class='mb-20 flex flex-col items-center gap-2'>

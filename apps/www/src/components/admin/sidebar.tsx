@@ -1,4 +1,7 @@
 import { A, useLocation } from '@solidjs/router';
+import { Menu } from 'lucide-solid';
+import { LogoSmall } from '../branding/logo-small';
+import { NavigationDropdown } from '../navigation/dropdown';
 import {
   Sidebar,
   SidebarContent,
@@ -96,7 +99,15 @@ const AdminSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        <NavigationDropdown
+          variant='ghost'
+          class='flex h-fit w-full items-center justify-between px-4 py-1'
+        >
+          <LogoSmall width={128} height={64} class='h-auto w-24' lightClass='dark:hidden' />
+          <Menu />
+        </NavigationDropdown>
+      </SidebarFooter>
     </Sidebar>
   );
 };

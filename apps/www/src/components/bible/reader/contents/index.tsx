@@ -97,7 +97,7 @@ export function Contents(props: ContentsProps) {
               )}
             </Match>
             <Match when={content.type === 'note' && content} keyed>
-              {(content) => <NoteContent content={content} />}
+              {(content) => <NoteContent content={content} props={addProps} />}
             </Match>
           </Switch>
         );

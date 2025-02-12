@@ -12,6 +12,7 @@ import { ActivityPanel, ActivityPanelContent, ActivityPanelMenu } from './activi
 import { Contents } from './contents';
 
 import './contents/contents.css';
+import { cn } from '@/www/lib/utils';
 
 const getHighlights = GET(async (bibleAbbreviation: string, chapterCode: string) => {
   'use server';
@@ -81,6 +82,17 @@ const textSizeToFontVarMap = {
   '4xl': '2.25rem',
 };
 
+const textSizeToLeadingMap = {
+  xs: 'leading-6',
+  sm: 'leading-7',
+  md: 'leading-9',
+  lg: 'leading-10',
+  xl: 'leading-11',
+  '2xl': 'leading-12',
+  '3xl': 'leading-13',
+  '4xl': 'leading-14',
+};
+
 export type ReaderContentProps = {
   contents: Content[];
 };
@@ -127,7 +139,10 @@ export const ReaderContent = (props: ReaderContentProps) => {
     <>
       <MetaTags />
       <div
-        class='eb-container w-full select-none'
+        class={cn(
+          'eb-container container w-full select-none',
+          textSizeToLeadingMap[brStore.textSize ?? 'md'],
+        )}
         style={{ '--br-textsize': textSizeToFontVarMap[brStore.textSize ?? 'md'] }}
       >
         <Contents

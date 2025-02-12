@@ -147,12 +147,3 @@
     padding-right: calc(var(--spacing) * 4);
   }
 }
-
-@layer components {
-  .truncate-fade {
-    overflow: hidden;
-    mask-image: linear-gradient(to right, black 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
-    white-space: nowrap;
-  }
-}

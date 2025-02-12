@@ -118,21 +118,21 @@ export const Menu = (props: MenuProps) => {
             </NavigationMenuLabel>
             <NavigationMenuDescription>Read the Bible</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/bible/highlights' class='h-full w-full'>
+          <NavigationMenuLink as={A} href='/profile/highlights' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Highlighter />
               Highlights
             </NavigationMenuLabel>
             <NavigationMenuDescription>View your highlights</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/bible/notes' class='h-full w-full'>
+          <NavigationMenuLink as={A} href='/profile/notes' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Notebook />
               Notes
             </NavigationMenuLabel>
             <NavigationMenuDescription>View your notes</NavigationMenuDescription>
           </NavigationMenuLink>
-          <NavigationMenuLink as={A} href='/bible/bookmarks' class='h-full w-full'>
+          <NavigationMenuLink as={A} href='/profile/bookmarks' class='h-full w-full'>
             <NavigationMenuLabel class='flex items-center gap-2'>
               <Bookmark />
               Bookmarks

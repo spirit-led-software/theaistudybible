@@ -1,27 +1,23 @@
-import { useLocation, useNavigate } from '@solidjs/router';
-import { ChevronLeft, PenBox, SidebarIcon } from 'lucide-solid';
-import { createMemo } from 'solid-js';
+import { useLocation } from '@solidjs/router';
+import { ChevronLeft, SidebarIcon } from 'lucide-solid';
+import { Show, createMemo } from 'solid-js';
 import { useChatStore } from '../../contexts/chat';
+import { UserButton } from '../auth/user-button';
 import { Button } from '../ui/button';
 import { SidebarTrigger, useSidebar } from '../ui/sidebar';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { H6 } from '../ui/typography';
+import { EditChatButton } from './sidebar/edit-chat-button';
 
 export const ChatMenu = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const [chatStore, setChatStore] = useChatStore();
+  const [chatStore] = useChatStore();
   const { open } = useSidebar();
 
   const chatName = createMemo(() => chatStore.chat?.name ?? 'New Chat');
 
   return (
-    <div
-      class='flex w-full justify-center border-b pt-2 shadow-xs'
-      role='banner'
-      aria-label='Chat header'
-    >
-      <div class='flex w-full max-w-3xl items-center justify-between gap-2 px-3 py-1'>
+    <div class='flex w-full justify-between p-2' role='banner' aria-label='Chat header'>
+      <div class='flex w-full items-center gap-2 overflow-hidden px-1 py-1'>
         <SidebarTrigger
           as={Button}
           size='icon'
@@ -30,29 +26,16 @@ export const ChatMenu = () => {
         >
           {open() ? <ChevronLeft /> : <SidebarIcon />}
         </SidebarTrigger>
-        <H6 class='truncate-fade flex-1' aria-label='Chat name'>
+        <H6 class='truncate' aria-label='Chat name'>
           {chatName()}
         </H6>
-        <div class='flex justify-end' role='toolbar' aria-label='Chat actions'>
-          <Tooltip>
-            <TooltipTrigger
-              as={Button}
-              size='icon'
-              variant='ghost'
-              onClick={() => {
-                setChatStore('chatId', null);
-                if (location.pathname.startsWith('/chat/')) {
-                  navigate('/chat');
-                }
-              }}
-              aria-label='Start new chat'
-            >
-              <PenBox />
-            </TooltipTrigger>
-            <TooltipContent>New Chat</TooltipContent>
-          </Tooltip>
-        </div>
+        <Show when={chatStore.chat} keyed>
+          {(chat) => <EditChatButton chat={chat} />}
+        </Show>
       </div>
+      <Show when={location.pathname.startsWith('/chat')}>
+        <UserButton />
+      </Show>
     </div>
   );
 };

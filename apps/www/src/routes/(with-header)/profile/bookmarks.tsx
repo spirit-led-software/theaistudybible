@@ -2,9 +2,8 @@ import { db } from '@/core/database';
 import {
   bibles as biblesTable,
   books as booksTable,
+  chapterBookmarks,
   chapters as chaptersTable,
-  verseHighlights,
-  verses as versesTable,
 } from '@/core/database/schema';
 import { ilike } from '@/core/database/utils';
 import { contentsToText } from '@/core/utils/bibles/contents-to-text';
@@ -25,6 +24,7 @@ import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6, P } from '@/www/components/ui/typography';
 import { auth, requireAuth } from '@/www/server/auth';
 import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
+import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A, Navigate, action, useAction } from '@solidjs/router';
@@ -33,138 +33,126 @@ import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/s
 import { type SQL, and, desc, eq, getTableColumns, or } from 'drizzle-orm';
 import { Search, X } from 'lucide-solid';
 import { For, Match, Show, Switch, createSignal } from 'solid-js';
-import {} from 'solid-js/store';
 
-const getHighlights = GET(
+const getBookmarks = GET(
   async ({ limit, offset, search }: { limit: number; offset: number; search?: string }) => {
     'use server';
     const { user } = auth();
     if (!user) {
-      return { highlights: [], nextCursor: null };
+      return { bookmarks: [], nextCursor: null };
     }
 
     let joinCondition: SQL | undefined = and(
-      eq(verseHighlights.verseCode, versesTable.code),
-      eq(verseHighlights.bibleAbbreviation, versesTable.bibleAbbreviation),
+      eq(chapterBookmarks.bibleAbbreviation, chaptersTable.bibleAbbreviation),
+      eq(chapterBookmarks.chapterCode, chaptersTable.code),
     );
     if (search) {
       joinCondition = and(
         joinCondition,
         or(
-          ilike(versesTable.bibleAbbreviation, `%${search}%`),
-          ilike(versesTable.name, `%${search}%`),
-          ilike(versesTable.content, `%${search}%`),
+          ilike(chaptersTable.bibleAbbreviation, `%${search}%`),
+          ilike(chaptersTable.name, `%${search}%`),
+          ilike(chaptersTable.content, `%${search}%`),
         ),
       );
     }
 
-    const highlights = await db
+    const bookmarks = await db
       .select({
-        ...getTableColumns(verseHighlights),
+        ...getTableColumns(chapterBookmarks),
+        chapter: {
+          code: chaptersTable.code,
+          name: chaptersTable.name,
+          number: chaptersTable.number,
+          content: chaptersTable.content,
+        },
         bible: { abbreviation: biblesTable.abbreviation },
         book: { code: booksTable.code },
-        chapter: { code: chaptersTable.code, number: chaptersTable.number },
-        verse: {
-          code: versesTable.code,
-          name: versesTable.name,
-          number: versesTable.number,
-          content: versesTable.content,
-        },
       })
-      .from(verseHighlights)
-      .where(eq(verseHighlights.userId, user.id))
-      .innerJoin(versesTable, joinCondition)
-      .innerJoin(biblesTable, eq(versesTable.bibleAbbreviation, biblesTable.abbreviation))
+      .from(chapterBookmarks)
+      .where(eq(chapterBookmarks.userId, user.id))
+      .innerJoin(chaptersTable, joinCondition)
+      .innerJoin(biblesTable, eq(chapterBookmarks.bibleAbbreviation, biblesTable.abbreviation))
       .innerJoin(
         booksTable,
         and(
-          eq(versesTable.bookCode, booksTable.code),
-          eq(versesTable.bibleAbbreviation, booksTable.bibleAbbreviation),
+          eq(chaptersTable.bookCode, booksTable.code),
+          eq(chaptersTable.bibleAbbreviation, booksTable.bibleAbbreviation),
         ),
       )
-      .innerJoin(
-        chaptersTable,
-        and(
-          eq(versesTable.chapterCode, chaptersTable.code),
-          eq(versesTable.bibleAbbreviation, chaptersTable.bibleAbbreviation),
-        ),
-      )
-      .orderBy(desc(verseHighlights.createdAt))
+      .orderBy(desc(chapterBookmarks.createdAt))
       .limit(limit)
       .offset(offset);
 
     return {
-      highlights,
-      nextCursor: highlights.length === limit ? offset + limit : null,
+      bookmarks,
+      nextCursor: bookmarks.length === limit ? offset + limit : null,
     };
   },
 );
 
-const deleteHighlightAction = action(
-  async (input: { bibleAbbreviation: string; verseCode: string }) => {
-    'use server';
-    const { user } = requireAuth();
-    await db
-      .delete(verseHighlights)
-      .where(
-        and(
-          eq(verseHighlights.userId, user.id),
-          eq(verseHighlights.bibleAbbreviation, input.bibleAbbreviation),
-          eq(verseHighlights.verseCode, input.verseCode),
-        ),
-      );
-    return { success: true };
-  },
-);
+const deleteBookmarkAction = action(async (props: { bibleAbbreviation: string; code: string }) => {
+  'use server';
+  const { user } = requireAuth();
+  await db
+    .delete(chapterBookmarks)
+    .where(
+      and(
+        eq(chapterBookmarks.userId, user.id),
+        eq(chapterBookmarks.bibleAbbreviation, props.bibleAbbreviation),
+        eq(chapterBookmarks.chapterCode, props.code),
+      ),
+    );
+  return { success: true };
+});
 
-const getHighlightsQueryOptions = (input?: { search?: string }) => ({
-  queryKey: ['highlights', input],
+const getBookmarksQueryOptions = (input: { search?: string } = {}) => ({
+  queryKey: ['bookmarks', input],
   queryFn: ({ pageParam }: { pageParam: number }) =>
-    getHighlights({ limit: 9, offset: pageParam, search: input?.search }),
+    getBookmarks({ limit: 9, offset: pageParam, search: input.search }),
   initialPageParam: 0,
-  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getHighlights>>) => lastPage.nextCursor,
+  getNextPageParam: (lastPage: Awaited<ReturnType<typeof getBookmarks>>) => lastPage.nextCursor,
 });
 
 export const route: RouteDefinition = {
   preload: () => {
     const qc = useQueryClient();
-    qc.prefetchInfiniteQuery(getHighlightsQueryOptions());
+    qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
   },
 };
 
-export default function HighlightsPage() {
-  const deleteHighlight = useAction(deleteHighlightAction);
-
+export default function BookmarksPage() {
+  const deleteBookmark = useAction(deleteBookmarkAction);
   const qc = useQueryClient();
-
+  const [autoAnimateRef] = createAutoAnimate();
   const [search, setSearch] = createSignal('');
 
-  const highlightsQuery = createInfiniteQuery(() => ({
-    ...getHighlightsQueryOptions({ search: search() }),
+  const bookmarksQuery = createInfiniteQuery(() => ({
+    ...getBookmarksQueryOptions({ search: search() }),
     placeholderData: (prev) => prev,
   }));
 
-  const deleteHighlightMutation = createMutation(() => ({
-    mutationFn: (input: { bibleAbbreviation: string; verseCode: string }) => deleteHighlight(input),
-    onSettled: () => qc.invalidateQueries({ queryKey: ['highlights'] }),
+  const deleteBookmarkMutation = createMutation(() => ({
+    mutationFn: (props: { bibleAbbreviation: string; code: string }) => deleteBookmark(props),
+    onSettled: () => qc.invalidateQueries({ queryKey: ['bookmarks'] }),
   }));
 
   return (
     <Protected
       signedOutFallback={
-        <Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/bible/highlights')}`} />
+        <Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/profile/bookmarks')}`} />
       }
     >
       <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <div class='flex w-full max-w-lg flex-col items-center gap-2'>
           <H2 class='inline-block w-fit bg-linear-to-r from-accent-foreground to-primary bg-clip-text text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-            Your Highlights
+            Your Bookmarks
           </H2>
           <div class='relative w-full'>
             <Search class='-translate-y-1/2 absolute top-1/2 left-3 size-4 text-muted-foreground' />
             <TextField value={search()} onChange={setSearch}>
-              <TextFieldInput type='text' placeholder='Search highlights' class='pr-8 pl-9' />
+              <TextFieldInput type='text' placeholder='Search bookmarks' class='pr-8 pl-9' />
             </TextField>
             <Show when={search()}>
               <Button
@@ -178,15 +166,18 @@ export default function HighlightsPage() {
             </Show>
           </div>
         </div>
-        <div class='mt-5 grid max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
-          <QueryBoundary query={highlightsQuery}>
+        <div
+          ref={autoAnimateRef}
+          class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-2 lg:grid-cols-3'
+        >
+          <QueryBoundary query={bookmarksQuery}>
             {({ pages }) => (
               <For
-                each={pages.flatMap((page) => page.highlights)}
+                each={pages.flatMap((page) => page.bookmarks)}
                 fallback={
                   <div class='flex h-full w-full flex-col items-center justify-center p-5 transition-all lg:col-span-3'>
                     <H6 class='text-center'>
-                      No highlights yet, get{' '}
+                      No bookmarks yet, get{' '}
                       <A href='/bible' class='hover:underline'>
                         reading
                       </A>
@@ -195,21 +186,17 @@ export default function HighlightsPage() {
                   </div>
                 }
               >
-                {(highlight, idx) => {
-                  const contentText = contentsToText(highlight.verse.content);
+                {(bookmark, idx) => {
+                  const contentText = contentsToText(bookmark.chapter.content);
                   return (
                     <Card data-index={idx()} class='flex h-full w-full flex-col transition-all'>
-                      <CardHeader class='flex flex-row items-center justify-between'>
+                      <CardHeader>
                         <CardTitle>
                           {getHighlightedContent(
-                            `${highlight.verse.name} (${highlight.bible.abbreviation})`,
+                            `${bookmark.chapter.name} (${bookmark.bible.abbreviation})`,
                             search(),
                           )}
                         </CardTitle>
-                        <div
-                          class='size-6 rounded-full'
-                          style={{ 'background-color': highlight.color }}
-                        />
                       </CardHeader>
                       <CardContent class='flex grow flex-col'>
                         <Show
@@ -220,7 +207,7 @@ export default function HighlightsPage() {
                           <P>{getHighlightedContent(contentText, search(), 75)}</P>
                         </Show>
                       </CardContent>
-                      <CardFooter class='flex justify-end gap-2'>
+                      <CardFooter class='flex items-end justify-end gap-2'>
                         <Dialog>
                           <DialogTrigger as={Button} variant='outline'>
                             Delete
@@ -228,16 +215,16 @@ export default function HighlightsPage() {
                           <DialogContent>
                             <DialogHeader>
                               <DialogTitle>
-                                Are you sure you want to delete this highlight?
+                                Are you sure you want to delete this bookmark?
                               </DialogTitle>
                             </DialogHeader>
                             <DialogFooter>
                               <Button
                                 variant='destructive'
                                 onClick={() => {
-                                  deleteHighlightMutation.mutate({
-                                    bibleAbbreviation: highlight.bible.abbreviation,
-                                    verseCode: highlight.verse.code,
+                                  deleteBookmarkMutation.mutate({
+                                    bibleAbbreviation: bookmark.bible.abbreviation,
+                                    code: bookmark.chapter.code,
                                   });
                                 }}
                               >
@@ -248,7 +235,7 @@ export default function HighlightsPage() {
                         </Dialog>
                         <Button
                           as={A}
-                          href={`/bible/${highlight.bible.abbreviation}/${highlight.book.code}/${highlight.chapter.number}/${highlight.verse.number}`}
+                          href={`/bible/${bookmark.bible.abbreviation}/${bookmark.book.code}/${bookmark.chapter.number}`}
                         >
                           View
                         </Button>
@@ -261,13 +248,13 @@ export default function HighlightsPage() {
           </QueryBoundary>
           <div class='flex w-full justify-center lg:col-span-3'>
             <Switch>
-              <Match when={highlightsQuery.isFetchingNextPage}>
+              <Match when={bookmarksQuery.isFetchingNextPage}>
                 <Spinner size='sm' />
               </Match>
-              <Match when={highlightsQuery.hasNextPage}>
+              <Match when={bookmarksQuery.hasNextPage}>
                 <Button
                   onClick={() => {
-                    void highlightsQuery.fetchNextPage();
+                    void bookmarksQuery.fetchNextPage();
                   }}
                 >
                   Load more
@@ -282,9 +269,9 @@ export default function HighlightsPage() {
 }
 
 const MetaTags = () => {
-  const title = 'Bible Highlights | The AI Study Bible - Save & Review Important Verses';
+  const title = 'Bible Bookmarks | The AI Study Bible - Save Your Reading Progress';
   const description =
-    'Access and manage your highlighted Bible verses. Use our AI-powered highlighting system to mark, organize, and revisit meaningful passages from Scripture.';
+    'Access your saved Bible bookmarks. Keep track of chapters and verses for easy reference and continue your Bible study journey where you left off.';
 
   return (
     <>

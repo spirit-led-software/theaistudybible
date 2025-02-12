@@ -17,7 +17,6 @@ import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { count } from 'drizzle-orm';
 import { Search, X } from 'lucide-solid';
 import { For, Match, Show, Switch, createSignal } from 'solid-js';
-import {} from 'solid-js/store';
 
 const getNotes = GET(
   async ({ limit, offset, search }: { limit: number; offset: number; search?: string }) => {
@@ -143,7 +142,7 @@ export default function NotesPage() {
   return (
     <Protected
       signedOutFallback={
-        <Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/bible/notes')}`} />
+        <Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/profile/notes')}`} />
       }
     >
       <MetaTags />
@@ -169,7 +168,7 @@ export default function NotesPage() {
             </Show>
           </div>
         </div>
-        <div class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 lg:max-w-none lg:grid-cols-3'>
+        <div class='mt-5 grid w-full max-w-lg grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-2 lg:grid-cols-3'>
           <QueryBoundary query={notesQuery}>
             {({ pages }) => (
               <For
