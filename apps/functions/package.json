@@ -10,7 +10,7 @@
   "devDependencies": {
     "@sentry/aws-serverless": "^9.0.1",
     "@sentry/esbuild-plugin": "^3.1.2",
-    "posthog-node": "^4.5.0",
+    "posthog-node": "^4.5.1",
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {

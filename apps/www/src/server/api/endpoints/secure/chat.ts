@@ -115,7 +115,7 @@ const app = new Hono<{
       }
       console.timeEnd('validateBibleId');
 
-      const lastMessage = input.messages.at(-1);
+      let lastMessage = input.messages.at(-1);
       if (!lastMessage) {
         return c.json({ message: 'You must provide at least one message' }, 400);
       }
@@ -129,23 +129,33 @@ const app = new Hono<{
         if (existingMessage.userId !== c.var.user!.id || existingMessage.chatId !== chat.id) {
           return c.json({ message: 'You are not authorized to access this message' }, 403);
         }
-        await db
+        [lastMessage] = await db
           .update(messagesTable)
           .set({
             ...lastMessage,
             createdAt: lastMessage.createdAt ? new Date(lastMessage.createdAt) : undefined,
             updatedAt: new Date(),
           })
-          .where(eq(messagesTable.id, existingMessage.id));
+          .where(eq(messagesTable.id, existingMessage.id))
+          .returning();
       } else {
-        await db.insert(messagesTable).values({
-          ...lastMessage,
-          updatedAt: new Date(),
-          chatId: chat.id,
-          userId: c.var.user!.id,
-        });
+        [lastMessage] = await db
+          .insert(messagesTable)
+          .values({
+            ...lastMessage,
+            updatedAt: new Date(),
+            chatId: chat.id,
+            userId: c.var.user!.id,
+          })
+          .returning();
       }
       console.timeEnd('saveMessage');
+
+      getPosthog()?.capture({
+        distinctId: c.var.user!.id,
+        event: 'message sent',
+        properties: { message: lastMessage },
+      });
 
       let pingInterval: Timer | undefined;
       const dataStream = createDataStream({
@@ -170,8 +180,8 @@ const app = new Hono<{
               dataStream.writeMessageAnnotation({ modelId });
               getPosthog()?.capture({
                 distinctId: c.var.user!.id,
-                event: 'chat step finished',
-                properties: { modelId, step },
+                event: 'message step finished',
+                properties: { step },
               });
             },
             onFinish: async (event) => {
@@ -188,8 +198,8 @@ const app = new Hono<{
               await Promise.all(pendingPromises);
               getPosthog()?.capture({
                 distinctId: c.var.user!.id,
-                event: 'chat event finished',
-                properties: { modelId, event },
+                event: 'message event finished',
+                properties: { event },
               });
             },
             abortSignal: getRequestEvent()?.request.signal,

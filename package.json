@@ -59,7 +59,7 @@
     "@aws-sdk/client-ses": "^3.744.0",
     "@aws-sdk/client-sqs": "^3.744.0",
     "@aws-sdk/s3-request-presigner": "^3.744.0",
-    "@langchain/community": "^0.3.29",
+    "@langchain/community": "^0.3.30",
     "@langchain/core": "^0.3.39",
     "@libsql/client": "^0.14.0",
     "@upstash/ratelimit": "^2.0.5",
@@ -69,10 +69,10 @@
     "drizzle-orm": "^0.39.3",
     "drizzle-zod": "0.7.0",
     "langchain": "^0.3.15",
-    "sst": "3.8.3",
+    "sst": "3.8.4",
     "stripe": "^17.6.0",
     "web-push": "^3.6.7",
-    "zod": "^3.24.1"
+    "zod": "^3.24.2"
   },
   "packageManager": "bun@1.1.42",
   "workspaces": ["apps/*", "packages/*", "tools/*"],

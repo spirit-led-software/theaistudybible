@@ -111,11 +111,7 @@ RUN apt-get -qq update && \
 COPY --from=build /build/apps/www/.output .
 
 WORKDIR /app/server
-COPY --link ./apps/www/instrument.mjs ./
-RUN bun add @sentry/solidstart && \
-    bun pm cache rm
-
-ENTRYPOINT [ "bun", "run", "--preload", "./instrument.mjs", "./index.mjs" ]
+ENTRYPOINT [ "bun", "run", "--preload", "./instrument.server.mjs", "./index.mjs" ]
 EXPOSE ${PORT}
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
   CMD curl -f http://localhost:${PORT}/health || exit 1

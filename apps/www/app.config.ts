@@ -31,10 +31,7 @@ export default defineConfig(
         routeRules: {
           '/_build/assets/**': { headers: staticCacheControlHeaders },
           '/_build/manifest.webmanifest': {
-            headers: {
-              ...doNotCacheHeaders,
-              'content-type': 'application/manifest+json',
-            },
+            headers: { ...doNotCacheHeaders, 'content-type': 'application/manifest+json' },
           },
           '/_build/service-worker.js*': { headers: doNotCacheHeaders },
           '/_server/assets/**': { headers: defaultCacheControlHeaders },
