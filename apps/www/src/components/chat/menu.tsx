@@ -16,8 +16,12 @@ export const ChatMenu = () => {
   const chatName = createMemo(() => chatStore.chat?.name ?? 'New Chat');
 
   return (
-    <div class='flex w-full justify-between p-2' role='banner' aria-label='Chat header'>
-      <div class='flex w-full items-center gap-2 overflow-hidden px-1 py-1'>
+    <div
+      class='flex w-full items-center justify-between gap-2 px-3 py-1'
+      role='banner'
+      aria-label='Chat header'
+    >
+      <div class='flex w-full items-center gap-2 overflow-hidden'>
         <SidebarTrigger
           as={Button}
           size='icon'
@@ -34,7 +38,7 @@ export const ChatMenu = () => {
         </Show>
       </div>
       <Show when={location.pathname.startsWith('/chat')}>
-        <UserButton />
+        <UserButton class='size-8' />
       </Show>
     </div>
   );

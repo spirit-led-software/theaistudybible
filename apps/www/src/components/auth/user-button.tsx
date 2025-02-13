@@ -1,13 +1,14 @@
 import { lucia } from '@/core/auth';
 import { useAuth } from '@/www/contexts/auth';
+import { cn } from '@/www/lib/utils';
 import { requireAuth } from '@/www/server/auth';
 import { type ConfigColorMode, useColorMode } from '@kobalte/core';
 import { A, action, redirect, useAction, useBeforeLeave } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { Bookmark, Highlighter, Laptop, LogOut, Moon, Notebook, Sun, User } from 'lucide-solid';
-import { Show, createSignal } from 'solid-js';
+import { Show, createSignal, splitProps } from 'solid-js';
 import { toast } from 'solid-sonner';
-import { Button } from '../ui/button';
+import { Button, type ButtonProps } from '../ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,11 +34,13 @@ const signOutAction = action(async () => {
   throw redirect('/', { headers: { 'Set-Cookie': cookie.serialize() } });
 });
 
-export type UserButtonProps = {
+export type UserButtonProps = ButtonProps & {
   showName?: boolean;
 };
 
-export const UserButton = (props: UserButtonProps) => {
+export const UserButton = (_props: UserButtonProps) => {
+  const [local, rest] = splitProps(_props, ['children', 'class', 'showName']);
+
   const signOut = useAction(signOutAction);
 
   const { isLoaded, isSignedIn, user, refetch } = useAuth();
@@ -63,19 +66,28 @@ export const UserButton = (props: UserButtonProps) => {
           as={Button}
           variant='ghost'
           size='icon'
-          class='flex h-fit w-fit shrink-0 items-center gap-1 p-0.5'
+          class={cn(
+            'flex h-fit w-fit shrink-0 items-center gap-1 p-0',
+            !local.showName && 'size-10 rounded-full',
+            local.class,
+          )}
+          {...rest}
         >
-          <Show when={props.showName && (user()?.firstName || user()?.lastName)}>
-            <div class='flex flex-wrap items-center gap-2'>
-              <Show when={user()?.firstName} keyed>
-                {(firstName) => <span>{firstName}</span>}
+          {local.children ?? (
+            <>
+              <Show when={local.showName && (user()?.firstName || user()?.lastName)}>
+                <div class='flex flex-wrap items-center gap-2'>
+                  <Show when={user()?.firstName} keyed>
+                    {(firstName) => <span>{firstName}</span>}
+                  </Show>
+                  <Show when={user()?.lastName} keyed>
+                    {(lastName) => <span>{lastName}</span>}
+                  </Show>
+                </div>
               </Show>
-              <Show when={user()?.lastName} keyed>
-                {(lastName) => <span>{lastName}</span>}
-              </Show>
-            </div>
-          </Show>
-          <UserAvatar />
+              <UserAvatar class={cn(!local.showName && 'size-full')} />
+            </>
+          )}
         </DropdownMenuTrigger>
         <DropdownMenuContent class='w-[200px]'>
           <div class='flex flex-col gap-2 p-2'>

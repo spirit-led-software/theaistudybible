@@ -20,10 +20,10 @@ export const UserAvatar = (props: AvatarRootProps) => {
   );
 
   return (
-    <div class='relative'>
+    <span class={cn('relative', local.class)}>
       <Avatar class={cn('relative size-10', local.class)} {...rest}>
-        <AvatarImage src={src()} />
-        <AvatarFallback>{fallback()}</AvatarFallback>
+        <AvatarImage src={src()} class='size-full' />
+        <AvatarFallback class='size-full'>{fallback()}</AvatarFallback>
       </Avatar>
       <Show when={hasPro()}>
         <Badge
@@ -33,6 +33,6 @@ export const UserAvatar = (props: AvatarRootProps) => {
           Pro
         </Badge>
       </Show>
-    </div>
+    </span>
   );
 };

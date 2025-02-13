@@ -1,5 +1,5 @@
 import { useAuth } from '@/www/contexts/auth';
-import { A, useBeforeLeave } from '@solidjs/router';
+import { A, useBeforeLeave, useNavigate } from '@solidjs/router';
 import {
   BookOpen,
   CreditCard,
@@ -33,6 +33,8 @@ export type NavigationDropdownProps = ButtonProps;
 export const NavigationDropdown = (_props: NavigationDropdownProps) => {
   const [local, rest] = splitProps(_props, ['children']);
 
+  const navigate = useNavigate();
+
   const { isAdmin } = useAuth();
 
   const [isOpen, setIsOpen] = createSignal(false);
@@ -58,30 +60,42 @@ export const NavigationDropdown = (_props: NavigationDropdownProps) => {
           <DropdownMenuSubTrigger>About</DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent class='w-[150px]'>
-              <DropdownMenuItem as={A} href='/about' class='flex items-center gap-2'>
+              {/**
+               * Can't use regular links here because navigation link clicks are broken on mobile
+               * TODO: Remove this once this issue is fixed: https://github.com/kobaltedev/kobalte/issues/446
+               */}
+              <DropdownMenuItem onSelect={() => navigate('/about')} class='flex items-center gap-2'>
                 <Info size={18} /> About
               </DropdownMenuItem>
-              <DropdownMenuItem as={A} href='/about/faq' class='flex items-center gap-2'>
+              <DropdownMenuItem
+                onSelect={() => navigate('/about/faq')}
+                class='flex items-center gap-2'
+              >
                 <HelpCircle size={18} /> FAQ
               </DropdownMenuItem>
-              <DropdownMenuItem as={A} href='/privacy' class='flex items-center gap-2'>
+              <DropdownMenuItem
+                onSelect={() => navigate('/privacy')}
+                class='flex items-center gap-2'
+              >
                 <Shield size={18} /> Privacy
               </DropdownMenuItem>
-              <DropdownMenuItem as={A} href='/terms' class='flex items-center gap-2'>
+              <DropdownMenuItem onSelect={() => navigate('/terms')} class='flex items-center gap-2'>
                 <FileText size={18} /> Terms
               </DropdownMenuItem>
               <DropdownMenuItem
-                as='a'
-                href='mailto:support@theaistudybible.com'
+                onSelect={() => {
+                  const email = 'support@theaistudybible.com';
+                  window.location.href = `mailto:${email}`;
+                }}
                 class='flex items-center gap-2'
               >
                 <Mail size={18} /> Contact
               </DropdownMenuItem>
               <DropdownMenuItem
-                as='a'
-                href='https://donate.stripe.com/cN23fc1mFdW2dXOcMM'
-                target='_blank'
-                rel='noreferrer'
+                onSelect={() => {
+                  const url = 'https://donate.stripe.com/cN23fc1mFdW2dXOcMM';
+                  window.open(url, '_blank');
+                }}
                 class='flex items-center gap-2'
               >
                 <CreditCard size={18} /> Donate

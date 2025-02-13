@@ -36,7 +36,7 @@
     "workbox-window": "^7.3.0"
   },
   "dependencies": {
-    "@ai-sdk/solid": "^1.1.14",
+    "@ai-sdk/solid": "^1.1.15",
     "@corvu/drawer": "^0.2.3",
     "@fontsource-variable/inter": "^5.1.1",
     "@fontsource/goldman": "^5.1.1",
@@ -72,7 +72,7 @@
     "cmdk-solid": "^1.1.2",
     "cropperjs": "^1.6.2",
     "embla-carousel-solid": "^8.5.2",
-    "hono": "^4.7.0",
+    "hono": "^4.7.1",
     "lucide-solid": "^0.475.0",
     "motion": "^12.4.2",
     "posthog-js": "^1.217.2",
