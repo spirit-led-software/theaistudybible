@@ -24,7 +24,6 @@ export default defineConfig(
   withSentry(
     {
       middleware: './src/middleware.ts',
-      ssr: false,
       server: {
         preset: 'bun',
         plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/posthog.ts'],
