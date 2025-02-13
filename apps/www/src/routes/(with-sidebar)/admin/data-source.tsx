@@ -27,7 +27,7 @@ import {
   TextFieldLabel,
   TextFieldTextArea,
 } from '@/www/components/ui/text-field';
-import { requireAdmin } from '@/www/server/auth';
+import { requireAdmin } from '@/www/server/utils/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createForm, getError, getValue, setValue, zodForm } from '@modular-forms/solid';

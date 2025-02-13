@@ -9,7 +9,7 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { ToggleGroup, ToggleGroupItem } from '@/www/components/ui/toggle-group';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/utils/auth';
 import { action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq, inArray } from 'drizzle-orm';

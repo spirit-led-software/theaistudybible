@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from '@/www/components/ui/dialog';
 import { useAuth } from '@/www/contexts/auth';
-import { requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/utils/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { action, useAction } from '@solidjs/router';

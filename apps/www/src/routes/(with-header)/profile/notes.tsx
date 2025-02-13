@@ -1,17 +1,17 @@
 import { db } from '@/core/database';
 import { ilike } from '@/core/database/utils';
-import { Protected } from '@/www/components/auth/control';
 import { NoteItemCard } from '@/www/components/bible/reader/activity-panel/notes/note-item-card';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Spinner } from '@/www/components/ui/spinner';
 import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6 } from '@/www/components/ui/typography';
-import { auth } from '@/www/server/auth';
+import { useAuth } from '@/www/contexts/auth';
+import { useProtect } from '@/www/hooks/use-protect';
+import { auth } from '@/www/server/utils/auth';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
 import { A } from '@solidjs/router';
-import { Navigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, useQueryClient } from '@tanstack/solid-query';
 import { count } from 'drizzle-orm';
@@ -124,14 +124,19 @@ const getNotesQueryOptions = (input: { search?: string } = {}) => ({
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getNotes>>) => lastPage.nextCursor,
 });
 
-export const route: RouteDefinition = {
+export const route = {
   preload: () => {
-    const qc = useQueryClient();
-    qc.prefetchInfiniteQuery(getNotesQueryOptions());
+    const { session, user } = useAuth();
+    if (session() && user()) {
+      const qc = useQueryClient();
+      qc.prefetchInfiniteQuery(getNotesQueryOptions());
+    }
   },
-};
+} satisfies RouteDefinition;
 
 export default function NotesPage() {
+  useProtect(`/sign-in?redirectUrl=${encodeURIComponent('/profile/notes')}`);
+
   const [search, setSearch] = createSignal('');
 
   const notesQuery = createInfiniteQuery(() => ({
@@ -140,11 +145,7 @@ export default function NotesPage() {
   }));
 
   return (
-    <Protected
-      signedOutFallback={
-        <Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/profile/notes')}`} />
-      }
-    >
+    <>
       <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <div class='flex w-full max-w-lg flex-col items-center gap-2'>
@@ -217,7 +218,7 @@ export default function NotesPage() {
           </div>
         </div>
       </div>
-    </Protected>
+    </>
   );
 }
 

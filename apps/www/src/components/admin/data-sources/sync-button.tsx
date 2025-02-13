@@ -1,6 +1,6 @@
 import { sqs } from '@/core/queues';
 import type { DataSource } from '@/schemas/data-sources/types';
-import { requireAdmin } from '@/www/server/auth';
+import { requireAdmin } from '@/www/server/utils/auth';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { useAction } from '@solidjs/router';
 import { action } from '@solidjs/router';

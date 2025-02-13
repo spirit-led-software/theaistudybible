@@ -3,7 +3,7 @@ import { users } from '@/core/database/schema';
 import { UpdateUserSchema } from '@/schemas/users';
 import type { UpdateUser } from '@/schemas/users/types';
 import { useAuth } from '@/www/contexts/auth';
-import { requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/utils/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';

@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { dataSources } from '@/core/database/schema';
 import type { DataSource } from '@/schemas/data-sources/types';
-import { requireAdmin } from '@/www/server/auth';
+import { requireAdmin } from '@/www/server/utils/auth';
 import { action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';

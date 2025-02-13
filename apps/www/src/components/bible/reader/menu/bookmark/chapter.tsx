@@ -5,7 +5,7 @@ import { DropdownMenuItem } from '@/www/components/ui/dropdown-menu';
 import { Spinner } from '@/www/components/ui/spinner';
 import { useAuth } from '@/www/contexts/auth';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { auth, requireAuth } from '@/www/server/auth';
+import { auth, requireAuth } from '@/www/server/utils/auth';
 import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';

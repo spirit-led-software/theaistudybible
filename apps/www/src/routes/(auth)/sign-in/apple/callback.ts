@@ -64,9 +64,11 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
     const session = await lucia.sessions.createSession(sessionToken, existingUserByAppleId.id);
     const sessionCookie = lucia.cookies.createSessionCookie(sessionToken, session);
     setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+
+    const redirectUrl = getCookie(nativeEvent, 'redirect_url');
     return new Response(null, {
       status: 302,
-      headers: { Location: '/' },
+      headers: { Location: redirectUrl ?? '/' },
     });
   }
 
@@ -98,8 +100,9 @@ export const POST: APIHandler = async ({ nativeEvent, request }) => {
   const sessionCookie = lucia.cookies.createSessionCookie(sessionToken, session);
   setCookie(nativeEvent, sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
 
+  const redirectUrl = getCookie(nativeEvent, 'redirect_url');
   return new Response(null, {
     status: 302,
-    headers: { Location: '/' },
+    headers: { Location: redirectUrl ?? '/' },
   });
 };

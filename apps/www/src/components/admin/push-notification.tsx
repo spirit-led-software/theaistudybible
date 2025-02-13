@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { pushSubscriptions } from '@/core/database/schema';
-import { auth } from '@/www/server/auth';
+import { auth } from '@/www/server/utils/auth';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
 import { createSignal } from 'solid-js';

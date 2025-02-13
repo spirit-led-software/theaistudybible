@@ -2,7 +2,7 @@ import { stripe } from '@/core/stripe';
 import type { SubscriptionData } from '@/core/stripe/types';
 import { getStripeData } from '@/core/stripe/utils';
 import { useProSubscription } from '@/www/hooks/use-pro-subscription';
-import { requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/utils/auth';
 import { A, action, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';

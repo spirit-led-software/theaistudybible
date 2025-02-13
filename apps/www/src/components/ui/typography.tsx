@@ -222,7 +222,7 @@ export const CodeBlock = (props: ComponentProps<'code'>) => {
   return (
     <code
       class={cn(
-        'rounded-md bg-muted px-[0.3rem] py-[0.2rem] font-mono font-semibold text-sm',
+        'overflow-x-auto rounded-md bg-muted px-[0.3rem] py-[0.2rem] font-mono font-semibold text-sm',
         local.class,
       )}
       {...rest}

@@ -17,9 +17,9 @@ import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { Check, ChevronsUpDown } from 'lucide-solid';
 import {
+  For,
   type ValidComponent,
   createEffect,
-  createMemo,
   createSignal,
   mergeProps,
   on,
@@ -101,20 +101,6 @@ export function SmallBiblePicker(props: SmallBiblePickerProps) {
     _setValue(val);
   };
 
-  const uniqueLanguages = createMemo(() => {
-    if (query.status === 'success') {
-      return (
-        query.data.bibles.reduce((acc, bible) => {
-          if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {
-            acc.push(bible.biblesToLanguages[0].language);
-          }
-          return acc;
-        }, [] as BibleLanguage[]) ?? []
-      );
-    }
-    return [];
-  });
-
   return (
     <QueryBoundary
       query={query}
@@ -125,56 +111,69 @@ export function SmallBiblePicker(props: SmallBiblePickerProps) {
         </Button>
       }
     >
-      {({ bibles }) => (
-        <Popover>
-          <PopoverTrigger
-            as={Button}
-            class={cn('flex items-center justify-between text-nowrap', local.class)}
-            {...rest}
-          >
-            <span class='truncate'>{value()?.abbreviationLocal ?? 'Select Bible'}</span>
-            <ChevronsUpDown class='ml-2 size-4 shrink-0 opacity-50' />
-          </PopoverTrigger>
-          <PopoverContent class='w-[200px] p-0'>
-            <Command value={value()?.abbreviation}>
-              <CommandInput placeholder='Search bibles...' />
-              <CommandList>
-                <CommandEmpty>Not Found</CommandEmpty>
-                {uniqueLanguages().map((language) => (
-                  <CommandGroup id={language.iso} heading={language.nameLocal}>
-                    {bibles
-                      .filter((bible) => bible.biblesToLanguages[0].language.iso === language.iso)
-                      .map((foundBible) => (
-                        <CommandItem
-                          value={foundBible.abbreviation}
-                          keywords={[
-                            foundBible.name,
-                            foundBible.nameLocal,
-                            foundBible.abbreviation,
-                            foundBible.abbreviationLocal,
-                          ]}
-                          class='flex w-full items-center justify-between'
-                          onSelect={() => setValue(foundBible)}
-                        >
-                          <Check
-                            class={cn(
-                              'mr-2 size-4',
-                              foundBible.abbreviation !== value()?.abbreviation && 'hidden',
-                            )}
-                          />
-                          <div class='flex w-full flex-col justify-end text-end'>
-                            <p class='font-medium text-lg'>{foundBible.abbreviationLocal}</p>
-                            <p class='text-xs'>{foundBible.nameLocal}</p>
-                          </div>
-                        </CommandItem>
-                      ))}
-                  </CommandGroup>
-                ))}
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      )}
+      {({ bibles }) => {
+        const uniqueLanguages = bibles.reduce((acc, bible) => {
+          if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {
+            acc.push(bible.biblesToLanguages[0].language);
+          }
+          return acc;
+        }, [] as BibleLanguage[]);
+
+        return (
+          <Popover>
+            <PopoverTrigger
+              as={Button}
+              class={cn('flex items-center justify-between text-nowrap', local.class)}
+              {...rest}
+            >
+              <span class='truncate'>{value()?.abbreviationLocal ?? 'Select Bible'}</span>
+              <ChevronsUpDown class='ml-2 size-4 shrink-0 opacity-50' />
+            </PopoverTrigger>
+            <PopoverContent class='w-[200px] p-0'>
+              <Command value={value()?.abbreviation}>
+                <CommandInput placeholder='Search bibles...' />
+                <CommandList>
+                  <CommandEmpty>Not Found</CommandEmpty>
+                  <For each={uniqueLanguages}>
+                    {(language) => (
+                      <CommandGroup id={language.iso} heading={language.nameLocal}>
+                        {bibles
+                          .filter(
+                            (bible) => bible.biblesToLanguages[0].language.iso === language.iso,
+                          )
+                          .map((foundBible) => (
+                            <CommandItem
+                              value={foundBible.abbreviation}
+                              keywords={[
+                                foundBible.name,
+                                foundBible.nameLocal,
+                                foundBible.abbreviation,
+                                foundBible.abbreviationLocal,
+                              ]}
+                              class='flex w-full items-center justify-between'
+                              onSelect={() => setValue(foundBible)}
+                            >
+                              <Check
+                                class={cn(
+                                  'mr-2 size-4',
+                                  foundBible.abbreviation !== value()?.abbreviation && 'hidden',
+                                )}
+                              />
+                              <div class='flex w-full flex-col justify-end text-end'>
+                                <p class='font-medium text-lg'>{foundBible.abbreviationLocal}</p>
+                                <p class='text-xs'>{foundBible.nameLocal}</p>
+                              </div>
+                            </CommandItem>
+                          ))}
+                      </CommandGroup>
+                    )}
+                  </For>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        );
+      }}
     </QueryBoundary>
   );
 }

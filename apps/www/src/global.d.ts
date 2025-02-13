@@ -1,18 +1,6 @@
 import type { Role } from '@/schemas/roles/types';
 import type { Session, User, UserSettings } from '@/schemas/users/types';
 
-declare module 'solid-js/web' {
-  interface RequestEvent {
-    locals: {
-      requestId: string;
-      session: Session | null;
-      user: User | null;
-      settings: UserSettings | null;
-      roles: Role[] | null;
-    };
-  }
-}
-
 interface Env {
   PUBLIC_WEBAPP_URL: string;
   PUBLIC_CDN_URL: string;
@@ -34,4 +22,19 @@ declare global {
     interface ProcessEnv extends Env {}
   }
   interface ImportMetaEnv extends Env {}
+}
+
+declare namespace App {
+  interface RequestEventLocals {
+    session: Session | null;
+    user: User | null;
+    settings: UserSettings | null;
+    roles: Role[] | null;
+  }
+}
+
+declare module 'solid-js/web' {
+  interface RequestEvent {
+    locals: App.RequestEventLocals;
+  }
 }

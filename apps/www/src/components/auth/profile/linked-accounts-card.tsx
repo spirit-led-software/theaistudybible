@@ -2,7 +2,7 @@ import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { toTitleCase } from '@/core/utils/string';
 import { useAuth } from '@/www/contexts/auth';
-import { requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/utils/auth';
 import { action, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';

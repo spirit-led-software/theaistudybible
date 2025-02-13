@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
 import { messageReactions } from '@/core/database/schema';
-import { requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/utils/auth';
 import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';

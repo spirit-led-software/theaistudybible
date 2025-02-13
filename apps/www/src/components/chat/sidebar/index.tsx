@@ -2,7 +2,7 @@ import { db } from '@/core/database';
 import { ilike } from '@/core/database/utils';
 import type { Chat, Message } from '@/schemas/chats/types';
 import { cn } from '@/www/lib/utils';
-import { requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/utils/auth';
 import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
 import { useLocation, useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';

@@ -23,7 +23,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/too
 import { P } from '@/www/components/ui/typography';
 import type { SelectedVerseInfo } from '@/www/contexts/bible-reader';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/utils/auth';
 import { A, action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { HelpCircle } from 'lucide-solid';

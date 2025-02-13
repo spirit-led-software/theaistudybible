@@ -17,7 +17,7 @@ import { isNull } from 'drizzle-orm';
 import { type Accessor, createEffect, mergeProps, on, untrack } from 'solid-js';
 import { z } from 'zod';
 import { getChatRateLimit } from '../server/api/utils/chat';
-import { requireAuth } from '../server/auth';
+import { requireAuth } from '../server/utils/auth';
 
 const getChat = GET(async (chatId: string) => {
   'use server';

@@ -1,20 +1,22 @@
-import { Anonymous } from '@/www/components/auth/control';
 import { ResetPassword } from '@/www/components/auth/reset-password';
+import { useProtectAnonymous } from '@/www/hooks/use-protect';
 import { Meta, Title } from '@solidjs/meta';
-import { Navigate, useNavigate, useSearchParams } from '@solidjs/router';
-import { Show } from 'solid-js';
+import { Navigate, useLocation, useNavigate, useSearchParams } from '@solidjs/router';
 
 export default function ResetPasswordPage() {
+  useProtectAnonymous();
+
+  const location = useLocation();
+  if (!location.query.code) return <Navigate href='/forgot-password' />;
+
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   return (
-    <Anonymous signedInFallback={<Navigate href='/' />}>
+    <>
       <MetaTags />
-      <Show when={searchParams.code} fallback={<Navigate href='/forgot-password' />} keyed>
-        {(code) => <ResetPassword code={code as string} onSuccess={() => navigate('/sign-in')} />}
-      </Show>
-    </Anonymous>
+      <ResetPassword code={searchParams.code as string} onSuccess={() => navigate('/sign-in')} />
+    </>
   );
 }
 

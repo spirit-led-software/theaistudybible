@@ -1,6 +1,6 @@
 import { s3 } from '@/core/storage';
 import { createId } from '@/core/utils/id';
-import { auth } from '@/www/server/auth';
+import { auth } from '@/www/server/utils/auth';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createMutation } from '@tanstack/solid-query';

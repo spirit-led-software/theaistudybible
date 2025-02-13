@@ -8,7 +8,7 @@ import { createEffect, createSignal, onMount } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 import { useServiceWorker } from '../contexts/service-worker';
-import { requireAuth } from '../server/auth';
+import { requireAuth } from '../server/utils/auth';
 import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from './ui/switch';
 
 const getVapidPublicKey = GET(() => {

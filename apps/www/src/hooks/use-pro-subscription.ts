@@ -1,24 +1,14 @@
 import type { SubscriptionData } from '@/core/stripe/types';
-import { getStripeData } from '@/core/stripe/utils';
-import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { createEffect, createSignal } from 'solid-js';
-import { auth } from '../server/auth';
-
-const getSubscription = GET(async () => {
-  'use server';
-  const { user } = auth();
-  if (!user || !user.stripeCustomerId) return { subscription: null };
-  const subData = await getStripeData(user.stripeCustomerId);
-  return { subscription: subData };
-});
+import { getProSubscription } from '../server/functions/pro';
 
 export const useProSubscription = () => {
   const [subscription, setSubscription] = createSignal<SubscriptionData | null>(null);
 
   const query = createQuery(() => ({
     queryKey: ['user-subscription'],
-    queryFn: () => getSubscription(),
+    queryFn: () => getProSubscription(),
   }));
 
   createEffect(() => {

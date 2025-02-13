@@ -4,7 +4,7 @@ import { getPosthog } from '@/core/utils/posthog';
 import { setUser as setSentryUser } from '@sentry/solidstart';
 import type { FetchEvent } from '@solidjs/start/server';
 import { sql } from 'drizzle-orm';
-import { authenticate } from '../auth';
+import { authenticate } from '../utils/auth';
 
 export const authMiddleware = () => {
   return async ({ nativeEvent, locals }: FetchEvent) => {

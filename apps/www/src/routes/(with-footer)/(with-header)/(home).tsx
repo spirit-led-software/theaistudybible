@@ -1,21 +1,22 @@
 import { Icon } from '@/www/components/branding/icon';
 import { Button } from '@/www/components/ui/button';
 import { GradientH1, H2, H3, Muted, P } from '@/www/components/ui/typography';
-import { useAuth } from '@/www/contexts/auth';
 import { useBibleStore } from '@/www/contexts/bible';
+import { useProtectAnonymous } from '@/www/hooks/use-protect';
 import { A, Navigate } from '@solidjs/router';
 import { BookOpen, Languages, MessageCircle, Search, Shield, Star, Sunrise } from 'lucide-solid';
-import { For, Show } from 'solid-js';
+import { For } from 'solid-js';
 
 export default function HomePage() {
-  const { isLoaded: isAuthLoaded, isSignedIn } = useAuth();
+  useProtectAnonymous('/bible');
+
   const [bibleStore] = useBibleStore();
+  if (bibleStore.chapter !== null) {
+    return <Navigate href='/bible' />;
+  }
 
   return (
-    <Show
-      when={(!isAuthLoaded() || (isAuthLoaded() && !isSignedIn())) && bibleStore.chapter === null}
-      fallback={<Navigate href='/bible' />}
-    >
+    <>
       {/* Hero Section */}
       <div class='relative min-h-full w-full overflow-hidden py-16 sm:py-20 md:py-24 lg:py-32'>
         {/* Add ambient background */}
@@ -194,6 +195,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-    </Show>
+    </>
   );
 }

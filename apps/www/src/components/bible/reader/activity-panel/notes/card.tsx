@@ -8,7 +8,7 @@ import { DrawerClose } from '@/www/components/ui/drawer';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { H5, P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { auth } from '@/www/server/auth';
+import { auth } from '@/www/server/utils/auth';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';

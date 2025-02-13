@@ -2,17 +2,18 @@ import { Button } from '@/www/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '@/www/components/ui/dropdown-menu';
-import { useColorMode } from '@kobalte/core';
+import { type ConfigColorMode, useColorMode } from '@kobalte/core/color-mode';
 import { Laptop, Moon, Sun } from 'lucide-solid';
 
 export function ThemeToggleButton() {
-  const { setColorMode } = useColorMode();
+  const { colorMode, setColorMode } = useColorMode();
 
   return (
-    <DropdownMenu>
+    <DropdownMenu placement='bottom-end'>
       <DropdownMenuTrigger
         as={Button}
         size='icon'
@@ -25,18 +26,32 @@ export function ThemeToggleButton() {
         <span class='sr-only'>Toggle theme</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onSelect={() => setColorMode('light')} aria-label='Set theme to light'>
-          <Sun class='mr-2 size-4' />
-          <span>Light</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => setColorMode('dark')} aria-label='Set theme to dark'>
-          <Moon class='mr-2 size-4' />
-          <span>Dark</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => setColorMode('system')} aria-label='Set theme to system'>
-          <Laptop class='mr-2 size-4' />
-          <span>System</span>
-        </DropdownMenuItem>
+        <DropdownMenuRadioGroup
+          value={colorMode()}
+          onChange={(value) => setColorMode(value as ConfigColorMode)}
+        >
+          <DropdownMenuRadioItem
+            value='light'
+            aria-label='Set theme to light'
+            class='flex items-center gap-2'
+          >
+            <Sun class='size-4' /> Light
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem
+            value='dark'
+            aria-label='Set theme to dark'
+            class='flex items-center gap-2'
+          >
+            <Moon class='size-4' /> Dark
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem
+            value='system'
+            aria-label='Set theme to system'
+            class='flex items-center gap-2'
+          >
+            <Laptop class='size-4' /> System
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

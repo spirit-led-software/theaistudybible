@@ -5,6 +5,7 @@ import { Meta, Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
 import { BookOpenText, MessageSquare, Search, ShieldCheck, Sparkles, Star } from 'lucide-solid';
 import { Heart } from 'lucide-solid';
+import { For } from 'solid-js';
 
 export default function AboutPage() {
   const features = [
@@ -57,19 +58,21 @@ export default function AboutPage() {
             Our Features
           </H2>
           <div class='grid gap-8 md:grid-cols-2'>
-            {features.map((feature) => (
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    <feature.icon class='mr-2 inline-block' />
-                    {feature.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <P class='text-muted-foreground'>{feature.description}</P>
-                </CardContent>
-              </Card>
-            ))}
+            <For each={features}>
+              {(feature) => (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      <feature.icon class='mr-2 inline-block' />
+                      {feature.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <P class='text-muted-foreground'>{feature.description}</P>
+                  </CardContent>
+                </Card>
+              )}
+            </For>
           </div>
         </section>
 

@@ -1,5 +1,5 @@
 import { generateDevotion } from '@/ai/devotion';
-import { auth } from '@/www/server/auth';
+import { auth } from '@/www/server/utils/auth';
 import { createMutation } from '@tanstack/solid-query';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';

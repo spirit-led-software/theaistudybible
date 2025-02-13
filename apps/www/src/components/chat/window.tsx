@@ -6,9 +6,10 @@ import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
 import { formatDate } from 'date-fns';
 import { ArrowUp, ChevronDown, ChevronUp, StopCircle } from 'lucide-solid';
-import { For, Show, createEffect, createMemo, on } from 'solid-js';
+import { For, createEffect, createMemo, on } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
+import { QueryBoundary } from '../query-boundary';
 import { Button } from '../ui/button';
 import { SidebarProvider } from '../ui/sidebar';
 import { Spinner } from '../ui/spinner';
@@ -123,18 +124,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
     return idx;
   });
 
-  const remainingMessagesAlert = createMemo(() => {
-    if (remainingMessagesQuery.status === 'success') {
-      return (
-        <span class='fade-in animate-in text-muted-foreground text-xs'>
-          You have {remainingMessagesQuery.data.remaining.remaining} messages remaining until{' '}
-          {formatDate(remainingMessagesQuery.data.remaining.reset, 'M/d/yy h:mm a')}
-        </span>
-      );
-    }
-    return undefined;
-  });
-
   const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
   const isMobile = createMemo(() => windowSize.width < 768);
 
@@ -144,9 +133,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
       style={{ '--sidebar-width': '20rem' }}
       defaultOpen={!isMobile() && isChatPage()}
     >
-      <Show when={isChatPage()}>
-        <MetaTags />
-      </Show>
+      {isChatPage() && <MetaTags />}
       <ChatSidebar />
       <div class='relative flex w-full flex-1 flex-col overflow-hidden' aria-label='Chat window'>
         <ChatMenu />
@@ -159,7 +146,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         >
           <div class='flex w-full flex-1 flex-col items-center justify-end'>
             <div class='flex w-full items-start justify-center'>
-              <Show when={messagesQuery.status === 'success' && messagesQuery.hasNextPage}>
+              {messagesQuery.status === 'success' && messagesQuery.hasNextPage && (
                 <div class='flex flex-col items-center justify-center'>
                   <Button
                     variant='link'
@@ -169,12 +156,10 @@ export const ChatWindow = (props: ChatWindowProps) => {
                     onClick={() => messagesQuery.fetchNextPage()}
                     aria-label='Load previous messages'
                   >
-                    <Show when={messagesQuery.isFetchingNextPage} fallback={<ChevronUp />}>
-                      <Spinner size='sm' />
-                    </Show>
+                    {messagesQuery.isFetchingNextPage ? <Spinner size='sm' /> : <ChevronUp />}
                   </Button>
                 </div>
-              </Show>
+              )}
             </div>
             <div class='flex w-full flex-1 flex-col items-center justify-end'>
               <For
@@ -185,9 +170,9 @@ export const ChatWindow = (props: ChatWindowProps) => {
               >
                 {(message, idx) => (
                   <>
-                    <Show when={idx() === lastMessageIdx()}>
+                    {idx() === lastMessageIdx() && (
                       <div ref={setTopOfLastMessageRef} class='h-px w-full shrink-0' />
-                    </Show>
+                    )}
                     <Message
                       previousMessage={messages()[idx() - 1]}
                       message={message}
@@ -198,20 +183,15 @@ export const ChatWindow = (props: ChatWindowProps) => {
                   </>
                 )}
               </For>
-              <Show
-                when={
-                  !isLoading() &&
-                  !followUpSuggestionsQuery.isFetching &&
-                  followUpSuggestionsQuery.data
-                }
-                keyed
-              >
-                {({ suggestions }) => (
-                  <Show when={suggestions.length}>
-                    <SuggestionsMessage suggestions={suggestions} append={append} />
-                  </Show>
+              {!isLoading() &&
+                !followUpSuggestionsQuery.isFetching &&
+                followUpSuggestionsQuery.data &&
+                followUpSuggestionsQuery.data.suggestions.length && (
+                  <SuggestionsMessage
+                    suggestions={followUpSuggestionsQuery.data.suggestions}
+                    append={append}
+                  />
                 )}
-              </Show>
             </div>
             <div ref={setBottomRef} class='h-28 w-full shrink-0' />
           </div>
@@ -229,7 +209,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           aria-label='Message input form'
         >
           <div class='relative flex h-fit w-full max-w-3xl flex-col gap-2 rounded-t-lg border bg-background/80 px-3 pt-2 pb-4 backdrop-blur-md'>
-            <Show when={!isAtBottom()}>
+            {!isAtBottom() && (
               <Button
                 variant='outline'
                 size='icon'
@@ -239,7 +219,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               >
                 <ChevronDown />
               </Button>
-            </Show>
+            )}
             <div class='flex flex-1 items-center gap-2'>
               <SelectModelButton />
               <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>
@@ -261,12 +241,19 @@ export const ChatWindow = (props: ChatWindowProps) => {
                 aria-label={isLoading() ? 'Stop generating response' : 'Send message'}
                 onClick={() => isLoading() && stop()}
               >
-                <Show when={isLoading()} fallback={<ArrowUp size={20} />}>
-                  <StopCircle size={20} />
-                </Show>
+                {isLoading() ? <StopCircle size={20} /> : <ArrowUp size={20} />}
               </Button>
             </div>
-            <div class='mx-auto h-3 w-fit'>{remainingMessagesAlert()}</div>
+            <div class='mx-auto h-3 w-fit'>
+              <QueryBoundary query={remainingMessagesQuery}>
+                {({ remaining }) => (
+                  <span class='fade-in animate-in text-muted-foreground text-xs'>
+                    You have {remaining.remaining} messages remaining until{' '}
+                    {formatDate(remaining.reset, 'M/d/yy h:mm a')}
+                  </span>
+                )}
+              </QueryBoundary>
+            </div>
           </div>
         </form>
       </div>

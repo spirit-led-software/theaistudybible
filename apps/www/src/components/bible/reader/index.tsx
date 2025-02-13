@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { auth } from '@/www/server/auth';
+import { auth } from '@/www/server/utils/auth';
 import { gatherElementIdsByVerseNumber } from '@/www/utils';
 import { Meta, Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';

@@ -1,6 +1,6 @@
 import type { Role } from '@/schemas/roles/types';
 import type { Session, User, UserSettings } from '@/schemas/users/types';
-import { auth } from '@/www/server/auth';
+import { auth } from '@/www/server/utils/auth';
 import { setUser as setSentryUser } from '@sentry/solidstart';
 import { GET } from '@solidjs/start';
 import { createQuery, useQueryClient } from '@tanstack/solid-query';
@@ -54,7 +54,7 @@ export const useAuth = () => {
   };
 };
 
-const getAuth = GET(() => {
+export const getAuth = GET(() => {
   'use server';
   return { auth: auth() };
 });

@@ -1,28 +1,35 @@
-import { Protected } from '@/www/components/auth/control';
 import { getChatsQueryOptions } from '@/www/components/chat/sidebar';
 import { ChatWindow } from '@/www/components/chat/window';
+import { useAuth } from '@/www/contexts/auth';
 import { useChatStore } from '@/www/contexts/chat';
 import { getChatMessagesQueryProps, getChatQueryProps } from '@/www/hooks/use-chat';
-import type { RouteDefinition } from '@solidjs/router';
-import { Navigate, useLocation, useParams } from '@solidjs/router';
+import { useProtect } from '@/www/hooks/use-protect';
+import { type RouteDefinition, useLocation, useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
 import { createEffect } from 'solid-js';
 
-export const route: RouteDefinition = {
+export const route = {
   preload: ({ params }) => {
     const { id } = params;
-    const qc = useQueryClient();
-    Promise.all([
-      qc.prefetchInfiniteQuery(getChatsQueryOptions()),
-      qc.prefetchQuery(getChatQueryProps(id)),
-      qc.prefetchInfiniteQuery(getChatMessagesQueryProps(id)),
-    ]);
+    const { session, user } = useAuth();
+    if (session() && user()) {
+      const qc = useQueryClient();
+      Promise.all([
+        qc.prefetchInfiniteQuery(getChatsQueryOptions()),
+        qc.prefetchQuery(getChatQueryProps(id)),
+        qc.prefetchInfiniteQuery(getChatMessagesQueryProps(id)),
+      ]);
+    }
   },
-};
+} satisfies RouteDefinition;
 
 export default function ChatPage() {
   const params = useParams();
   const location = useLocation();
+  useProtect(
+    `/sign-in?redirectUrl=${encodeURIComponent(`/chat${params.id ? `/${params.id}` : ''}${location.search}`)}`,
+  );
+
   const [, setChatStore] = useChatStore();
   createEffect(() => {
     if (params.id) {
@@ -30,15 +37,5 @@ export default function ChatPage() {
     }
   });
 
-  return (
-    <Protected
-      signedOutFallback={
-        <Navigate
-          href={`/sign-in?redirectUrl=${encodeURIComponent(`/chat${params.id ? `/${params.id}` : ''}${location.search}`)}`}
-        />
-      }
-    >
-      <ChatWindow />
-    </Protected>
-  );
+  return <ChatWindow />;
 }

@@ -1,14 +1,15 @@
-import { Anonymous } from '@/www/components/auth/control';
 import { ForgotPassword } from '@/www/components/auth/forgot-password';
+import { useProtectAnonymous } from '@/www/hooks/use-protect';
 import { Meta, Title } from '@solidjs/meta';
-import { Navigate } from '@solidjs/router';
 
 export default function ForgotPasswordPage() {
+  useProtectAnonymous();
+
   return (
-    <Anonymous signedInFallback={<Navigate href='/' />}>
+    <>
       <MetaTags />
       <ForgotPassword />
-    </Anonymous>
+    </>
   );
 }
 

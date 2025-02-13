@@ -5,15 +5,12 @@ import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
-import { Show, Suspense } from 'solid-js';
+import { Suspense } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { Logo } from './components/branding/logo';
 import { NotificationPromptDialog } from './components/notification-prompt-dialog';
-import { SentryErrorBoundary } from './components/sentry/error-boundary';
 import { SentryRouter } from './components/sentry/router';
-import { Button } from './components/ui/button';
 import { Toaster } from './components/ui/sonner';
-import { H1, H3, H4 } from './components/ui/typography';
 import { AuthProvider } from './contexts/auth';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
@@ -60,43 +57,16 @@ export default function App() {
                         <DevotionProvider>
                           <Suspense
                             fallback={
-                              <div class='flex h-full w-full items-center justify-center'>
+                              <div class='flex min-h-full w-full items-center justify-center'>
                                 <div class='w-full max-w-xl'>
                                   <Logo />
                                 </div>
                               </div>
                             }
                           >
-                            <SentryErrorBoundary
-                              fallback={(err, reset) => (
-                                <div class='flex h-full w-full items-center justify-center'>
-                                  <div class='flex w-full max-w-xl flex-col gap-3'>
-                                    <H1>Oops, something went wrong. Please contact support.</H1>
-                                    <H4>{err.message}</H4>
-                                    <Show when={err.stack} keyed>
-                                      {(stack) => (
-                                        <pre class='max-h-80 overflow-y-auto whitespace-pre-wrap text-wrap rounded-xl bg-foreground/10 p-5 text-xs'>
-                                          {stack}
-                                        </pre>
-                                      )}
-                                    </Show>
-                                    <Show
-                                      when={
-                                        'cause' in err && err.cause instanceof Error && err.cause
-                                      }
-                                      keyed
-                                    >
-                                      {(cause) => <H3>{cause.message}</H3>}
-                                    </Show>
-                                    <Button onClick={reset}>Try again</Button>
-                                  </div>
-                                </div>
-                              )}
-                            >
-                              {props.children}
-                              <Toaster />
-                              <NotificationPromptDialog />
-                            </SentryErrorBoundary>
+                            {props.children}
+                            <Toaster />
+                            <NotificationPromptDialog />
                           </Suspense>
                         </DevotionProvider>
                       </ChatProvider>

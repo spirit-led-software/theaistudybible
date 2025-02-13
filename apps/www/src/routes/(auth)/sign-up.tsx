@@ -1,18 +1,17 @@
-import { Anonymous } from '@/www/components/auth/control';
 import { SignUp } from '@/www/components/auth/sign-up';
+import { useProtectAnonymous } from '@/www/hooks/use-protect';
 import { Meta, Title } from '@solidjs/meta';
-import { Navigate, useSearchParams } from '@solidjs/router';
+import { useSearchParams } from '@solidjs/router';
 
 export default function SignUpPage() {
   const [searchParams] = useSearchParams();
+  useProtectAnonymous(searchParams.redirectUrl as string | undefined);
 
   return (
-    <Anonymous
-      signedInFallback={<Navigate href={(searchParams.redirectUrl as string | undefined) ?? '/'} />}
-    >
+    <>
       <MetaTags />
       <SignUp redirectUrl={searchParams.redirectUrl as string | undefined} />
-    </Anonymous>
+    </>
   );
 }
 

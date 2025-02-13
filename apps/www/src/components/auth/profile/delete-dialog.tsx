@@ -4,7 +4,7 @@ import { users } from '@/core/database/schema';
 import { stripe } from '@/core/stripe';
 import { getStripeData } from '@/core/stripe/utils';
 import { useAuth } from '@/www/contexts/auth';
-import { requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/utils/auth';
 import { action, redirect, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';

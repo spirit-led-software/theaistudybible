@@ -9,14 +9,6 @@ export type BibleRedirectUrlParams = {
   bibleAbbreviation: string;
 };
 
-export const route: RouteDefinition = {
-  preload: async ({ params }) => {
-    const { bibleAbbreviation } = params;
-    const qc = useQueryClient();
-    await qc.prefetchQuery(getBibleRedirectUrlQueryOptions({ bibleAbbreviation }));
-  },
-};
-
 const getBibleRedirectUrl = GET(async ({ bibleAbbreviation }: BibleRedirectUrlParams) => {
   'use server';
   const bibleData = await db.query.bibles.findFirst({
@@ -60,6 +52,13 @@ const getBibleRedirectUrlQueryOptions = ({ bibleAbbreviation }: BibleRedirectUrl
   queryKey: ['bible-redirect', { bibleAbbreviation }],
   queryFn: () => getBibleRedirectUrl({ bibleAbbreviation }),
 });
+
+export const route: RouteDefinition = {
+  preload: async ({ params }) => {
+    const qc = useQueryClient();
+    await qc.prefetchQuery(getBibleRedirectUrlQueryOptions(params as BibleRedirectUrlParams));
+  },
+};
 
 export default function BiblePage() {
   const params = useParams();

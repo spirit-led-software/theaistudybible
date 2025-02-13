@@ -1,6 +1,6 @@
 import type { Bindings, Variables } from '@/www/server/api/types';
 import { Hono } from 'hono/quick';
-import { auth } from '../auth';
+import { auth } from '../utils/auth';
 import adminRoutes from './endpoints/admin';
 import bibles from './endpoints/public/bibles';
 import dataSources from './endpoints/public/data-sources';

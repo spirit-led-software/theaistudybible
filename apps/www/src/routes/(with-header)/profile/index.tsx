@@ -1,20 +1,17 @@
-import { Protected } from '@/www/components/auth/control';
 import { InfoCard } from '@/www/components/auth/profile/info-card';
 import { LinkedAccountsCard } from '@/www/components/auth/profile/linked-accounts-card';
 import { PasskeysCard } from '@/www/components/auth/profile/passkeys-card';
 import { SettingsCard } from '@/www/components/auth/profile/settings-card';
 import { Card } from '@/www/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/www/components/ui/tabs';
+import { useProtect } from '@/www/hooks/use-protect';
 import { Meta, Title } from '@solidjs/meta';
-import { Navigate } from '@solidjs/router';
 
 export default function Profile() {
+  useProtect(`/sign-in?redirectUrl=${encodeURIComponent('/profile')}`);
+
   return (
-    <Protected
-      signedOutFallback={
-        <Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/profile')}`} />
-      }
-    >
+    <>
       <MetaTags />
       <div class='container mx-auto px-4 py-8'>
         <div class='mx-auto max-w-7xl'>
@@ -71,7 +68,7 @@ export default function Profile() {
           </div>
         </div>
       </div>
-    </Protected>
+    </>
   );
 }
 

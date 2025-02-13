@@ -7,7 +7,6 @@ import {
 } from '@/core/database/schema';
 import { ilike } from '@/core/database/utils';
 import { contentsToText } from '@/core/utils/bibles/contents-to-text';
-import { Protected } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
@@ -22,12 +21,14 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6, P } from '@/www/components/ui/typography';
-import { auth, requireAuth } from '@/www/server/auth';
+import { useAuth } from '@/www/contexts/auth';
+import { useProtect } from '@/www/hooks/use-protect';
+import { auth, requireAuth } from '@/www/server/utils/auth';
 import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
 import { createAutoAnimate } from '@formkit/auto-animate/solid';
 import { Meta, Title } from '@solidjs/meta';
 import type { RouteDefinition } from '@solidjs/router';
-import { A, Navigate, action, useAction } from '@solidjs/router';
+import { A, action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery, createMutation, useQueryClient } from '@tanstack/solid-query';
 import { type SQL, and, desc, eq, getTableColumns, or } from 'drizzle-orm';
@@ -114,16 +115,21 @@ const getBookmarksQueryOptions = (input: { search?: string } = {}) => ({
   getNextPageParam: (lastPage: Awaited<ReturnType<typeof getBookmarks>>) => lastPage.nextCursor,
 });
 
-export const route: RouteDefinition = {
+export const route = {
   preload: () => {
-    const qc = useQueryClient();
-    qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
+    const { session, user } = useAuth();
+    if (session() && user()) {
+      const qc = useQueryClient();
+      qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
+    }
   },
-};
+} satisfies RouteDefinition;
 
 export default function BookmarksPage() {
+  useProtect(`/sign-in?redirectUrl=${encodeURIComponent('/profile/bookmarks')}`);
+
   const deleteBookmark = useAction(deleteBookmarkAction);
-  const qc = useQueryClient();
+
   const [autoAnimateRef] = createAutoAnimate();
   const [search, setSearch] = createSignal('');
 
@@ -132,17 +138,14 @@ export default function BookmarksPage() {
     placeholderData: (prev) => prev,
   }));
 
+  const qc = useQueryClient();
   const deleteBookmarkMutation = createMutation(() => ({
     mutationFn: (props: { bibleAbbreviation: string; code: string }) => deleteBookmark(props),
     onSettled: () => qc.invalidateQueries({ queryKey: ['bookmarks'] }),
   }));
 
   return (
-    <Protected
-      signedOutFallback={
-        <Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/profile/bookmarks')}`} />
-      }
-    >
+    <>
       <MetaTags />
       <div class='flex h-full w-full flex-col items-center p-5'>
         <div class='flex w-full max-w-lg flex-col items-center gap-2'>
@@ -264,7 +267,7 @@ export default function BookmarksPage() {
           </div>
         </div>
       </div>
-    </Protected>
+    </>
   );
 }
 

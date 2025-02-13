@@ -1,4 +1,5 @@
 import { cn } from '@/www/lib/utils';
+import { useLocation } from '@solidjs/router';
 import { MenuIcon } from 'lucide-solid';
 import {
   type JSX,
@@ -56,6 +57,8 @@ export const useNavigationHeader = () => {
 export function NavigationHeader(_props: NavigationHeaderProps) {
   const props = mergeProps({ sticky: true }, _props);
 
+  const location = useLocation();
+
   const { isVisible, setIsVisible, lastScrollY, setLastScrollY } = useNavigationHeader();
 
   const handleScroll = () => {
@@ -103,7 +106,7 @@ export function NavigationHeader(_props: NavigationHeaderProps) {
       <div class='flex items-center justify-end gap-2'>
         <SignedOut>
           <ThemeToggleButton />
-          <Button as={SignInButton} />
+          <Button as={SignInButton} redirectUrl={`${location.pathname}${location.search}`} />
         </SignedOut>
         <SignedIn>
           <UserButton />

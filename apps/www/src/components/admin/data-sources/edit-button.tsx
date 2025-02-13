@@ -2,7 +2,7 @@ import { db } from '@/core/database';
 import { dataSources } from '@/core/database/schema';
 import { UpdateDataSourceSchema } from '@/schemas/data-sources';
 import type { DataSource } from '@/schemas/data-sources/types';
-import { requireAdmin } from '@/www/server/auth';
+import { requireAdmin } from '@/www/server/utils/auth';
 import { createForm, setValue, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';

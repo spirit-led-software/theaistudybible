@@ -2,7 +2,6 @@ import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { stripe } from '@/core/stripe';
 import { syncStripeData } from '@/core/stripe/utils';
-import { Protected } from '@/www/components/auth/control';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
@@ -10,7 +9,8 @@ import { Skeleton } from '@/www/components/ui/skeleton';
 import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from '@/www/components/ui/switch';
 import { H1, List, ListItem } from '@/www/components/ui/typography';
 import { useProSubscription } from '@/www/hooks/use-pro-subscription';
-import { requireAuth } from '@/www/server/auth';
+import { useProtectNotPro } from '@/www/hooks/use-protect';
+import { requireAuth } from '@/www/server/utils/auth';
 import { Meta, Title } from '@solidjs/meta';
 import {
   Navigate,
@@ -74,18 +74,18 @@ const getProductsQueryOptions = {
   queryFn: () => getProduct(),
 };
 
-export const route: RouteDefinition = {
+export const route = {
   preload: () => {
     const qc = useQueryClient();
     qc.prefetchQuery(getProductsQueryOptions);
   },
-};
+} satisfies RouteDefinition;
 
 export default function CreditPurchasePage() {
+  useProtectNotPro('/profile');
+
   const createCheckoutSession = useAction(createCheckoutSessionAction);
   const syncSubscription = useAction(syncSubscriptionAction);
-
-  const { hasPro } = useProSubscription();
 
   const [searchParams] = useSearchParams();
   createEffect(() => {
@@ -122,102 +122,99 @@ export default function CreditPurchasePage() {
   }));
 
   const [isYearly, setIsYearly] = createSignal(false);
+  const { hasPro } = useProSubscription();
 
   return (
-    <Protected
-      signedOutFallback={<Navigate href={`/sign-in?redirectUrl=${encodeURIComponent('/pro')}`} />}
-    >
-      <Show when={!hasPro()} fallback={<Navigate href='/profile' />}>
-        <MetaTags />
-        <div class='container flex h-full w-full overflow-y-auto'>
-          <div class='container flex max-w-2xl flex-1 flex-col px-4 py-8'>
-            <div class='flex flex-col items-center gap-2 pb-8'>
-              <H1 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-                Upgrade to Pro
-              </H1>
-            </div>
+    <Show when={!hasPro()} fallback={<Navigate href='/profile' />}>
+      <MetaTags />
+      <div class='container flex h-full w-full overflow-y-auto'>
+        <div class='container flex max-w-2xl flex-1 flex-col px-4 py-8'>
+          <div class='flex flex-col items-center gap-2 pb-8'>
+            <H1 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+              Upgrade to Pro
+            </H1>
+          </div>
 
-            <div class='mx-auto w-full max-w-md'>
-              <QueryBoundary
-                query={query}
-                loadingFallback={
-                  <div class='flex h-full w-full items-center justify-center'>
-                    <Skeleton width={200} height={200} class='rounded-lg' />
-                  </div>
-                }
-              >
-                {({ product, prices }) => (
-                  <Card class='relative flex flex-col overflow-hidden border-2 transition-all hover:border-primary'>
-                    {!isYearly() && (
-                      <div class='-right-12 absolute top-6 rotate-45 bg-primary px-12 py-1 text-primary-foreground text-sm'>
-                        Popular
+          <div class='mx-auto w-full max-w-md'>
+            <QueryBoundary
+              query={query}
+              loadingFallback={
+                <div class='flex h-full w-full items-center justify-center'>
+                  <Skeleton width={200} height={200} class='rounded-lg' />
+                </div>
+              }
+            >
+              {({ product, prices }) => (
+                <Card class='relative flex flex-col overflow-hidden border-2 transition-all hover:border-primary'>
+                  {!isYearly() && (
+                    <div class='-right-12 absolute top-6 rotate-45 bg-primary px-12 py-1 text-primary-foreground text-sm'>
+                      Popular
+                    </div>
+                  )}
+                  <CardHeader class='space-y-4'>
+                    <Switch
+                      checked={isYearly()}
+                      onChange={setIsYearly}
+                      class='flex items-center justify-center gap-4'
+                    >
+                      <SwitchLabel>Monthly</SwitchLabel>
+                      <SwitchControl>
+                        <SwitchThumb />
+                      </SwitchControl>
+                      <SwitchLabel>Yearly</SwitchLabel>
+                    </Switch>
+
+                    <CardTitle class='text-center font-bold text-2xl'>
+                      {isYearly() ? 'Yearly' : 'Monthly'} Plan
+                    </CardTitle>
+
+                    <div class='flex flex-col items-center gap-2'>
+                      <div class='flex items-baseline font-semibold text-2xl'>
+                        ${isYearly() ? prices[1].unitAmount / 100 : prices[0].unitAmount / 100}
+                        <span class='font-normal text-base text-muted-foreground'>
+                          /{isYearly() ? 'year' : 'month'}
+                        </span>
                       </div>
-                    )}
-                    <CardHeader class='space-y-4'>
-                      <Switch
-                        checked={isYearly()}
-                        onChange={setIsYearly}
-                        class='flex items-center justify-center gap-4'
-                      >
-                        <SwitchLabel>Monthly</SwitchLabel>
-                        <SwitchControl>
-                          <SwitchThumb />
-                        </SwitchControl>
-                        <SwitchLabel>Yearly</SwitchLabel>
-                      </Switch>
 
-                      <CardTitle class='text-center font-bold text-2xl'>
-                        {isYearly() ? 'Yearly' : 'Monthly'} Plan
-                      </CardTitle>
-
-                      <div class='flex flex-col items-center gap-2'>
-                        <div class='flex items-baseline font-semibold text-2xl'>
-                          ${isYearly() ? prices[1].unitAmount / 100 : prices[0].unitAmount / 100}
-                          <span class='font-normal text-base text-muted-foreground'>
-                            /{isYearly() ? 'year' : 'month'}
-                          </span>
+                      {isYearly() && (
+                        <div class='w-fit rounded-full bg-primary/10 px-3 py-1 text-primary text-sm'>
+                          Save 17%
                         </div>
+                      )}
+                    </div>
+                  </CardHeader>
 
-                        {isYearly() && (
-                          <div class='w-fit rounded-full bg-primary/10 px-3 py-1 text-primary text-sm'>
-                            Save 17%
-                          </div>
+                  <CardContent>
+                    <List>
+                      <For each={product.features}>
+                        {(feature) => (
+                          <ListItem class='flex items-center'>
+                            <span class='mr-2'>✓</span>
+                            {feature}
+                          </ListItem>
                         )}
-                      </div>
-                    </CardHeader>
+                      </For>
+                    </List>
+                  </CardContent>
 
-                    <CardContent>
-                      <List>
-                        <For each={product.features}>
-                          {(feature) => (
-                            <ListItem class='flex items-center'>
-                              <span class='mr-2'>✓</span>
-                              {feature}
-                            </ListItem>
-                          )}
-                        </For>
-                      </List>
-                    </CardContent>
-
-                    <CardFooter>
-                      <Button
-                        class='w-full'
-                        onClick={() =>
-                          handlePurchase.mutate(isYearly() ? prices[1].id : prices[0].id)
-                        }
-                        disabled={handlePurchase.isPending}
-                      >
-                        Get Started
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                )}
-              </QueryBoundary>
-            </div>
+                  <CardFooter>
+                    <Button
+                      class='w-full'
+                      onClick={() =>
+                        handlePurchase.mutate(isYearly() ? prices[1].id : prices[0].id)
+                      }
+                      disabled={handlePurchase.isPending}
+                    >
+                      Get Started
+                    </Button>
+                  </CardFooter>
+                </Card>
+              )}
+            </QueryBoundary>
           </div>
         </div>
-      </Show>
-    </Protected>
+      </div>
+    </Show>
   );
 }
 

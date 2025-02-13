@@ -6,7 +6,7 @@ import {
 } from '@/www/components/ui/accordion';
 import { GradientH1, Muted } from '@/www/components/ui/typography';
 import { Title } from '@solidjs/meta';
-import type { Component } from 'solid-js';
+import { type Component, For } from 'solid-js';
 
 type FAQItem = {
   question: string;
@@ -66,14 +66,16 @@ const FAQ: Component = () => {
 
         <div class='mt-12 max-w-4xl'>
           <Accordion multiple collapsible>
-            {faqs.map((faq, index) => (
-              <AccordionItem value={`item-${index}`}>
-                <AccordionTrigger>{faq.question}</AccordionTrigger>
-                <AccordionContent>
-                  <Muted>{faq.answer}</Muted>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
+            <For each={faqs}>
+              {(faq, idx) => (
+                <AccordionItem value={`item-${idx()}`}>
+                  <AccordionTrigger>{faq.question}</AccordionTrigger>
+                  <AccordionContent>
+                    <Muted>{faq.answer}</Muted>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            </For>
           </Accordion>
         </div>
       </div>

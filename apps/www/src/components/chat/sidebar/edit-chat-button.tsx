@@ -17,7 +17,7 @@ import {
   TextFieldLabel,
 } from '@/www/components/ui/text-field';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
-import { requireAuth } from '@/www/server/auth';
+import { requireAuth } from '@/www/server/utils/auth';
 import type { DialogTriggerProps } from '@kobalte/core/dialog';
 import { action, useAction } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
