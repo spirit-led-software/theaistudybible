@@ -1,9 +1,9 @@
 import { useAuth } from '@/www/contexts/auth';
 import { A, useBeforeLeave } from '@solidjs/router';
-import { EllipsisVertical } from 'lucide-solid';
 import {
   BookOpen,
   CreditCard,
+  EllipsisVertical,
   FileText,
   HelpCircle,
   Info,
@@ -12,8 +12,7 @@ import {
   MessageCircle,
   Shield,
 } from 'lucide-solid';
-import { createSignal, mergeProps } from 'solid-js';
-import { Show } from 'solid-js';
+import { Show, createSignal, splitProps } from 'solid-js';
 import { Button, type ButtonProps } from '../ui/button';
 import {
   DropdownMenu,
@@ -32,7 +31,8 @@ import {
 export type NavigationDropdownProps = ButtonProps;
 
 export const NavigationDropdown = (_props: NavigationDropdownProps) => {
-  const props = mergeProps({ children: <EllipsisVertical /> }, _props);
+  const [local, rest] = splitProps(_props, ['children']);
+
   const { isAdmin } = useAuth();
 
   const [isOpen, setIsOpen] = createSignal(false);
@@ -40,7 +40,9 @@ export const NavigationDropdown = (_props: NavigationDropdownProps) => {
 
   return (
     <DropdownMenu open={isOpen()} onOpenChange={setIsOpen} placement='top'>
-      <DropdownMenuTrigger as={Button} {...props} />
+      <DropdownMenuTrigger as={Button} {...rest}>
+        {local.children ?? <EllipsisVertical />}
+      </DropdownMenuTrigger>
       <DropdownMenuContent class='w-[250px]'>
         <DropdownMenuItem
           as={A}
