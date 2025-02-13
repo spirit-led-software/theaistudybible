@@ -9,14 +9,13 @@ import {
   onMount,
   useContext,
 } from 'solid-js';
-import { AuthLoaded, SignedIn, SignedOut } from '../auth/control';
+import { SignedIn, SignedOut } from '../auth/control';
 import { SignInButton } from '../auth/sign-in-button';
 import { UserButton } from '../auth/user-button';
 import { Logo } from '../branding/logo';
 import { LogoSmall } from '../branding/logo-small';
 import { ThemeToggleButton } from '../theme/toggle-button';
 import { Button } from '../ui/button';
-import { Spinner } from '../ui/spinner';
 import { NavigationDropdown } from './dropdown';
 import { Menu } from './menu';
 
