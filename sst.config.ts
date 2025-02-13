@@ -8,12 +8,12 @@ export default $config({
     home: 'aws',
     providers: {
       '@ediri/pulumi-fly': '0.1.18',
-      '@pulumi/aws': { version: '6.68.0', region: 'us-east-1' },
       '@pulumiverse/sentry': '0.0.9',
-      '@sst-provider/turso': { version: '0.2.3', organization: process.env.TURSO_ORG! },
       '@upstash/pulumi': '0.3.14',
-      '@pulumi/docker-build': '0.0.10',
+      'docker-build': '0.0.10',
       'pulumi-stripe': '0.0.24',
+      aws: { version: '6.68.0', region: 'us-east-1' },
+      turso: { version: '0.2.3', organization: process.env.TURSO_ORG! },
     },
   }),
   run: async () => {
