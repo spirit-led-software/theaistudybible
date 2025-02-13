@@ -102,14 +102,13 @@ export function NavigationHeader(_props: NavigationHeaderProps) {
         <Menu orientation='horizontal' />
       </div>
       <div class='flex items-center justify-end gap-2'>
-        <AuthLoaded fallback={<Spinner size='sm' />}>
-          <SignedOut>
-            <ThemeToggleButton />
-          </SignedOut>
-          <SignedIn fallback={<Button as={SignInButton} />}>
-            <UserButton />
-          </SignedIn>
-        </AuthLoaded>
+        <SignedOut>
+          <ThemeToggleButton />
+          <Button as={SignInButton} />
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
       </div>
     </nav>
   );
