@@ -1,9 +1,7 @@
-/** @refresh reload */
+// @refresh reload
 import * as Sentry from '@sentry/solidstart';
 import { solidRouterBrowserTracingIntegration } from '@sentry/solidstart/solidrouter';
 import { StartClient, mount } from '@solidjs/start/client';
-
-import 'solid-devtools';
 
 const isProd = import.meta.env.PUBLIC_STAGE === 'production';
 const isDev = import.meta.env.PUBLIC_DEV === 'true';

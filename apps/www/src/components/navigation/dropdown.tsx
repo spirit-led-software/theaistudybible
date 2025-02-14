@@ -12,7 +12,7 @@ import {
   MessageCircle,
   Shield,
 } from 'lucide-solid';
-import { Show, createSignal, splitProps } from 'solid-js';
+import { createSignal, splitProps } from 'solid-js';
 import { Button, type ButtonProps } from '../ui/button';
 import {
   DropdownMenu,
@@ -128,12 +128,14 @@ export const NavigationDropdown = (_props: NavigationDropdownProps) => {
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
-        <Show when={isAdmin()}>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem as={A} href='/admin' class='flex items-center gap-2'>
-            Admin
-          </DropdownMenuItem>
-        </Show>
+        {isAdmin() && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem as={A} href='/admin' class='flex items-center gap-2'>
+              Admin
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

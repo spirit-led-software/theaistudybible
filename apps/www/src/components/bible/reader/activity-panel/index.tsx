@@ -78,7 +78,7 @@ export const ActivityPanelMenu = () => {
   const [, setSearchParams] = useSearchParams();
   const [brStore, setBrStore] = useBibleReaderStore();
   const { setValue, isMenuOpen, setIsMenuOpen } = useActivityPanel();
-  const window = useWindowSize();
+  const windowSize = useWindowSize();
 
   const [buttonRef, setButtonRef] = createSignal<HTMLButtonElement>();
   const [buttonContentRef, setButtonContentRef] = createSignal<HTMLDivElement>();
@@ -106,7 +106,7 @@ export const ActivityPanelMenu = () => {
   return (
     <DropdownMenu
       modal={false}
-      placement={window.width > 640 ? 'top-end' : 'top'}
+      placement={windowSize.width > 640 ? 'top-end' : 'top'}
       open={isMenuOpen()}
       onOpenChange={setIsMenuOpen}
     >

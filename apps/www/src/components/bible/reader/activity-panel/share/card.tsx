@@ -5,6 +5,7 @@ import { TextField, TextFieldTextArea } from '@/www/components/ui/text-field';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { writeClipboard } from '@solid-primitives/clipboard';
 import { createSocialShare } from '@solid-primitives/share';
+import { useLocation } from '@solidjs/router';
 import { Copy } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
 import { toast } from 'solid-sonner';
@@ -12,6 +13,7 @@ import { EmailShareButton, FacebookShareButton, XShareButton } from './buttons';
 
 export const ShareCard = () => {
   const [brStore] = useBibleReaderStore();
+  const location = useLocation();
 
   let shareInputRef: HTMLTextAreaElement | undefined;
 
@@ -19,7 +21,7 @@ export const ShareCard = () => {
     title: `${brStore.selectedTitle} - ${brStore.selectedText}`,
     quote: `${brStore.selectedText} (${brStore.selectedTitle})`,
     description: 'Shared verse from The AI Study Bible.',
-    url: window.location.href,
+    url: `${import.meta.env.PUBLIC_WEBAPP_URL}${location.pathname}${location.search}`,
     hashtags: 'theaistudybible,ai,studybible,bible,verse,scripture,scriptures',
   }));
 

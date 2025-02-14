@@ -5,6 +5,7 @@ import { GET } from '@solidjs/start';
 import { createMutation } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { createEffect, createSignal, onMount } from 'solid-js';
+import { isServer } from 'solid-js/web';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 import { useServiceWorker } from '../contexts/service-worker';
@@ -58,6 +59,7 @@ export function PushNotificationToggle(props: PushNotificationToggleProps) {
   const [isSupported, setIsSupported] = createSignal(false);
 
   onMount(() => {
+    if (isServer) return;
     // Check if push notifications are supported
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
       setIsSupported(false);

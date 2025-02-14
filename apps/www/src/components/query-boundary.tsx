@@ -38,9 +38,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
   return (
     <SentryErrorBoundary
       fallback={(error, reset) =>
-        props.errorFallback ? (
-          props.errorFallback(error, reset)
-        ) : (
+        props.errorFallback?.(error, reset) || (
           <div class='flex h-full w-full items-center justify-center'>
             <div class='flex w-full max-w-xl flex-col gap-3'>
               <H1>Oops, something went wrong. Please contact support.</H1>
@@ -61,7 +59,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
     >
       <Suspense
         fallback={
-          props.loadingFallback ?? (
+          props.loadingFallback || (
             <div class='flex h-full w-full flex-1 items-center justify-center p-10'>
               <Spinner />
             </div>
@@ -70,7 +68,7 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
       >
         <Switch
           fallback={
-            props.notFoundFallback ?? (
+            props.notFoundFallback || (
               <div class='flex h-full w-full flex-1 items-center justify-center'>
                 Data not found
               </div>
@@ -78,14 +76,14 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
           }
         >
           <Match when={!props.query.isFetching && !props.query.data}>
-            {props.notFoundFallback ?? (
+            {props.notFoundFallback || (
               <div class='flex h-full w-full flex-1 items-center justify-center'>
                 Data not found
               </div>
             )}
           </Match>
-          <Match when={props.query.data} keyed>
-            {(data) => props.children(data as Exclude<T, null | false | undefined>)}
+          <Match when={props.query.data}>
+            {(data) => props.children(data() as Exclude<T, null | false | undefined>)}
           </Match>
         </Switch>
       </Suspense>

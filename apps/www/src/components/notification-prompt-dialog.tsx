@@ -3,6 +3,7 @@ import { BellRing } from 'lucide-solid';
 import { Bell } from 'lucide-solid';
 import { Bookmark } from 'lucide-solid';
 import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
+import { isServer } from 'solid-js/web';
 import { useAuth } from '../contexts/auth';
 import { PushNotificationToggle } from './push-notification-toggle';
 import { Button } from './ui/button';
@@ -38,6 +39,7 @@ export function NotificationPromptDialog() {
   const [showPrompt, setShowPrompt] = createSignal(false);
 
   onMount(() => {
+    if (isServer) return;
     if (!('Notification' in window)) return;
     if (Notification.permission !== 'default') return;
     setIsSupported(true);

@@ -27,7 +27,7 @@ const FileInput = <T extends ValidComponent = 'div'>(props: FileInputProps<T>) =
   const [internalFiles, setInternalFiles] = createSignal<FileList | null>(null);
   const [isDragging, setIsDragging] = createSignal(false);
   let dragCounter = 0;
-  let timeout: number | undefined;
+  let timeout: Timer | undefined;
 
   const files = createMemo(() => props.value ?? internalFiles());
   const setFiles = (newFiles: FileList | null) => {
@@ -53,7 +53,7 @@ const FileInput = <T extends ValidComponent = 'div'>(props: FileInputProps<T>) =
     dragCounter--;
     if (dragCounter === 0) {
       clearTimeout(timeout);
-      timeout = window.setTimeout(() => setIsDragging(false), 100);
+      timeout = setTimeout(() => setIsDragging(false), 100);
     }
   };
 

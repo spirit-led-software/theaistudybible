@@ -1,4 +1,5 @@
 import { type Accessor, createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js';
+import { isServer } from 'solid-js/web';
 
 export type CreateChatScrollAnchorInput = {
   isLoading: boolean;
@@ -25,6 +26,8 @@ export const createChatScrollAnchor = (input?: Accessor<CreateChatScrollAnchorIn
 
   createEffect(
     on([scrollRef, bottomRef], ([scrollRef, bottomRef]) => {
+      if (isServer) return;
+
       if (scrollRef && bottomRef) {
         const observer = new IntersectionObserver(
           ([entry]) => setIsAtBottom(entry.isIntersecting),
@@ -38,6 +41,8 @@ export const createChatScrollAnchor = (input?: Accessor<CreateChatScrollAnchorIn
 
   createEffect(
     on([scrollRef, topOfLastMessageRef], ([scrollRef, topOfLastMessageRef]) => {
+      if (isServer) return;
+
       if (scrollRef && topOfLastMessageRef) {
         const observer = new IntersectionObserver(
           ([entry]) => setIsTopVisible(entry.isIntersecting),
@@ -51,6 +56,8 @@ export const createChatScrollAnchor = (input?: Accessor<CreateChatScrollAnchorIn
 
   createEffect(
     on([scrollRef, bottomRef], ([scrollRef, bottomRef]) => {
+      if (isServer) return;
+
       if (scrollRef && bottomRef) {
         const observer = new MutationObserver(() => {
           if (isAtBottom() && (isTopVisible() || !isLoading())) {

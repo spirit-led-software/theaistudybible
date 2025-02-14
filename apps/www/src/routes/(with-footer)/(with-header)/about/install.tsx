@@ -9,6 +9,7 @@ import { A } from '@solidjs/router';
 import { EllipsisVertical, Globe, HousePlus, MonitorUp, Plus, Share } from 'lucide-solid';
 import type { JSX } from 'solid-js';
 import { For, Show, createEffect, createMemo, createSignal } from 'solid-js';
+import { isServer } from 'solid-js/web';
 
 export default function InstallPage() {
   const [isLoading, setIsLoading] = createSignal(true);
@@ -16,7 +17,7 @@ export default function InstallPage() {
   const [isStandalone, setIsStandalone] = createSignal(false);
 
   createEffect(() => {
-    if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
+    if (!isServer) {
       setUserAgent(navigator.userAgent.toLowerCase());
       setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
       setIsLoading(false);

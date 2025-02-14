@@ -36,7 +36,7 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
       () => location.pathname,
       (pathname) => {
         if (previousPathname() !== pathname) {
-          const url = `${window?.origin}${pathname}${location.search}`;
+          const url = `${import.meta.env.PUBLIC_WEBAPP_URL}${pathname}${location.search}`;
           posthogClient()?.capture('$pageview', {
             $current_url: url,
           });
@@ -48,7 +48,7 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
 
   useBeforeLeave(({ from, to }) => {
     if (from.pathname !== to) {
-      const url = `${window?.origin}${from.pathname}${from.search}`;
+      const url = `${import.meta.env.PUBLIC_WEBAPP_URL}${from.pathname}${from.search}`;
       posthogClient()?.capture('$pageleave', {
         $current_url: url,
       });

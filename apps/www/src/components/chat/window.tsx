@@ -26,8 +26,6 @@ export type ChatWindowProps = {
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
-  const location = useLocation();
-  const windowSize = useWindowSize();
   const [chatStore, setChatStore] = useChatStore();
   const [bibleStore] = useBibleStore();
 
@@ -124,7 +122,10 @@ export const ChatWindow = (props: ChatWindowProps) => {
     return idx;
   });
 
+  const location = useLocation();
   const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
+
+  const windowSize = useWindowSize();
   const isMobile = createMemo(() => windowSize.width < 768);
 
   return (

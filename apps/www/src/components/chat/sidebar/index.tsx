@@ -9,7 +9,7 @@ import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
 import { Menu, PenBox, Search, X } from 'lucide-solid';
-import { For, Show, createMemo, createSignal } from 'solid-js';
+import { For, createMemo, createSignal } from 'solid-js';
 import { useChatStore } from '../../../contexts/chat';
 import { LogoSmall } from '../../branding/logo-small';
 import { NavigationDropdown } from '../../navigation/dropdown';
@@ -100,7 +100,6 @@ export const getChatsQueryOptions = (searchQuery?: string) => ({
 
 export const ChatSidebar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [chatStore, setChatStore] = useChatStore();
   const { isMobile, toggleSidebar } = useSidebar();
@@ -111,6 +110,7 @@ export const ChatSidebar = () => {
     placeholderData: (prev) => prev,
   }));
 
+  const location = useLocation();
   const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
 
   return (
@@ -149,7 +149,7 @@ export const ChatSidebar = () => {
             onInput={(e) => setSearchQuery(e.currentTarget.value)}
             class='pr-8 pl-9'
           />
-          <Show when={searchQuery()}>
+          {searchQuery() && (
             <Button
               variant='ghost'
               size='icon'
@@ -158,7 +158,7 @@ export const ChatSidebar = () => {
             >
               <X class='size-4' />
             </Button>
-          </Show>
+          )}
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -202,20 +202,18 @@ export const ChatSidebar = () => {
                           <div class='text-muted-foreground text-xs'>
                             {formatDate(chat.updatedAt, 'MMMM d, yyyy')}
                           </div>
-                          <Show when={chat.message?.content} keyed>
-                            {(content) => (
-                              <div class='mt-1 text-xs'>
-                                {getHighlightedContent(content, searchQuery(), 50)}
-                              </div>
-                            )}
-                          </Show>
+                          {chat.message?.content && (
+                            <div class='mt-1 text-xs'>
+                              {getHighlightedContent(chat.message.content, searchQuery(), 50)}
+                            </div>
+                          )}
                         </div>
                       </SidebarMenuButton>
                       <DeleteChatButton chat={chat} />
                     </SidebarMenuItem>
                   )}
                 </For>
-                <Show when={chatsQuery.hasNextPage}>
+                {chatsQuery.hasNextPage && (
                   <Button
                     class='w-full'
                     disabled={chatsQuery.isFetchingNextPage}
@@ -223,14 +221,14 @@ export const ChatSidebar = () => {
                   >
                     Load More
                   </Button>
-                </Show>
+                )}
               </SidebarMenu>
             );
           }}
         </QueryBoundary>
       </SidebarContent>
       <SidebarFooter>
-        <Show when={isChatPage()}>
+        {isChatPage() && (
           <NavigationDropdown
             variant='ghost'
             class='flex h-fit w-full items-center justify-between px-4 py-1'
@@ -238,7 +236,7 @@ export const ChatSidebar = () => {
             <LogoSmall width={128} height={64} class='h-auto w-24' lightClass='dark:hidden' />
             <Menu />
           </NavigationDropdown>
-        </Show>
+        )}
       </SidebarFooter>
     </Sidebar>
   );

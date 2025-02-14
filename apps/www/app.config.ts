@@ -2,7 +2,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { withSentry } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
 import tailwindcss from '@tailwindcss/vite';
-import solidDevTools from 'solid-devtools/vite';
+import { analyzer } from 'vite-bundle-analyzer';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -23,6 +23,7 @@ const doNotCacheHeaders = {
 export default defineConfig(
   withSentry(
     {
+      ssr: false,
       middleware: './src/middleware.ts',
       server: {
         preset: 'bun',
@@ -46,11 +47,11 @@ export default defineConfig(
         },
       },
       vite: {
+        build: { target: 'esnext' },
         envPrefix: 'PUBLIC_',
         plugins: [
           tsconfigPaths(),
           tailwindcss(),
-          solidDevTools({ autoname: true }),
           VitePWA({
             strategies: 'injectManifest',
             registerType: 'autoUpdate',
@@ -101,8 +102,10 @@ export default defineConfig(
               type: 'module',
             },
           }),
+          analyzer(),
         ],
         optimizeDeps: { include: ['solid-markdown > debug', 'solid-marked > extend'] },
+        ssr: { external: ['posthog-js', '@stripe/stripe-js', 'motion'] },
       },
     },
     {

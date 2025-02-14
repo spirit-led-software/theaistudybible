@@ -21,7 +21,6 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6, P } from '@/www/components/ui/typography';
-import { useAuth } from '@/www/contexts/auth';
 import { useProtect } from '@/www/hooks/use-protect';
 import { auth, requireAuth } from '@/www/server/utils/auth';
 import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
@@ -117,11 +116,8 @@ const getBookmarksQueryOptions = (input: { search?: string } = {}) => ({
 
 export const route = {
   preload: () => {
-    const { session, user } = useAuth();
-    if (session() && user()) {
-      const qc = useQueryClient();
-      qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
-    }
+    const qc = useQueryClient();
+    qc.prefetchInfiniteQuery(getBookmarksQueryOptions());
   },
 } satisfies RouteDefinition;
 

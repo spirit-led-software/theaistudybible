@@ -1,12 +1,11 @@
-/** @refresh reload */
-
+// @refresh reload
 import { ColorModeProvider, ColorModeScript, cookieStorageManagerSSR } from '@kobalte/core';
 import { Meta, MetaProvider, Title } from '@solidjs/meta';
 import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import { Suspense } from 'solid-js';
-import { isServer } from 'solid-js/web';
+import { getRequestEvent, isServer } from 'solid-js/web';
 import { Logo } from './components/branding/logo';
 import { NotificationPromptDialog } from './components/notification-prompt-dialog';
 import { SentryRouter } from './components/sentry/router';
@@ -43,6 +42,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <SolidQueryDevtools initialIsOpen={false} buttonPosition='bottom-left' />
       <SentryRouter
+        url={isServer ? getRequestEvent()?.request.url : undefined}
         explicitLinks
         root={(props) => (
           <PosthogProvider>

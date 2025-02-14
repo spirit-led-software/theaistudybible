@@ -52,6 +52,7 @@
     "@solid-primitives/context": "^0.3.0",
     "@solid-primitives/intersection-observer": "^2.2.0",
     "@solid-primitives/memo": "^1.4.0",
+    "@solid-primitives/mutation-observer": "^1.2.0",
     "@solid-primitives/resize-observer": "^2.1.0",
     "@solid-primitives/share": "^2.2.0",
     "@solid-primitives/storage": "4.3.1",
@@ -81,7 +82,8 @@
     "solid-js": "^1.9.4",
     "solid-markdown": "^2.0.14",
     "solid-sonner": "^0.2.8",
-    "tailwind-merge": "^3.0.1"
+    "tailwind-merge": "^3.0.1",
+    "vite-bundle-analyzer": "^0.17.0"
   },
   "engines": {
     "node": ">=18",

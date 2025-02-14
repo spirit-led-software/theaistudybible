@@ -6,7 +6,6 @@ import { Button } from '@/www/components/ui/button';
 import { Spinner } from '@/www/components/ui/spinner';
 import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
 import { H2, H6 } from '@/www/components/ui/typography';
-import { useAuth } from '@/www/contexts/auth';
 import { useProtect } from '@/www/hooks/use-protect';
 import { auth } from '@/www/server/utils/auth';
 import { Meta, Title } from '@solidjs/meta';
@@ -126,11 +125,8 @@ const getNotesQueryOptions = (input: { search?: string } = {}) => ({
 
 export const route = {
   preload: () => {
-    const { session, user } = useAuth();
-    if (session() && user()) {
-      const qc = useQueryClient();
-      qc.prefetchInfiniteQuery(getNotesQueryOptions());
-    }
+    const qc = useQueryClient();
+    qc.prefetchInfiniteQuery(getNotesQueryOptions());
   },
 } satisfies RouteDefinition;
 

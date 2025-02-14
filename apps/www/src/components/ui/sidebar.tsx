@@ -1,3 +1,14 @@
+import { Button, type ButtonProps } from '@/www/components/ui/button';
+import { Separator } from '@/www/components/ui/separator';
+import { Sheet, SheetContent } from '@/www/components/ui/sheet';
+import { Skeleton } from '@/www/components/ui/skeleton';
+import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import { cn } from '@/www/lib/utils';
+import type { PolymorphicProps } from '@kobalte/core';
+import { Polymorphic } from '@kobalte/core';
+import type { VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 import type { Accessor, Component, ComponentProps, JSX, ValidComponent } from 'solid-js';
 import {
   Match,
@@ -12,19 +23,17 @@ import {
   splitProps,
   useContext,
 } from 'solid-js';
+import { isServer } from 'solid-js/web';
+import { setCookie } from 'vinxi/http';
 
-import type { PolymorphicProps } from '@kobalte/core';
-import { Polymorphic } from '@kobalte/core';
-import type { VariantProps } from 'class-variance-authority';
-import { cva } from 'class-variance-authority';
-
-import { Button, type ButtonProps } from '@/www/components/ui/button';
-import { Separator } from '@/www/components/ui/separator';
-import { Sheet, SheetContent } from '@/www/components/ui/sheet';
-import { Skeleton } from '@/www/components/ui/skeleton';
-import { TextField, TextFieldInput } from '@/www/components/ui/text-field';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
-import { cn } from '@/www/lib/utils';
+const setSidebarCookie = (open: boolean) => {
+  'use server';
+  setCookie(SIDEBAR_COOKIE_NAME, open ? 'expanded' : 'collapsed', {
+    path: '/',
+    maxAge: SIDEBAR_COOKIE_MAX_AGE,
+  });
+  return { success: true };
+};
 
 const MOBILE_BREAKPOINT = 768;
 const SIDEBAR_COOKIE_NAME = 'sidebar:state';
@@ -57,6 +66,8 @@ export function useIsMobile(fallback = false) {
   const [isMobile, setIsMobile] = createSignal(fallback);
 
   createEffect(() => {
+    if (isServer) return;
+
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
     const onChange = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
@@ -100,7 +111,11 @@ const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
     _setOpen(value);
 
     // This sets the cookie to keep the sidebar state.
-    document.cookie = `${SIDEBAR_COOKIE_NAME}=${open()}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+    if (isServer) {
+      setSidebarCookie(open());
+    } else {
+      document.cookie = `${SIDEBAR_COOKIE_NAME}=${open()}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+    }
   };
 
   // Helper to toggle the sidebar.
@@ -110,6 +125,8 @@ const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
 
   // Adds a keyboard shortcut to toggle the sidebar.
   createEffect(() => {
+    if (isServer) return;
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
