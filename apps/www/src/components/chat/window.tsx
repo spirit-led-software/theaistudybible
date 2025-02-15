@@ -29,12 +29,21 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const [chatStore, setChatStore] = useChatStore();
   const [bibleStore] = useBibleStore();
 
+  const chatConfig = createMemo(() => ({
+    id: chatStore.chatId ?? undefined,
+    body: {
+      additionalContext: props.additionalContext,
+      modelId: chatStore.modelId,
+      bibleAbbreviation: bibleStore.bible?.abbreviation,
+    },
+  }));
+
   const {
     id,
     input,
     setInput,
     handleSubmit: handleSubmitBase,
-    isLoading,
+    status,
     error,
     messages,
     messagesQuery,
@@ -44,22 +53,25 @@ export const ChatWindow = (props: ChatWindowProps) => {
     chatQuery,
     followUpSuggestionsQuery,
     remainingMessagesQuery,
-  } = useChat(() => ({
-    id: chatStore.chatId ?? undefined,
-    body: {
-      additionalContext: props.additionalContext,
-      modelId: chatStore.modelId,
-      bibleAbbreviation: bibleStore.bible?.abbreviation,
-    },
-  }));
+  } = useChat(() => chatConfig());
+
+  const isLoading = createMemo(() => status() === 'submitted' || status() === 'streaming');
+
+  const location = useLocation();
+  const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
+  const windowSize = useWindowSize();
+  const isMobile = createMemo(() => windowSize.width < 768);
+
   createEffect(() => {
     setChatStore('chatId', id() ?? null);
   });
+
   createEffect(() => {
     if (chatQuery.status === 'success') {
       setChatStore('chat', chatQuery.data.chat);
     }
   });
+
   createEffect(
     on(error, (error) => {
       if (error) {
@@ -121,12 +133,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
     }
     return idx;
   });
-
-  const location = useLocation();
-  const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
-
-  const windowSize = useWindowSize();
-  const isMobile = createMemo(() => windowSize.width < 768);
 
   return (
     <SidebarProvider

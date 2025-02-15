@@ -10,6 +10,7 @@ import {
   onMount,
   useContext,
 } from 'solid-js';
+import { isServer } from 'solid-js/web';
 
 const PosthogContext = createContext<Accessor<PostHog | undefined> | null>(null);
 
@@ -56,7 +57,9 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
   });
 
   onMount(async () => {
+    if (isServer) return;
     const isDev = import.meta.env.PUBLIC_DEV === 'true';
+    const isProd = import.meta.env.PUBLIC_STAGE === 'production';
     if (!isDev) {
       const { default: posthog } = await import('posthog-js');
       const posthogClient = posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
@@ -65,6 +68,9 @@ export const PosthogProvider = (props: { children: JSX.Element }) => {
         person_profiles: 'always',
         capture_pageview: false,
       });
+      if (!isProd) {
+        posthogClient.opt_out_capturing();
+      }
       setPosthogClient(posthogClient);
     }
   });

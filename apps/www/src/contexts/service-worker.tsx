@@ -7,8 +7,10 @@ import {
   createEffect,
   createSignal,
   onCleanup,
+  onMount,
   useContext,
 } from 'solid-js';
+import { isServer } from 'solid-js/web';
 
 type ServiceWorkerContextType = {
   registration: Accessor<ServiceWorkerRegistration | undefined>;
@@ -19,9 +21,12 @@ const ServiceWorkerContext = createContext<ServiceWorkerContextType>();
 export const ServiceWorkerProvider = (props: ParentProps) => {
   const [registration, setRegistration] = createSignal<ServiceWorkerRegistration>();
 
-  useRegisterSW({
-    onRegisteredSW: (_, registration) => setRegistration(registration),
-    onRegisterError: (error) => captureSentryException(error),
+  onMount(() => {
+    if (isServer) return;
+    useRegisterSW({
+      onRegisteredSW: (_, registration) => setRegistration(registration),
+      onRegisterError: (error) => captureSentryException(error),
+    });
   });
 
   createEffect(() => {

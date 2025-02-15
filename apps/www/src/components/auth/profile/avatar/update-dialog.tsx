@@ -78,8 +78,8 @@ export function UpdateAvatarDialog() {
 
   const handleFileSelect = (event: Event) => {
     const input = event.target as HTMLInputElement;
-    if (input.files?.[0]) {
-      const file = input.files[0];
+    const file = input.files?.[0];
+    if (file) {
       setSelectedFile(() => file);
       const reader = new FileReader();
       reader.onload = (e) => setPreviewUrl(() => e.target?.result as string);

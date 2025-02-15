@@ -24,16 +24,6 @@ import {
   useContext,
 } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import { setCookie } from 'vinxi/http';
-
-const setSidebarCookie = (open: boolean) => {
-  'use server';
-  setCookie(SIDEBAR_COOKIE_NAME, open ? 'expanded' : 'collapsed', {
-    path: '/',
-    maxAge: SIDEBAR_COOKIE_MAX_AGE,
-  });
-  return { success: true };
-};
 
 const MOBILE_BREAKPOINT = 768;
 const SIDEBAR_COOKIE_NAME = 'sidebar:state';
@@ -103,25 +93,23 @@ const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
   // This is the internal state of the sidebar.
   // We use open and onOpenChange for control from outside the component.
   const [_open, _setOpen] = createSignal(local.defaultOpen);
-  const open = () => local.open ?? _open();
+  const open = createMemo(() => local.open ?? _open());
   const setOpen = (value: boolean | ((value: boolean) => boolean)) => {
     if (local.onOpenChange) {
-      return local.onOpenChange?.(typeof value === 'function' ? value(open()) : value);
+      const newValue = typeof value === 'function' ? value(open()) : value;
+      local.onOpenChange?.(newValue);
+      return;
     }
     _setOpen(value);
 
     // This sets the cookie to keep the sidebar state.
-    if (isServer) {
-      setSidebarCookie(open());
-    } else {
+    if (!isServer) {
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${open()}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     }
   };
 
   // Helper to toggle the sidebar.
-  const toggleSidebar = () => {
-    return setOpen((open) => !open);
-  };
+  const toggleSidebar = () => setOpen((current) => !current);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   createEffect(() => {
@@ -140,7 +128,7 @@ const SidebarProvider: Component<SidebarProviderProps> = (rawProps) => {
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
-  const state = () => (open() ? 'expanded' : 'collapsed');
+  const state = createMemo(() => (open() ? 'expanded' : 'collapsed'));
 
   const contextValue = {
     state,

@@ -17,11 +17,10 @@ export default function InstallPage() {
   const [isStandalone, setIsStandalone] = createSignal(false);
 
   createEffect(() => {
-    if (!isServer) {
-      setUserAgent(navigator.userAgent.toLowerCase());
-      setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
-      setIsLoading(false);
-    }
+    if (isServer) return;
+    setUserAgent(navigator.userAgent.toLowerCase());
+    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
+    setIsLoading(false);
   });
 
   const isIOS = createMemo(() => /iphone|ipad|ipod/.test(userAgent()));

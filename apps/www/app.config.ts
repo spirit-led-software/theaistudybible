@@ -23,7 +23,6 @@ const doNotCacheHeaders = {
 export default defineConfig(
   withSentry(
     {
-      ssr: false,
       middleware: './src/middleware.ts',
       server: {
         preset: 'bun',
@@ -102,7 +101,7 @@ export default defineConfig(
               type: 'module',
             },
           }),
-          analyzer(),
+          process.env.ANALYZE === 'true' && analyzer(),
         ],
         optimizeDeps: { include: ['solid-markdown > debug', 'solid-marked > extend'] },
         ssr: { external: ['posthog-js', '@stripe/stripe-js', 'motion'] },
