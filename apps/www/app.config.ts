@@ -46,7 +46,6 @@ export default defineConfig(
         },
       },
       vite: {
-        build: { target: 'esnext' },
         envPrefix: 'PUBLIC_',
         plugins: [
           tsconfigPaths(),
