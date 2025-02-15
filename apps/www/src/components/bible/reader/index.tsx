@@ -7,12 +7,13 @@ import { Meta, Title } from '@solidjs/meta';
 import { useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
-import { createMemo, onMount } from 'solid-js';
+import { createEffect, createMemo } from 'solid-js';
 import { ActivityPanel, ActivityPanelContent, ActivityPanelMenu } from './activity-panel';
 import { Contents } from './contents';
 
 import './contents/contents.css';
 import { cn } from '@/www/lib/utils';
+import { isServer } from 'solid-js/web';
 
 const getHighlights = GET(async (bibleAbbreviation: string, chapterCode: string) => {
   'use server';
@@ -101,7 +102,8 @@ export const ReaderContent = (props: ReaderContentProps) => {
   const [brStore] = useBibleReaderStore();
 
   const [searchParams] = useSearchParams();
-  onMount(() => {
+  createEffect(() => {
+    if (isServer) return;
     if (!searchParams.verseNumber) return;
 
     if (searchParams.verseNumber) {

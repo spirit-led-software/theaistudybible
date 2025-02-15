@@ -103,7 +103,9 @@ export default defineConfig(
           process.env.ANALYZE === 'true' && analyzer(),
         ],
         optimizeDeps: { include: ['solid-markdown > debug', 'solid-marked > extend'] },
-        ssr: { external: ['posthog-js', '@stripe/stripe-js', 'motion'] },
+        ssr: {
+          external: ['posthog-js', '@stripe/stripe-js', 'motion', '@floating-ui/dom'],
+        },
       },
     },
     {

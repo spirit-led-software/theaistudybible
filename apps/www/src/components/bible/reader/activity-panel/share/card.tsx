@@ -8,6 +8,7 @@ import { createSocialShare } from '@solid-primitives/share';
 import { useLocation } from '@solidjs/router';
 import { Copy } from 'lucide-solid';
 import { Match, Switch } from 'solid-js';
+import { isServer } from 'solid-js/web';
 import { toast } from 'solid-sonner';
 import { EmailShareButton, FacebookShareButton, XShareButton } from './buttons';
 
@@ -60,8 +61,14 @@ export const ShareCard = () => {
         >
           <Copy />
         </Button>
-        <Switch>
-          <Match when={navigator.share}>
+        <Switch
+          fallback={
+            <Button variant='outline' disabled>
+              Share
+            </Button>
+          }
+        >
+          <Match when={!isServer && navigator.share}>
             <Button
               onClick={() => {
                 void navigator.share({
@@ -74,7 +81,7 @@ export const ShareCard = () => {
               Share
             </Button>
           </Match>
-          <Match when={!navigator.share}>
+          <Match when={!isServer && !navigator.share}>
             <XShareButton share={share} />
             <FacebookShareButton share={share} />
             <EmailShareButton share={share} />

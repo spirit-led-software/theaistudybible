@@ -4,12 +4,13 @@ import { MenuIcon } from 'lucide-solid';
 import {
   type JSX,
   createContext,
+  createEffect,
   createSignal,
   mergeProps,
   onCleanup,
-  onMount,
   useContext,
 } from 'solid-js';
+import { isServer } from 'solid-js/web';
 import { SignedIn, SignedOut } from '../auth/control';
 import { SignInButton } from '../auth/sign-in-button';
 import { UserButton } from '../auth/user-button';
@@ -67,7 +68,8 @@ export function NavigationHeader(_props: NavigationHeaderProps) {
     setLastScrollY(currentScrollY);
   };
 
-  onMount(() => {
+  createEffect(() => {
+    if (isServer) return;
     if (props.sticky) {
       window.addEventListener('scroll', handleScroll, { passive: true });
       onCleanup(() => window.removeEventListener('scroll', handleScroll));
