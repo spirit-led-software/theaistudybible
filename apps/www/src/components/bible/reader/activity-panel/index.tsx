@@ -6,6 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/www/components/ui/dropdown-menu';
+import { Spinner } from '@/www/components/ui/spinner';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
 import { createResizeObserver, useWindowSize } from '@solid-primitives/resize-observer';
@@ -17,20 +18,27 @@ import {
   Match,
   type Setter,
   Show,
+  Suspense,
   Switch,
   createContext,
   createEffect,
   createSignal,
+  lazy,
   splitProps,
   useContext,
 } from 'solid-js';
 import { createStore } from 'solid-js/store';
-import { ChatCard } from './chat/card';
-import { HighlightCard } from './highlight/card';
-import { NotesCard } from './notes/card';
-import { ReferencesCard } from './references/card';
 import { ReferencesMenuItem } from './references/menu-item';
-import { ShareCard } from './share/card';
+
+const ShareCard = lazy(async () => ({ default: (await import('./share/card')).ShareCard }));
+const ChatCard = lazy(async () => ({ default: (await import('./chat/card')).ChatCard }));
+const HighlightCard = lazy(async () => ({
+  default: (await import('./highlight/card')).HighlightCard,
+}));
+const NotesCard = lazy(async () => ({ default: (await import('./notes/card')).NotesCard }));
+const ReferencesCard = lazy(async () => ({
+  default: (await import('./references/card')).ReferencesCard,
+}));
 
 export type ActivityPanelValue =
   | 'chat'
@@ -205,23 +213,25 @@ export const ActivityPanelContent = () => {
               <DrawerTitle class='text-center'>{brStore.selectedTitle}</DrawerTitle>
             </DrawerHeader>
           </Show>
-          <Switch>
-            <Match when={value() === 'share'}>
-              <ShareCard />
-            </Match>
-            <Match when={value() === 'highlight'}>
-              <HighlightCard />
-            </Match>
-            <Match when={value() === 'notes'}>
-              <NotesCard />
-            </Match>
-            <Match when={value() === 'references'}>
-              <ReferencesCard />
-            </Match>
-            <Match when={value() === 'chat'}>
-              <ChatCard />
-            </Match>
-          </Switch>
+          <Suspense fallback={<Spinner />}>
+            <Switch>
+              <Match when={value() === 'share'}>
+                <ShareCard />
+              </Match>
+              <Match when={value() === 'highlight'}>
+                <HighlightCard />
+              </Match>
+              <Match when={value() === 'notes'}>
+                <NotesCard />
+              </Match>
+              <Match when={value() === 'references'}>
+                <ReferencesCard />
+              </Match>
+              <Match when={value() === 'chat'}>
+                <ChatCard />
+              </Match>
+            </Switch>
+          </Suspense>
         </div>
       </DrawerContent>
     </Drawer>

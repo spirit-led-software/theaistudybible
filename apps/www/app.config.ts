@@ -104,7 +104,7 @@ export default defineConfig(
         ],
         optimizeDeps: { include: ['solid-markdown > debug', 'solid-marked > extend'] },
         ssr: {
-          external: ['posthog-js', '@stripe/stripe-js', 'motion', '@floating-ui/dom'],
+          external: ['posthog-js', '@stripe/stripe-js', 'motion'],
         },
       },
     },

@@ -1,6 +1,6 @@
 import { useLocation } from '@solidjs/router';
 import { ChevronLeft, SidebarIcon } from 'lucide-solid';
-import { Show, createMemo } from 'solid-js';
+import { Show, createEffect, createMemo, createSignal } from 'solid-js';
 import { useChatStore } from '../../contexts/chat';
 import { UserButton } from '../auth/user-button';
 import { Button } from '../ui/button';
@@ -10,6 +10,11 @@ import { EditChatButton } from './sidebar/edit-chat-button';
 
 export const ChatMenu = () => {
   const location = useLocation();
+  const [isChatPage, setIsChatPage] = createSignal(false);
+  createEffect(() => {
+    setIsChatPage(location.pathname.startsWith('/chat'));
+  });
+
   const [chatStore] = useChatStore();
   const { open } = useSidebar();
 
@@ -37,7 +42,7 @@ export const ChatMenu = () => {
           {(chat) => <EditChatButton chat={chat} />}
         </Show>
       </div>
-      <Show when={location.pathname.startsWith('/chat')}>
+      <Show when={isChatPage()}>
         <UserButton class='size-8' />
       </Show>
     </div>

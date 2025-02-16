@@ -6,7 +6,7 @@ import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
 import { formatDate } from 'date-fns';
 import { ArrowUp, ChevronDown, ChevronUp, StopCircle } from 'lucide-solid';
-import { For, createEffect, createMemo, on } from 'solid-js';
+import { For, Show, createEffect, createMemo, createSignal, on } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { QueryBoundary } from '../query-boundary';
@@ -58,7 +58,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const isLoading = createMemo(() => status() === 'submitted' || status() === 'streaming');
 
   const location = useLocation();
-  const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
+  const [isChatPage, setIsChatPage] = createSignal(false);
+  createEffect(() => {
+    setIsChatPage(location.pathname.startsWith('/chat'));
+  });
+
   const windowSize = useWindowSize();
   const isMobile = createMemo(() => windowSize.width < 768);
 
@@ -140,7 +144,9 @@ export const ChatWindow = (props: ChatWindowProps) => {
       style={{ '--sidebar-width': '20rem' }}
       defaultOpen={!isMobile() && isChatPage()}
     >
-      {isChatPage() && <MetaTags />}
+      <Show when={isChatPage()}>
+        <MetaTags />
+      </Show>
       <ChatSidebar />
       <div class='relative flex w-full flex-1 flex-col overflow-hidden' aria-label='Chat window'>
         <ChatMenu />
@@ -153,7 +159,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
         >
           <div class='flex w-full flex-1 flex-col items-center justify-end'>
             <div class='flex w-full items-start justify-center'>
-              {messagesQuery.status === 'success' && messagesQuery.hasNextPage && (
+              <Show when={messagesQuery.status === 'success' && messagesQuery.hasNextPage}>
                 <div class='flex flex-col items-center justify-center'>
                   <Button
                     variant='link'
@@ -166,7 +172,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
                     {messagesQuery.isFetchingNextPage ? <Spinner size='sm' /> : <ChevronUp />}
                   </Button>
                 </div>
-              )}
+              </Show>
             </div>
             <div class='flex w-full flex-1 flex-col items-center justify-end'>
               <For
@@ -177,9 +183,9 @@ export const ChatWindow = (props: ChatWindowProps) => {
               >
                 {(message, idx) => (
                   <>
-                    {idx() === lastMessageIdx() && (
+                    <Show when={idx() === lastMessageIdx()}>
                       <div ref={setTopOfLastMessageRef} class='h-px w-full shrink-0' />
-                    )}
+                    </Show>
                     <Message
                       previousMessage={messages()[idx() - 1]}
                       message={message}
@@ -190,15 +196,20 @@ export const ChatWindow = (props: ChatWindowProps) => {
                   </>
                 )}
               </For>
-              {!isLoading() &&
-                !followUpSuggestionsQuery.isFetching &&
-                followUpSuggestionsQuery.data &&
-                followUpSuggestionsQuery.data.suggestions.length && (
-                  <SuggestionsMessage
-                    suggestions={followUpSuggestionsQuery.data.suggestions}
-                    append={append}
-                  />
+              <Show
+                when={
+                  !isLoading() &&
+                  !followUpSuggestionsQuery.isFetching &&
+                  followUpSuggestionsQuery.data
+                }
+                keyed
+              >
+                {({ suggestions }) => (
+                  <Show when={suggestions.length > 0}>
+                    <SuggestionsMessage suggestions={suggestions} append={append} />
+                  </Show>
                 )}
+              </Show>
             </div>
             <div ref={setBottomRef} class='h-28 w-full shrink-0' />
           </div>
@@ -216,7 +227,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           aria-label='Message input form'
         >
           <div class='relative flex h-fit w-full max-w-3xl flex-col gap-2 rounded-t-lg border bg-background/80 px-3 pt-2 pb-4 backdrop-blur-md'>
-            {!isAtBottom() && (
+            <Show when={!isAtBottom()}>
               <Button
                 variant='outline'
                 size='icon'
@@ -226,7 +237,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
               >
                 <ChevronDown />
               </Button>
-            )}
+            </Show>
             <div class='flex flex-1 items-center gap-2'>
               <SelectModelButton />
               <TextField class='flex flex-1 items-center' value={input()} onChange={setInput}>

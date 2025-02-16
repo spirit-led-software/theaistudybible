@@ -1,16 +1,20 @@
 import { ResetPassword } from '@/www/components/auth/reset-password';
 import { useProtectAnonymous } from '@/www/hooks/use-protect';
 import { Meta, Title } from '@solidjs/meta';
-import { Navigate, useLocation, useNavigate, useSearchParams } from '@solidjs/router';
-
+import { useLocation, useNavigate, useSearchParams } from '@solidjs/router';
+import { createEffect } from 'solid-js';
 export default function ResetPasswordPage() {
   useProtectAnonymous();
 
+  const navigate = useNavigate();
   const location = useLocation();
-  if (!location.query.code) return <Navigate href='/forgot-password' />;
+  createEffect(() => {
+    if (!location.query.code) {
+      navigate('/forgot-password');
+    }
+  });
 
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   return (
     <>

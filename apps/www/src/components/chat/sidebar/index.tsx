@@ -9,7 +9,7 @@ import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
 import { Menu, PenBox, Search, X } from 'lucide-solid';
-import { For, createMemo, createSignal } from 'solid-js';
+import { For, createEffect, createSignal } from 'solid-js';
 import { useChatStore } from '../../../contexts/chat';
 import { LogoSmall } from '../../branding/logo-small';
 import { NavigationDropdown } from '../../navigation/dropdown';
@@ -111,7 +111,10 @@ export const ChatSidebar = () => {
   }));
 
   const location = useLocation();
-  const isChatPage = createMemo(() => location.pathname.startsWith('/chat'));
+  const [isChatPage, setIsChatPage] = createSignal(false);
+  createEffect(() => {
+    setIsChatPage(location.pathname.startsWith('/chat'));
+  });
 
   return (
     <Sidebar
