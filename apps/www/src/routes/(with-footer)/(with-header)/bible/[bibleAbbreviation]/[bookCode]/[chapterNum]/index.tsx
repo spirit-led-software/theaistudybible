@@ -4,6 +4,7 @@ import { smallBiblePickerQueryOptions } from '@/www/components/bible/small-bible
 import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
+import { Show } from 'solid-js';
 
 export const route: RouteDefinition = {
   preload: ({ params }) => {
@@ -26,10 +27,12 @@ export default function ChapterPage() {
   const params = useParams();
 
   return (
-    <ChapterReader
-      bibleAbbreviation={params.bibleAbbreviation}
-      bookCode={params.bookCode}
-      chapterNum={Number.parseInt(params.chapterNum)}
-    />
+    <Show when={params.chapterNum} keyed>
+      <ChapterReader
+        bibleAbbreviation={params.bibleAbbreviation}
+        bookCode={params.bookCode}
+        chapterNum={Number.parseInt(params.chapterNum)}
+      />
+    </Show>
   );
 }

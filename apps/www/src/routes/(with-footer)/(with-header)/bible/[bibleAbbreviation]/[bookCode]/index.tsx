@@ -59,7 +59,12 @@ const getBookRedirectUrlQueryOptions = ({
 export const route: RouteDefinition = {
   preload: async ({ params }) => {
     const qc = useQueryClient();
-    await qc.prefetchQuery(getBookRedirectUrlQueryOptions(params as BookRedirectUrlParams));
+    await qc.prefetchQuery(
+      getBookRedirectUrlQueryOptions({
+        bibleAbbreviation: params.bibleAbbreviation,
+        bookCode: params.bookCode,
+      }),
+    );
   },
 };
 

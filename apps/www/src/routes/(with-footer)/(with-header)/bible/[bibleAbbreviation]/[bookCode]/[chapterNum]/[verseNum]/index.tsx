@@ -4,6 +4,7 @@ import { VerseReader, getVerseReaderQueryOptions } from '@/www/components/bible/
 import type { RouteDefinition } from '@solidjs/router';
 import { useParams } from '@solidjs/router';
 import { useQueryClient } from '@tanstack/solid-query';
+import { Show } from 'solid-js';
 
 export const route: RouteDefinition = {
   preload: ({ params }) => {
@@ -27,11 +28,13 @@ export default function ChapterPage() {
   const params = useParams();
 
   return (
-    <VerseReader
-      bibleAbbreviation={params.bibleAbbreviation}
-      bookCode={params.bookCode}
-      chapterNum={Number.parseInt(params.chapterNum)}
-      verseNum={Number.parseInt(params.verseNum)}
-    />
+    <Show when={params.verseNum} keyed>
+      <VerseReader
+        bibleAbbreviation={params.bibleAbbreviation}
+        bookCode={params.bookCode}
+        chapterNum={Number.parseInt(params.chapterNum)}
+        verseNum={Number.parseInt(params.verseNum)}
+      />
+    </Show>
   );
 }

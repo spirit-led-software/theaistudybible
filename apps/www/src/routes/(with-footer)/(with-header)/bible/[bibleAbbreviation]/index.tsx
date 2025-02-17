@@ -56,7 +56,11 @@ const getBibleRedirectUrlQueryOptions = ({ bibleAbbreviation }: BibleRedirectUrl
 export const route: RouteDefinition = {
   preload: async ({ params }) => {
     const qc = useQueryClient();
-    await qc.prefetchQuery(getBibleRedirectUrlQueryOptions(params as BibleRedirectUrlParams));
+    await qc.prefetchQuery(
+      getBibleRedirectUrlQueryOptions({
+        bibleAbbreviation: params.bibleAbbreviation,
+      }),
+    );
   },
 };
 
