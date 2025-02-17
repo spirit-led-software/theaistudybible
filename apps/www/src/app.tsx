@@ -5,7 +5,7 @@ import { FileRoutes } from '@solidjs/start/router';
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import { Suspense } from 'solid-js';
-import { getRequestEvent, isServer } from 'solid-js/web';
+import { isServer } from 'solid-js/web';
 import { Logo } from './components/branding/logo';
 import { NotificationPromptDialog } from './components/notification-prompt-dialog';
 import { SentryRouter } from './components/sentry/router';
@@ -28,7 +28,7 @@ export default function App() {
     defaultOptions: {
       queries: {
         gcTime: 1000 * 60 * 60 * 24, // 24 hours
-        staleTime: 1000 * 5, // Just enough to avoid refetching on the client
+        staleTime: 1000 * 10, // Just enough to avoid refetching on the client
         experimental_prefetchInRender: true,
       },
     },
@@ -42,7 +42,6 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <SolidQueryDevtools initialIsOpen={false} buttonPosition='bottom-left' />
       <SentryRouter
-        url={isServer ? getRequestEvent()?.request.url : undefined}
         explicitLinks
         root={(props) => (
           <PosthogProvider>

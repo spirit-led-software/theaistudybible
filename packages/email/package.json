@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@theaistudybible/tsconfig": "workspace:*",
-    "@types/react": "^19.0.9",
+    "@types/react": "^19.0.10",
     "react-email": "3.0.7"
   },
   "dependencies": {
