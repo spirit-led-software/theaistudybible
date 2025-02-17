@@ -22,7 +22,7 @@ export const ChatMenu = () => {
 
   return (
     <div
-      class='flex w-full items-center justify-between gap-2 px-3 py-1'
+      class='flex w-full items-center justify-between gap-2 px-3 py-1 shadow-xs'
       role='banner'
       aria-label='Chat header'
     >
