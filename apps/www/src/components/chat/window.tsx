@@ -226,7 +226,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
           }}
           aria-label='Message input form'
         >
-          <div class='relative flex h-fit w-full max-w-3xl flex-col gap-2 rounded-t-lg border bg-background/80 px-3 pt-2 pb-4 backdrop-blur-md'>
+          <div class='relative flex h-fit w-full max-w-3xl flex-col gap-2 rounded-t-lg border border-b-none bg-background/80 px-3 pt-2 pb-4 backdrop-blur-md'>
             <Show when={!isAtBottom()}>
               <Button
                 variant='outline'
