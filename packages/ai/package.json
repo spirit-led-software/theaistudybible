@@ -21,8 +21,8 @@
     "@theaistudybible/schemas": "workspace:*",
     "@upstash/vector": "^1.2.0",
     "braintrust": "^0.0.184",
+    "js-tiktoken": "^1.0.19",
     "openai": "^4.85.1",
-    "tiktoken": "^1.0.20",
     "voyage-ai-provider": "^1.0.1"
   }
 }

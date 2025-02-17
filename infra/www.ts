@@ -10,25 +10,12 @@ import {
 import { allLinks } from './defaults';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
 import * as queues from './queues';
-import { SENTRY_AUTH_TOKEN } from './secrets';
+import { CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN, SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
 import * as storage from './storage';
 import { donationLink } from './stripe';
-import type { FlyRegion } from './types/fly.io';
 import { isProd } from './utils/constants';
 import { buildLinks, linksToEnv } from './utils/link';
-
-type RegionConfig = {
-  region: FlyRegion;
-  replicas: number;
-};
-
-const regions: RegionConfig[] = isProd
-  ? [
-      { region: 'iad', replicas: 4 },
-      { region: 'fra', replicas: 4 },
-    ]
-  : [{ region: 'iad', replicas: 1 }];
 
 const baseEnv = $util
   .all([
@@ -89,52 +76,24 @@ export const webAppDevCmd = new sst.x.DevCommand('WebAppDev', {
 });
 
 if (!$dev) {
-  const flyApp = new fly.App('WebApp', {
-    name: `${$app.name}-${$app.stage}-www`,
-    org: process.env.FLY_ORG,
-    assignSharedIpAddress: true,
-  });
-  const webAppImage = buildWebAppImage();
-
-  new fly.Ip('WebAppIpv6', {
-    app: flyApp.name,
-    type: 'v6',
-  });
-
-  const env = buildEnv();
-  const regionalResources = regions.map(({ region, replicas }) => {
-    const machines: fly.Machine[] = [];
-    for (let i = 0; i < replicas; i++) {
-      machines.push(
-        new fly.Machine(`WebAppMachine-${region}-${i}`, {
-          app: flyApp.name,
-          region,
-          image: webAppImage.ref,
-          env,
-          services: [
-            {
-              ports: [
-                { port: 80, handlers: ['http'] },
-                { port: 443, handlers: ['tls', 'http'] },
-              ],
-              internalPort: 8080,
-              protocol: 'tcp',
-            },
-          ],
-          cpuType: 'shared',
-          cpus: isProd ? 4 : 1,
-          memory: isProd ? 1024 : 512,
-        }),
-      );
-    }
-    return { region, machines };
-  });
-  const { machine: flyAutoscalerMachine } = buildFlyAutoscaler();
+  const build = buildWebApp();
+  const deploy = deployWebApp();
 
   buildCdn();
 
-  function buildFlyIamUser() {
-    const flyIamPolicy = new aws.iam.Policy('FlyIamPolicy', {
+  function buildWebApp() {
+    const buildCmd = new command.local.Command('WebAppBuild', {
+      create: 'bun run build',
+      update: 'bun run build',
+      dir: path.join($cli.paths.root, 'apps/www'),
+      environment: baseEnv,
+      triggers: [Date.now()],
+    });
+    return { cmd: buildCmd };
+  }
+
+  function buildIamUser() {
+    const webAppIamPolicy = new aws.iam.Policy('WebAppIamPolicy', {
       policy: {
         Version: '2012-10-17',
         Statement: [
@@ -153,139 +112,71 @@ if (!$dev) {
         ],
       },
     });
-    const flyIamUser = new aws.iam.User('FlyIamUser');
-    new aws.iam.UserPolicyAttachment('FlyUserPolicyAttachment', {
-      user: flyIamUser.name,
-      policyArn: flyIamPolicy.arn,
+    const webAppIamUser = new aws.iam.User('WebAppIamUser');
+    new aws.iam.UserPolicyAttachment('WebAppUserPolicyAttachment', {
+      user: webAppIamUser.name,
+      policyArn: webAppIamPolicy.arn,
     });
-    const flyAwsAccessKey = new aws.iam.AccessKey('FlyAccessKey', {
-      user: flyIamUser.name,
+    const webAppAwsAccessKey = new aws.iam.AccessKey('WebAppAccessKey', {
+      user: webAppIamUser.name,
     });
-    return { flyIamUser, flyAwsAccessKey };
+    return { webAppIamUser, webAppAwsAccessKey };
   }
 
   function buildEnv() {
-    const { flyAwsAccessKey } = buildFlyIamUser();
+    const { webAppAwsAccessKey } = buildIamUser();
     const links = allLinks.apply((links) => buildLinks(links));
     return $util
-      .all([links, baseEnv, flyAwsAccessKey.id, $util.secret(flyAwsAccessKey.secret)])
-      .apply(([links, env, flyAwsAccessKeyId, flyAwsAccessKeySecret]) => ({
+      .all([links, baseEnv, webAppAwsAccessKey.id, $util.secret(webAppAwsAccessKey.secret)])
+      .apply(([links, env, webAppAwsAccessKeyId, webAppAwsAccessKeySecret]) => ({
         ...linksToEnv(links),
         ...env,
-        AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
-        AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
-        AWS_REGION: ($app.providers?.aws.region ?? 'us-east-1') as string,
-        PRIMARY_REGION: regions[0].region,
+        AWS_ACCESS_KEY_ID: webAppAwsAccessKeyId,
+        AWS_SECRET_ACCESS_KEY: webAppAwsAccessKeySecret,
+        AWS_REGION: aws.config.region ?? 'us-east-1',
       }));
   }
 
-  function buildWebAppImage() {
-    const buildArgs = $util
-      .all([
-        WEBAPP_URL.value,
-        cdn.url,
-        STRIPE_PUBLISHABLE_KEY.value,
-        POSTHOG_UI_HOST.value,
-        analyticsApi.properties.url,
-        POSTHOG_API_KEY.value,
-        webAppSentryKey.dsnPublic,
-        webAppSentryProject.organization,
-        webAppSentryProject.internalId,
-        webAppSentryProject.name,
-        $util.secret(SENTRY_AUTH_TOKEN.value),
-        donationLink.value,
-      ])
-      .apply(
-        ([
-          webappUrl,
-          cdnUrl,
-          stripePublishableKey,
-          posthogUiHost,
-          posthogApiHost,
-          posthogApiKey,
-          sentryDsn,
-          sentryOrg,
-          sentryProjectId,
-          sentryProjectName,
-          sentryAuthToken,
-          donationLink,
-        ]) => ({
-          stage: $app.stage,
-          webapp_url: webappUrl,
-          cdn_url: cdnUrl,
-          stripe_publishable_key: stripePublishableKey,
-          posthog_ui_host: posthogUiHost,
-          posthog_api_host: posthogApiHost,
-          posthog_api_key: posthogApiKey,
-          sentry_dsn: sentryDsn,
-          sentry_org: sentryOrg,
-          sentry_project_id: sentryProjectId,
-          sentry_project_name: sentryProjectName,
-          sentry_auth_token: sentryAuthToken,
-          donation_link: donationLink,
-        }),
-      );
-
-    return new dockerbuild.Image('WebAppImage', {
-      tags: [
-        $interpolate`registry.fly.io/${flyApp.name}:${Date.now()}`,
-        $interpolate`registry.fly.io/${flyApp.name}:latest`,
-      ],
-      registries: [
-        {
-          address: 'registry.fly.io',
-          username: 'x',
-          password: $util.secret(process.env.FLY_API_TOKEN!),
+  function deployWebApp() {
+    const env = buildEnv();
+    const pagesProject = new cloudflare.PagesProject('WebAppPagesProject', {
+      accountId: CLOUDFLARE_ACCOUNT_ID.value,
+      name: `${$app.name}-${$app.stage}-www`,
+      productionBranch: 'main',
+      deploymentConfigs: {
+        production: {
+          compatibilityDate: '2025-02-17',
+          compatibilityFlags: ['nodejs_compat'],
+          secrets: env,
         },
-      ],
-      dockerfile: { location: path.join($cli.paths.root, 'docker/www.Dockerfile') },
-      context: { location: $cli.paths.root },
-      buildArgs,
-      platforms: ['linux/amd64'],
-      push: true,
-      cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
-      cacheTo: [{ local: { dest: '/tmp/.buildx-cache-new', mode: 'max' } }],
-    });
-  }
-
-  function buildFlyAutoscaler() {
-    const app = new fly.App('FlyAutoscalerApp', {
-      name: `${$app.name}-${$app.stage}-www-autoscaler`,
-    });
-    const env = $util
-      .all([$util.secret(process.env.FLY_API_TOKEN!), flyApp.name])
-      .apply(([flyApiToken, appName]) => ({
-        FAS_ORG: process.env.FLY_ORG!,
-        FAS_APP_NAME: appName,
-        FAS_API_TOKEN: flyApiToken,
-        FAS_REGIONS: regions.map(({ region }) => region).join(','),
-        FAS_STARTED_MACHINE_COUNT: `max(min(ceil(connects / 200), ${regions.reduce((acc, { replicas }) => acc + replicas, 0)}), ${regions.length})`, // 200 connections per machine, max all replicas per region, min 1 machine per region
-        FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${process.env.FLY_ORG!}`,
-        FAS_PROMETHEUS_TOKEN: flyApiToken,
-        FAS_PROMETHEUS_METRIC_NAME: 'connects',
-        FAS_PROMETHEUS_QUERY:
-          'sum(increase(fly_app_tcp_connects_count{app="$APP_NAME"}[1m])) or vector(0)',
-      }));
-    const machine = new fly.Machine(
-      'FlyAutoscalerMachine',
-      {
-        app: app.name,
-        region: 'iad',
-        image: 'flyio/fly-autoscaler:latest',
-        env,
-        cpuType: 'shared',
-        cpus: 1,
-        memory: 256,
+        preview: {
+          compatibilityDate: '2025-02-17',
+          compatibilityFlags: ['nodejs_compat'],
+          secrets: env,
+        },
       },
-      { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
+    });
+    const deployCmd = new command.local.Command(
+      'WebAppDeploy',
+      {
+        create: $interpolate`bun wrangler pages deploy dist --project-name="${pagesProject.name}"`,
+        update: $interpolate`bun wrangler pages deploy dist --project-name="${pagesProject.name}"`,
+        dir: path.join($cli.paths.root, 'apps/www'),
+        environment: {
+          CLOUDFLARE_ACCOUNT_ID: CLOUDFLARE_ACCOUNT_ID.value,
+          CLOUDFLARE_API_TOKEN: CLOUDFLARE_API_TOKEN.value,
+        },
+        triggers: [Date.now()],
+      },
+      { dependsOn: build.cmd },
     );
-    return { app, machine };
+    return { project: pagesProject, cmd: deployCmd };
   }
 
   function buildCdn() {
     const serverOrigin: aws.types.input.cloudfront.DistributionOrigin = {
       originId: 'serverOrigin',
-      domainName: $interpolate`${flyApp.name}.fly.dev`,
+      domainName: $interpolate`${deploy.project.subdomain}.pages.dev`,
       customOriginConfig: {
         httpPort: 80,
         httpsPort: 443,
@@ -358,9 +249,7 @@ if (!$dev) {
           },
         },
       },
-      {
-        dependsOn: [...regionalResources.flatMap(({ machines }) => machines), flyAutoscalerMachine],
-      },
+      { dependsOn: [deploy.cmd] },
     );
   }
 }

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "clean": "rimraf .output .vinxi",
+    "clean": "rimraf .output .vercel .vinxi dist .wrangler",
     "dev": "vinxi dev",
     "build": "vinxi build",
     "generate-pwa-assets": "pwa-assets-generator",
@@ -13,6 +13,8 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@rollup/plugin-wasm": "^6.2.2",
     "@tailwindcss/postcss": "^4.0.6",
     "@theaistudybible/tsconfig": "workspace:*",
     "@vite-pwa/assets-generator": "^0.2.6",
@@ -28,6 +30,8 @@
     "vite-plugin-cjs-interop": "^2.1.6",
     "vite-plugin-pwa": "^0.21.1",
     "vite-plugin-solid": "^2.11.1",
+    "vite-plugin-top-level-await": "^1.5.0",
+    "vite-plugin-wasm": "^3.4.1",
     "vitest": "^3.0.5",
     "workbox-build": "^7.3.0",
     "workbox-core": "^7.3.0",

@@ -57,6 +57,14 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Bucket"
     }
+    "CloudflareAccountId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "CloudflareApiToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "DataSourceFilesBucket": {
       "name": string
       "type": "sst.aws.Bucket"
@@ -252,6 +260,10 @@ declare module "sst" {
     "VoyageAiApiKey": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "WebAppCdnLoggingBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
     }
     "WebAppUrl": {
       "type": "asb.asb.Constant"

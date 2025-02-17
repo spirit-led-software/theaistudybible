@@ -31,7 +31,7 @@ export async function getValidMessages({
   let totalTokens = 0;
   for (let i = 0; i < messages.length; i++) {
     const message = messages[i];
-    totalTokens += numTokensFromString({ text: JSON.stringify(message) });
+    totalTokens += await numTokensFromString({ text: JSON.stringify(message) });
     if (totalTokens >= maxTokens) {
       messages = messages.slice(0, i);
     }

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "turbo run build",
     "clean-install": "rimraf bun.lock .sst --glob '**/node_modules' && bun install --no-cache && sst install",
-    "clean": "turbo run clean",
+    "clean": "rimraf --glob '**/.turbo' && turbo run clean",
     "cy:open:prod": "sst shell --stage production -- cypress open",
     "cy:open": "sst shell -- cypress open",
     "db:generate": "sst shell --stage production -- drizzle-kit generate",
@@ -72,7 +72,11 @@
     "sst": "3.9.4",
     "stripe": "^17.6.0",
     "web-push": "^3.6.7",
+    "wrangler": "^3.109.1",
     "zod": "^3.24.2"
+  },
+  "overrides": {
+    "unenv": "npm:unenv-nightly"
   },
   "packageManager": "bun@1.1.42",
   "workspaces": ["apps/*", "packages/*", "tools/*"],
@@ -81,10 +85,12 @@
     "@parcel/watcher",
     "@sentry/cli",
     "@sentry/profiling-node",
+    "@swc/core",
     "core-js",
     "cypress",
     "esbuild",
     "protobufjs",
-    "sharp"
+    "sharp",
+    "workerd"
   ]
 }

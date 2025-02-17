@@ -1,8 +1,7 @@
-import { get_encoding, type Tiktoken } from 'tiktoken';
+import { getEncoding } from '@langchain/core/utils/tiktoken';
+import type { Tiktoken } from 'js-tiktoken/lite';
 
-export const cl100k_base = get_encoding('cl100k_base');
-
-export const numTokensFromString = (options: { encoding?: Tiktoken; text: string }) => {
-  const encoding = options.encoding ?? cl100k_base;
+export const numTokensFromString = async (options: { encoding?: Tiktoken; text: string }) => {
+  const encoding = options.encoding ?? (await getEncoding('cl100k_base'));
   return encoding.encode(options.text).length;
 };

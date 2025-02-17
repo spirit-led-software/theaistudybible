@@ -26,3 +26,12 @@ export const APPLE_CLIENT_ID = new sst.Secret('AppleClientId');
 export const APPLE_TEAM_ID = new sst.Secret('AppleTeamId');
 export const APPLE_KEY_ID = new sst.Secret('AppleKeyId');
 export const APPLE_AUTH_KEY = new sst.Secret('AppleAuthKey');
+
+export const CLOUDFLARE_ACCOUNT_ID = new sst.Secret(
+  'CloudflareAccountId',
+  process.env.CLOUDFLARE_ACCOUNT_ID,
+);
+export const CLOUDFLARE_API_TOKEN = new sst.Secret(
+  'CloudflareApiToken',
+  process.env.CLOUDFLARE_API_TOKEN,
+);

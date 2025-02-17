@@ -25,9 +25,9 @@ export default defineConfig(
     {
       middleware: './src/middleware.ts',
       server: {
-        preset: 'bun',
+        preset: 'cloudflare',
         plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/posthog.ts'],
-        compatibilityDate: '2024-12-02',
+        compatibilityDate: '2025-02-17',
         routeRules: {
           '/_build/assets/**': { headers: staticCacheControlHeaders },
           '/_build/manifest.webmanifest': {
@@ -43,6 +43,12 @@ export default defineConfig(
           '/icon.png': { headers: defaultCacheControlHeaders },
           '/maskable-icon-512x512.png': { headers: defaultCacheControlHeaders },
           '/robots.txt': { headers: doNotCacheHeaders },
+        },
+        rollupConfig: { external: ['node:async_hooks'] },
+        experimental: { wasm: true },
+        wasm: { esmImport: true },
+        cloudflare: {
+          wrangler: { compatibility_date: '2025-02-17', compatibility_flags: ['nodejs_compat'] },
         },
       },
       vite: {
