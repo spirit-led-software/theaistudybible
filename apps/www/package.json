@@ -13,8 +13,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^12.1.2",
-    "@rollup/plugin-wasm": "^6.2.2",
+    "@cloudflare/unenv-preset": "^1.1.2",
     "@tailwindcss/postcss": "^4.0.6",
     "@theaistudybible/tsconfig": "workspace:*",
     "@vite-pwa/assets-generator": "^0.2.6",

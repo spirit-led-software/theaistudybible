@@ -2,6 +2,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { withSentry } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
 import tailwindcss from '@tailwindcss/vite';
+import { cloudflare, env, nodeless } from 'unenv';
 import { analyzer } from 'vite-bundle-analyzer';
 import { VitePWA } from 'vite-plugin-pwa';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -25,7 +26,7 @@ export default defineConfig(
     {
       middleware: './src/middleware.ts',
       server: {
-        preset: 'cloudflare',
+        preset: 'cloudflare_module',
         plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/posthog.ts'],
         compatibilityDate: '2025-02-17',
         routeRules: {
@@ -45,6 +46,7 @@ export default defineConfig(
           '/robots.txt': { headers: doNotCacheHeaders },
         },
         rollupConfig: { external: ['node:async_hooks'] },
+        unenv: env(nodeless, cloudflare, {}),
         experimental: { wasm: true },
         wasm: { esmImport: true },
         cloudflare: {
