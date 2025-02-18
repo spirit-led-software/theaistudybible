@@ -4,7 +4,6 @@ import { defineConfig } from '@solidjs/start/config';
 import tailwindcss from '@tailwindcss/vite';
 import { analyzer } from 'vite-bundle-analyzer';
 import { VitePWA } from 'vite-plugin-pwa';
-import topLevelAwait from 'vite-plugin-top-level-await';
 import wasm from 'vite-plugin-wasm';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
@@ -52,10 +51,9 @@ export default defineConfig(
         build: { target: 'esnext' },
         envPrefix: 'PUBLIC_',
         plugins: [
-          wasm(),
-          topLevelAwait(),
           tsconfigPaths(),
           tailwindcss(),
+          wasm(),
           VitePWA({
             strategies: 'injectManifest',
             registerType: 'autoUpdate',
