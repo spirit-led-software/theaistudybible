@@ -22,17 +22,17 @@ import {
 import { bibleVectorStoreTool, vectorStoreTool } from './tools';
 import { getTodaysTopic } from './topics';
 
-const modelInfo = advancedChatModels[0];
-let model = registry().languageModel(`${modelInfo.host}:${modelInfo.id}`);
-if (Resource.Stage.value === 'production') {
-  model = wrapAISDKModel(model);
-}
-
 export const getBibleReading = async (topic: string) => {
   initLogger({
     projectName: Resource.BrainTrustProjectName.value,
     apiKey: Resource.BrainTrustApiKey.value,
   });
+  const modelInfo = advancedChatModels[0];
+  let model = registry().languageModel(`${modelInfo.host}:${modelInfo.id}`);
+  if (Resource.Stage.value === 'production') {
+    model = wrapAISDKModel(model);
+  }
+
   const pastDevotions = await db().query.devotions.findMany({
     columns: { id: true, bibleReading: true },
     where: (devotions, { eq }) => eq(devotions.topic, topic),
@@ -61,9 +61,15 @@ export const generateSummary = async ({
     projectName: Resource.BrainTrustProjectName.value,
     apiKey: Resource.BrainTrustApiKey.value,
   });
+  const modelInfo = advancedChatModels[0];
+  let model = registry().languageModel(`${modelInfo.host}:${modelInfo.id}`);
+  if (Resource.Stage.value === 'production') {
+    model = wrapAISDKModel(model);
+  }
+
   const { text: summary } = await generateText({
     model,
-    system: summarySystemPrompt,
+    system: summarySystemPrompt(),
     prompt: `The topic is "${topic}".
 Summarize the following bible passage:
 ${bibleReading}`,
@@ -87,9 +93,15 @@ export const generateReflection = async ({
     projectName: Resource.BrainTrustProjectName.value,
     apiKey: Resource.BrainTrustApiKey.value,
   });
+  const modelInfo = advancedChatModels[0];
+  let model = registry().languageModel(`${modelInfo.host}:${modelInfo.id}`);
+  if (Resource.Stage.value === 'production') {
+    model = wrapAISDKModel(model);
+  }
+
   const { text: reflection } = await generateText({
     model,
-    system: reflectionSystemPrompt,
+    system: reflectionSystemPrompt(),
     prompt: `The topic is "${topic}".
 
 Here is the Bible passage (delimited by triple dashes):
@@ -125,9 +137,15 @@ export const generatePrayer = async ({
     projectName: Resource.BrainTrustProjectName.value,
     apiKey: Resource.BrainTrustApiKey.value,
   });
+  const modelInfo = advancedChatModels[0];
+  let model = registry().languageModel(`${modelInfo.host}:${modelInfo.id}`);
+  if (Resource.Stage.value === 'production') {
+    model = wrapAISDKModel(model);
+  }
+
   const { text: prayer } = await generateText({
     model,
-    system: prayerSystemPrompt,
+    system: prayerSystemPrompt(),
     prompt: `Here is the devotional (delimited by triple dashes):
 ---
 Topic:
@@ -163,12 +181,18 @@ export const generateDiveDeeperQueries = async ({
     projectName: Resource.BrainTrustProjectName.value,
     apiKey: Resource.BrainTrustApiKey.value,
   });
+  const modelInfo = advancedChatModels[0];
+  let model = registry().languageModel(`${modelInfo.host}:${modelInfo.id}`);
+  if (Resource.Stage.value === 'production') {
+    model = wrapAISDKModel(model);
+  }
+
   const {
     experimental_output: { queries },
   } = await generateText({
     model,
     experimental_output: Output.object({ schema: z.object({ queries: z.array(z.string()) }) }),
-    system: diveDeeperSystemPrompt,
+    system: diveDeeperSystemPrompt(),
     prompt: `Here is the devotional (delimited by triple dashes):
 ---
 Topic:
@@ -194,9 +218,19 @@ Generate 1 to 4 follow-up queries to help the user dive deeper into the topic ex
 };
 
 export const generateImagePrompt = async (devotion: Devotion) => {
+  initLogger({
+    projectName: Resource.BrainTrustProjectName.value,
+    apiKey: Resource.BrainTrustApiKey.value,
+  });
+  const modelInfo = advancedChatModels[0];
+  let model = registry().languageModel(`${modelInfo.host}:${modelInfo.id}`);
+  if (Resource.Stage.value === 'production') {
+    model = wrapAISDKModel(model);
+  }
+
   const { text: imagePrompt } = await generateText({
     model,
-    system: imageSystemPrompt,
+    system: imageSystemPrompt(),
     prompt: `Here is the devotional (delimited by triple dashes):
 ---
 Topic:
@@ -228,10 +262,6 @@ export const generateImage = async ({
   prompt: string;
   devotionId: string;
 }) => {
-  initLogger({
-    projectName: Resource.BrainTrustProjectName.value,
-    apiKey: Resource.BrainTrustApiKey.value,
-  });
   const { image } = await generateAiImage({
     prompt,
     model: openai().image('dall-e-3'),

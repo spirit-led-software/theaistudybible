@@ -6,17 +6,56 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { experimental_createProviderRegistry as createProviderRegistry } from 'ai';
 import { Resource } from 'sst';
 
-export const openai = () => createOpenAI({ apiKey: Resource.OpenAiApiKey.value });
-export const anthropic = () => createAnthropic({ apiKey: Resource.AnthropicApiKey.value });
-export const groq = () => createGroq({ apiKey: Resource.GroqApiKey.value });
-export const deepseek = () => createDeepSeek({ apiKey: Resource.DeepSeekApiKey.value });
-export const google = () => createGoogleGenerativeAI({ apiKey: Resource.GoogleAiApiKey.value });
+let currentOpenAI: ReturnType<typeof createOpenAI> | undefined;
+export const openai = () => {
+  if (!currentOpenAI) {
+    currentOpenAI = createOpenAI({ apiKey: Resource.OpenAiApiKey.value });
+  }
+  return currentOpenAI;
+};
 
-export const registry = () =>
-  createProviderRegistry({
-    openai: openai(),
-    anthropic: anthropic(),
-    groq: groq(),
-    deepseek: deepseek(),
-    google: google(),
-  });
+let currentAnthropic: ReturnType<typeof createAnthropic> | undefined;
+export const anthropic = () => {
+  if (!currentAnthropic) {
+    currentAnthropic = createAnthropic({ apiKey: Resource.AnthropicApiKey.value });
+  }
+  return currentAnthropic;
+};
+
+let currentGroq: ReturnType<typeof createGroq> | undefined;
+export const groq = () => {
+  if (!currentGroq) {
+    currentGroq = createGroq({ apiKey: Resource.GroqApiKey.value });
+  }
+  return currentGroq;
+};
+
+let currentDeepSeek: ReturnType<typeof createDeepSeek> | undefined;
+export const deepseek = () => {
+  if (!currentDeepSeek) {
+    currentDeepSeek = createDeepSeek({ apiKey: Resource.DeepSeekApiKey.value });
+  }
+  return currentDeepSeek;
+};
+
+let currentGoogle: ReturnType<typeof createGoogleGenerativeAI> | undefined;
+export const google = () => {
+  if (!currentGoogle) {
+    currentGoogle = createGoogleGenerativeAI({ apiKey: Resource.GoogleAiApiKey.value });
+  }
+  return currentGoogle;
+};
+
+let currentRegistry: ReturnType<typeof createProviderRegistry> | undefined;
+export const registry = () => {
+  if (!currentRegistry) {
+    currentRegistry = createProviderRegistry({
+      openai: openai(),
+      anthropic: anthropic(),
+      groq: groq(),
+      deepseek: deepseek(),
+      google: google(),
+    });
+  }
+  return currentRegistry;
+};

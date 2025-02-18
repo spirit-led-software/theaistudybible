@@ -39,4 +39,10 @@ export class Embeddings {
   }
 }
 
-export const embeddings = () => new Embeddings();
+let currentEmbeddings: Embeddings | undefined;
+export const embeddings = () => {
+  if (!currentEmbeddings) {
+    currentEmbeddings = new Embeddings();
+  }
+  return currentEmbeddings;
+};

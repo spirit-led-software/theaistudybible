@@ -1,3 +1,9 @@
 import { SQSClient } from '@aws-sdk/client-sqs';
 
-export const sqs = () => new SQSClient({});
+let currentSQS: SQSClient | undefined;
+export const sqs = () => {
+  if (!currentSQS) {
+    currentSQS = new SQSClient({});
+  }
+  return currentSQS;
+};

@@ -1,3 +1,9 @@
 import { SESClient } from '@aws-sdk/client-ses';
 
-export const ses = () => new SESClient({});
+let currentSES: SESClient | undefined;
+export const ses = () => {
+  if (!currentSES) {
+    currentSES = new SESClient({});
+  }
+  return currentSES;
+};

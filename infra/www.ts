@@ -162,10 +162,11 @@ if (!$dev) {
         create: $interpolate`bun wrangler pages deploy dist --project-name="${pagesProject.name}"`,
         update: $interpolate`bun wrangler pages deploy dist --project-name="${pagesProject.name}"`,
         dir: path.join($cli.paths.root, 'apps/www'),
-        environment: {
+        environment: env.apply((env) => ({
+          ...env,
           CLOUDFLARE_ACCOUNT_ID: CLOUDFLARE_ACCOUNT_ID.value,
           CLOUDFLARE_API_TOKEN: CLOUDFLARE_API_TOKEN.value,
-        },
+        })),
         triggers: [Date.now()],
       },
       { dependsOn: build.cmd },

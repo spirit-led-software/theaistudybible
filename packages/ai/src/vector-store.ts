@@ -174,4 +174,10 @@ export class VectorStore {
   }
 }
 
-export const vectorStore = () => new VectorStore(embeddings());
+let currentVectorStore: VectorStore | undefined;
+export const vectorStore = () => {
+  if (!currentVectorStore) {
+    currentVectorStore = new VectorStore(embeddings());
+  }
+  return currentVectorStore;
+};

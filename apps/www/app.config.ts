@@ -50,6 +50,7 @@ export default defineConfig(
           '/maskable-icon-512x512.png': { headers: defaultCacheControlHeaders },
           '/robots.txt': { headers: doNotCacheHeaders },
         },
+        sourceMap: 'inline',
         rollupConfig: { external: ['node:async_hooks'] },
         unenv: defineEnv({
           nodeCompat: true,

@@ -61,8 +61,8 @@
     "@solidjs/start": "^1.1.1",
     "@stripe/stripe-js": "^5.6.0",
     "@tailwindcss/vite": "4.0.6",
-    "@tanstack/solid-query": "^5.66.3",
-    "@tanstack/solid-query-devtools": "^5.66.3",
+    "@tanstack/solid-query": "^5.66.4",
+    "@tanstack/solid-query-devtools": "^5.66.4",
     "@tanstack/solid-table": "^8.21.2",
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
@@ -75,8 +75,8 @@
     "embla-carousel-solid": "^8.5.2",
     "hono": "^4.7.1",
     "lucide-solid": "^0.475.0",
-    "motion": "^12.4.3",
-    "posthog-js": "^1.218.2",
+    "motion": "^12.4.4",
+    "posthog-js": "^1.219.3",
     "posthog-node": "^4.6.0",
     "rollup-plugin-typescript-paths": "^1.5.0",
     "solid-js": "^1.9.4",
@@ -84,15 +84,11 @@
     "solid-sonner": "^0.2.8",
     "tailwind-merge": "^3.0.1",
     "toucan-js": "^4.1.0",
-    "vite-bundle-analyzer": "^0.17.0"
+    "vite-bundle-analyzer": "^0.17.1"
   },
   "overrides": {
     "nitropack": "npm:nitropack@2.10.4",
-    "unenv": "npm:unenv-nightly@latest",
+    "unenv": "npm:unenv-nightly@2.0.0-20250218-113404-fb9fd2c",
     "vite": "npm:vite@6.1.0"
-  },
-  "engines": {
-    "node": ">=18",
-    "bun": ">=1"
   }
 }
