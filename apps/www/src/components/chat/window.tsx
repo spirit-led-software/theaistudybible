@@ -7,6 +7,7 @@ import { useLocation, useSearchParams } from '@solidjs/router';
 import { formatDate } from 'date-fns';
 import { ArrowUp, ChevronDown, ChevronUp, StopCircle } from 'lucide-solid';
 import { For, Show, createEffect, createMemo, createSignal, on } from 'solid-js';
+import { getRequestEvent, isServer } from 'solid-js/web';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
 import { QueryBoundary } from '../query-boundary';
@@ -58,7 +59,11 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const isLoading = createMemo(() => status() === 'submitted' || status() === 'streaming');
 
   const location = useLocation();
-  const [isChatPage, setIsChatPage] = createSignal(false);
+  const [isChatPage, setIsChatPage] = createSignal(
+    isServer
+      ? new URL(getRequestEvent()!.request.url).pathname.startsWith('/chat')
+      : location.pathname.startsWith('/chat'),
+  );
   createEffect(() => {
     setIsChatPage(location.pathname.startsWith('/chat'));
   });

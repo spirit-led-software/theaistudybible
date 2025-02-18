@@ -9,7 +9,7 @@ import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
 import { Menu, PenBox, Search, X } from 'lucide-solid';
-import { For, createEffect, createSignal } from 'solid-js';
+import { For, Show, createEffect, createSignal } from 'solid-js';
 import { useChatStore } from '../../../contexts/chat';
 import { LogoSmall } from '../../branding/logo-small';
 import { NavigationDropdown } from '../../navigation/dropdown';
@@ -152,7 +152,7 @@ export const ChatSidebar = () => {
             onInput={(e) => setSearchQuery(e.currentTarget.value)}
             class='pr-8 pl-9'
           />
-          {searchQuery() && (
+          <Show when={searchQuery()}>
             <Button
               variant='ghost'
               size='icon'
@@ -161,7 +161,7 @@ export const ChatSidebar = () => {
             >
               <X class='size-4' />
             </Button>
-          )}
+          </Show>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -216,7 +216,7 @@ export const ChatSidebar = () => {
                     </SidebarMenuItem>
                   )}
                 </For>
-                {chatsQuery.hasNextPage && (
+                <Show when={chatsQuery.hasNextPage}>
                   <Button
                     class='w-full'
                     disabled={chatsQuery.isFetchingNextPage}
@@ -224,14 +224,14 @@ export const ChatSidebar = () => {
                   >
                     Load More
                   </Button>
-                )}
+                </Show>
               </SidebarMenu>
             );
           }}
         </QueryBoundary>
       </SidebarContent>
       <SidebarFooter>
-        {isChatPage() && (
+        <Show when={isChatPage()}>
           <NavigationDropdown
             variant='ghost'
             class='flex h-fit w-full items-center justify-between px-4 py-1'
@@ -239,7 +239,7 @@ export const ChatSidebar = () => {
             <LogoSmall width={128} height={64} class='h-auto w-24' lightClass='dark:hidden' />
             <Menu />
           </NavigationDropdown>
-        )}
+        </Show>
       </SidebarFooter>
     </Sidebar>
   );

@@ -3,7 +3,7 @@ import { messageReactions } from '@/core/database/schema';
 import { requireAuth } from '@/www/server/utils/auth';
 import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
-import { createMutation, createQuery } from '@tanstack/solid-query';
+import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { ThumbsDown, ThumbsUp } from 'lucide-solid';
 import { Show, createSignal } from 'solid-js';
@@ -74,6 +74,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
     staleTime: 1000 * 60 * 10, // 10 minutes
   }));
 
+  const qc = useQueryClient();
   const addReactionMutation = createMutation(() => ({
     mutationFn: (mProps: {
       reaction: typeof messageReactions.$inferSelect.reaction;
@@ -84,12 +85,20 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
         reaction: mProps.reaction,
         comment: mProps.comment,
       }),
-    onSettled: () => reactionQuery.refetch(),
+    onSettled: () => {
+      qc.invalidateQueries({
+        queryKey: ['message-reactions', { messageId: props.messageId }],
+      });
+    },
   }));
 
   const removeReactionMutation = createMutation(() => ({
     mutationFn: () => removeReaction({ messageId: props.messageId }),
-    onSettled: () => reactionQuery.refetch(),
+    onSettled: () => {
+      qc.invalidateQueries({
+        queryKey: ['message-reactions', { messageId: props.messageId }],
+      });
+    },
   }));
 
   const [dislikeDialogOpen, setDislikeDialogOpen] = createSignal(false);

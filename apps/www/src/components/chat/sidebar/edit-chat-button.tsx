@@ -46,14 +46,18 @@ export type EditChatButtonProps = {
 export const EditChatButton = (props: EditChatButtonProps) => {
   const editChat = useAction(editChatAction);
 
-  const qc = useQueryClient();
+  const [isOpen, setIsOpen] = createSignal(false);
 
+  const qc = useQueryClient();
   const editChatMutation = createMutation(() => ({
     mutationFn: (mProps: { name: string }) =>
       editChat({
         chatId: props.chat.id,
         name: mProps.name,
       }),
+    onSuccess: () => {
+      setIsOpen(false);
+    },
     onSettled: () => {
       qc.invalidateQueries({
         queryKey: ['chats'],
@@ -70,7 +74,7 @@ export const EditChatButton = (props: EditChatButtonProps) => {
   });
 
   return (
-    <Dialog>
+    <Dialog open={isOpen()} onOpenChange={setIsOpen}>
       <Tooltip>
         <TooltipTrigger
           as={(props: unknown) => (
@@ -101,15 +105,7 @@ export const EditChatButton = (props: EditChatButtonProps) => {
           <TextFieldErrorMessage>Chat name is required.</TextFieldErrorMessage>
         </TextField>
         <DialogFooter class='flex justify-end gap-2'>
-          <Button
-            onClick={() =>
-              editChatMutation.mutate({
-                name: nameValue(),
-              })
-            }
-          >
-            Save
-          </Button>
+          <Button onClick={() => editChatMutation.mutate({ name: nameValue() })}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

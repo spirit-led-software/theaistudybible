@@ -18,6 +18,7 @@ import { action, useAction, useLocation, useNavigate } from '@solidjs/router';
 import { createMutation, useQueryClient } from '@tanstack/solid-query';
 import { and, eq } from 'drizzle-orm';
 import { Trash } from 'lucide-solid';
+import { createSignal } from 'solid-js';
 
 const deleteChatAction = action(async (chatId: string) => {
   'use server';
@@ -33,13 +34,18 @@ export type DeleteChatButtonProps = {
 export const DeleteChatButton = (props: DeleteChatButtonProps) => {
   const deleteChat = useAction(deleteChatAction);
 
-  const qc = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
   const [chatStore, setChatStore] = useChatStore();
 
+  const [isOpen, setIsOpen] = createSignal(false);
+
+  const qc = useQueryClient();
   const deleteChatMutation = createMutation(() => ({
     mutationFn: () => deleteChat(props.chat.id),
+    onSuccess: () => {
+      setIsOpen(false);
+    },
     onSettled: () => {
       if (chatStore.chatId === props.chat.id) {
         setChatStore('chatId', null);
@@ -52,7 +58,7 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
   }));
 
   return (
-    <Dialog>
+    <Dialog open={isOpen()} onOpenChange={setIsOpen}>
       <Tooltip>
         <TooltipTrigger
           as={(props: unknown) => (
