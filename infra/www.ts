@@ -18,7 +18,7 @@ import type { KoyebRegion } from './types/koyeb';
 import { isProd } from './utils/constants';
 import { buildLinks, linksToEnv } from './utils/link';
 
-const regions: KoyebRegion[] = isProd ? ['aws-us-east-1', 'FRA'] : ['aws-us-east-1'];
+const regions: KoyebRegion[] = isProd ? ['aws-us-east-1', 'fra'] : ['aws-us-east-1'];
 
 const baseEnv = $util
   .all([
@@ -81,10 +81,11 @@ export const webAppDevCmd = new sst.x.DevCommand('WebAppDev', {
 if (!$dev) {
   const { image, registry } = buildWebAppImage();
   const app = new koyeb.KoyebApp('WebApp', {
-    name: `${$app.name}-${$app.stage}-www`,
+    name: `tasb-${$app.stage}-www`,
   });
   const registrySecret = new koyeb.KoyebSecret('WebAppRegistrySecret', {
     name: `${$app.name}-${$app.stage}-www-registry`,
+    type: 'REGISTRY',
     privateRegistry: aws.ecr
       .getAuthorizationTokenOutput({ registryId: registry.registryId })
       .apply(({ proxyEndpoint, userName, password }) => ({
