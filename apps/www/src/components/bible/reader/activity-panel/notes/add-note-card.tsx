@@ -40,7 +40,7 @@ const addNoteAction = action(
     const { user } = requireAuth();
     let note: VerseNote | ChapterNote;
     if (props.verseNumber) {
-      [note] = await db
+      [note] = await db()
         .insert(verseNotes)
         .values({
           userId: user.id,
@@ -50,7 +50,7 @@ const addNoteAction = action(
         })
         .returning();
     } else {
-      [note] = await db
+      [note] = await db()
         .insert(chapterNotes)
         .values({
           userId: user.id,

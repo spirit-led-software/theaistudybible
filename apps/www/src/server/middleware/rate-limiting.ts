@@ -3,12 +3,11 @@ import type { FetchEvent } from '@solidjs/start/server';
 import { Ratelimit } from '@upstash/ratelimit';
 import { getHeader } from 'vinxi/http';
 
-const ratelimit = new Ratelimit({
-  redis: cache,
-  limiter: Ratelimit.slidingWindow(2000, '1m'),
-});
-
 export const rateLimitingMiddleware = () => {
+  const ratelimit = new Ratelimit({
+    redis: cache(),
+    limiter: Ratelimit.slidingWindow(2000, '1m'),
+  });
   return async ({ nativeEvent }: FetchEvent) => {
     const ip =
       getHeader(nativeEvent, 'x-forwarded-for')?.split(',')[0].trim() ??

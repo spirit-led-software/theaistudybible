@@ -57,7 +57,7 @@ const getBookmarks = GET(
       );
     }
 
-    const bookmarks = await db
+    const bookmarks = await db()
       .select({
         ...getTableColumns(chapterBookmarks),
         chapter: {
@@ -94,7 +94,7 @@ const getBookmarks = GET(
 const deleteBookmarkAction = action(async (props: { bibleAbbreviation: string; code: string }) => {
   'use server';
   const { user } = requireAuth();
-  await db
+  await db()
     .delete(chapterBookmarks)
     .where(
       and(

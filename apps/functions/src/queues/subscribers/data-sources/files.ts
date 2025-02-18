@@ -32,7 +32,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
         const key = decodeURIComponent(s3EventRecord.s3.object.key.replace(/\+/g, ' '));
 
         console.log(`Processing file: ${key} from bucket: ${bucket}`);
-        const { Body, ContentType, Metadata } = await s3.send(
+        const { Body, ContentType, Metadata } = await s3().send(
           new GetObjectCommand({
             Bucket: bucket,
             Key: key,
@@ -49,7 +49,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
           throw new Error('Invalid metadata');
         }
 
-        const [indexOperation] = await db
+        const [indexOperation] = await db()
           .insert(indexOperations)
           .values({
             dataSourceId,
@@ -79,7 +79,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
 
           console.log('Adding documents to vector store', JSON.stringify(docs, null, 2));
 
-          const result = await vectorStore.addDocuments(
+          const result = await vectorStore().addDocuments(
             docs.map((doc) => {
               const { id = createId(), pageContent, ...rest } = doc;
               return {
@@ -91,17 +91,19 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
           );
 
           await Promise.all([
-            db
+            db()
               .update(indexOperations)
               .set({ status: 'COMPLETED' })
               .where(eq(indexOperations.id, indexOperation.id)),
-            db.insert(dataSourcesToSourceDocuments).values(
-              result.map((sourceDocId) => ({
-                sourceDocumentId: sourceDocId,
-                dataSourceId,
-              })),
-            ),
-            db
+            db()
+              .insert(dataSourcesToSourceDocuments)
+              .values(
+                result.map((sourceDocId) => ({
+                  sourceDocumentId: sourceDocId,
+                  dataSourceId,
+                })),
+              ),
+            db()
               .update(dataSources)
               .set({ numberOfDocuments: result.length })
               .where(eq(dataSources.id, dataSourceId)),
@@ -110,7 +112,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
           console.log(`Successfully processed ${key}`);
         } catch (error) {
           console.error('Error processing file:', error);
-          await db
+          await db()
             .update(indexOperations)
             .set({
               status: 'FAILED',

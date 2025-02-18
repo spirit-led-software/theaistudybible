@@ -26,7 +26,7 @@ const requestUploadAction = action(
     const { user } = requireAuth();
     const key = `${user.id}/${createId()}_${props.name}`;
     const presignedUrl = await getSignedUrl(
-      s3,
+      s3(),
       new PutObjectCommand({
         Bucket: Resource.ProfileImagesBucket.name,
         Key: key,

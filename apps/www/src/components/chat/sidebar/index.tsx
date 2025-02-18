@@ -41,8 +41,8 @@ const getChats = GET(
 
     let chatsWithMessagesThatMatch: (Chat & { message: Message })[] = [];
     if (searchQuery) {
-      chatsWithMessagesThatMatch = await db.query.messages
-        .findMany({
+      chatsWithMessagesThatMatch = await db()
+        .query.messages.findMany({
           where: (messages, { and, eq }) =>
             and(eq(messages.userId, user.id), ilike(messages.content, `%${searchQuery}%`)),
           with: { chat: true },
@@ -50,7 +50,7 @@ const getChats = GET(
         .then((messages) => messages.map((message) => ({ ...message.chat, message: message })));
     }
 
-    const chats: (Chat & { message?: Message })[] = await db.query.chats.findMany({
+    const chats: (Chat & { message?: Message })[] = await db().query.chats.findMany({
       where: (chats, { and, or, eq, inArray }) => {
         const baseCondition = eq(chats.userId, user.id);
         if (searchQuery) {

@@ -23,7 +23,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
         const key = decodeURIComponent(s3EventRecord.s3.object.key.replace(/\+/g, ' '));
 
         console.log(`Processing file: ${key} from bucket: ${bucket}`);
-        const { Body, Metadata } = await s3.send(
+        const { Body, Metadata } = await s3().send(
           new GetObjectCommand({
             Bucket: bucket,
             Key: key,

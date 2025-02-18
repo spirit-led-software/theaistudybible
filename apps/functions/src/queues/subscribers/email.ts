@@ -14,7 +14,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
     try {
       const record = EmailQueueRecordSchema.parse(JSON.parse(r.body));
       const html = await getEmailHtml(record.body);
-      const result = await ses.send(
+      const result = await ses().send(
         new SendEmailCommand({
           Source: `"The AI Study Bible" <noreply@${Resource.Email.sender}>`,
           Destination: {

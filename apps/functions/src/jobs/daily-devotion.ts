@@ -11,14 +11,14 @@ import { eq } from 'drizzle-orm';
 import { Resource } from 'sst';
 import webPush, { WebPushError } from 'web-push';
 
-webPush.setVapidDetails(
-  'mailto:support@theaistudybible.com',
-  Resource.VapidPublicKey.value,
-  Resource.VapidPrivateKey.value,
-);
-
 export const handler = wrapHandler(async () => {
-  const existingDevotion = await db.query.devotions.findFirst({
+  webPush.setVapidDetails(
+    'mailto:support@theaistudybible.com',
+    Resource.VapidPublicKey.value,
+    Resource.VapidPrivateKey.value,
+  );
+
+  const existingDevotion = await db().query.devotions.findFirst({
     where: (devotions, { sql }) =>
       sql`DATE(${devotions.createdAt}) = ${formatDate(new Date(), 'yyyy-MM-dd')}`,
   });
@@ -29,7 +29,7 @@ export const handler = wrapHandler(async () => {
 });
 
 const sendEmails = async (devotion: Devotion, devotionImage: DevotionImage) => {
-  const users = await db.query.userSettings.findMany({
+  const users = await db().query.userSettings.findMany({
     where: (userSettings, { eq }) => eq(userSettings.emailNotifications, true),
     columns: {},
     with: { user: { columns: { email: true } } },
@@ -57,7 +57,7 @@ const sendEmails = async (devotion: Devotion, devotionImage: DevotionImage) => {
 };
 
 const sendPushNotifications = async (devotion: Devotion) => {
-  const subscriptions = await db.query.pushSubscriptions.findMany({});
+  const subscriptions = await db().query.pushSubscriptions.findMany({});
   await Promise.all(
     subscriptions.map((subscription) =>
       webPush
@@ -75,7 +75,7 @@ const sendPushNotifications = async (devotion: Devotion) => {
         .catch(async (error) => {
           console.error(error);
           if (error instanceof WebPushError && error.statusCode === 410) {
-            await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, subscription.id));
+            await db().delete(pushSubscriptions).where(eq(pushSubscriptions.id, subscription.id));
           }
         }),
     ),

@@ -22,7 +22,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
       }
 
       for (const s3EventRecord of s3Event.Records as S3EventRecord[]) {
-        const { Body } = await s3.send(
+        const { Body } = await s3().send(
           new GetObjectCommand({
             Bucket: s3EventRecord.s3.bucket.name,
             Key: s3EventRecord.s3.object.key,
@@ -46,7 +46,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
           overwrite,
         } = JSON.parse(messageContent) as IndexChapterEvent;
 
-        const bibleData = await db.query.bibles.findFirst({
+        const bibleData = await db().query.bibles.findFirst({
           where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbreviation),
           with: { books: { where: (books, { eq }) => eq(books.code, bookCode) } },
         });

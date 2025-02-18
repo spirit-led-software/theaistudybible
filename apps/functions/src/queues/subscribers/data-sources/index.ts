@@ -18,7 +18,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
       if (!id || typeof id !== 'string') {
         throw new Error('Invalid data-source id');
       }
-      const dataSource = await db.query.dataSources.findFirst({
+      const dataSource = await db().query.dataSources.findFirst({
         where: (dataSources, { eq }) => eq(dataSources.id, id),
         with: { dataSourcesToSourceDocuments: true },
       });
@@ -27,11 +27,11 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
       }
 
       console.log('Deleting old data source documents:', dataSource.id);
-      await vectorStore.deleteDocuments(
+      await vectorStore().deleteDocuments(
         dataSource.dataSourcesToSourceDocuments.map((d) => d.sourceDocumentId),
       );
 
-      await db
+      await db()
         .update(dataSources)
         .set({ numberOfDocuments: 0 })
         .where(eq(dataSources.id, dataSource.id));
@@ -48,7 +48,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
         const buffer = Buffer.from(arrayBuffer);
 
         console.log('Uploading file to S3:', `${dataSource.id}`);
-        const s3Response = await s3.send(
+        const s3Response = await s3().send(
           new PutObjectCommand({
             Bucket: Resource.DataSourceFilesBucket.name,
             Key: `${dataSource.id}`,
@@ -74,7 +74,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
       } else {
         throw new Error(`Unimplemented data source type: ${dataSource.type}`);
       }
-      await db
+      await db()
         .update(dataSources)
         .set(manual ? { lastManualSync: new Date() } : { lastAutomaticSync: new Date() })
         .where(eq(dataSources.id, dataSource.id));

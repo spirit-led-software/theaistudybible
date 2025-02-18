@@ -39,17 +39,17 @@ const createCheckoutSessionAction = action(async (priceId: string) => {
   'use server';
   let { user } = requireAuth();
   if (!user.stripeCustomerId) {
-    const customer = await stripe.customers.create({
+    const customer = await stripe().customers.create({
       email: user.email,
       metadata: { userId: user.id },
     });
-    [user] = await db
+    [user] = await db()
       .update(users)
       .set({ stripeCustomerId: customer.id })
       .where(eq(users.id, user.id))
       .returning();
   }
-  const checkoutSession = await stripe.checkout.sessions.create({
+  const checkoutSession = await stripe().checkout.sessions.create({
     customer: user.stripeCustomerId!,
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],

@@ -22,7 +22,7 @@ export const app = new Hono<{
 }>()
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const devotion = await db.query.devotions.findFirst({
+    const devotion = await db().query.devotions.findFirst({
       where: (devotions, { eq }) => eq(devotions.id, id),
     });
 
@@ -34,7 +34,7 @@ export const app = new Hono<{
     await next();
   })
   .use('/:id/image/*', async (c, next) => {
-    const image = await db.query.devotionImages.findFirst({
+    const image = await db().query.devotionImages.findFirst({
       where: (devotionImages, { eq }) => eq(devotionImages.devotionId, c.var.devotion.id),
     });
 
@@ -47,7 +47,7 @@ export const app = new Hono<{
   })
   .use('/:id/reactions/:reactionId/*', async (c, next) => {
     const reactionId = c.req.param('reactionId');
-    const reaction = await db.query.devotionReactions.findFirst({
+    const reaction = await db().query.devotionReactions.findFirst({
       where: (devotionReactions, { and, eq }) =>
         and(
           eq(devotionReactions.devotionId, c.var.devotion.id),
@@ -74,13 +74,13 @@ export const app = new Hono<{
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
     const [foundDevotions, devotionsCount] = await Promise.all([
-      db.query.devotions.findMany({
+      db().query.devotions.findMany({
         where: filter,
         orderBy: sort,
         offset: cursor,
         limit: limit,
       }),
-      db
+      db()
         .select({ count: count() })
         .from(devotions)
         .where(filter)
@@ -120,7 +120,7 @@ export const app = new Hono<{
         return c.json({ message: 'You must be logged in' }, 401);
       }
 
-      const [reaction] = await db
+      const [reaction] = await db()
         .insert(devotionReactions)
         .values({
           ...data,
@@ -146,13 +146,13 @@ export const app = new Hono<{
     }
 
     const [foundReactions, reactionsCount] = await Promise.all([
-      db.query.devotionReactions.findMany({
+      db().query.devotionReactions.findMany({
         where,
         orderBy: sort,
         offset: cursor,
         limit: limit,
       }),
-      db
+      db()
         .select({ count: count() })
         .from(devotionReactions)
         .where(where)
@@ -174,7 +174,7 @@ export const app = new Hono<{
     async (c) => {
       const data = c.req.valid('json');
 
-      const [reaction] = await db
+      const [reaction] = await db()
         .update(devotionReactions)
         .set(data)
         .where(
@@ -203,12 +203,12 @@ export const app = new Hono<{
   })
   .get('/:id/source-documents', async (c) => {
     const devotion = c.var.devotion;
-    const sourceDocumentRelations = await db.query.devotionsToSourceDocuments.findMany({
+    const sourceDocumentRelations = await db().query.devotionsToSourceDocuments.findMany({
       where: (devotionSourceDocuments, { eq }) =>
         eq(devotionSourceDocuments.devotionId, devotion.id),
     });
 
-    const sourceDocuments = await vectorStore.getDocuments(
+    const sourceDocuments = await vectorStore().getDocuments(
       sourceDocumentRelations.map((r) => r.sourceDocumentId),
     );
 

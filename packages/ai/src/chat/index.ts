@@ -27,11 +27,6 @@ import { normalizeMessage } from '../utils/normalize-message';
 import { systemPrompt } from './system-prompt';
 import { tools } from './tools';
 
-initLogger({
-  projectName: Resource.BrainTrustProjectName.value,
-  apiKey: Resource.BrainTrustApiKey.value,
-});
-
 export const renameChat = async ({
   chatId,
   messages,
@@ -41,10 +36,14 @@ export const renameChat = async ({
   messages: Pick<Message, 'role' | 'content'>[];
   additionalContext?: string | null;
 }) => {
+  initLogger({
+    projectName: Resource.BrainTrustProjectName.value,
+    apiKey: Resource.BrainTrustApiKey.value,
+  });
   const {
     experimental_output: { title },
   } = await generateText({
-    model: registry.languageModel(`${defaultChatModel.host}:${defaultChatModel.id}`),
+    model: registry().languageModel(`${defaultChatModel.host}:${defaultChatModel.id}`),
     experimental_output: Output.object({
       schema: z.object({
         title: z.string().describe('The new title of the chat'),
@@ -70,7 +69,7 @@ ${messagesToString(messages)}
 What's the new title?`,
   });
 
-  const [chat] = await db
+  const [chat] = await db()
     .update(chats)
     .set({
       name: title,
@@ -98,6 +97,11 @@ export type CreateChatChainOptions = Omit<
 };
 
 export const createChatChain = async (options: CreateChatChainOptions) => {
+  initLogger({
+    projectName: Resource.BrainTrustProjectName.value,
+    apiKey: Resource.BrainTrustApiKey.value,
+  });
+
   const pendingPromises: Promise<unknown>[] = [];
 
   const system = systemPrompt({
@@ -129,7 +133,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
     );
   } else {
     pendingPromises.push(
-      db
+      db()
         .update(chats)
         .set({ updatedAt: new Date() })
         .where(eq(chats.id, options.chat.id))
@@ -146,10 +150,10 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
 
   // TODO: Uncomment this once bun fixes this issue: https://github.com/oven-sh/bun/issues/13072
   // const model = wrapLanguageModel({
-  //   model: registry.languageModel(options.modelId),
+  //   model: registry().languageModel(options.modelId),
   //   middleware: cacheMiddleware,
   // });
-  let model = registry.languageModel(`${options.modelInfo.host}:${options.modelInfo.id}`);
+  let model = registry().languageModel(`${options.modelInfo.host}:${options.modelInfo.id}`);
   if (Resource.Stage.value === 'production') {
     model = wrapAISDKModel(model);
   }
@@ -175,7 +179,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
           for (const message of newMessages) {
             // Remove deprecated fields
             const { toolInvocations, data, ...rest } = message;
-            const [response] = await db
+            const [response] = await db()
               .insert(messagesTable)
               .values({
                 ...rest,
@@ -196,7 +200,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
                   part.toolInvocation.toolName === 'vectorStore' &&
                   part.toolInvocation.result.status === 'success'
                 ) {
-                  await db
+                  await db()
                     .insert(messagesToSourceDocuments)
                     .values(
                       part.toolInvocation.result.documents.map((d: DocumentWithScore) => ({
@@ -222,7 +226,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
                     options.dataStream.writeMessageAnnotation({
                       generatedImageId: image.id,
                     });
-                    await db
+                    await db()
                       .insert(userGeneratedImagesToSourceDocuments)
                       .values(
                         part.toolInvocation.result.documents.map((d: DocumentWithScore) => ({

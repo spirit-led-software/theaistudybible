@@ -17,7 +17,6 @@
     "@tailwindcss/postcss": "^4.0.6",
     "@theaistudybible/tsconfig": "workspace:*",
     "@vite-pwa/assets-generator": "^0.2.6",
-    "nitropack": "^2.10.4",
     "sharp": "^0.33.5",
     "solid-devtools": "^0.33.0",
     "tailwind-variants": "^0.3.1",
@@ -25,13 +24,11 @@
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-safe-area": "^0.6.0",
     "vinxi": "^0.5.3",
-    "vite": "^6.1.0",
     "vite-plugin-cjs-interop": "^2.1.6",
     "vite-plugin-pwa": "^0.21.1",
     "vite-plugin-solid": "^2.11.1",
     "vite-plugin-top-level-await": "^1.5.0",
     "vite-plugin-wasm": "^3.4.1",
-    "vitest": "^3.0.5",
     "workbox-build": "^7.3.0",
     "workbox-core": "^7.3.0",
     "workbox-precaching": "^7.3.0",
@@ -86,7 +83,13 @@
     "solid-markdown": "^2.0.14",
     "solid-sonner": "^0.2.8",
     "tailwind-merge": "^3.0.1",
+    "toucan-js": "^4.1.0",
     "vite-bundle-analyzer": "^0.17.0"
+  },
+  "overrides": {
+    "nitropack": "npm:nitropack@2.10.4",
+    "unenv": "npm:unenv-nightly@latest",
+    "vite": "npm:vite@6.1.0"
   },
   "engines": {
     "node": ">=18",

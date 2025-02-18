@@ -7,7 +7,7 @@ import { createId } from './id';
 
 export async function queueEmail(email: EmailQueueRecord) {
   const validated = EmailQueueRecordSchema.parse(email);
-  const result = await sqs.send(
+  const result = await sqs().send(
     new SendMessageCommand({
       QueueUrl: Resource.EmailQueue.url,
       MessageBody: JSON.stringify(validated),
@@ -21,7 +21,7 @@ export async function queueEmailBatch(emails: EmailQueueRecord[]) {
     throw new Error('Too many emails to queue');
   }
   const validated = emails.map((email) => EmailQueueRecordSchema.parse(email));
-  const result = await sqs.send(
+  const result = await sqs().send(
     new SendMessageBatchCommand({
       QueueUrl: Resource.EmailQueue.url,
       Entries: validated.map((email) => ({

@@ -16,7 +16,7 @@ export const authMiddleware = () => {
 
     // Fetch user data concurrently
     const [settings, roles] = await Promise.all([
-      db
+      db()
         .insert(userSettings)
         .values({ userId: user.id, emailNotifications: true, preferredBibleAbbreviation: null })
         .onConflictDoUpdate({
@@ -25,8 +25,8 @@ export const authMiddleware = () => {
         })
         .returning()
         .then((rows) => rows[0]),
-      db.query.usersToRoles
-        .findMany({
+      db()
+        .query.usersToRoles.findMany({
           where: (usersToRoles, { eq }) => eq(usersToRoles.userId, user.id),
           with: { role: true },
         })

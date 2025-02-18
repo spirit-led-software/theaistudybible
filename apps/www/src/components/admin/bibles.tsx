@@ -51,7 +51,7 @@ async function requestUpload({
   }
 
   const presignedUrl = await getSignedUrl(
-    s3,
+    s3(),
     new PutObjectCommand({
       Bucket: Resource.BibleBucket.name,
       Key: `${createId()}_${name}`,

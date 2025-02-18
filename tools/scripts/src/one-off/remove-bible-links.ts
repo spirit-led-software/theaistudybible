@@ -3,21 +3,21 @@ import { chapters, verses } from '@/core/database/schema';
 import { and, eq } from 'drizzle-orm';
 
 export const removeBibleLinks = async () => {
-  const foundBibles = await db.query.bibles.findMany({
+  const foundBibles = await db().query.bibles.findMany({
     with: { books: { columns: { code: true } } },
   });
   for (const bible of foundBibles) {
     console.log(`Removing bible links for ${bible.abbreviation}`);
     for (const book of bible.books) {
       console.log(`Removing bible links for book: ${book.code}`);
-      const foundChapters = await db.query.chapters.findMany({
+      const foundChapters = await db().query.chapters.findMany({
         where: (chapters, { and, eq }) =>
           and(eq(chapters.bookCode, book.code), eq(chapters.bibleAbbreviation, bible.abbreviation)),
         columns: { code: true, number: true },
         orderBy: (chapters, { asc }) => asc(chapters.number),
       });
       await Promise.all([
-        db
+        db()
           .update(chapters)
           .set({ previousCode: null })
           .where(
@@ -26,7 +26,7 @@ export const removeBibleLinks = async () => {
               eq(chapters.bibleAbbreviation, bible.abbreviation),
             ),
           ),
-        db
+        db()
           .update(chapters)
           .set({ nextCode: null })
           .where(
@@ -39,7 +39,7 @@ export const removeBibleLinks = async () => {
 
       for (const chapter of foundChapters) {
         console.log(`Removing bible links for chapter: ${chapter.code}`);
-        const firstVerse = await db.query.verses.findFirst({
+        const firstVerse = await db().query.verses.findFirst({
           where: (verses, { and, eq }) =>
             and(
               eq(verses.chapterCode, chapter.code),
@@ -48,7 +48,7 @@ export const removeBibleLinks = async () => {
           columns: { code: true, number: true },
           orderBy: (verses, { asc }) => asc(verses.number),
         });
-        const lastVerse = await db.query.verses.findFirst({
+        const lastVerse = await db().query.verses.findFirst({
           where: (verses, { and, eq }) =>
             and(
               eq(verses.chapterCode, chapter.code),
@@ -59,7 +59,7 @@ export const removeBibleLinks = async () => {
         });
         if (!firstVerse || !lastVerse) continue;
         await Promise.all([
-          db
+          db()
             .update(verses)
             .set({ previousCode: null })
             .where(
@@ -68,7 +68,7 @@ export const removeBibleLinks = async () => {
                 eq(verses.bibleAbbreviation, bible.abbreviation),
               ),
             ),
-          db
+          db()
             .update(verses)
             .set({ nextCode: null })
             .where(

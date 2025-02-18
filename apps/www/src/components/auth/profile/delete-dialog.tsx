@@ -26,12 +26,12 @@ const deleteUserAction = action(async () => {
   if (user.stripeCustomerId) {
     const subData = await getStripeData(user.stripeCustomerId);
     if (subData?.status === 'active') {
-      await stripe.subscriptions.update(subData.subscriptionId, {
+      await stripe().subscriptions.update(subData.subscriptionId, {
         cancel_at_period_end: true,
       });
     }
   }
-  await db.delete(users).where(eq(users.id, user.id));
+  await db().delete(users).where(eq(users.id, user.id));
   const cookie = lucia.cookies.createBlankSessionCookie();
   return redirect('/', { headers: { 'Set-Cookie': cookie.serialize() } });
 });

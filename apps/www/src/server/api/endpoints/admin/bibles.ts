@@ -15,7 +15,7 @@ export const app = new Hono<{
 }>()
   .use('/:id/*', async (c, next) => {
     const abbreviation = c.req.param('id');
-    const bible = await db.query.bibles.findFirst({
+    const bible = await db().query.bibles.findFirst({
       where: eq(bibles.abbreviation, abbreviation),
     });
     if (!bible) {
@@ -28,13 +28,13 @@ export const app = new Hono<{
     const { limit, cursor, filter, sort } = c.req.valid('query');
 
     const [foundBibles, bibleCount] = await Promise.all([
-      db.query.bibles.findMany({
+      db().query.bibles.findMany({
         limit,
         offset: cursor,
         where: filter,
         orderBy: sort,
       }),
-      db
+      db()
         .select({
           count: count(),
         })
@@ -61,7 +61,7 @@ export const app = new Hono<{
   })
   .delete('/:id', async (c) => {
     const bible = c.get('bible');
-    await db.delete(bibles).where(eq(bibles.abbreviation, bible.abbreviation));
+    await db().delete(bibles).where(eq(bibles.abbreviation, bible.abbreviation));
     return c.json({ message: 'Bible deleted' }, 200);
   });
 

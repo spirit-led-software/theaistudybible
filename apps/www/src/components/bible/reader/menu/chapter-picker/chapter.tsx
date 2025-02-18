@@ -20,7 +20,7 @@ import { For } from 'solid-js';
 
 const getChapterPickerData = GET(async (input: { bibleAbbreviation: string; bookCode: string }) => {
   'use server';
-  const bibleData = await db.query.bibles.findFirst({
+  const bibleData = await db().query.bibles.findFirst({
     where: (bibles, { and, eq }) =>
       and(eq(bibles.abbreviation, input.bibleAbbreviation), eq(bibles.readyForPublication, true)),
     columns: { abbreviation: true },

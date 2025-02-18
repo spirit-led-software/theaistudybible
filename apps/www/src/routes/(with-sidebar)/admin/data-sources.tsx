@@ -13,7 +13,7 @@ import { Show } from 'solid-js';
 
 const getSources = GET(async (input: { offset: number; limit: number }) => {
   'use server';
-  const sources = await db.query.dataSources.findMany({
+  const sources = await db().query.dataSources.findMany({
     offset: input.offset,
     limit: input.limit,
   });

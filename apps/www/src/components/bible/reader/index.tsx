@@ -22,8 +22,8 @@ const getHighlights = GET(async (bibleAbbreviation: string, chapterCode: string)
     return { highlights: [] };
   }
 
-  const highlights = await db.query.chapters
-    .findFirst({
+  const highlights = await db()
+    .query.chapters.findFirst({
       where: (chapters, { and, eq }) =>
         and(eq(chapters.bibleAbbreviation, bibleAbbreviation), eq(chapters.code, chapterCode)),
       columns: { code: true },
@@ -55,8 +55,8 @@ const getNotes = GET(async (bibleAbbreviation: string, chapterCode: string) => {
     return { notes: [] };
   }
 
-  const notes = await db.query.chapters
-    .findFirst({
+  const notes = await db()
+    .query.chapters.findFirst({
       where: (chapters, { and, eq }) =>
         and(eq(chapters.bibleAbbreviation, bibleAbbreviation), eq(chapters.code, chapterCode)),
       columns: { code: true },

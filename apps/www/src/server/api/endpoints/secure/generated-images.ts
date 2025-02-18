@@ -27,7 +27,7 @@ export const app = new Hono<{
     await next();
   })
   .use('/:id/*', async (c, next) => {
-    const image = await db.query.userGeneratedImages.findFirst({
+    const image = await db().query.userGeneratedImages.findFirst({
       where: eq(userGeneratedImages.id, c.req.param('id')),
     });
     if (!image) {
@@ -60,13 +60,13 @@ export const app = new Hono<{
     }
 
     const [foundImages, imageCount] = await Promise.all([
-      db.query.userGeneratedImages.findMany({
+      db().query.userGeneratedImages.findMany({
         where,
         limit,
         offset: cursor,
         orderBy: sort,
       }),
-      db
+      db()
         .select({
           count: count(),
         })
@@ -90,7 +90,7 @@ export const app = new Hono<{
     );
   })
   .delete('/:id', async (c) => {
-    await db.delete(userGeneratedImages).where(eq(userGeneratedImages.id, c.var.image.id));
+    await db().delete(userGeneratedImages).where(eq(userGeneratedImages.id, c.var.image.id));
     return c.json(
       {
         message: 'Image deleted successfully',
@@ -99,10 +99,10 @@ export const app = new Hono<{
     );
   })
   .get('/:id/source-documents', async (c) => {
-    const sourceDocumentRelations = await db.query.userGeneratedImagesToSourceDocuments.findMany({
+    const sourceDocumentRelations = await db().query.userGeneratedImagesToSourceDocuments.findMany({
       where: eq(userGeneratedImages.id, c.var.image.id),
     });
-    const sourceDocuments = await vectorStore.getDocuments(
+    const sourceDocuments = await vectorStore().getDocuments(
       sourceDocumentRelations.map((r) => r.sourceDocumentId),
     );
     return c.json(

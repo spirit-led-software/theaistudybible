@@ -15,7 +15,7 @@ import { TextField, TextFieldTextArea } from '../../ui/text-field';
 const getReactions = GET(async (messageId: string) => {
   'use server';
   const { user } = requireAuth();
-  const reaction = await db.query.messageReactions.findFirst({
+  const reaction = await db().query.messageReactions.findFirst({
     where: (messageReactions, { and, eq }) =>
       and(eq(messageReactions.userId, user.id), eq(messageReactions.messageId, messageId)),
   });
@@ -30,7 +30,7 @@ const addReactionAction = action(
   }) => {
     'use server';
     const { user } = requireAuth();
-    const [reaction] = await db
+    const [reaction] = await db()
       .insert(messageReactions)
       .values({
         reaction: props.reaction,
@@ -52,7 +52,7 @@ const addReactionAction = action(
 const removeReactionAction = action(async (props: { messageId: string }) => {
   'use server';
   const { user } = requireAuth();
-  await db
+  await db()
     .delete(messageReactions)
     .where(
       and(eq(messageReactions.userId, user.id), eq(messageReactions.messageId, props.messageId)),

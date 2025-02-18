@@ -34,7 +34,7 @@ const getNotes = GET(
 
     let notes = [];
     if (props.verseNumbers?.length) {
-      notes = await db.query.verseNotes.findMany({
+      notes = await db().query.verseNotes.findMany({
         where: (verseNotes, { and, eq, inArray }) =>
           and(
             eq(verseNotes.userId, user.id),
@@ -55,7 +55,7 @@ const getNotes = GET(
         },
       });
     } else {
-      notes = await db.query.chapterNotes.findMany({
+      notes = await db().query.chapterNotes.findMany({
         where: (chapterNotes, { and, eq }) =>
           and(
             eq(chapterNotes.userId, user.id),

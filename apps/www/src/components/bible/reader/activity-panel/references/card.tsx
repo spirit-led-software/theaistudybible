@@ -21,7 +21,7 @@ const getReferences = GET(
     const {
       experimental_output: { terms },
     } = await generateText({
-      model: registry.languageModel('openai:gpt-4o-mini'),
+      model: registry().languageModel('openai:gpt-4o-mini'),
       experimental_output: Output.object({
         schema: z.object({
           terms: z
@@ -67,7 +67,7 @@ ${text}`,
         } else if (category === 'theology') {
           filter = 'category = "theology"';
         }
-        return vectorStore
+        return vectorStore()
           .searchDocuments(term, {
             withMetadata: true,
             withEmbedding: false,

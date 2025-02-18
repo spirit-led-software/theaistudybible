@@ -22,19 +22,18 @@ import {
 import { bibleVectorStoreTool, vectorStoreTool } from './tools';
 import { getTodaysTopic } from './topics';
 
-initLogger({
-  projectName: Resource.BrainTrustProjectName.value,
-  apiKey: Resource.BrainTrustApiKey.value,
-});
-
 const modelInfo = advancedChatModels[0];
-let model = registry.languageModel(`${modelInfo.host}:${modelInfo.id}`);
+let model = registry().languageModel(`${modelInfo.host}:${modelInfo.id}`);
 if (Resource.Stage.value === 'production') {
   model = wrapAISDKModel(model);
 }
 
 export const getBibleReading = async (topic: string) => {
-  const pastDevotions = await db.query.devotions.findMany({
+  initLogger({
+    projectName: Resource.BrainTrustProjectName.value,
+    apiKey: Resource.BrainTrustApiKey.value,
+  });
+  const pastDevotions = await db().query.devotions.findMany({
     columns: { id: true, bibleReading: true },
     where: (devotions, { eq }) => eq(devotions.topic, topic),
     orderBy: (devotions, { desc }) => [desc(devotions.createdAt)],
@@ -58,6 +57,10 @@ export const generateSummary = async ({
   topic: string;
   bibleReading: string;
 }) => {
+  initLogger({
+    projectName: Resource.BrainTrustProjectName.value,
+    apiKey: Resource.BrainTrustApiKey.value,
+  });
   const { text: summary } = await generateText({
     model,
     system: summarySystemPrompt,
@@ -80,6 +83,10 @@ export const generateReflection = async ({
   bibleReading: string;
   summary: string;
 }) => {
+  initLogger({
+    projectName: Resource.BrainTrustProjectName.value,
+    apiKey: Resource.BrainTrustApiKey.value,
+  });
   const { text: reflection } = await generateText({
     model,
     system: reflectionSystemPrompt,
@@ -114,6 +121,10 @@ export const generatePrayer = async ({
   summary: string;
   reflection: string;
 }) => {
+  initLogger({
+    projectName: Resource.BrainTrustProjectName.value,
+    apiKey: Resource.BrainTrustApiKey.value,
+  });
   const { text: prayer } = await generateText({
     model,
     system: prayerSystemPrompt,
@@ -148,6 +159,10 @@ export const generateDiveDeeperQueries = async ({
   reflection: string;
   prayer: string;
 }) => {
+  initLogger({
+    projectName: Resource.BrainTrustProjectName.value,
+    apiKey: Resource.BrainTrustApiKey.value,
+  });
   const {
     experimental_output: { queries },
   } = await generateText({
@@ -213,16 +228,20 @@ export const generateImage = async ({
   prompt: string;
   devotionId: string;
 }) => {
+  initLogger({
+    projectName: Resource.BrainTrustProjectName.value,
+    apiKey: Resource.BrainTrustApiKey.value,
+  });
   const { image } = await generateAiImage({
     prompt,
-    model: openai.image('dall-e-3'),
+    model: openai().image('dall-e-3'),
     size: '1792x1024',
   });
 
   const id = createId();
   const key = `${id}.png`;
   const imageBuffer = Buffer.from(image.uint8Array);
-  const putObjectResult = await s3.send(
+  const putObjectResult = await s3().send(
     new PutObjectCommand({
       Bucket: Resource.DevotionImagesBucket.name,
       Key: key,
@@ -235,7 +254,7 @@ export const generateImage = async ({
     throw new Error('Could not upload generated image to storage. Please try again later.');
   }
 
-  const [devotionImage] = await db
+  const [devotionImage] = await db()
     .insert(devotionImages)
     .values({
       id,
@@ -274,7 +293,7 @@ export const generateDevotion = async () => {
     prayer,
   });
 
-  const [devotion] = await db
+  const [devotion] = await db()
     .insert(devotions)
     .values({
       topic,

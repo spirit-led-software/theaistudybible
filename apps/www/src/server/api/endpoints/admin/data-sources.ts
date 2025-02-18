@@ -25,7 +25,7 @@ export const app = new Hono<{
 }>()
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const dataSource = await db.query.dataSources.findFirst({
+    const dataSource = await db().query.dataSources.findFirst({
       where: eq(dataSources.id, id),
     });
     if (!dataSource) {
@@ -37,7 +37,7 @@ export const app = new Hono<{
   .post('/', zValidator('json', upsertDataSourceSchema), async (c) => {
     const data = c.req.valid('json');
 
-    const [dataSource] = await db.insert(dataSources).values(data).returning();
+    const [dataSource] = await db().insert(dataSources).values(data).returning();
 
     return c.json(
       {
@@ -50,13 +50,13 @@ export const app = new Hono<{
     const { cursor, limit, filter, sort } = c.req.valid('query');
 
     const [foundDataSources, dataSourcesCount] = await Promise.all([
-      db.query.dataSources.findMany({
+      db().query.dataSources.findMany({
         where: filter,
         orderBy: sort,
         offset: cursor,
         limit: limit,
       }),
-      db
+      db()
         .select({ count: count() })
         .from(dataSources)
         .where(filter)
@@ -82,7 +82,7 @@ export const app = new Hono<{
   })
   .patch('/:id', zValidator('json', upsertDataSourceSchema), async (c) => {
     const data = c.req.valid('json');
-    const [dataSource] = await db
+    const [dataSource] = await db()
       .update(dataSources)
       .set(data)
       .where(eq(dataSources.id, c.var.dataSource.id))
@@ -132,21 +132,21 @@ export const app = new Hono<{
       const { cursor, limit } = c.req.valid('query');
 
       const [sourceDocumentIds, sourceDocumentCount] = await Promise.all([
-        db.query.dataSourcesToSourceDocuments
-          .findMany({
+        db()
+          .query.dataSourcesToSourceDocuments.findMany({
             where: eq(dataSourcesToSourceDocuments.dataSourceId, c.var.dataSource.id),
             limit,
             offset: cursor,
           })
           .then((res) => res.map((r) => r.sourceDocumentId)),
-        db
+        db()
           .select({ count: count() })
           .from(dataSourcesToSourceDocuments)
           .where(eq(dataSourcesToSourceDocuments.dataSourceId, c.var.dataSource.id))
           .then((res) => res[0].count),
       ]);
 
-      const sourceDocuments = await vectorStore.getDocuments(sourceDocumentIds, {
+      const sourceDocuments = await vectorStore().getDocuments(sourceDocumentIds, {
         withMetadata: true,
       });
 
@@ -172,13 +172,13 @@ export const app = new Hono<{
       }
 
       const [foundIndexOperations, indexOperationsCount] = await Promise.all([
-        db.query.indexOperations.findMany({
+        db().query.indexOperations.findMany({
           where,
           orderBy: sort,
           offset: cursor,
           limit,
         }),
-        db
+        db()
           .select({ count: count() })
           .from(indexOperations)
           .where(where)

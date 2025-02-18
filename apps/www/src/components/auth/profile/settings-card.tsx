@@ -26,17 +26,17 @@ import {
 const updateSettingsAction = action(async (values: z.infer<typeof UpdateUserSettingsSchema>) => {
   'use server';
   const { user } = requireAuth();
-  let settings = await db.query.userSettings.findFirst({
+  let settings = await db().query.userSettings.findFirst({
     where: (userSettings, { eq }) => eq(userSettings.userId, user.id),
   });
   if (settings) {
-    [settings] = await db
+    [settings] = await db()
       .update(userSettings)
       .set(values)
       .where(eq(userSettings.userId, user.id))
       .returning();
   } else {
-    [settings] = await db
+    [settings] = await db()
       .insert(userSettings)
       .values({ userId: user.id, ...values })
       .returning();

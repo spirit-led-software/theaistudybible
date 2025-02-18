@@ -35,7 +35,7 @@ const editDataSourceAction = action(
     'use server';
     requireAdmin();
     const validatedData = UpdateDataSourceFormSchema.parse(data);
-    const [dataSource] = await db
+    const [dataSource] = await db()
       .update(dataSources)
       .set(validatedData)
       .where(eq(dataSources.id, id))

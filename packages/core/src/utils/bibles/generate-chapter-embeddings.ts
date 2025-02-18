@@ -17,14 +17,14 @@ export const generateChapterEmbeddings = async ({
   bible: Bible;
   overwrite?: boolean;
 }) => {
-  const existingDocs = await db.query.chaptersToSourceDocuments.findMany({
+  const existingDocs = await db().query.chaptersToSourceDocuments.findMany({
     where: (chaptersToSourceDocuments, { and, eq }) =>
       and(
         eq(chaptersToSourceDocuments.bibleAbbreviation, bible.abbreviation),
         eq(chaptersToSourceDocuments.chapterCode, chapter.code),
       ),
   });
-  await vectorStore.deleteDocuments(existingDocs.map((doc) => doc.sourceDocumentId));
+  await vectorStore().deleteDocuments(existingDocs.map((doc) => doc.sourceDocumentId));
 
   const docs = await versesToDocs({
     bible,
@@ -37,8 +37,8 @@ export const generateChapterEmbeddings = async ({
   const batchSize = 100;
   for (let i = 0; i < docs.length; i += batchSize) {
     const batch = docs.slice(i, i + batchSize);
-    await vectorStore.addDocuments(batch, { overwrite });
-    await db
+    await vectorStore().addDocuments(batch, { overwrite });
+    await db()
       .insert(chaptersToSourceDocuments)
       .values(
         batch.map((doc) => ({

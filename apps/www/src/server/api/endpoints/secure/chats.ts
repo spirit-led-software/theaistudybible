@@ -28,7 +28,7 @@ const app = new Hono<{
   })
   .use('/:id/*', async (c, next) => {
     const id = c.req.param('id');
-    const chat = await db.query.chats.findFirst({
+    const chat = await db().query.chats.findFirst({
       where: (chats, { eq }) => eq(chats.id, id),
     });
     if (!chat) {
@@ -63,7 +63,7 @@ const app = new Hono<{
     ),
     async (c) => {
       const chatData = c.req.valid('json');
-      const [chat] = await db
+      const [chat] = await db()
         .insert(chats)
         .values({
           ...chatData,
@@ -95,13 +95,13 @@ const app = new Hono<{
       }
 
       const [foundChats, chatCount] = await Promise.all([
-        db.query.chats.findMany({
+        db().query.chats.findMany({
           where,
           limit,
           offset: cursor,
           orderBy: sort,
         }),
-        db
+        db()
           .select({ count: count() })
           .from(chats)
           .where(where)
@@ -137,7 +137,7 @@ const app = new Hono<{
     ),
     async (c) => {
       const chatData = c.req.valid('json');
-      const [chat] = await db
+      const [chat] = await db()
         .update(chats)
         .set({
           ...chatData,
@@ -155,7 +155,7 @@ const app = new Hono<{
     },
   )
   .delete('/:id', async (c) => {
-    await db.delete(chats).where(eq(chats.id, c.var.chat.id));
+    await db().delete(chats).where(eq(chats.id, c.var.chat.id));
     return c.json(
       {
         message: 'Chat deleted successfully',
@@ -172,13 +172,13 @@ const app = new Hono<{
     }
 
     const [foundMessages, messageCount] = await Promise.all([
-      db.query.messages.findMany({
+      db().query.messages.findMany({
         where,
         limit,
         offset: cursor,
         orderBy: sort,
       }),
-      db
+      db()
         .select({ count: count() })
         .from(messages)
         .where(where)

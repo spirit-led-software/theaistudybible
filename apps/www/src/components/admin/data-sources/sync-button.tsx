@@ -13,7 +13,7 @@ import { Button, type ButtonProps } from '../../ui/button';
 const queueSyncDataSourceAction = action(async (id: string) => {
   'use server';
   requireAdmin();
-  const response = await sqs.send(
+  const response = await sqs().send(
     new SendMessageCommand({
       QueueUrl: Resource.DataSourcesSyncQueue.url,
       MessageBody: JSON.stringify({ id, manual: true }),

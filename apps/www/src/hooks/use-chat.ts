@@ -22,7 +22,7 @@ import { requireAuth } from '../server/utils/auth';
 const getChat = GET(async (chatId: string) => {
   'use server';
   const { user } = requireAuth();
-  const chat = await db.query.chats.findFirst({
+  const chat = await db().query.chats.findFirst({
     where: (chats, { and, eq }) => and(eq(chats.id, chatId), eq(chats.userId, user.id)),
   });
   return { chat: chat ?? null };
@@ -37,7 +37,7 @@ const getChatMessages = GET(
   async ({ chatId, limit, offset }: { chatId: string; limit: number; offset: number }) => {
     'use server';
     const { user } = requireAuth();
-    const messages = await db.query.messages.findMany({
+    const messages = await db().query.messages.findMany({
       where: (messages, { eq, and, or, ne, not }) =>
         and(
           eq(messages.userId, user.id),
@@ -80,7 +80,7 @@ const getChatSuggestions = GET(async (chatId: string) => {
   const {
     experimental_output: { suggestions },
   } = await generateText({
-    model: registry.languageModel(`${defaultChatModel.host}:${defaultChatModel.id}`),
+    model: registry().languageModel(`${defaultChatModel.host}:${defaultChatModel.id}`),
     experimental_output: Output.object({
       schema: z.object({
         suggestions: z

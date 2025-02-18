@@ -78,7 +78,7 @@ function findPublication(metadata: DBLMetadata, publicationId?: string): Publica
 }
 
 async function findExistingBible(abbreviation: string, overwrite: boolean) {
-  const bible = await db.query.bibles.findFirst({
+  const bible = await db().query.bibles.findFirst({
     where: eq(schema.bibles.abbreviation, abbreviation),
   });
 
@@ -98,7 +98,7 @@ async function createBible(metadata: DBLMetadata, abbreviation: string, overwrit
     ignoreAttributes: false,
   }).build(metadata.copyright.fullStatement.statementContent);
 
-  const [bible] = await db
+  const [bible] = await db()
     .insert(schema.bibles)
     .values({
       abbreviation,
@@ -143,7 +143,7 @@ async function createBibleLanguage(
 ) {
   const { iso, ...rest } = dblLanguage;
 
-  const [language] = await db
+  const [language] = await db()
     .insert(schema.bibleLanguages)
     .values(dblLanguage)
     .onConflictDoUpdate({
@@ -151,7 +151,7 @@ async function createBibleLanguage(
       set: rest,
     })
     .returning();
-  await db
+  await db()
     .insert(schema.biblesToLanguages)
     .values({
       bibleAbbreviation,
@@ -165,7 +165,7 @@ async function createBibleCountries(
   dblCountries: DBLMetadata['countries']['country'],
 ) {
   const countriesArray = Array.isArray(dblCountries) ? dblCountries : [dblCountries];
-  const countries = await db
+  const countries = await db()
     .insert(schema.bibleCountries)
     .values(countriesArray)
     .onConflictDoUpdate({
@@ -178,7 +178,7 @@ async function createBibleCountries(
       ),
     })
     .returning();
-  await db
+  await db()
     .insert(schema.biblesToCountries)
     .values(
       countries.map((country) => ({
@@ -194,7 +194,7 @@ async function createBibleRightsHolder(
   dblRightsHolder: DBLMetadata['agencies']['rightsHolder'],
 ) {
   const { uid, ...rest } = dblRightsHolder;
-  const [rightsHolder] = await db
+  const [rightsHolder] = await db()
     .insert(schema.bibleRightsHolders)
     .values(dblRightsHolder)
     .onConflictDoUpdate({
@@ -202,7 +202,7 @@ async function createBibleRightsHolder(
       set: rest,
     })
     .returning();
-  await db
+  await db()
     .insert(schema.biblesToRightsHolders)
     .values({
       bibleAbbreviation,
@@ -216,7 +216,7 @@ async function createBibleRightsAdmin(
   dblRightsAdmin: DBLMetadata['agencies']['rightsAdmin'],
 ) {
   const { uid, ...rest } = dblRightsAdmin;
-  const [rightsAdmin] = await db
+  const [rightsAdmin] = await db()
     .insert(schema.bibleRightsAdmins)
     .values(dblRightsAdmin)
     .onConflictDoUpdate({
@@ -224,7 +224,7 @@ async function createBibleRightsAdmin(
       set: rest,
     })
     .returning();
-  await db
+  await db()
     .insert(schema.biblesToRightsAdmins)
     .values({
       bibleAbbreviation,
@@ -238,7 +238,7 @@ async function createBibleContributor(
   dblContributor: DBLMetadata['agencies']['contributor'],
 ) {
   const contributorsArray = Array.isArray(dblContributor) ? dblContributor : [dblContributor];
-  const contributors = await db
+  const contributors = await db()
     .insert(schema.bibleContributors)
     .values(contributorsArray)
     .onConflictDoUpdate({
@@ -252,7 +252,7 @@ async function createBibleContributor(
     })
     .returning();
 
-  await db
+  await db()
     .insert(schema.biblesToContributors)
     .values(
       contributors.map((contributor) => ({
@@ -287,7 +287,7 @@ async function createBooks(
 
   for (let i = 0; i < bookInfos.length; i += batchSize) {
     const batch = bookInfos.slice(i, i + batchSize);
-    const insertedBooks = await db
+    const insertedBooks = await db()
       .insert(schema.books)
       .values(
         batch.map((book, idx) => {
@@ -373,7 +373,7 @@ async function sendChaptersToIndexBucket(
     });
 
     const uploadPromises = messages.map((message) =>
-      s3.send(
+      s3().send(
         new PutObjectCommand({
           Bucket: Resource.ChapterMessageBucket.name,
           Key: `${message.bibleAbbreviation}.${message.bookCode}.${message.chapterNumber}.json`,

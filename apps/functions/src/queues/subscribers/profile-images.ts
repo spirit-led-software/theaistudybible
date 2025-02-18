@@ -26,7 +26,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
         const key = decodeURIComponent(s3EventRecord.s3.object.key.replace(/\+/g, ' '));
 
         console.log(`Processing file: ${key} from bucket: ${bucket}`);
-        const { Metadata } = await s3.send(
+        const { Metadata } = await s3().send(
           new GetObjectCommand({
             Bucket: bucket,
             Key: key,
@@ -38,7 +38,7 @@ export const handler: SQSHandler = wrapHandler(async (event) => {
           throw new Error('User ID is required');
         }
 
-        await db
+        await db()
           .update(users)
           .set({ image: `${Resource.Cdn.url}/profile-images/${s3EventRecord.s3.object.key}` })
           .where(eq(users.id, userId));

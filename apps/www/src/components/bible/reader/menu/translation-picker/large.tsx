@@ -12,7 +12,7 @@ import { For, createSignal } from 'solid-js';
 
 const getBibles = GET(async () => {
   'use server';
-  const bibles = await db.query.bibles.findMany({
+  const bibles = await db().query.bibles.findMany({
     where: (bibles, { eq }) => eq(bibles.readyForPublication, true),
     with: { biblesToLanguages: { with: { language: true } } },
   });

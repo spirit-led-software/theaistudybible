@@ -24,7 +24,7 @@ const triggerPushNotification = async (title: string, body: string, url?: string
     throw new Error('You must be an admin to access this resource.');
   }
 
-  const subscriptions = await db.query.pushSubscriptions.findMany({});
+  const subscriptions = await db().query.pushSubscriptions.findMany({});
   await Promise.all(
     subscriptions.map((subscription) =>
       webPush
@@ -38,7 +38,7 @@ const triggerPushNotification = async (title: string, body: string, url?: string
         .catch(async (error) => {
           console.error(error);
           if (error.statusCode === 410) {
-            await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, subscription.id));
+            await db().delete(pushSubscriptions).where(eq(pushSubscriptions.id, subscription.id));
           }
         }),
     ),

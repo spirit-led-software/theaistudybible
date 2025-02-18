@@ -30,7 +30,7 @@ export const bibleVectorStoreTool = tool({
     try {
       const docs = await Promise.all(
         terms.map(({ term, weight }) =>
-          vectorStore
+          vectorStore()
             .searchDocuments(term, {
               filter: `(type = "bible" or type = "BIBLE") and bibleAbbreviation = "NASB"`,
               limit: 10,
@@ -92,7 +92,7 @@ export const vectorStoreTool = tool({
     try {
       const docs = await Promise.all(
         terms.map(({ term, weight }) =>
-          vectorStore
+          vectorStore()
             .searchDocuments(term, {
               limit: 12,
               withMetadata: true,

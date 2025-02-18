@@ -10,7 +10,7 @@ export const GET: APIHandler = async ({ params }) => {
 
   const bibleAbbreviation = params.bibleAbbreviationXml.split('.')[0];
 
-  const bible = await db.query.bibles.findFirst({
+  const bible = await db().query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbreviation),
     columns: { abbreviation: true },
     with: {

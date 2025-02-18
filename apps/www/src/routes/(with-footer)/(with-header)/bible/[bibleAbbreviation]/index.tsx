@@ -11,7 +11,7 @@ export type BibleRedirectUrlParams = {
 
 const getBibleRedirectUrl = GET(async ({ bibleAbbreviation }: BibleRedirectUrlParams) => {
   'use server';
-  const bibleData = await db.query.bibles.findFirst({
+  const bibleData = await db().query.bibles.findFirst({
     where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbreviation),
     columns: { abbreviation: true },
     with: {

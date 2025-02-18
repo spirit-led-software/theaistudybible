@@ -36,7 +36,7 @@ const getDevotions = GET(
     searchQuery?: string;
   }) => {
     'use server';
-    const devotions = await db.query.devotions.findMany({
+    const devotions = await db().query.devotions.findMany({
       where: searchQuery
         ? (devotions, { or }) =>
             or(

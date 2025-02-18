@@ -7,7 +7,7 @@ export async function syncStripeData(customerId?: string | null): Promise<Subscr
   if (!customerId) return { status: 'none' };
 
   // Fetch latest subscription data from Stripe
-  const subscriptions = await stripe.subscriptions.list({
+  const subscriptions = await stripe().subscriptions.list({
     customer: customerId,
     limit: 1,
     status: 'all',
@@ -16,7 +16,7 @@ export async function syncStripeData(customerId?: string | null): Promise<Subscr
 
   if (subscriptions.data.length === 0) {
     const subData: SubscriptionData = { status: 'none' };
-    await cache.set(`stripe:customer:${customerId}`, subData);
+    await cache().set(`stripe:customer:${customerId}`, subData);
     return subData;
   }
 
@@ -41,13 +41,13 @@ export async function syncStripeData(customerId?: string | null): Promise<Subscr
   };
 
   // Store the data in your KV
-  await cache.set(`stripe:customer:${customerId}`, subData);
+  await cache().set(`stripe:customer:${customerId}`, subData);
   return subData;
 }
 
 export async function getStripeData(customerId?: string | null): Promise<SubscriptionData> {
   if (!customerId) return { status: 'none' };
-  const customer = await cache.get<SubscriptionData>(`stripe:customer:${customerId}`);
+  const customer = await cache().get<SubscriptionData>(`stripe:customer:${customerId}`);
   if (!customer) return await syncStripeData(customerId);
   return customer;
 }

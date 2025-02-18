@@ -24,7 +24,7 @@ export async function insertChapter({
 }) {
   const { content, ...columnsWithoutContent } = getTableColumns(chapters);
 
-  const [insertedChapter] = await db
+  const [insertedChapter] = await db()
     .insert(chapters)
     .values({
       bibleAbbreviation: bible.abbreviation,
@@ -77,7 +77,7 @@ export async function insertVerses({
 
   for (let i = 0; i < verseEntries.length; i += insertVerseBatchSize) {
     const verseBatch = verseEntries.slice(i, i + insertVerseBatchSize);
-    const insertedVerses = await db
+    const insertedVerses = await db()
       .insert(verses)
       .values(
         verseBatch.map(([verseNumber, verseContent], idx) => {

@@ -37,7 +37,7 @@ const editNoteAction = action(
     const { user } = requireAuth();
     let note: VerseNote | ChapterNote;
     if (props.type === 'chapter') {
-      [note] = await db
+      [note] = await db()
         .update(chapterNotes)
         .set({ content: props.content })
         .where(
@@ -49,7 +49,7 @@ const editNoteAction = action(
         )
         .returning();
     } else if (props.type === 'verse') {
-      [note] = await db
+      [note] = await db()
         .update(verseNotes)
         .set({ content: props.content })
         .where(
@@ -76,7 +76,7 @@ const deleteNoteAction = action(
     'use server';
     const { user } = requireAuth();
     if (props.type === 'chapter') {
-      await db
+      await db()
         .delete(chapterNotes)
         .where(
           and(
@@ -86,7 +86,7 @@ const deleteNoteAction = action(
           ),
         );
     } else if (props.type === 'verse') {
-      await db
+      await db()
         .delete(verseNotes)
         .where(
           and(

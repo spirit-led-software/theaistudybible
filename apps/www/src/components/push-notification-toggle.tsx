@@ -24,7 +24,7 @@ const subscribeToPushNotificationsAction = action(
   }) => {
     'use server';
     const { user } = requireAuth();
-    await db.insert(pushSubscriptions).values({
+    await db().insert(pushSubscriptions).values({
       userId: user.id,
       endpoint: input.endpoint,
       p256dh: input.keys.p256dh,
@@ -37,7 +37,7 @@ const subscribeToPushNotificationsAction = action(
 const unsubscribeFromPushNotificationsAction = action(async (input: { endpoint: string }) => {
   'use server';
   const { user } = requireAuth();
-  await db
+  await db()
     .delete(pushSubscriptions)
     .where(
       and(eq(pushSubscriptions.userId, user.id), eq(pushSubscriptions.endpoint, input.endpoint)),

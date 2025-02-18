@@ -27,7 +27,7 @@ const unsubscribeAction = action(async () => {
   if (!user.stripeCustomerId) throw new Error('User has no Stripe customer ID');
   const subData = await getStripeData(user.stripeCustomerId);
   if (subData.status !== 'active') throw new Error('User has no active subscription');
-  await stripe.subscriptions.update(subData.subscriptionId, {
+  await stripe().subscriptions.update(subData.subscriptionId, {
     cancel_at_period_end: true,
   });
   return { success: true };
@@ -39,7 +39,7 @@ const renewAction = action(async () => {
   if (!user.stripeCustomerId) throw new Error('User has no Stripe customer ID');
   const subData = await getStripeData(user.stripeCustomerId);
   if (subData.status !== 'active') throw new Error('User has no active subscription');
-  await stripe.subscriptions.update(subData.subscriptionId, { cancel_at_period_end: false });
+  await stripe().subscriptions.update(subData.subscriptionId, { cancel_at_period_end: false });
   return { success: true };
 });
 

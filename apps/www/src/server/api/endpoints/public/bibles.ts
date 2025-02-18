@@ -54,7 +54,7 @@ export const app = new Hono<{
   .use('/:id/*', async (c, next) => {
     const bibleId = c.req.param('id');
 
-    const bible = await db.query.bibles.findFirst({
+    const bible = await db().query.bibles.findFirst({
       where: (bibles, { eq }) => eq(bibles.abbreviation, bibleId),
     });
     if (!bible) {
@@ -67,7 +67,7 @@ export const app = new Hono<{
     const bible = c.get('bible');
     const bookId = c.req.param('bookId');
 
-    const book = await db.query.books.findFirst({
+    const book = await db().query.books.findFirst({
       where: and(
         eq(books.bibleAbbreviation, bible.abbreviation),
         or(eq(books.code, bookId), eq(books.abbreviation, bookId)),
@@ -103,7 +103,7 @@ export const app = new Hono<{
     const bible = c.get('bible');
     const chapterCode = c.req.param('chapterCode');
 
-    const chapter = await db.query.chapters.findFirst({
+    const chapter = await db().query.chapters.findFirst({
       where: and(
         eq(chapters.bibleAbbreviation, bible.abbreviation),
         eq(chapters.code, chapterCode),
@@ -135,7 +135,7 @@ export const app = new Hono<{
     const bible = c.get('bible');
     const verseCode = c.req.param('verseCode');
 
-    const verse = await db.query.verses.findFirst({
+    const verse = await db().query.verses.findFirst({
       where: and(eq(verses.bibleAbbreviation, bible.abbreviation), eq(verses.code, verseCode)),
       with: {
         previous: {
@@ -165,13 +165,13 @@ export const app = new Hono<{
     const { cursor, limit, sort, filter } = c.req.valid('query');
 
     const [foundBibles, bibleCount] = await Promise.all([
-      db.query.bibles.findMany({
+      db().query.bibles.findMany({
         offset: cursor,
         limit,
         orderBy: sort,
         where: filter,
       }),
-      db
+      db()
         .select({
           count: count(),
         })
@@ -206,7 +206,7 @@ export const app = new Hono<{
     }
 
     const [foundBooks, bookCount] = await Promise.all([
-      db.query.books.findMany({
+      db().query.books.findMany({
         offset: cursor,
         limit,
         orderBy: sort,
@@ -232,7 +232,7 @@ export const app = new Hono<{
           },
         },
       }),
-      db
+      db()
         .select({
           count: count(),
         })
@@ -298,7 +298,7 @@ export const app = new Hono<{
       }
 
       const [foundChapters, chapterCount] = await Promise.all([
-        db.query.chapters.findMany({
+        db().query.chapters.findMany({
           offset: cursor,
           limit,
           orderBy: sort,
@@ -325,7 +325,7 @@ export const app = new Hono<{
             },
           },
         }),
-        db
+        db()
           .select({
             count: count(),
           })
@@ -381,13 +381,13 @@ export const app = new Hono<{
     }
 
     const [foundVerses, verseCount] = await Promise.all([
-      db.query.verses.findMany({
+      db().query.verses.findMany({
         offset: cursor,
         limit,
         orderBy: sort,
         where,
       }),
-      db
+      db()
         .select({
           count: count(),
         })

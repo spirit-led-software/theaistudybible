@@ -57,7 +57,7 @@ const getHighlights = GET(
       );
     }
 
-    const highlights = await db
+    const highlights = await db()
       .select({
         ...getTableColumns(verseHighlights),
         bible: { abbreviation: biblesTable.abbreviation },
@@ -103,7 +103,7 @@ const deleteHighlightAction = action(
   async (input: { bibleAbbreviation: string; verseCode: string }) => {
     'use server';
     const { user } = requireAuth();
-    await db
+    await db()
       .delete(verseHighlights)
       .where(
         and(

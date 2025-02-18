@@ -23,7 +23,7 @@ export const GET: APIHandler = ({ nativeEvent, request }) => {
   }
 
   const state = generateState();
-  const authUrl = apple.createAuthorizationURL(state, ['name', 'email']);
+  const authUrl = apple().createAuthorizationURL(state, ['name', 'email']);
   authUrl.searchParams.set('response_mode', 'form_post');
 
   setCookie(nativeEvent, 'apple_oauth_state', state, {

@@ -44,7 +44,7 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
     }),
     execute: async ({ bibleAbbreviation, bookCode, chapterNumber, verseNumbers, color }) => {
       try {
-        const queryResult = await db.query.bibles.findFirst({
+        const queryResult = await db().query.bibles.findFirst({
           columns: { abbreviation: true },
           where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbreviation),
           with: {
@@ -80,7 +80,7 @@ export const highlightVerseTool = (input: { dataStream: DataStreamWriter; userId
           throw new Error('Verse(s) not found');
         }
 
-        await db
+        await db()
           .insert(verseHighlights)
           .values(
             verses.map((verse) => ({
@@ -127,7 +127,7 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
     }),
     execute: async ({ bibleAbbreviation, bookCode, chapterNumbers }) => {
       try {
-        const queryResult = await db.query.bibles.findFirst({
+        const queryResult = await db().query.bibles.findFirst({
           columns: { abbreviation: true },
           where: (bibles, { eq }) => eq(bibles.abbreviation, bibleAbbreviation),
           with: {
@@ -156,7 +156,7 @@ export const bookmarkChapterTool = (input: { dataStream: DataStreamWriter; userI
           throw new Error('Chapter(s) not found');
         }
 
-        await db
+        await db()
           .insert(chapterBookmarks)
           .values(
             chapters.map((chapter) => ({
@@ -230,7 +230,7 @@ export const vectorStoreTool = (input: {
             } else if (category === 'theology') {
               filter = 'category = "theology"';
             }
-            return await vectorStore
+            return await vectorStore()
               .searchDocuments(term, {
                 limit: 12,
                 withMetadata: true,
@@ -290,14 +290,14 @@ export const generateImageTool = (input: {
     execute: async ({ prompt, size }, { abortSignal }) => {
       let ratelimit = new Ratelimit({
         prefix: 'image-generation',
-        redis: cache,
+        redis: cache(),
         limiter: Ratelimit.slidingWindow(2, '24h'),
       });
       const subData = await getStripeData(input.user.stripeCustomerId);
       if (subData?.status === 'active' || input.roles?.some((role) => role.id === 'admin')) {
         ratelimit = new Ratelimit({
           prefix: 'image-generation',
-          redis: cache,
+          redis: cache(),
           limiter: Ratelimit.slidingWindow(10, '24h'),
         });
       }
@@ -313,7 +313,7 @@ export const generateImageTool = (input: {
       try {
         const { image } = await generateImage({
           prompt,
-          model: openai.image('dall-e-3'),
+          model: openai().image('dall-e-3'),
           size,
           abortSignal,
         });
@@ -321,7 +321,7 @@ export const generateImageTool = (input: {
         const id = createId();
         const key = `${id}.png`;
         const imageBuffer = Buffer.from(image.uint8Array);
-        const putObjectResult = await s3.send(
+        const putObjectResult = await s3().send(
           new PutObjectCommand({
             Bucket: Resource.GeneratedImagesBucket.name,
             Key: key,
@@ -337,7 +337,7 @@ export const generateImageTool = (input: {
           } as const;
         }
 
-        const [generatedImage] = await db
+        const [generatedImage] = await db()
           .insert(userGeneratedImages)
           .values({
             id,

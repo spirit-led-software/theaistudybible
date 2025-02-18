@@ -10,14 +10,14 @@ export const handler = wrapHandler(async () => {
 const cleanupChapterMessageBucket = async () => {
   let continuationToken: string | undefined;
   while (continuationToken) {
-    const { Contents, NextContinuationToken } = await s3.send(
+    const { Contents, NextContinuationToken } = await s3().send(
       new ListObjectsV2Command({
         Bucket: Resource.ChapterMessageBucket.name,
         ContinuationToken: continuationToken,
       }),
     );
     if (Contents?.length) {
-      await s3.send(
+      await s3().send(
         new DeleteObjectsCommand({
           Bucket: Resource.ChapterMessageBucket.name,
           Delete: { Objects: Contents.map(({ Key }) => ({ Key })) },

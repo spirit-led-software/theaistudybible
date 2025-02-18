@@ -13,7 +13,7 @@ import { ChapterPicker } from './chapter';
 
 const getBookPickerData = GET(async (bibleAbbreviation: string) => {
   'use server';
-  const bibleData = await db.query.bibles.findFirst({
+  const bibleData = await db().query.bibles.findFirst({
     where: (bibles, { and, eq }) =>
       and(eq(bibles.abbreviation, bibleAbbreviation), eq(bibles.readyForPublication, true)),
     with: {

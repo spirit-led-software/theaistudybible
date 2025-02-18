@@ -23,7 +23,11 @@ import {
 const updateUserAction = action(async (values: UpdateUser) => {
   'use server';
   const { user } = requireAuth();
-  const [updatedUser] = await db.update(users).set(values).where(eq(users.id, user.id)).returning();
+  const [updatedUser] = await db()
+    .update(users)
+    .set(values)
+    .where(eq(users.id, user.id))
+    .returning();
   return { user: updatedUser };
 });
 

@@ -24,7 +24,7 @@ export const GET: APIHandler = ({ nativeEvent, request }) => {
 
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
-  const authUrl = google.createAuthorizationURL(state, codeVerifier, [
+  const authUrl = google().createAuthorizationURL(state, codeVerifier, [
     'openid',
     'profile',
     'email',

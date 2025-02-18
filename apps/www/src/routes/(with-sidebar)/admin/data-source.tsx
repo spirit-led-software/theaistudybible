@@ -46,7 +46,7 @@ const createDataSourceAction = action(
     'use server';
     requireAdmin();
     const validatedData = CreateDataSourceFormSchema.parse(values);
-    const [dataSource] = await db.insert(dataSources).values(validatedData).returning();
+    const [dataSource] = await db().insert(dataSources).values(validatedData).returning();
     return { dataSource };
   },
 );
@@ -66,7 +66,7 @@ const getPresignedUrl = GET(
       Metadata: transformKeys(metadata ?? {}, 'toKebab'),
     });
     return {
-      presignedUrl: await getSignedUrl(s3, command, {
+      presignedUrl: await getSignedUrl(s3(), command, {
         expiresIn: 60 * 60 * 24,
       }),
     };

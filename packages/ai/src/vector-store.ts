@@ -96,7 +96,7 @@ export class VectorStore {
           })),
           { namespace: options.namespace },
         ),
-        db
+        db()
           .insert(sourceDocuments)
           .values(batch.map((d) => ({ id: d.id })))
           .onConflictDoNothing(),
@@ -114,7 +114,7 @@ export class VectorStore {
       );
       await Promise.all([
         this.client.delete(batch),
-        db.delete(sourceDocuments).where(inArray(sourceDocuments.id, batch)),
+        db().delete(sourceDocuments).where(inArray(sourceDocuments.id, batch)),
       ]);
     }
   }
@@ -174,4 +174,4 @@ export class VectorStore {
   }
 }
 
-export const vectorStore = new VectorStore(embeddings);
+export const vectorStore = () => new VectorStore(embeddings());

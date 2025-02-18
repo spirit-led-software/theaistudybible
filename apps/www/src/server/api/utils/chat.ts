@@ -13,13 +13,13 @@ export async function getChatRateLimit(user: User, roles?: Role[] | null) {
   if (subData?.status === 'active' || roles?.some((role) => role.id === 'admin')) {
     return new Ratelimit({
       prefix: 'chat',
-      redis: cache,
+      redis: cache(),
       limiter: Ratelimit.slidingWindow(100, '24h'),
     });
   }
   return new Ratelimit({
     prefix: 'chat',
-    redis: cache,
+    redis: cache(),
     limiter: Ratelimit.slidingWindow(10, '24h'),
   });
 }

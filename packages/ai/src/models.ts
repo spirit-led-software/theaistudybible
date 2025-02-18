@@ -1,9 +1,9 @@
 import type { anthropic } from '@ai-sdk/anthropic';
 import type { deepseek } from '@ai-sdk/deepseek';
+import type { google } from '@ai-sdk/google';
 import type { groq } from '@ai-sdk/groq';
 import type { mistral } from '@ai-sdk/mistral';
 import type { openai } from '@ai-sdk/openai';
-import type { google } from './provider-registry';
 
 export type ChatModelInfo = {
   /**

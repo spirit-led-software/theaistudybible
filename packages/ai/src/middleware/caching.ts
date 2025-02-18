@@ -1,17 +1,13 @@
 // TODO: Use this once bun fixes this issue: https://github.com/oven-sh/bun/issues/13072
 import { cache } from '@/core/cache';
-import type {
-  LanguageModelV1,
-  Experimental_LanguageModelV1Middleware as LanguageModelV1Middleware,
-  LanguageModelV1StreamPart,
-} from 'ai';
-import { simulateReadableStream } from 'ai/test';
+import type { LanguageModelV1, LanguageModelV1Middleware, LanguageModelV1StreamPart } from 'ai';
+import { simulateReadableStream } from 'ai';
 
 export const cacheMiddleware: LanguageModelV1Middleware = {
   wrapGenerate: async ({ doGenerate, params }) => {
     const cacheKey = JSON.stringify(params);
 
-    const cached = (await cache.get(cacheKey)) as Awaited<
+    const cached = (await cache().get(cacheKey)) as Awaited<
       ReturnType<LanguageModelV1['doGenerate']>
     > | null;
 
@@ -29,7 +25,7 @@ export const cacheMiddleware: LanguageModelV1Middleware = {
 
     const result = await doGenerate();
 
-    cache.set(cacheKey, result);
+    await cache().set(cacheKey, result);
 
     return result;
   },
@@ -37,7 +33,7 @@ export const cacheMiddleware: LanguageModelV1Middleware = {
     const cacheKey = JSON.stringify(params);
 
     // Check if the result is in the cache
-    const cached = await cache.get(cacheKey);
+    const cached = await cache().get(cacheKey);
 
     // If cached, return a simulated ReadableStream that yields the cached result
     if (cached !== null) {
@@ -73,7 +69,7 @@ export const cacheMiddleware: LanguageModelV1Middleware = {
       },
       flush() {
         // Store the full response in the cache after streaming is complete
-        cache.set(cacheKey, fullResponse);
+        cache().set(cacheKey, fullResponse);
       },
     });
 

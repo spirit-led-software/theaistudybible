@@ -21,7 +21,7 @@ import {
 const deleteDataSourceAction = action(async (id: string) => {
   'use server';
   requireAdmin();
-  const [dataSource] = await db.delete(dataSources).where(eq(dataSources.id, id)).returning();
+  const [dataSource] = await db().delete(dataSources).where(eq(dataSources.id, id)).returning();
   return { dataSource };
 });
 

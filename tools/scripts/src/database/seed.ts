@@ -7,7 +7,7 @@ import { Resource } from 'sst';
 async function createInitialAdminUser() {
   console.log('Creating initial admin user');
 
-  const [admin] = await db
+  const [admin] = await db()
     .insert(users)
     .values({
       email: Resource.AdminEmail.value,
@@ -23,7 +23,7 @@ async function createInitialAdminUser() {
 
   const pwHash = await hashPassword(Resource.AdminPassword.value);
 
-  const existingPassword = await db.query.passwords.findFirst({
+  const existingPassword = await db().query.passwords.findFirst({
     where: and(
       eq(passwords.userId, admin.id),
       eq(passwords.hash, pwHash),
@@ -31,11 +31,11 @@ async function createInitialAdminUser() {
     ),
   });
   if (!existingPassword) {
-    await db.update(passwords).set({ active: false }).where(eq(passwords.userId, admin.id));
-    await db.insert(passwords).values({ userId: admin.id, hash: pwHash });
+    await db().update(passwords).set({ active: false }).where(eq(passwords.userId, admin.id));
+    await db().insert(passwords).values({ userId: admin.id, hash: pwHash });
   }
 
-  await db
+  await db()
     .insert(usersToRoles)
     .values({
       userId: admin.id,
@@ -49,7 +49,7 @@ async function createInitialAdminUser() {
 async function createTestUser() {
   console.log('Creating test user');
 
-  const [testUser] = await db
+  const [testUser] = await db()
     .insert(users)
     .values({
       email: Resource.TestUserEmail.value,
@@ -67,7 +67,7 @@ async function createTestUser() {
 
   const pwHash = await hashPassword(Resource.TestUserPassword.value);
 
-  const existingPassword = await db.query.passwords.findFirst({
+  const existingPassword = await db().query.passwords.findFirst({
     where: and(
       eq(passwords.userId, testUser.id),
       eq(passwords.hash, pwHash),
@@ -75,11 +75,11 @@ async function createTestUser() {
     ),
   });
   if (!existingPassword) {
-    await db.update(passwords).set({ active: false }).where(eq(passwords.userId, testUser.id));
-    await db.insert(passwords).values({ userId: testUser.id, hash: pwHash });
+    await db().update(passwords).set({ active: false }).where(eq(passwords.userId, testUser.id));
+    await db().insert(passwords).values({ userId: testUser.id, hash: pwHash });
   }
 
-  await db
+  await db()
     .insert(usersToRoles)
     .values({
       userId: testUser.id,
@@ -94,7 +94,7 @@ async function createInitialRoles() {
   console.log('Creating initial roles');
 
   console.log('Creating admin role');
-  await db
+  await db()
     .insert(roles)
     .values({
       id: 'admin',
@@ -109,7 +109,7 @@ async function createInitialRoles() {
   console.log('Admin role created');
 
   console.log('Creating default user role');
-  await db
+  await db()
     .insert(roles)
     .values({
       id: 'user',

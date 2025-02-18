@@ -28,7 +28,7 @@ const updateHighlightsAction = action(
     'use server';
     console.log('updateHighlightsAction', { color, bibleAbbreviation, chapterCode, verseNumbers });
     const { user } = requireAuth();
-    const query = db
+    const query = db()
       .insert(verseHighlights)
       .values(
         verseNumbers.map((vn) => ({
@@ -63,16 +63,18 @@ const deleteHighlightsAction = action(
   }: { bibleAbbreviation: string; chapterCode: string; verseNumbers: number[] }) => {
     'use server';
     const { user } = requireAuth();
-    await db.delete(verseHighlights).where(
-      and(
-        eq(verseHighlights.userId, user.id),
-        eq(verseHighlights.bibleAbbreviation, bibleAbbreviation),
-        inArray(
-          verseHighlights.verseCode,
-          verseNumbers.map((vn) => `${chapterCode}.${vn}`),
+    await db()
+      .delete(verseHighlights)
+      .where(
+        and(
+          eq(verseHighlights.userId, user.id),
+          eq(verseHighlights.bibleAbbreviation, bibleAbbreviation),
+          inArray(
+            verseHighlights.verseCode,
+            verseNumbers.map((vn) => `${chapterCode}.${vn}`),
+          ),
         ),
-      ),
-    );
+      );
     return { success: true };
   },
 );

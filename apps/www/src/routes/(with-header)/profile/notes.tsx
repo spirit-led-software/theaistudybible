@@ -27,7 +27,7 @@ const getNotes = GET(
 
     // First get total counts to help with pagination
     const [verseCountResult, chapterCountResult] = await Promise.all([
-      db.query.verseNotes.findMany({
+      db().query.verseNotes.findMany({
         columns: {},
         where: (verseNotes, { and, eq }) => {
           const conditions = [eq(verseNotes.userId, user.id)];
@@ -38,7 +38,7 @@ const getNotes = GET(
         },
         extras: { count: count().as('count') },
       }),
-      db.query.chapterNotes.findMany({
+      db().query.chapterNotes.findMany({
         columns: {},
         where: (chapterNotes, { and, eq }) => {
           const conditions = [eq(chapterNotes.userId, user.id)];
@@ -63,7 +63,7 @@ const getNotes = GET(
 
     const [verseNotes, chapterNotes] = await Promise.all([
       verseLimit > 0
-        ? db.query.verseNotes.findMany({
+        ? db().query.verseNotes.findMany({
             where: (verseNotes, { and, eq }) => {
               const conditions = [eq(verseNotes.userId, user.id)];
               if (search) {
@@ -86,7 +86,7 @@ const getNotes = GET(
           })
         : Promise.resolve([]),
       chapterLimit > 0
-        ? db.query.chapterNotes.findMany({
+        ? db().query.chapterNotes.findMany({
             where: (chapterNotes, { and, eq }) => {
               const conditions = [eq(chapterNotes.userId, user.id)];
               if (search) {

@@ -8,7 +8,7 @@ export const GET: APIHandler = async () => {
     attributeNamePrefix: '$',
   });
 
-  const bibles = await db.query.bibles.findMany({
+  const bibles = await db().query.bibles.findMany({
     columns: { abbreviation: true },
   });
 
