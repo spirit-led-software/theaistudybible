@@ -1,8 +1,8 @@
+import { webcrypto } from 'node:crypto';
 import { argon2Verify, argon2id } from 'hash-wasm';
 
 export async function hashPassword(password: string) {
-  const salt = new Uint8Array(16);
-  window.crypto.getRandomValues(salt);
+  const salt = webcrypto.getRandomValues(new Uint8Array(16));
   return await argon2id({
     password,
     salt,
