@@ -26,7 +26,7 @@ export const generateChapterEmbeddings = async ({
   });
   await vectorStore.deleteDocuments(existingDocs.map((doc) => doc.sourceDocumentId));
 
-  const docs = versesToDocs({
+  const docs = await versesToDocs({
     bible,
     book,
     chapter,

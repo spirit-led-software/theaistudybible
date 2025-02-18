@@ -29,19 +29,17 @@ $transform(sst.aws.Function, (args) => {
     install: [
       ...(nodejs.install ?? []),
       '@libsql/client',
-      'tiktoken',
-      '@node-rs/argon2',
-      '@node-rs/bcrypt',
       '@sentry/aws-serverless',
       'posthog-node',
     ],
+    loader: {
+      ...(nodejs.loader ?? {}),
+      '.wasm': 'file' as const,
+    },
     esbuild: {
       external: [
         ...(nodejs.esbuild?.external ?? []),
         '@libsql/client',
-        'tiktoken',
-        '@node-rs/argon2',
-        '@node-rs/bcrypt',
         '@sentry/aws-serverless',
         'posthog-node',
       ],

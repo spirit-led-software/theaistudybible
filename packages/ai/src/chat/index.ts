@@ -106,7 +106,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
     settings: options.settings,
     bible: options.bible,
   });
-  const systemTokens = numTokensFromString({ text: system });
+  const systemTokens = await numTokensFromString({ text: system });
 
   console.time('getValidMessages');
   const dbMessages = await getValidMessages({

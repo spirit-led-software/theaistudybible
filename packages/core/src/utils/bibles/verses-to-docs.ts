@@ -6,7 +6,7 @@ import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import { formatISO } from 'date-fns';
 import { murmurHash } from 'ohash';
 
-export const versesToDocs = ({
+export const versesToDocs = async ({
   bible,
   book,
   chapter,
@@ -16,11 +16,11 @@ export const versesToDocs = ({
   book: Book;
   chapter: Omit<Chapter, 'content'>;
   verses: Verse[];
-}): Document[] => {
+}): Promise<Document[]> => {
   const docs: Document[] = [];
   let i = 0;
   while (i < verses.length) {
-    const doc = processVerseChunk(verses, i, bible, book, chapter);
+    const doc = await processVerseChunk(verses, i, bible, book, chapter);
     if (doc?.metadata?.verseNumbers) {
       docs.push(doc);
       i += (doc.metadata.verseNumbers as number[]).length;
@@ -32,13 +32,13 @@ export const versesToDocs = ({
   return docs;
 };
 
-function processVerseChunk(
+async function processVerseChunk(
   verses: Verse[],
   startIndex: number,
   bible: Bible,
   book: Book,
   chapter: Omit<Chapter, 'content'>,
-): Document {
+): Promise<Document> {
   const verseNumbers = new Set<number>();
   let currentPageContent = '';
 
@@ -49,7 +49,7 @@ function processVerseChunk(
   while (i < verses.length && currentTokens < maxTokens) {
     const verse = verses[i];
     const verseText = contentsToText(verse.content).trim();
-    const newTokens = numTokensFromString({ text: verseText });
+    const newTokens = await numTokensFromString({ text: verseText });
 
     if (currentTokens + newTokens > maxTokens) break;
 
@@ -65,7 +65,7 @@ function processVerseChunk(
   while (j >= 0 && currentTokens < overlapTokens) {
     const verse = verses[j];
     const verseText = contentsToText(verse.content).trim();
-    const newTokens = numTokensFromString({ text: verseText });
+    const newTokens = await numTokensFromString({ text: verseText });
 
     currentPageContent = `${verseText} ${currentPageContent}`;
     verseNumbers.add(verse.number);

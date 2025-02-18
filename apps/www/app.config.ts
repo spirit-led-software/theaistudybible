@@ -4,6 +4,8 @@ import { defineConfig } from '@solidjs/start/config';
 import tailwindcss from '@tailwindcss/vite';
 import { analyzer } from 'vite-bundle-analyzer';
 import { VitePWA } from 'vite-plugin-pwa';
+import topLevelAwait from 'vite-plugin-top-level-await';
+import wasm from 'vite-plugin-wasm';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 const defaultCacheControlHeaders = {
@@ -26,8 +28,9 @@ export default defineConfig(
       middleware: './src/middleware.ts',
       server: {
         preset: 'bun',
-        plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/posthog.ts'],
         compatibilityDate: '2024-12-02',
+        plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/posthog.ts'],
+        experimental: { wasm: true },
         routeRules: {
           '/_build/assets/**': { headers: staticCacheControlHeaders },
           '/_build/manifest.webmanifest': {
@@ -46,8 +49,11 @@ export default defineConfig(
         },
       },
       vite: {
+        build: { target: 'esnext' },
         envPrefix: 'PUBLIC_',
         plugins: [
+          wasm(),
+          topLevelAwait(),
           tsconfigPaths(),
           tailwindcss(),
           VitePWA({
