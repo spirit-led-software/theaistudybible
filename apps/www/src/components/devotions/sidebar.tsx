@@ -107,100 +107,95 @@ export const DevotionSidebar = () => {
       </SidebarHeader>
       <SidebarContent>
         <QueryBoundary query={devotionsQuery}>
-          {({ pages }) => {
-            const devotions = pages.flatMap((page) => page.devotions);
-            return (
-              <SidebarMenu class='pr-2'>
-                <For
-                  each={devotions}
-                  fallback={
-                    <div class='flex h-full w-full flex-1 items-center justify-center px-5 py-10'>
-                      <H6>No devotions found</H6>
-                    </div>
-                  }
-                >
-                  {(devotion, idx) => (
-                    <SidebarMenuItem
-                      data-index={idx()}
-                      class={cn(
-                        'group flex h-fit w-full items-center justify-between overflow-hidden rounded-lg px-1 hover:bg-accent',
-                        devotionStore.devotion?.id === devotion.id && 'bg-muted',
-                      )}
-                    >
-                      <SidebarMenuButton
-                        onClick={() => {
-                          setDevotionStore('devotion', devotion);
-                          navigate(`/devotion/${devotion.id}`);
-                          if (isMobile()) {
-                            toggleSidebar();
-                          }
-                        }}
-                        class='flex min-h-fit w-full flex-1 grow overflow-hidden px-2 py-1 text-left'
-                      >
-                        <div class='flex w-full flex-col overflow-hidden'>
-                          <span class='line-clamp-2'>
-                            {getHighlightedContent(toTitleCase(devotion.topic), searchQuery())}
-                          </span>
-                          <span class='text-muted-foreground text-xs'>
-                            {formatDate(devotion.createdAt, 'MMMM d, yyyy')}
-                          </span>
-                          <Show when={searchQuery()} keyed>
-                            {(query) => (
-                              <Switch>
-                                <Match
-                                  when={devotion.bibleReading
-                                    .toLowerCase()
-                                    .includes(query.toLowerCase())}
-                                >
-                                  <span class='mt-1 text-xs'>
-                                    {getHighlightedContent(devotion.summary, query, 50)}
-                                  </span>
-                                </Match>
-                                <Match
-                                  when={devotion.summary
-                                    .toLowerCase()
-                                    .includes(query.toLowerCase())}
-                                >
-                                  <span class='mt-1 text-xs'>
-                                    {getHighlightedContent(devotion.summary, query, 50)}
-                                  </span>
-                                </Match>
-                                <Match
-                                  when={devotion.reflection
-                                    .toLowerCase()
-                                    .includes(query.toLowerCase())}
-                                >
-                                  <span class='mt-1 text-xs'>
-                                    {getHighlightedContent(devotion.reflection, query, 50)}
-                                  </span>
-                                </Match>
-                                <Match
-                                  when={devotion.prayer.toLowerCase().includes(query.toLowerCase())}
-                                >
-                                  <span class='mt-1 text-xs'>
-                                    {getHighlightedContent(devotion.prayer, query, 50)}
-                                  </span>
-                                </Match>
-                              </Switch>
-                            )}
-                          </Show>
-                        </div>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  )}
-                </For>
-                <Show when={devotionsQuery.hasNextPage}>
-                  <Button
-                    class='w-full'
-                    disabled={devotionsQuery.isFetchingNextPage}
-                    onClick={() => devotionsQuery.fetchNextPage()}
+          {(data) => (
+            <SidebarMenu class='pr-2'>
+              <For
+                each={data.pages.flatMap((page) => page.devotions)}
+                fallback={
+                  <div class='flex h-full w-full flex-1 items-center justify-center px-5 py-10'>
+                    <H6>No devotions found</H6>
+                  </div>
+                }
+              >
+                {(devotion, idx) => (
+                  <SidebarMenuItem
+                    data-index={idx()}
+                    class={cn(
+                      'group flex h-fit w-full items-center justify-between overflow-hidden rounded-lg px-1 hover:bg-accent',
+                      devotionStore.devotion?.id === devotion.id && 'bg-muted',
+                    )}
                   >
-                    Load More
-                  </Button>
-                </Show>
-              </SidebarMenu>
-            );
-          }}
+                    <SidebarMenuButton
+                      onClick={() => {
+                        setDevotionStore('devotion', devotion);
+                        navigate(`/devotion/${devotion.id}`);
+                        if (isMobile()) {
+                          toggleSidebar();
+                        }
+                      }}
+                      class='flex min-h-fit w-full flex-1 grow overflow-hidden px-2 py-1 text-left'
+                    >
+                      <div class='flex w-full flex-col overflow-hidden'>
+                        <span class='line-clamp-2'>
+                          {getHighlightedContent(toTitleCase(devotion.topic), searchQuery())}
+                        </span>
+                        <span class='text-muted-foreground text-xs'>
+                          {formatDate(devotion.createdAt, 'MMMM d, yyyy')}
+                        </span>
+                        <Show when={searchQuery()} keyed>
+                          {(query) => (
+                            <Switch>
+                              <Match
+                                when={devotion.bibleReading
+                                  .toLowerCase()
+                                  .includes(query.toLowerCase())}
+                              >
+                                <span class='mt-1 text-xs'>
+                                  {getHighlightedContent(devotion.summary, query, 50)}
+                                </span>
+                              </Match>
+                              <Match
+                                when={devotion.summary.toLowerCase().includes(query.toLowerCase())}
+                              >
+                                <span class='mt-1 text-xs'>
+                                  {getHighlightedContent(devotion.summary, query, 50)}
+                                </span>
+                              </Match>
+                              <Match
+                                when={devotion.reflection
+                                  .toLowerCase()
+                                  .includes(query.toLowerCase())}
+                              >
+                                <span class='mt-1 text-xs'>
+                                  {getHighlightedContent(devotion.reflection, query, 50)}
+                                </span>
+                              </Match>
+                              <Match
+                                when={devotion.prayer.toLowerCase().includes(query.toLowerCase())}
+                              >
+                                <span class='mt-1 text-xs'>
+                                  {getHighlightedContent(devotion.prayer, query, 50)}
+                                </span>
+                              </Match>
+                            </Switch>
+                          )}
+                        </Show>
+                      </div>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+              </For>
+              <Show when={devotionsQuery.hasNextPage}>
+                <Button
+                  class='w-full'
+                  disabled={devotionsQuery.isFetchingNextPage}
+                  onClick={() => devotionsQuery.fetchNextPage()}
+                >
+                  Load More
+                </Button>
+              </Show>
+            </SidebarMenu>
+          )}
         </QueryBoundary>
       </SidebarContent>
       <SidebarFooter />

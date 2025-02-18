@@ -166,68 +166,65 @@ export const ChatSidebar = () => {
       </SidebarHeader>
       <SidebarContent>
         <QueryBoundary query={chatsQuery}>
-          {({ pages }) => {
-            const chats = pages.flatMap((page) => page.chats);
-            return (
-              <SidebarMenu class='pr-2'>
-                <For
-                  each={chats}
-                  fallback={
-                    <div class='flex h-full w-full flex-1 items-center justify-center px-5 py-10'>
-                      <H6>No chats found</H6>
-                    </div>
-                  }
-                >
-                  {(chat, idx) => (
-                    <SidebarMenuItem
-                      data-index={idx()}
-                      class={cn(
-                        'group/chat-item flex h-fit w-full items-center justify-between overflow-hidden rounded-lg px-1 hover:bg-accent',
-                        chatStore.chat?.id === chat.id && 'bg-muted',
-                      )}
-                    >
-                      <SidebarMenuButton
-                        onClick={() => {
-                          setChatStore('chatId', chat.id);
-                          if (isChatPage()) {
-                            navigate(`/chat/${chat.id}`);
-                          }
-                          if (!isChatPage() || isMobile()) {
-                            toggleSidebar();
-                          }
-                        }}
-                        class='flex min-h-fit w-full flex-1 grow p-3 text-left'
-                      >
-                        <div class='flex w-full flex-col'>
-                          <div class='truncate'>
-                            {getHighlightedContent(chat.name, searchQuery())}
-                          </div>
-                          <div class='text-muted-foreground text-xs'>
-                            {formatDate(chat.updatedAt, 'MMMM d, yyyy')}
-                          </div>
-                          {chat.message?.content && (
-                            <div class='mt-1 text-xs'>
-                              {getHighlightedContent(chat.message.content, searchQuery(), 50)}
-                            </div>
-                          )}
-                        </div>
-                      </SidebarMenuButton>
-                      <DeleteChatButton chat={chat} />
-                    </SidebarMenuItem>
-                  )}
-                </For>
-                <Show when={chatsQuery.hasNextPage}>
-                  <Button
-                    class='w-full'
-                    disabled={chatsQuery.isFetchingNextPage}
-                    onClick={() => chatsQuery.fetchNextPage()}
+          {(data) => (
+            <SidebarMenu class='pr-2'>
+              <For
+                each={data.pages.flatMap((page) => page.chats)}
+                fallback={
+                  <div class='flex h-full w-full flex-1 items-center justify-center px-5 py-10'>
+                    <H6>No chats found</H6>
+                  </div>
+                }
+              >
+                {(chat, idx) => (
+                  <SidebarMenuItem
+                    data-index={idx()}
+                    class={cn(
+                      'group/chat-item flex h-fit w-full items-center justify-between overflow-hidden rounded-lg px-1 hover:bg-accent',
+                      chatStore.chat?.id === chat.id && 'bg-muted',
+                    )}
                   >
-                    Load More
-                  </Button>
-                </Show>
-              </SidebarMenu>
-            );
-          }}
+                    <SidebarMenuButton
+                      onClick={() => {
+                        setChatStore('chatId', chat.id);
+                        if (isChatPage()) {
+                          navigate(`/chat/${chat.id}`);
+                        }
+                        if (!isChatPage() || isMobile()) {
+                          toggleSidebar();
+                        }
+                      }}
+                      class='flex min-h-fit w-full flex-1 grow p-3 text-left'
+                    >
+                      <div class='flex w-full flex-col'>
+                        <div class='truncate'>
+                          {getHighlightedContent(chat.name, searchQuery())}
+                        </div>
+                        <div class='text-muted-foreground text-xs'>
+                          {formatDate(chat.updatedAt, 'MMMM d, yyyy')}
+                        </div>
+                        {chat.message?.content && (
+                          <div class='mt-1 text-xs'>
+                            {getHighlightedContent(chat.message.content, searchQuery(), 50)}
+                          </div>
+                        )}
+                      </div>
+                    </SidebarMenuButton>
+                    <DeleteChatButton chat={chat} />
+                  </SidebarMenuItem>
+                )}
+              </For>
+              <Show when={chatsQuery.hasNextPage}>
+                <Button
+                  class='w-full'
+                  disabled={chatsQuery.isFetchingNextPage}
+                  onClick={() => chatsQuery.fetchNextPage()}
+                >
+                  Load More
+                </Button>
+              </Show>
+            </SidebarMenu>
+          )}
         </QueryBoundary>
       </SidebarContent>
       <SidebarFooter>
