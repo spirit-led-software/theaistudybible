@@ -14,21 +14,11 @@ import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
 import * as storage from './storage';
 import { donationLink } from './stripe';
-import type { FlyRegion } from './types/fly.io';
+import type { KoyebRegion } from './types/koyeb';
 import { isProd } from './utils/constants';
 import { buildLinks, linksToEnv } from './utils/link';
 
-type RegionConfig = {
-  region: FlyRegion;
-  replicas: number;
-};
-
-const regions: RegionConfig[] = isProd
-  ? [
-      { region: 'iad', replicas: 4 },
-      { region: 'fra', replicas: 4 },
-    ]
-  : [{ region: 'iad', replicas: 1 }];
+const regions: KoyebRegion[] = isProd ? ['aws-us-east-1', 'FRA'] : ['aws-us-east-1'];
 
 const baseEnv = $util
   .all([
@@ -89,52 +79,39 @@ export const webAppDevCmd = new sst.x.DevCommand('WebAppDev', {
 });
 
 if (!$dev) {
-  const flyApp = new fly.App('WebApp', {
+  const { image, registry } = buildWebAppImage();
+  const app = new koyeb.KoyebApp('WebApp', {
     name: `${$app.name}-${$app.stage}-www`,
-    org: process.env.FLY_ORG,
-    assignSharedIpAddress: true,
   });
-  const webAppImage = buildWebAppImage();
-
-  new fly.Ip('WebAppIpv6', {
-    app: flyApp.name,
-    type: 'v6',
+  const registrySecret = new koyeb.KoyebSecret('WebAppRegistrySecret', {
+    name: `${$app.name}-${$app.stage}-www-registry`,
+    privateRegistry: aws.ecr
+      .getAuthorizationTokenOutput({ registryId: registry.registryId })
+      .apply(({ proxyEndpoint, userName, password }) => ({
+        url: proxyEndpoint,
+        username: userName,
+        password,
+      })),
   });
 
   const env = buildEnv();
-  const regionalResources = regions.map(({ region, replicas }) => {
-    const machines: fly.Machine[] = [];
-    for (let i = 0; i < replicas; i++) {
-      machines.push(
-        new fly.Machine(`WebAppMachine-${region}-${i}`, {
-          app: flyApp.name,
-          region,
-          image: webAppImage.ref,
-          env,
-          services: [
-            {
-              ports: [
-                { port: 80, handlers: ['http'] },
-                { port: 443, handlers: ['tls', 'http'] },
-              ],
-              internalPort: 8080,
-              protocol: 'tcp',
-            },
-          ],
-          cpuType: 'shared',
-          cpus: isProd ? 4 : 1,
-          memory: isProd ? 1024 : 512,
-        }),
-      );
-    }
-    return { region, machines };
+  const service = new koyeb.KoyebService('WebAppService', {
+    appName: app.name,
+    definition: {
+      name: `${$app.name}-${$app.stage}-www`,
+      instanceTypes: { type: 'small' },
+      regions: regions,
+      docker: { image: image.ref, imageRegistySecret: registrySecret.name },
+      envs: env.apply((env) => Object.entries(env).map(([key, value]) => ({ key, value }))),
+      ports: [{ port: 8080, protocol: 'http' }],
+      scalings: { min: 0, max: isProd ? 4 : 1 },
+    },
   });
-  const { machine: flyAutoscalerMachine } = buildFlyAutoscaler();
 
   buildCdn();
 
-  function buildFlyIamUser() {
-    const flyIamPolicy = new aws.iam.Policy('FlyIamPolicy', {
+  function buildIamUser() {
+    const iamPolicy = new aws.iam.Policy('WebAppIamPolicy', {
       policy: {
         Version: '2012-10-17',
         Statement: [
@@ -153,33 +130,36 @@ if (!$dev) {
         ],
       },
     });
-    const flyIamUser = new aws.iam.User('FlyIamUser');
-    new aws.iam.UserPolicyAttachment('FlyUserPolicyAttachment', {
-      user: flyIamUser.name,
-      policyArn: flyIamPolicy.arn,
+    const iamUser = new aws.iam.User('WebAppIamUser');
+    new aws.iam.UserPolicyAttachment('WebAppUserPolicyAttachment', {
+      user: iamUser.name,
+      policyArn: iamPolicy.arn,
     });
-    const flyAwsAccessKey = new aws.iam.AccessKey('FlyAccessKey', {
-      user: flyIamUser.name,
+    const awsAccessKey = new aws.iam.AccessKey('WebAppAccessKey', {
+      user: iamUser.name,
     });
-    return { flyIamUser, flyAwsAccessKey };
+    return { iamUser, awsAccessKey };
   }
 
   function buildEnv() {
-    const { flyAwsAccessKey } = buildFlyIamUser();
+    const { awsAccessKey } = buildIamUser();
     const links = allLinks.apply((links) => buildLinks(links));
     return $util
-      .all([links, baseEnv, flyAwsAccessKey.id, $util.secret(flyAwsAccessKey.secret)])
-      .apply(([links, env, flyAwsAccessKeyId, flyAwsAccessKeySecret]) => ({
+      .all([links, baseEnv, awsAccessKey.id, $util.secret(awsAccessKey.secret)])
+      .apply(([links, env, awsAccessKeyId, awsAccessKeySecret]) => ({
         ...linksToEnv(links),
         ...env,
-        AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
-        AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
+        AWS_ACCESS_KEY_ID: awsAccessKeyId,
+        AWS_SECRET_ACCESS_KEY: awsAccessKeySecret,
         AWS_REGION: ($app.providers?.aws.region ?? 'us-east-1') as string,
-        PRIMARY_REGION: regions[0].region,
       }));
   }
 
   function buildWebAppImage() {
+    const registry = new aws.ecr.Repository('WebAppRegistry', {
+      name: `${$app.name}-${$app.stage}-www`,
+      forceDelete: true,
+    });
     const buildArgs = $util
       .all([
         WEBAPP_URL.value,
@@ -226,17 +206,21 @@ if (!$dev) {
         }),
       );
 
-    return new dockerbuild.Image('WebAppImage', {
+    const image = new dockerbuild.Image('WebAppImage', {
       tags: [
-        $interpolate`registry.fly.io/${flyApp.name}:${Date.now()}`,
-        $interpolate`registry.fly.io/${flyApp.name}:latest`,
+        $interpolate`${registry.repositoryUrl}:${Date.now()}`,
+        $interpolate`${registry.repositoryUrl}:latest`,
       ],
       registries: [
-        {
-          address: 'registry.fly.io',
-          username: 'x',
-          password: $util.secret(process.env.FLY_API_TOKEN!),
-        },
+        aws.ecr
+          .getAuthorizationTokenOutput({
+            registryId: registry.registryId,
+          })
+          .apply(({ proxyEndpoint, userName, password }) => ({
+            address: proxyEndpoint,
+            username: userName,
+            password,
+          })),
       ],
       dockerfile: { location: path.join($cli.paths.root, 'docker/www.Dockerfile') },
       context: { location: $cli.paths.root },
@@ -246,46 +230,14 @@ if (!$dev) {
       cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
       cacheTo: [{ local: { dest: '/tmp/.buildx-cache-new', mode: 'max' } }],
     });
-  }
 
-  function buildFlyAutoscaler() {
-    const app = new fly.App('FlyAutoscalerApp', {
-      name: `${$app.name}-${$app.stage}-www-autoscaler`,
-    });
-    const env = $util
-      .all([$util.secret(process.env.FLY_API_TOKEN!), flyApp.name])
-      .apply(([flyApiToken, appName]) => ({
-        FAS_ORG: process.env.FLY_ORG!,
-        FAS_APP_NAME: appName,
-        FAS_API_TOKEN: flyApiToken,
-        FAS_REGIONS: regions.map(({ region }) => region).join(','),
-        FAS_STARTED_MACHINE_COUNT: `max(min(ceil(connects / 200), ${regions.reduce((acc, { replicas }) => acc + replicas, 0)}), ${regions.length})`, // 200 connections per machine, max all replicas per region, min 1 machine per region
-        FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${process.env.FLY_ORG!}`,
-        FAS_PROMETHEUS_TOKEN: flyApiToken,
-        FAS_PROMETHEUS_METRIC_NAME: 'connects',
-        FAS_PROMETHEUS_QUERY:
-          'sum(increase(fly_app_tcp_connects_count{app="$APP_NAME"}[1m])) or vector(0)',
-      }));
-    const machine = new fly.Machine(
-      'FlyAutoscalerMachine',
-      {
-        app: app.name,
-        region: 'iad',
-        image: 'flyio/fly-autoscaler:latest',
-        env,
-        cpuType: 'shared',
-        cpus: 1,
-        memory: 256,
-      },
-      { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
-    );
-    return { app, machine };
+    return { registry, image };
   }
 
   function buildCdn() {
     const serverOrigin: aws.types.input.cloudfront.DistributionOrigin = {
       originId: 'serverOrigin',
-      domainName: $interpolate`${flyApp.name}.fly.dev`,
+      domainName: $interpolate`${service.appName}-${service.organizationId}.koyeb.app`,
       customOriginConfig: {
         httpPort: 80,
         httpsPort: 443,
@@ -359,7 +311,7 @@ if (!$dev) {
         },
       },
       {
-        dependsOn: [...regionalResources.flatMap(({ machines }) => machines), flyAutoscalerMachine],
+        dependsOn: [service],
       },
     );
   }
