@@ -23,7 +23,7 @@ emailQueue.subscribe(
 indexBibleQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/bibles/index-bible.handler',
-    nodejs: { install: ['jsdom'], esbuild: { external: ['jsdom'] } },
+    nodejs: { install: ['jsdom'] },
     memory: '2 GB',
     timeout: '15 minutes',
   },
