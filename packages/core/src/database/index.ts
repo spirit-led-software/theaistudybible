@@ -1,6 +1,6 @@
 import * as schema from '@/core/database/schema';
 import * as Sentry from '@sentry/node';
-import { drizzle } from 'drizzle-orm/libsql/web';
+import { drizzle } from 'drizzle-orm/libsql';
 import { libsqlIntegration } from 'sentry-integration-libsql-client';
 import { Resource } from 'sst';
 

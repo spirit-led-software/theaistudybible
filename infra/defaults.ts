@@ -19,22 +19,27 @@ export const allLinks = $output([
 ]);
 
 $transform(sst.aws.Function, (args) => {
-  args.copyFiles = $output(args.copyFiles).apply((copyFiles = []) => [
-    { from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' },
-    ...copyFiles,
-  ]);
+  args.copyFiles = $output(args.copyFiles).apply((copyFiles = []) =>
+    [{ from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' }, ...copyFiles].filter(
+      // Remove duplicates based on the 'to' property, preserving later occurrences over earlier ones
+      (file, index, array) => array.findIndex((f) => f.to === file.to) === index,
+    ),
+  );
   args.runtime ??= 'nodejs22.x';
   args.nodejs = $output(args.nodejs).apply((nodejs = {}) => ({
+    splitting: true,
     ...nodejs,
-    install: [
-      '@libsql/client',
-      '@sentry/aws-serverless',
-      'posthog-node',
-      ...(nodejs.install ?? []),
-    ],
+    install: Array.from(
+      new Set([
+        '@libsql/client',
+        '@sentry/aws-serverless',
+        'posthog-node',
+        ...(nodejs.install ?? []),
+      ]),
+    ),
     loader: {
       '.wasm': 'file' as const,
-      ...(nodejs.loader ?? {}),
+      ...nodejs.loader,
     },
   }));
   args.memory ??= '512 MB';

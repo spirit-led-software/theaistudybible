@@ -71,7 +71,7 @@
     "embla-carousel-solid": "^8.5.2",
     "hono": "^4.7.2",
     "lucide-solid": "^0.475.0",
-    "motion": "^12.4.4",
+    "motion": "^12.4.5",
     "posthog-js": "^1.219.6",
     "posthog-node": "^4.6.0",
     "solid-js": "^1.9.4",
