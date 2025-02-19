@@ -40,7 +40,7 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SolidQueryDevtools initialIsOpen={false} buttonPosition='bottom-left' />
+      {import.meta.dev && <SolidQueryDevtools initialIsOpen={false} buttonPosition='bottom-left' />}
       <SentryRouter
         url={isServer ? getRequestEvent()!.request.url : ''}
         explicitLinks

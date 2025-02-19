@@ -7,45 +7,17 @@ import { VitePWA } from 'vite-plugin-pwa';
 import wasm from 'vite-plugin-wasm';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
-const defaultCacheControlHeaders = {
-  'cache-control': 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400,immutable',
-  vary: 'Accept-Encoding',
-};
-
-const staticCacheControlHeaders = {
-  ...defaultCacheControlHeaders,
-  'cache-control': 'public,max-age=31536000,s-maxage=31536000,immutable',
-};
-
-const doNotCacheHeaders = {
-  'cache-control': 'public,max-age=0,s-maxage=0,must-revalidate',
-};
-
 export default defineConfig(
   withSentry(
     {
       middleware: './src/middleware.ts',
       server: {
-        preset: 'bun',
+        preset: 'aws-lambda',
         compatibilityDate: '2024-12-02',
         plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/posthog.ts'],
         experimental: { wasm: true },
-        routeRules: {
-          '/_build/assets/**': { headers: staticCacheControlHeaders },
-          '/_build/manifest.webmanifest': {
-            headers: { ...doNotCacheHeaders, 'content-type': 'application/manifest+json' },
-          },
-          '/_build/service-worker.js*': { headers: doNotCacheHeaders },
-          '/_server/assets/**': { headers: defaultCacheControlHeaders },
-          '/assets/**': { headers: staticCacheControlHeaders },
-          '/logos/**': { headers: defaultCacheControlHeaders },
-          '/pwa/**': { headers: defaultCacheControlHeaders },
-          '/apple-touch-icon-180x180.png': { headers: defaultCacheControlHeaders },
-          '/favicon.ico': { headers: defaultCacheControlHeaders },
-          '/icon.png': { headers: defaultCacheControlHeaders },
-          '/maskable-icon-512x512.png': { headers: defaultCacheControlHeaders },
-          '/robots.txt': { headers: doNotCacheHeaders },
-        },
+        inlineDynamicImports: true,
+        awsLambda: { streaming: true },
       },
       vite: {
         build: { target: 'esnext' },

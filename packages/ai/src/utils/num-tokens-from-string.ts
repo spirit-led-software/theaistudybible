@@ -1,29 +1,20 @@
-import { Tiktoken } from 'tiktoken/lite';
-import { load } from 'tiktoken/lite/load';
+import { encodingForModel, getEncoding } from '@langchain/core/utils/tiktoken';
+
+export type TikToken = Awaited<ReturnType<typeof getEncoding>>;
+export type TiktokenModel = Parameters<typeof encodingForModel>[0];
 
 export const numTokensFromString = async (options: {
-  model?: string;
-  encoding?: Tiktoken;
+  model?: Parameters<typeof encodingForModel>[0];
   text: string;
 }) => {
-  let encoding = options.encoding;
-  if (!encoding && options.model) {
-    const { default: registry } = await import('tiktoken/registry.json');
-    const { default: models } = await import('tiktoken/model_to_encoding.json');
-    // @ts-ignore
-    const registryModel = registry[models[options.model]];
-    if (registryModel) {
-      const model = await load(registryModel);
-      encoding = new Tiktoken(model.bpe_ranks, model.special_tokens, model.pat_str);
-    }
+  let encoding: TikToken | undefined;
+  if (options.model) {
+    encoding = await encodingForModel(options.model);
   }
 
   if (!encoding) {
-    const cl100k_base = await import('tiktoken/encoders/cl100k_base.json');
-    encoding = new Tiktoken(cl100k_base.bpe_ranks, cl100k_base.special_tokens, cl100k_base.pat_str);
+    encoding = await getEncoding('cl100k_base');
   }
 
-  const length = encoding.encode(options.text).length;
-  encoding.free();
-  return length;
+  return encoding.encode(options.text).length;
 };

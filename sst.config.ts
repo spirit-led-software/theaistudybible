@@ -7,12 +7,12 @@ export default $config({
     removal: 'remove',
     home: 'aws',
     providers: {
-      '@ediri/pulumi-fly': '0.1.18',
       '@pulumiverse/sentry': '0.0.9',
       '@upstash/pulumi': '0.3.14',
       'docker-build': '0.0.10',
       'pulumi-stripe': '0.0.24',
       aws: { version: '6.68.0', region: 'us-east-1' },
+      command: { version: '1.0.2' },
       turso: { version: '0.2.3', organization: process.env.TURSO_ORG! },
     },
   }),

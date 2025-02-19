@@ -1,4 +1,12 @@
-import path from 'node:path';
+import fs from 'node:fs';
+import {
+  DeleteObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
+import mime from 'mime';
+import { minimatch } from 'minimatch';
 import { analyticsApi } from './analytics';
 import {
   DOMAIN,
@@ -9,26 +17,30 @@ import {
 } from './constants';
 import { allLinks } from './defaults';
 import { webAppSentryKey, webAppSentryProject } from './monitoring';
-import * as queues from './queues';
 import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
-import * as storage from './storage';
 import { donationLink } from './stripe';
-import type { FlyRegion } from './types/fly.io';
 import { isProd } from './utils/constants';
-import { buildLinks, linksToEnv } from './utils/link';
-
-type RegionConfig = {
-  region: FlyRegion;
-  replicas: number;
+const defaultCacheControlHeaders =
+  'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400,immutable';
+const staticCacheControlHeaders = 'public,max-age=31536000,s-maxage=31536000,immutable';
+const doNotCacheHeaders = 'public,max-age=0,s-maxage=0,must-revalidate';
+const cachingMap = {
+  '/_build/assets/**': staticCacheControlHeaders,
+  '/_build/manifest.webmanifest': doNotCacheHeaders,
+  '/_build/service-worker.js*': doNotCacheHeaders,
+  '/_server/assets/**': defaultCacheControlHeaders,
+  '/assets/**': staticCacheControlHeaders,
+  '/logos/**': defaultCacheControlHeaders,
+  '/pwa/**': defaultCacheControlHeaders,
+  '/apple-touch-icon-180x180.png': defaultCacheControlHeaders,
+  '/favicon.ico': defaultCacheControlHeaders,
+  '/icon.png': defaultCacheControlHeaders,
+  '/maskable-icon-512x512.png': defaultCacheControlHeaders,
+  '/robots.txt': doNotCacheHeaders,
 };
 
-const regions: RegionConfig[] = isProd
-  ? [
-      { region: 'iad', replicas: 4 },
-      { region: 'fra', replicas: 4 },
-    ]
-  : [{ region: 'iad', replicas: 1 }];
+const regions: aws.Region[] = isProd ? ['us-east-1', 'eu-west-1'] : ['us-east-1'];
 
 const baseEnv = $util
   .all([
@@ -89,203 +101,119 @@ export const webAppDevCmd = new sst.x.DevCommand('WebAppDev', {
 });
 
 if (!$dev) {
-  const flyApp = new fly.App('WebApp', {
-    name: `${$app.name}-${$app.stage}-www`,
-    org: process.env.FLY_ORG,
-    assignSharedIpAddress: true,
-  });
-  const webAppImage = buildWebAppImage();
+  const build = buildWebApp();
+  const bucket = new sst.aws.Bucket(
+    'WebAppAssetsBucket',
+    { access: 'cloudfront' },
+    { retainOnDelete: false },
+  );
+  const assets = uploadAssets();
 
-  new fly.Ip('WebAppIpv6', {
-    app: flyApp.name,
-    type: 'v6',
-  });
-
-  const env = buildEnv();
-  const regionalResources = regions.map(({ region, replicas }) => {
-    const machines: fly.Machine[] = [];
-    for (let i = 0; i < replicas; i++) {
-      machines.push(
-        new fly.Machine(`WebAppMachine-${region}-${i}`, {
-          app: flyApp.name,
-          region,
-          image: webAppImage.ref,
-          env,
-          services: [
-            {
-              ports: [
-                { port: 80, handlers: ['http'] },
-                { port: 443, handlers: ['tls', 'http'] },
-              ],
-              internalPort: 8080,
-              protocol: 'tcp',
-            },
-          ],
-          cpuType: 'shared',
-          cpus: isProd ? 4 : 1,
-          memory: isProd ? 1024 : 512,
-        }),
-      );
-    }
-    return { region, machines };
-  });
-  const { machine: flyAutoscalerMachine } = buildFlyAutoscaler();
-
-  buildCdn();
-
-  function buildFlyIamUser() {
-    const flyIamPolicy = new aws.iam.Policy('FlyIamPolicy', {
-      policy: {
-        Version: '2012-10-17',
-        Statement: [
-          {
-            Effect: 'Allow',
-            Action: ['s3:*'],
-            Resource: Object.values(storage)
-              .filter((b) => b instanceof sst.aws.Bucket)
-              .flatMap((b) => [b.arn, $interpolate`${b.arn}/*`]),
-          },
-          {
-            Effect: 'Allow',
-            Action: ['sqs:*'],
-            Resource: Object.values(queues).map((q) => q.arn),
-          },
-        ],
-      },
-    });
-    const flyIamUser = new aws.iam.User('FlyIamUser');
-    new aws.iam.UserPolicyAttachment('FlyUserPolicyAttachment', {
-      user: flyIamUser.name,
-      policyArn: flyIamPolicy.arn,
-    });
-    const flyAwsAccessKey = new aws.iam.AccessKey('FlyAccessKey', {
-      user: flyIamUser.name,
-    });
-    return { flyIamUser, flyAwsAccessKey };
-  }
-
-  function buildEnv() {
-    const { flyAwsAccessKey } = buildFlyIamUser();
-    const links = allLinks.apply((links) => buildLinks(links));
-    return $util
-      .all([links, baseEnv, flyAwsAccessKey.id, $util.secret(flyAwsAccessKey.secret)])
-      .apply(([links, env, flyAwsAccessKeyId, flyAwsAccessKeySecret]) => ({
-        ...linksToEnv(links),
-        ...env,
-        AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
-        AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
-        AWS_REGION: ($app.providers?.aws.region ?? 'us-east-1') as string,
-        PRIMARY_REGION: regions[0].region,
-      }));
-  }
-
-  function buildWebAppImage() {
-    const buildArgs = $util
-      .all([
-        WEBAPP_URL.value,
-        cdn.url,
-        STRIPE_PUBLISHABLE_KEY.value,
-        POSTHOG_UI_HOST.value,
-        analyticsApi.properties.url,
-        POSTHOG_API_KEY.value,
-        webAppSentryKey.dsnPublic,
-        webAppSentryProject.organization,
-        webAppSentryProject.internalId,
-        webAppSentryProject.name,
-        $util.secret(SENTRY_AUTH_TOKEN.value),
-        donationLink.value,
-      ])
-      .apply(
-        ([
-          webappUrl,
-          cdnUrl,
-          stripePublishableKey,
-          posthogUiHost,
-          posthogApiHost,
-          posthogApiKey,
-          sentryDsn,
-          sentryOrg,
-          sentryProjectId,
-          sentryProjectName,
-          sentryAuthToken,
-          donationLink,
-        ]) => ({
-          stage: $app.stage,
-          webapp_url: webappUrl,
-          cdn_url: cdnUrl,
-          stripe_publishable_key: stripePublishableKey,
-          posthog_ui_host: posthogUiHost,
-          posthog_api_host: posthogApiHost,
-          posthog_api_key: posthogApiKey,
-          sentry_dsn: sentryDsn,
-          sentry_org: sentryOrg,
-          sentry_project_id: sentryProjectId,
-          sentry_project_name: sentryProjectName,
-          sentry_auth_token: sentryAuthToken,
-          donation_link: donationLink,
-        }),
-      );
-
-    return new dockerbuild.Image('WebAppImage', {
-      tags: [
-        $interpolate`registry.fly.io/${flyApp.name}:${Date.now()}`,
-        $interpolate`registry.fly.io/${flyApp.name}:latest`,
-      ],
-      registries: [
-        {
-          address: 'registry.fly.io',
-          username: 'x',
-          password: $util.secret(process.env.FLY_API_TOKEN!),
-        },
-      ],
-      dockerfile: { location: path.join($cli.paths.root, 'docker/www.Dockerfile') },
-      context: { location: $cli.paths.root },
-      buildArgs,
-      platforms: ['linux/amd64'],
-      push: true,
-      cacheFrom: [{ local: { src: '/tmp/.buildx-cache' } }],
-      cacheTo: [{ local: { dest: '/tmp/.buildx-cache-new', mode: 'max' } }],
-    });
-  }
-
-  function buildFlyAutoscaler() {
-    const app = new fly.App('FlyAutoscalerApp', {
-      name: `${$app.name}-${$app.stage}-www-autoscaler`,
-    });
-    const env = $util
-      .all([$util.secret(process.env.FLY_API_TOKEN!), flyApp.name])
-      .apply(([flyApiToken, appName]) => ({
-        FAS_ORG: process.env.FLY_ORG!,
-        FAS_APP_NAME: appName,
-        FAS_API_TOKEN: flyApiToken,
-        FAS_REGIONS: regions.map(({ region }) => region).join(','),
-        FAS_STARTED_MACHINE_COUNT: `max(min(ceil(connects / 200), ${regions.reduce((acc, { replicas }) => acc + replicas, 0)}), ${regions.length})`, // 200 connections per machine, max all replicas per region, min 1 machine per region
-        FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${process.env.FLY_ORG!}`,
-        FAS_PROMETHEUS_TOKEN: flyApiToken,
-        FAS_PROMETHEUS_METRIC_NAME: 'connects',
-        FAS_PROMETHEUS_QUERY:
-          'sum(increase(fly_app_tcp_connects_count{app="$APP_NAME"}[1m])) or vector(0)',
-      }));
-    const machine = new fly.Machine(
-      'FlyAutoscalerMachine',
+  const serverDomain = $interpolate`server.${DOMAIN.value}`;
+  const regionalResources = regions.map((region) => {
+    const provider = new aws.Provider(`WebAppProvider-${region}`, { region });
+    const serverFn = new sst.aws.Function(
+      `WebAppServerFn-${region}`,
       {
-        app: app.name,
-        region: 'iad',
-        image: 'flyio/fly-autoscaler:latest',
-        env,
-        cpuType: 'shared',
-        cpus: 1,
-        memory: 256,
+        bundle: `${$cli.paths.root}/apps/www/.output/server`,
+        handler: 'index.handler',
+        runtime: 'nodejs22.x',
+        memory: '1024 MB',
+        url: true,
+        streaming: true,
       },
-      { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
+      { provider, dependsOn: [build] },
     );
-    return { app, machine };
+    const serverFnRouter = new sst.aws.Router(
+      `WebAppServerFnRouter-${region}`,
+      {
+        routes: { '/*': serverFn.url },
+        domain: {
+          name: serverDomain,
+          dns: sst.aws.dns({
+            override: true,
+            transform: {
+              record: (args) => {
+                args.setIdentifier = region;
+                args.latencyRoutingPolicies = [{ region }];
+              },
+            },
+          }),
+        },
+        transform: { cdn: { wait: !$dev } },
+      },
+      { provider },
+    );
+    return { provider, serverFn, serverFnRouter };
+  });
+
+  const cdn = buildCdn();
+  removeOldAssets();
+
+  function buildWebApp() {
+    const buildCmd = new command.local.Command('BuildWebApp', {
+      create: 'bun run build',
+      update: 'bun run build',
+      dir: `${$cli.paths.root}/apps/www`,
+      environment: baseEnv,
+      triggers: [Date.now()],
+    });
+
+    return buildCmd;
+  }
+
+  function uploadAssets() {
+    return $util.all([bucket.name, build.urn]).apply(async ([bucketName]) => {
+      const searchPath = `${$cli.paths.root}/apps/www/.output/public/`;
+      const assets = fs.readdirSync(searchPath, { recursive: true, withFileTypes: true });
+      if (assets.length === 0) {
+        throw new Error('No assets found in build');
+      }
+
+      const uploadedAssets: string[] = [];
+      const bucket = new S3Client();
+      for (const asset of assets) {
+        if (asset.isFile()) {
+          const path = `${asset.parentPath}/${asset.name}`;
+          const key = path.replace(searchPath, '');
+          await bucket.send(
+            new PutObjectCommand({
+              Bucket: bucketName,
+              Key: key,
+              Body: fs.readFileSync(path),
+              CacheControl:
+                Object.entries(cachingMap).find(([pattern]) => minimatch(key, pattern))?.[1] ??
+                defaultCacheControlHeaders,
+              ContentType: mime.getType(key) ?? undefined,
+            }),
+          );
+          uploadedAssets.push(key);
+        }
+      }
+      return uploadedAssets;
+    });
+  }
+
+  function getStaticAssetPaths() {
+    return assets.apply((assets) => {
+      // Get unique top-level paths (files and directories)
+      return Array.from(
+        new Set(
+          assets.map((asset) => {
+            if (asset.includes('/')) {
+              return asset.substring(0, asset.indexOf('/') + 1);
+            }
+            return asset;
+          }),
+        ),
+      );
+    });
   }
 
   function buildCdn() {
     const serverOrigin: aws.types.input.cloudfront.DistributionOrigin = {
       originId: 'serverOrigin',
-      domainName: $interpolate`${flyApp.name}.fly.dev`,
+      domainName: serverDomain,
       customOriginConfig: {
         httpPort: 80,
         httpsPort: 443,
@@ -330,6 +258,31 @@ if (!$dev) {
       ],
     };
 
+    const s3Origin: aws.types.input.cloudfront.DistributionOrigin = {
+      originId: 's3Origin',
+      domainName: bucket.nodes.bucket.bucketRegionalDomainName,
+      originAccessControlId: new aws.cloudfront.OriginAccessControl(
+        'WebAppBucketOriginAccessControl',
+        {
+          originAccessControlOriginType: 's3',
+          signingBehavior: 'always',
+          signingProtocol: 'sigv4',
+        },
+      ).id,
+    };
+    const s3OriginBehavior: Omit<
+      aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
+      'pathPattern'
+    > = {
+      targetOriginId: s3Origin.originId,
+      viewerProtocolPolicy: 'redirect-to-https',
+      allowedMethods: ['GET', 'HEAD', 'OPTIONS'],
+      cachedMethods: ['GET', 'HEAD'],
+      compress: true,
+      // CloudFront's managed CachingOptimized policy
+      cachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6',
+    };
+
     const loggingBucket = new sst.aws.Bucket(
       'WebAppCdnLoggingBucket',
       {},
@@ -343,8 +296,18 @@ if (!$dev) {
     return new sst.aws.Cdn(
       'WebAppCdn',
       {
-        origins: [serverOrigin],
+        origins: [serverOrigin, s3Origin],
         defaultCacheBehavior: serverOriginBehavior,
+        orderedCacheBehaviors: getStaticAssetPaths().apply((assets) => [
+          {
+            pathPattern: '/_server',
+            ...serverOriginBehavior,
+          },
+          ...assets.map((asset) => ({
+            pathPattern: asset.endsWith('/') ? `/${asset}*` : `/${asset}`,
+            ...s3OriginBehavior,
+          })),
+        ]),
         wait: !$dev,
         invalidation: { paths: ['/*'], wait: !$dev },
         domain: {
@@ -358,9 +321,27 @@ if (!$dev) {
           },
         },
       },
-      {
-        dependsOn: [...regionalResources.flatMap(({ machines }) => machines), flyAutoscalerMachine],
-      },
+      { dependsOn: [...regionalResources.flatMap((r) => Object.values(r))] },
     );
+  }
+
+  function removeOldAssets() {
+    return $util.all([bucket.name, assets, cdn.urn]).apply(async ([bucketName, assets]) => {
+      const bucket = new S3Client();
+      let isTruncated = true;
+      let continuationToken: string | undefined;
+      while (isTruncated) {
+        const result = await bucket.send(
+          new ListObjectsV2Command({ Bucket: bucketName, ContinuationToken: continuationToken }),
+        );
+        for (const asset of result.Contents ?? []) {
+          if (asset.Key && !assets.includes(asset.Key)) {
+            await bucket.send(new DeleteObjectCommand({ Bucket: bucketName, Key: asset.Key }));
+          }
+        }
+        isTruncated = result.IsTruncated ?? false;
+        continuationToken = result.NextContinuationToken;
+      }
+    });
   }
 }
