@@ -20,29 +20,21 @@ export const allLinks = $output([
 
 $transform(sst.aws.Function, (args) => {
   args.copyFiles = $output(args.copyFiles).apply((copyFiles = []) => [
-    ...copyFiles,
     { from: 'apps/functions/instrument.mjs', to: 'instrument.mjs' },
+    ...copyFiles,
   ]);
   args.runtime ??= 'nodejs22.x';
   args.nodejs = $output(args.nodejs).apply((nodejs = {}) => ({
     ...nodejs,
     install: [
-      ...(nodejs.install ?? []),
       '@libsql/client',
       '@sentry/aws-serverless',
       'posthog-node',
+      ...(nodejs.install ?? []),
     ],
     loader: {
-      ...(nodejs.loader ?? {}),
       '.wasm': 'file' as const,
-    },
-    esbuild: {
-      external: [
-        ...(nodejs.esbuild?.external ?? []),
-        '@libsql/client',
-        '@sentry/aws-serverless',
-        'posthog-node',
-      ],
+      ...(nodejs.loader ?? {}),
     },
   }));
   args.memory ??= '512 MB';
