@@ -27,7 +27,6 @@ $transform(sst.aws.Function, (args) => {
   );
   args.runtime ??= 'nodejs22.x';
   args.nodejs = $output(args.nodejs).apply((nodejs = {}) => ({
-    splitting: true,
     ...nodejs,
     install: Array.from(
       new Set([
