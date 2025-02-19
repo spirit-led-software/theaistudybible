@@ -15,7 +15,7 @@ deadLetterQueue.subscribe({
 emailQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/email.handler',
-    memory: '2 GB',
+    memory: '1 GB',
   },
   { batch: { partialResponses: true } },
 );
@@ -24,7 +24,7 @@ indexBibleQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/bibles/index-bible.handler',
     nodejs: { install: ['jsdom'] },
-    memory: '2 GB',
+    memory: '1 GB',
     timeout: '15 minutes',
   },
   {
@@ -36,7 +36,7 @@ indexBibleQueue.subscribe(
 indexBibleChapterQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/bibles/index-chapter/index.handler',
-    memory: '2 GB',
+    memory: '1 GB',
     timeout: '15 minutes',
   },
   {
@@ -48,7 +48,7 @@ indexBibleChapterQueue.subscribe(
 dataSourcesSyncQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/data-sources/index.handler',
-    memory: '2 GB',
+    memory: '1 GB',
     timeout: '15 minutes',
   },
   { batch: { partialResponses: true } },
@@ -57,16 +57,13 @@ dataSourcesSyncQueue.subscribe(
 indexDataSourceFilesQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/data-sources/files.handler',
-    memory: '2 GB',
+    memory: '1 GB',
     timeout: '15 minutes',
   },
   { batch: { size: 1, partialResponses: true } },
 );
 
 profileImagesQueue.subscribe(
-  {
-    handler: 'apps/functions/src/queues/subscribers/profile-images.handler',
-    memory: '2 GB',
-  },
+  { handler: 'apps/functions/src/queues/subscribers/profile-images.handler' },
   { batch: { size: 1, partialResponses: true } },
 );
