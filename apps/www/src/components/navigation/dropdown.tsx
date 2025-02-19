@@ -83,19 +83,13 @@ export const NavigationDropdown = (_props: NavigationDropdownProps) => {
                 <FileText size={18} /> Terms
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() => {
-                  const email = 'support@theaistudybible.com';
-                  window.location.href = `mailto:${email}`;
-                }}
+                onSelect={() => window.open('mailto:support@theaistudybible.com', '_blank')}
                 class='flex items-center gap-2'
               >
                 <Mail size={18} /> Contact
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() => {
-                  const url = 'https://donate.stripe.com/cN23fc1mFdW2dXOcMM';
-                  window.open(url, '_blank');
-                }}
+                onSelect={() => window.open(import.meta.env.PUBLIC_DONATION_LINK, '_blank')}
                 class='flex items-center gap-2'
               >
                 <CreditCard size={18} /> Donate
