@@ -1,12 +1,13 @@
 import { useBibleStore } from '@/www/contexts/bible';
 import { createChatScrollAnchor } from '@/www/hooks/create-chat-scroll-anchor';
 import { useChat } from '@/www/hooks/use-chat';
+import { createWritableMemo } from '@solid-primitives/memo';
 import { useWindowSize } from '@solid-primitives/resize-observer';
 import { Meta, Title } from '@solidjs/meta';
 import { useLocation, useSearchParams } from '@solidjs/router';
 import { formatDate } from 'date-fns';
 import { ArrowUp, ChevronDown, ChevronUp, StopCircle } from 'lucide-solid';
-import { For, Show, createEffect, createMemo, createSignal, on } from 'solid-js';
+import { For, Show, createEffect, createMemo, on } from 'solid-js';
 import { getRequestEvent, isServer } from 'solid-js/web';
 import { toast } from 'solid-sonner';
 import { useChatStore } from '../../contexts/chat';
@@ -58,18 +59,18 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   const isLoading = createMemo(() => status() === 'submitted' || status() === 'streaming');
 
-  const location = useLocation();
-  const [isChatPage, setIsChatPage] = createSignal(
-    isServer
-      ? new URL(getRequestEvent()!.request.url).pathname.startsWith('/chat')
-      : location.pathname.startsWith('/chat'),
-  );
-  createEffect(() => {
-    setIsChatPage(location.pathname.startsWith('/chat'));
-  });
-
   const windowSize = useWindowSize();
   const isMobile = createMemo(() => windowSize.width < 768);
+
+  const location = useLocation();
+  const isChatPage = createMemo(() => {
+    if (isServer) {
+      return new URL(getRequestEvent()!.request.url).pathname.startsWith('/chat');
+    }
+    return location.pathname.startsWith('/chat');
+  });
+
+  const [isSidebarOpen, setIsSidebarOpen] = createWritableMemo(() => !isMobile() && isChatPage());
 
   createEffect(() => {
     setChatStore('chatId', id() ?? null);
@@ -147,6 +148,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
     <SidebarProvider
       class='min-h-full flex-1 overflow-hidden'
       style={{ '--sidebar-width': '20rem' }}
+      open={isSidebarOpen()}
+      onOpenChange={setIsSidebarOpen}
       defaultOpen={!isMobile() && isChatPage()}
     >
       <Show when={isChatPage()}>
