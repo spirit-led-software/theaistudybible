@@ -1,5 +1,4 @@
 import { createAsync } from '@solidjs/router';
-import {} from 'solid-js';
 import {
   protect,
   protectAdmin,

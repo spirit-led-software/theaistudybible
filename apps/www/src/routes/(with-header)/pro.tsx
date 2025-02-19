@@ -27,7 +27,7 @@ import { For, Show, createEffect, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
 
-const getProduct = GET(() => {
+const getProducts = GET(() => {
   'use server';
   return Promise.resolve({
     product: Resource.ProSubProduct,
@@ -71,7 +71,7 @@ const syncSubscriptionAction = action(async () => {
 
 const getProductsQueryOptions = {
   queryKey: ['products-list'],
-  queryFn: () => getProduct(),
+  queryFn: () => getProducts(),
 };
 
 export const route = {

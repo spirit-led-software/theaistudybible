@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "4.0.7",
     "@theaistudybible/tsconfig": "workspace:*",
     "@vite-pwa/assets-generator": "^0.2.6",
     "sharp": "^0.33.5",
@@ -22,10 +23,8 @@
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-safe-area": "^0.6.0",
     "vinxi": "^0.5.3",
-    "vite-plugin-cjs-interop": "^2.1.6",
+    "vite-bundle-analyzer": "^0.17.1",
     "vite-plugin-pwa": "^0.21.1",
-    "vite-plugin-solid": "^2.11.1",
-    "vite-plugin-top-level-await": "^1.5.0",
     "vite-plugin-wasm": "^3.4.1",
     "workbox-build": "^7.3.0",
     "workbox-core": "^7.3.0",
@@ -34,7 +33,7 @@
     "workbox-window": "^7.3.0"
   },
   "dependencies": {
-    "@ai-sdk/solid": "^1.1.18",
+    "@ai-sdk/solid": "^1.1.19",
     "@corvu/drawer": "^0.2.3",
     "@fontsource-variable/inter": "^5.1.1",
     "@fontsource/goldman": "^5.1.1",
@@ -58,7 +57,6 @@
     "@solidjs/router": "^0.15.3",
     "@solidjs/start": "^1.1.1",
     "@stripe/stripe-js": "^5.6.0",
-    "@tailwindcss/vite": "4.0.7",
     "@tanstack/solid-query": "^5.66.4",
     "@tanstack/solid-query-devtools": "^5.66.4",
     "@tanstack/solid-table": "^8.21.2",
@@ -71,17 +69,15 @@
     "cmdk-solid": "^1.1.2",
     "cropperjs": "^1.6.2",
     "embla-carousel-solid": "^8.5.2",
-    "hono": "^4.7.1",
+    "hono": "^4.7.2",
     "lucide-solid": "^0.475.0",
     "motion": "^12.4.4",
-    "posthog-js": "^1.219.3",
+    "posthog-js": "^1.219.6",
     "posthog-node": "^4.6.0",
-    "rollup-plugin-typescript-paths": "^1.5.0",
     "solid-js": "^1.9.4",
     "solid-markdown": "^2.0.14",
     "solid-sonner": "^0.2.8",
-    "tailwind-merge": "^3.0.1",
-    "vite-bundle-analyzer": "^0.17.1"
+    "tailwind-merge": "^3.0.1"
   },
   "overrides": {
     "nitropack": "^2.10.4",

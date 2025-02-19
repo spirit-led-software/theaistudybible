@@ -43,11 +43,13 @@ export default defineNitroPlugin((nitroApp) => {
 });
 
 function compressResponse(event: H3Event, response: { body?: unknown }) {
+  // If the response is already compressed, don't compress it again
   const contentEncoding = getResponseHeader(event, 'Content-Encoding');
   if (contentEncoding) {
     return;
   }
 
+  // If the response is not a compressible type, don't compress it
   const contentType = getResponseHeader(event, 'Content-Type');
   if (
     !contentType ||
@@ -57,6 +59,7 @@ function compressResponse(event: H3Event, response: { body?: unknown }) {
     return;
   }
 
+  // If the response body is undefined or null, don't compress it
   if (typeof response.body === 'undefined' || response.body === null) {
     return;
   }

@@ -1,6 +1,7 @@
 import { db } from '@/core/database';
 import type { Content } from '@/schemas/bibles/contents';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { cn } from '@/www/lib/utils';
 import { auth } from '@/www/server/utils/auth';
 import { gatherElementIdsByVerseNumber } from '@/www/utils';
 import { Meta, Title } from '@solidjs/meta';
@@ -8,12 +9,11 @@ import { useSearchParams } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createQuery } from '@tanstack/solid-query';
 import { createEffect, createMemo } from 'solid-js';
+import { isServer } from 'solid-js/web';
 import { ActivityPanel, ActivityPanelContent, ActivityPanelMenu } from './activity-panel';
 import { Contents } from './contents';
 
 import './contents/contents.css';
-import { cn } from '@/www/lib/utils';
-import { isServer } from 'solid-js/web';
 
 const getHighlights = GET(async (bibleAbbreviation: string, chapterCode: string) => {
   'use server';

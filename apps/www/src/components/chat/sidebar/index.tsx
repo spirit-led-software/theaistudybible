@@ -1,6 +1,6 @@
 import { db } from '@/core/database';
+import { chats as chatsTable, messages as messagesTable } from '@/core/database/schema';
 import { ilike } from '@/core/database/utils';
-import type { Chat, Message } from '@/schemas/chats/types';
 import { cn } from '@/www/lib/utils';
 import { requireAuth } from '@/www/server/utils/auth';
 import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
+import { type SQL, and, eq, getTableColumns } from 'drizzle-orm';
 import { Menu, PenBox, Search, X } from 'lucide-solid';
 import { For, Show, createEffect, createSignal } from 'solid-js';
 import { useChatStore } from '../../../contexts/chat';
@@ -39,49 +40,29 @@ const getChats = GET(
     'use server';
     const { user } = requireAuth();
 
-    let chatsWithMessagesThatMatch: (Chat & { message: Message })[] = [];
+    let chatCondition: SQL | undefined = eq(chatsTable.userId, user.id);
     if (searchQuery) {
-      chatsWithMessagesThatMatch = await db.query.messages
-        .findMany({
-          where: (messages, { and, eq }) =>
-            and(eq(messages.userId, user.id), ilike(messages.content, `%${searchQuery}%`)),
-          with: { chat: true },
-        })
-        .then((messages) => messages.map((message) => ({ ...message.chat, message: message })));
+      chatCondition = and(chatCondition, ilike(chatsTable.name, `%${searchQuery}%`));
     }
-
-    const chats: (Chat & { message?: Message })[] = await db.query.chats.findMany({
-      where: (chats, { and, or, eq, inArray }) => {
-        const baseCondition = eq(chats.userId, user.id);
-        if (searchQuery) {
-          const searchCondition = ilike(chats.name, `%${searchQuery}%`);
-          if (chatsWithMessagesThatMatch.length > 0) {
-            return and(
-              baseCondition,
-              or(
-                searchCondition,
-                inArray(
-                  chats.id,
-                  chatsWithMessagesThatMatch.map((c) => c.id),
-                ),
-              ),
-            );
-          }
-          return and(baseCondition, searchCondition);
-        }
-        return baseCondition;
-      },
-      orderBy: (chats, { desc }) => desc(chats.updatedAt),
-      offset,
-      limit,
-    });
-
-    for (const chat of chats) {
-      const message = chatsWithMessagesThatMatch.find((c) => c.id === chat.id);
-      if (message) {
-        chat.message = message.message;
-      }
+    const query = db
+      .select({
+        ...getTableColumns(chatsTable),
+        ...(searchQuery ? { message: getTableColumns(messagesTable) } : {}),
+      })
+      .from(chatsTable)
+      .where(chatCondition);
+    if (searchQuery) {
+      query.leftJoin(
+        messagesTable,
+        and(
+          eq(chatsTable.id, messagesTable.chatId),
+          ilike(messagesTable.content, `%${searchQuery}%`),
+        ),
+      );
     }
+    query.limit(limit).offset(offset);
+
+    const chats = await query.execute();
 
     return {
       chats,

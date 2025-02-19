@@ -12,6 +12,11 @@ export const WEBAPP_URL = new Constant(
   $dev ? 'http://localhost:3000' : $interpolate`https://${DOMAIN.value}`,
 );
 
+export const WEBHOOKS_URL = new Constant(
+  'WebhooksUrl',
+  $interpolate`https://webhooks.${DOMAIN.value}`,
+);
+
 export const AWS_HOSTED_ZONE = aws.route53.getZoneOutput({ name: BASE_DOMAIN });
 
 export const STRIPE_PUBLISHABLE_KEY = new Constant(

@@ -266,6 +266,10 @@ declare module "sst" {
       "type": "sst.aws.Function"
       "url": string
     }
+    "WebhooksUrl": {
+      "type": "asb.asb.Constant"
+      "value": string
+    }
   }
 }
 /// <reference path="sst-env.d.ts" />
