@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createInfiniteQuery } from '@tanstack/solid-query';
 import { formatDate } from 'date-fns';
-import { type SQL, and, eq, getTableColumns } from 'drizzle-orm';
+import { type SQL, and, desc, eq, getTableColumns } from 'drizzle-orm';
 import { Menu, PenBox, Search, X } from 'lucide-solid';
 import { For, Show, createEffect, createSignal } from 'solid-js';
 import { useChatStore } from '../../../contexts/chat';
@@ -60,7 +60,7 @@ const getChats = GET(
         ),
       );
     }
-    query.limit(limit).offset(offset);
+    query.orderBy(desc(chatsTable.updatedAt)).limit(limit).offset(offset);
 
     const chats = await query.execute();
 
