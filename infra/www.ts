@@ -188,18 +188,20 @@ if (!$dev) {
         }),
       );
 
+    const registryHost = 'us-east1-docker.pkg.dev';
+
     return new dockerbuild.Image('WebAppImage', {
       tags: [
-        $interpolate`gcr.io/${gcp.config.project}/theaistudybible-www:${$app.stage}-${Date.now()}`,
-        $interpolate`gcr.io/${gcp.config.project}/theaistudybible-www:${$app.stage}-latest`,
+        $interpolate`${registryHost}/${gcp.config.project}/theaistudybible-www:${$app.stage}-${Date.now()}`,
+        $interpolate`${registryHost}/${gcp.config.project}/theaistudybible-www:${$app.stage}-latest`,
       ],
       registries: [
         {
-          address: 'gcr.io',
+          address: registryHost,
           username: '_json_key',
           password: $util.secret(
             fs.readFileSync(
-              path.join($cli.paths.root, process.env.GOOGLE_APPLICATION_CREDENTIALS!),
+              path.resolve($cli.paths.root, process.env.GOOGLE_APPLICATION_CREDENTIALS!),
               'utf-8',
             ),
           ),
