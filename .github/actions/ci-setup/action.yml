@@ -1,6 +1,11 @@
 name: 'CI Setup'
 description: 'CI setup for The AI Study Bible'
 
+inputs:
+  gcp_key:
+    description: 'GCP service account key JSON'
+    required: true
+
 runs:
   using: 'composite'
   steps:
@@ -38,7 +43,7 @@ runs:
     - name: Authenticate with GCP
       uses: 'google-github-actions/auth@v2'
       with:
-        credentials_json: '${{ secrets.GCP_KEY }}'
+        credentials_json: '${{ inputs.gcp_key }}'
       
     - name: Set up gcloud sdk
       uses: 'google-github-actions/setup-gcloud@v2'

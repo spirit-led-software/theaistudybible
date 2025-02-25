@@ -36,6 +36,8 @@ jobs:
 
       - name: CI Setup
         uses: ./.github/actions/ci-setup
+        with:
+          gcp_key: ${{ secrets.GCP_KEY }}
 
       - name: Install JQ
         run: |

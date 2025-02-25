@@ -10,6 +10,7 @@ concurrency: pr-${{ github.event.pull_request.number }}
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  GCP_KEY: ${{ secrets.GCP_KEY }}
   FLY_ORG: ${{ vars.FLY_ORG }}
   FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
   TURSO_ORG: ${{ vars.TURSO_ORG }}
@@ -32,6 +33,8 @@ jobs:
 
       - name: CI Setup
         uses: ./.github/actions/ci-setup
+        with:
+          gcp_key: ${{ secrets.GCP_KEY }}
 
       - name: Set SST Stage
         run: |
