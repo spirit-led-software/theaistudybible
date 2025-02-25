@@ -1,5 +1,5 @@
 describe('Chat Page', () => {
-  cy.on('uncaught:exception', (err) => {
+  Cypress.on('uncaught:exception', (err) => {
     console.log(err);
     // Ignore uncaught exceptions for the chat page
     return false;
