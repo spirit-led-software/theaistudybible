@@ -197,7 +197,7 @@ if (!$dev) {
       ],
       registries: [
         {
-          address: `https://${registryHost}`,
+          address: registryHost,
           username: '_json_key',
           password: $util.secret(
             fs.readFileSync(
