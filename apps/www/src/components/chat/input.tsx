@@ -6,8 +6,9 @@ import { Show, createMemo } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Button } from '../ui/button';
 import { TextField, TextFieldTextArea } from '../ui/text-field';
-import { SelectModelButton } from './select-model-button';
+import { RemainingMessages } from './remaining-messages';
 import { ChatScrollButton } from './scroll-button';
+import { SelectModelButton } from './select-model-button';
 
 export type ChatInputProps = {
   input: ReturnType<typeof useChat>['input'];
@@ -17,6 +18,7 @@ export type ChatInputProps = {
   isLoading: boolean;
   stop: ReturnType<typeof useChat>['stop'];
   isAtBottom: boolean;
+  remainingMessagesQuery: ReturnType<typeof useChat>['remainingMessagesQuery'];
 };
 
 export const ChatInput = (props: ChatInputProps) => {
@@ -38,13 +40,6 @@ export const ChatInput = (props: ChatInputProps) => {
     <form
       class='absolute inset-x-0 bottom-0 flex w-full flex-col items-center justify-center gap-1 px-2'
       onSubmit={handleSubmit}
-      onKeyDown={(e) => {
-        if (isMobile()) return;
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          handleSubmit(e);
-        }
-      }}
       aria-label='Message input form'
     >
       <div class='relative flex h-fit w-full max-w-3xl flex-col gap-2 rounded-t-lg border border-b-none bg-background/80 px-3 pt-2 pb-4 backdrop-blur-md'>
@@ -57,6 +52,13 @@ export const ChatInput = (props: ChatInputProps) => {
             class='flex flex-1 items-center'
             value={props.input()}
             onChange={props.setInput}
+            onKeyDown={(e) => {
+              if (isMobile()) return;
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
           >
             <TextFieldTextArea
               placeholder={props.isLoading ? 'Generating...' : 'Type a message'}
@@ -94,6 +96,7 @@ export const ChatInput = (props: ChatInputProps) => {
             </Button>
           </Show>
         </div>
+        <RemainingMessages remainingMessagesQuery={props.remainingMessagesQuery} />
       </div>
     </form>
   );

@@ -13,7 +13,6 @@ import { ChatInput } from './input';
 import { ChatMenu } from './menu';
 import { ChatMessageList } from './message-list';
 import { ChatMetaTags } from './meta-tags';
-import { RemainingMessages } from './remaining-messages';
 import { ChatSidebar } from './sidebar';
 
 export type ChatWindowProps = {
@@ -168,8 +167,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
           isLoading={isLoading()}
           isAtBottom={isAtBottom()}
           stop={stop}
+          remainingMessagesQuery={remainingMessagesQuery}
         />
-        <RemainingMessages remainingMessagesQuery={remainingMessagesQuery} />
       </div>
     </SidebarProvider>
   );
