@@ -41,7 +41,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
-      
+
+      - name: Setup GCP Credentials
+        run: |
+          echo ${{ secrets.GCP_KEY }} > gcp-key.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json" >> $GITHUB_ENV
+
       - name: Set SST Stage
         run: |
           echo "pr-${{ github.event.pull_request.number }}" > .sst/stage
