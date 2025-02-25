@@ -143,7 +143,7 @@ if (!$dev) {
   function buildWebAppImage() {
     const repository = new gcp.artifactregistry.Repository('WebAppRepository', {
       location: 'us-east4',
-      repositoryId: `${$app.name}-${$app.stage}-www`,
+      repositoryId: `${$app.name}-${$app.stage}`,
       format: 'DOCKER',
     });
     const buildArgs = $util
@@ -195,8 +195,8 @@ if (!$dev) {
     const registryHost = $interpolate`${repository.location}-docker.pkg.dev`;
     return new dockerbuild.Image('WebAppImage', {
       tags: [
-        $interpolate`${registryHost}/${repository.project}/${repository.repositoryId}:${Date.now()}`,
-        $interpolate`${registryHost}/${repository.project}/${repository.repositoryId}:latest`,
+        $interpolate`${registryHost}/${repository.project}/${repository.repositoryId}/www:${Date.now()}`,
+        $interpolate`${registryHost}/${repository.project}/${repository.repositoryId}/www:latest`,
       ],
       dockerfile: { location: path.join($cli.paths.root, 'docker/www.Dockerfile') },
       context: { location: $cli.paths.root },
