@@ -21,6 +21,7 @@ import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
 import { donationLink } from './stripe';
 import { isProd } from './utils/constants';
+import { walkDirectory } from './utils/files';
 const defaultCacheControlHeaders =
   'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400,immutable';
 const staticCacheControlHeaders = 'public,max-age=31536000,s-maxage=31536000,immutable';
@@ -121,6 +122,9 @@ if (!$dev) {
         memory: '1024 MB',
         url: true,
         streaming: true,
+        environment: baseEnv,
+        link: allLinks,
+        nodejs: { install: ['jsdom'] },
       },
       { provider, dependsOn: [build] },
     );
@@ -164,8 +168,8 @@ if (!$dev) {
 
   function uploadAssets() {
     return $util.all([bucket.name, build.urn]).apply(async ([bucketName]) => {
-      const searchPath = `${$cli.paths.root}/apps/www/.output/public/`;
-      const assets = fs.readdirSync(searchPath, { recursive: true, withFileTypes: true });
+      const searchPath = `${$cli.paths.root}/apps/www/.output/public`;
+      const assets = walkDirectory(searchPath);
       if (assets.length === 0) {
         throw new Error('No assets found in build');
       }
@@ -173,22 +177,19 @@ if (!$dev) {
       const uploadedAssets: string[] = [];
       const bucket = new S3Client();
       for (const asset of assets) {
-        if (asset.isFile()) {
-          const path = `${asset.parentPath}/${asset.name}`;
-          const key = path.replace(searchPath, '');
-          await bucket.send(
-            new PutObjectCommand({
-              Bucket: bucketName,
-              Key: key,
-              Body: fs.readFileSync(path),
-              CacheControl:
-                Object.entries(cachingMap).find(([pattern]) => minimatch(key, pattern))?.[1] ??
-                defaultCacheControlHeaders,
-              ContentType: mime.getType(key) ?? undefined,
-            }),
-          );
-          uploadedAssets.push(key);
-        }
+        const key = asset.replace(`${searchPath}/`, '');
+        await bucket.send(
+          new PutObjectCommand({
+            Bucket: bucketName,
+            Key: key,
+            Body: fs.readFileSync(asset),
+            CacheControl:
+              Object.entries(cachingMap).find(([pattern]) => minimatch(key, pattern))?.[1] ??
+              defaultCacheControlHeaders,
+            ContentType: mime.getType(key) ?? undefined,
+          }),
+        );
+        uploadedAssets.push(key);
       }
       return uploadedAssets;
     });

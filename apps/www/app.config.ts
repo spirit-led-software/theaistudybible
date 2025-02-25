@@ -16,7 +16,6 @@ export default defineConfig(
         compatibilityDate: '2024-12-02',
         plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/posthog.ts'],
         experimental: { wasm: true },
-        inlineDynamicImports: true,
         awsLambda: { streaming: true },
       },
       vite: {

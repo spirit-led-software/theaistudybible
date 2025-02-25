@@ -1,3 +1,4 @@
+import { defaultNodejs } from './defaults';
 import {
   dataSourcesSyncQueue,
   deadLetterQueue,
@@ -23,7 +24,10 @@ emailQueue.subscribe(
 indexBibleQueue.subscribe(
   {
     handler: 'apps/functions/src/queues/subscribers/bibles/index-bible.handler',
-    nodejs: { install: ['jsdom'] },
+    nodejs: defaultNodejs.apply((nodejs) => ({
+      ...nodejs,
+      install: [...nodejs.install, 'jsdom'],
+    })),
     memory: '1 GB',
     timeout: '15 minutes',
   },

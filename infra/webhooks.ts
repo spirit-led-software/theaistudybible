@@ -5,7 +5,7 @@ import { stripeWebhookEndpoint } from './stripe';
 const webhooksApiFn = new sst.aws.Function('WebhooksApiFunction', {
   handler: 'apps/functions/src/webhooks/index.handler',
   url: true,
-  link: $output(allLinks).apply((links) => [...links, stripeWebhookEndpoint]),
+  link: allLinks.apply((links) => [...links, stripeWebhookEndpoint]),
 });
 
 export const webhooksApi = new sst.aws.Router('WebhooksApi', {
