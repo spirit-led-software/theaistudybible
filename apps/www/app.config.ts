@@ -49,6 +49,7 @@ export default defineConfig(
           '/maskable-icon-512x512.png': { headers: defaultCacheControlHeaders },
           '/robots.txt': { headers: doNotCacheHeaders },
         },
+        esbuild: { options: { target: 'esnext' } },
         alias: {
           '@/www': path.resolve(__dirname, './src'),
           '@/schemas': path.resolve(__dirname, '../../packages/schemas/src'),
