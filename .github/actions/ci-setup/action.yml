@@ -51,4 +51,4 @@ runs:
     - name: Setup docker auth for GCP
       shell: bash
       run: |
-        gcloud auth configure-docker us-east4-docker.pkg.dev
+        gcloud auth configure-docker us-east4-docker.pkg.dev --quiet
