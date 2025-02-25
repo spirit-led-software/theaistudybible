@@ -142,6 +142,11 @@ if (!$dev) {
   buildCdn();
 
   function buildWebAppImage() {
+    const repository = new gcp.artifactregistry.Repository('WebAppRepository', {
+      location: 'us-east4',
+      repositoryId: `${$app.name}-${$app.stage}-www`,
+      format: 'DOCKER',
+    });
     const buildArgs = $util
       .all([
         WEBAPP_URL.value,
@@ -188,12 +193,11 @@ if (!$dev) {
         }),
       );
 
-    const registryHost = 'us-east4-docker.pkg.dev';
-
+    const registryHost = $interpolate`${repository.location}-docker.pkg.dev`;
     return new dockerbuild.Image('WebAppImage', {
       tags: [
-        $interpolate`${registryHost}/${gcp.config.project}/theaistudybible-www:${$app.stage}-${Date.now()}`,
-        $interpolate`${registryHost}/${gcp.config.project}/theaistudybible-www:${$app.stage}-latest`,
+        $interpolate`${registryHost}/${repository.project}/${repository.name}:${$app.stage}-${Date.now()}`,
+        $interpolate`${registryHost}/${repository.project}/${repository.name}:${$app.stage}-latest`,
       ],
       registries: [
         {
