@@ -141,7 +141,7 @@ if (!$dev) {
   buildCdn();
 
   function buildWebAppImage() {
-    const repository = new gcp.artifactregistry.Repository('WebAppRepository', {
+    const repository = new gcp.artifactregistry.Repository('ArtifactRegistryRepository', {
       location: 'us-east4',
       repositoryId: `${$app.name}-${$app.stage}`,
       format: 'DOCKER',
