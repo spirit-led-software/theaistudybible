@@ -23,10 +23,10 @@ const regions: {
   awsRegion: aws.Region;
 }[] = isProd
   ? [
-      { googleRegion: 'us-east1', awsRegion: 'us-east-1' },
+      { googleRegion: 'us-east4', awsRegion: 'us-east-1' },
       { googleRegion: 'europe-west1', awsRegion: 'eu-west-1' },
     ]
-  : [{ googleRegion: 'us-east1', awsRegion: 'us-east-1' }];
+  : [{ googleRegion: 'us-east4', awsRegion: 'us-east-1' }];
 
 const baseEnv = $util
   .all([
@@ -188,7 +188,7 @@ if (!$dev) {
         }),
       );
 
-    const registryHost = 'us-east1-docker.pkg.dev';
+    const registryHost = 'us-east4-docker.pkg.dev';
 
     return new dockerbuild.Image('WebAppImage', {
       tags: [
@@ -197,12 +197,12 @@ if (!$dev) {
       ],
       registries: [
         {
-          address: registryHost,
+          address: `https://${registryHost}`,
           username: '_json_key',
           password: $util.secret(
             fs.readFileSync(
               path.resolve($cli.paths.root, process.env.GOOGLE_APPLICATION_CREDENTIALS!),
-              'utf-8',
+              'utf8',
             ),
           ),
         },
