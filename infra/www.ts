@@ -116,6 +116,7 @@ if (!$dev) {
 
     new gcp.cloudrun.IamBinding(`WebAppServiceIamBinding-${googleRegion}`, {
       service: service.name,
+      location: googleRegion,
       role: 'roles/run.invoker',
       members: ['allUsers'],
     });
