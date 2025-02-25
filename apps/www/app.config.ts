@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createId } from '@paralleldrive/cuid2';
 import { withSentry } from '@sentry/solidstart';
 import { defineConfig } from '@solidjs/start/config';
@@ -6,6 +8,8 @@ import { analyzer } from 'vite-bundle-analyzer';
 import { VitePWA } from 'vite-plugin-pwa';
 import wasm from 'vite-plugin-wasm';
 import tsconfigPaths from 'vite-tsconfig-paths';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const defaultCacheControlHeaders = {
   'cache-control': 'public,max-age=0,s-maxage=86400,stale-while-revalidate=86400,immutable',
@@ -45,6 +49,17 @@ export default defineConfig(
           '/icon.png': { headers: defaultCacheControlHeaders },
           '/maskable-icon-512x512.png': { headers: defaultCacheControlHeaders },
           '/robots.txt': { headers: doNotCacheHeaders },
+        },
+        esbuild: { options: { target: 'esnext' } },
+        alias: {
+          '@/www': path.resolve(__dirname, './src'),
+          '@/schemas': path.resolve(__dirname, '../../packages/schemas/src'),
+          '@/core': path.resolve(__dirname, '../../packages/core/src'),
+          '@/ai': path.resolve(__dirname, '../../packages/ai/src'),
+          '@/email': path.resolve(__dirname, '../../packages/email/src'),
+          '@/functions': path.resolve(__dirname, '../functions/src'),
+          '@/workers': path.resolve(__dirname, '../workers/src'),
+          '@/scripts': path.resolve(__dirname, '../../tools/scripts/src'),
         },
       },
       vite: {

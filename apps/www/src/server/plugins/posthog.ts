@@ -1,3 +1,4 @@
+import { setPosthog } from '@/core/utils/posthog';
 import {
   addEventProcessor as addSentryEventProcessor,
   addIntegration as addSentryIntegration,
@@ -13,7 +14,7 @@ export default defineNitroPlugin((nitroApp) => {
     host: process.env.PUBLIC_POSTHOG_API_HOST,
   });
   const posthogSentry = new PostHogSentryIntegration(posthog);
-  globalThis.posthog = posthog;
+  setPosthog(posthog);
   if (!isProd) {
     posthog.optOut();
   }
