@@ -41,7 +41,7 @@ jobs:
       - name: Setup GCP Credentials
         run: |
           echo ${{ secrets.GCP_KEY }} > gcp-key.json
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=gcp-key.json" >> $GITHUB_ENV
 
       - name: Set SST Stage
         run: |
