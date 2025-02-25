@@ -8,6 +8,7 @@ import {
 } from '@/core/auth/providers/webauthn';
 import { db } from '@/core/database';
 import { userSettings, users } from '@/core/database/schema';
+import { fnv1a } from '@/core/utils/hash';
 import { useAuth } from '@/www/contexts/auth';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { bigEndian } from '@oslojs/binary';
@@ -27,7 +28,6 @@ import { action, redirect, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
 import { KeyIcon } from 'lucide-solid';
-import { murmurHash } from 'ohash';
 import { createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
@@ -62,7 +62,7 @@ const createChallengeAction = action(async (email: string) => {
   }
 
   const credentialsId = new Uint8Array(8);
-  bigEndian.putUint64(credentialsId, BigInt(murmurHash(email)), 0);
+  bigEndian.putUint64(credentialsId, fnv1a(email), 0);
 
   const challenge = await createWebAuthnChallenge();
   return { challenge: encodeBase64(challenge), credentialsId };

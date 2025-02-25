@@ -2,14 +2,14 @@ import { Readable } from 'node:stream';
 import { ReadableStream } from 'node:stream/web';
 import { createBrotliCompress, createDeflate, createGzip } from 'node:zlib';
 import { captureException as captureSentryException } from '@sentry/solidstart';
+import { defineNitroPlugin } from 'nitropack/runtime/plugin';
 import {
   type H3Event,
   getRequestHeader,
   getResponseHeader,
   removeResponseHeader,
   setResponseHeader,
-} from 'h3';
-import { defineNitroPlugin } from 'nitropack/runtime/plugin';
+} from 'vinxi/http';
 
 const compressibleTypes = [
   'text/',

@@ -6,6 +6,7 @@ import {
   getUserPasskeyCredentials,
   verifyWebAuthnChallenge,
 } from '@/core/auth/providers/webauthn';
+import { fnv1a } from '@/core/utils/hash';
 import { QueryBoundary } from '@/www/components/query-boundary';
 import { useAuth } from '@/www/contexts/auth';
 import { requireAuth } from '@/www/server/utils/auth';
@@ -25,7 +26,6 @@ import {
 import { action, useAction } from '@solidjs/router';
 import { GET } from '@solidjs/start';
 import { createMutation, createQuery } from '@tanstack/solid-query';
-import { murmurHash } from 'ohash';
 import { For, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
@@ -71,7 +71,7 @@ const createChallengeAction = action(async () => {
   'use server';
   const { user } = requireAuth();
   const credentialsId = new Uint8Array(8);
-  bigEndian.putUint64(credentialsId, BigInt(murmurHash(user.email)), 0);
+  bigEndian.putUint64(credentialsId, fnv1a(user.email), 0);
 
   const challenge = await createWebAuthnChallenge();
   return { challenge: encodeBase64(challenge), credentialsId };

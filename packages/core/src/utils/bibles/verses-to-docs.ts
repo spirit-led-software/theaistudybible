@@ -4,7 +4,7 @@ import { numTokensFromString } from '@/ai/utils/num-tokens-from-string';
 import { contentsToText } from '@/core/utils/bibles/contents-to-text';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import { formatISO } from 'date-fns';
-import { murmurHash } from 'ohash';
+import { hash } from 'ohash';
 
 export const versesToDocs = async ({
   bible,
@@ -83,7 +83,7 @@ async function processVerseChunk(
 
   const content = `"${currentPageContent}" - ${name}`;
 
-  const id = `${bible.abbreviation}_${murmurHash(content)}`;
+  const id = `${bible.abbreviation}_${hash(content)}`;
 
   return {
     id,

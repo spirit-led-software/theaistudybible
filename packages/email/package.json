@@ -18,11 +18,11 @@
     "@vitejs/plugin-react": "^4.3.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.475.0",
+    "lucide-react": "^0.476.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-markdown": "^9.0.3",
-    "tailwind-merge": "^3.0.1",
+    "react-markdown": "^10.0.0",
+    "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7"
   }
 }

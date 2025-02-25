@@ -59,6 +59,19 @@ export const TextPartSchema = z.object({
 export const ReasoningPartSchema = z.object({
   type: z.literal('reasoning'),
   reasoning: z.string(),
+  details: z.array(
+    z.union([
+      z.object({
+        type: z.literal('text'),
+        text: z.string(),
+        signature: z.string().optional(),
+      }),
+      z.object({
+        type: z.literal('redacted'),
+        data: z.string(),
+      }),
+    ]),
+  ),
 });
 
 export const ToolInvocationPartSchema = z.object({
@@ -66,8 +79,28 @@ export const ToolInvocationPartSchema = z.object({
   toolInvocation: ToolInvocationSchema,
 });
 
+export const ProviderMetadataSchema = z.record(z.string(), z.record(z.string(), JSONSchema));
+
+export const SourceSchema = z.object({
+  sourceType: z.literal('url'),
+  id: z.string(),
+  url: z.string().url(),
+  title: z.string().optional(),
+  providerMetadata: ProviderMetadataSchema.optional(),
+});
+
+export const SourcePartSchema = z.object({
+  type: z.literal('source'),
+  source: SourceSchema,
+});
+
 export const MessagePartSchema: z.ZodType<NonNullable<Message['parts']>[number]> =
-  z.discriminatedUnion('type', [TextPartSchema, ReasoningPartSchema, ToolInvocationPartSchema]);
+  z.discriminatedUnion('type', [
+    TextPartSchema,
+    ReasoningPartSchema,
+    ToolInvocationPartSchema,
+    SourcePartSchema,
+  ]);
 
 const refine = {
   ...defaultRefine,
