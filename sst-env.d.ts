@@ -253,6 +253,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "WebAppCdnLoggingBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
       "value": string

@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { analyticsApi } from './analytics';
 import {
@@ -14,21 +15,18 @@ import { SENTRY_AUTH_TOKEN } from './secrets';
 import { cdn } from './storage';
 import * as storage from './storage';
 import { donationLink } from './stripe';
-import type { FlyRegion } from './types/fly.io';
 import { isProd } from './utils/constants';
 import { buildLinks, linksToEnv } from './utils/link';
 
-type RegionConfig = {
-  region: FlyRegion;
-  replicas: number;
-};
-
-const regions: RegionConfig[] = isProd
+const regions: {
+  googleRegion: string;
+  awsRegion: aws.Region;
+}[] = isProd
   ? [
-      { region: 'iad', replicas: 4 },
-      { region: 'fra', replicas: 4 },
+      { googleRegion: 'us-east1', awsRegion: 'us-east-1' },
+      { googleRegion: 'europe-west1', awsRegion: 'eu-west-1' },
     ]
-  : [{ region: 'iad', replicas: 1 }];
+  : [{ googleRegion: 'us-east1', awsRegion: 'us-east-1' }];
 
 const baseEnv = $util
   .all([
@@ -89,95 +87,59 @@ export const webAppDevCmd = new sst.x.DevCommand('WebAppDev', {
 });
 
 if (!$dev) {
-  const flyApp = new fly.App('WebApp', {
-    name: `${$app.name}-${$app.stage}-www`,
-    org: process.env.FLY_ORG,
-    assignSharedIpAddress: true,
-  });
   const webAppImage = buildWebAppImage();
-
-  new fly.Ip('WebAppIpv6', {
-    app: flyApp.name,
-    type: 'v6',
-  });
-
   const env = buildEnv();
-  const regionalResources = regions.map(({ region, replicas }) => {
-    const machines: fly.Machine[] = [];
-    for (let i = 0; i < replicas; i++) {
-      machines.push(
-        new fly.Machine(`WebAppMachine-${region}-${i}`, {
-          app: flyApp.name,
-          region,
-          image: webAppImage.ref,
-          env,
-          services: [
-            {
-              ports: [
-                { port: 80, handlers: ['http'] },
-                { port: 443, handlers: ['tls', 'http'] },
-              ],
-              internalPort: 8080,
-              protocol: 'tcp',
+  const serverDomain = $interpolate`server.${DOMAIN.value}`;
+  const regionalResources = regions.map(({ googleRegion, awsRegion }) => {
+    const service = new gcp.cloudrunv2.Service(`WebAppService-${googleRegion}`, {
+      name: `tasb-${$app.stage}-www-${googleRegion}`,
+      location: googleRegion,
+      template: {
+        containers: [
+          {
+            image: webAppImage.ref,
+            envs: env.apply((env) =>
+              Object.entries(env).map(([key, value]) => ({ name: key, value })),
+            ),
+            ports: { containerPort: 8080 },
+            resources: {
+              cpuIdle: true,
+              limits: { cpu: '2', memory: '2Gi' },
+              startupCpuBoost: true,
             },
-          ],
-          cpuType: 'shared',
-          cpus: isProd ? 4 : 1,
-          memory: isProd ? 1024 : 512,
-        }),
-      );
-    }
-    return { region, machines };
-  });
-  const { machine: flyAutoscalerMachine } = buildFlyAutoscaler();
-
-  buildCdn();
-
-  function buildFlyIamUser() {
-    const flyIamPolicy = new aws.iam.Policy('FlyIamPolicy', {
-      policy: {
-        Version: '2012-10-17',
-        Statement: [
-          {
-            Effect: 'Allow',
-            Action: ['s3:*'],
-            Resource: Object.values(storage)
-              .filter((b) => b instanceof sst.aws.Bucket)
-              .flatMap((b) => [b.arn, $interpolate`${b.arn}/*`]),
-          },
-          {
-            Effect: 'Allow',
-            Action: ['sqs:*'],
-            Resource: Object.values(queues).map((q) => q.arn),
           },
         ],
+        scaling: { minInstanceCount: 0, maxInstanceCount: 100 },
+        maxInstanceRequestConcurrency: 200,
+      },
+      deletionProtection: isProd,
+    });
+
+    new gcp.cloudrun.IamBinding(`WebAppServiceIamBinding-${googleRegion}`, {
+      service: service.name,
+      role: 'roles/run.invoker',
+      members: ['allUsers'],
+    });
+
+    const serviceRouter = new sst.aws.Router(`WebAppServiceRouter-${awsRegion}`, {
+      routes: { '/*': service.urls[0] },
+      domain: {
+        name: serverDomain,
+        dns: sst.aws.dns({
+          override: true,
+          transform: {
+            record: (args) => {
+              args.setIdentifier = awsRegion;
+              args.latencyRoutingPolicies = [{ region: awsRegion }];
+            },
+          },
+        }),
       },
     });
-    const flyIamUser = new aws.iam.User('FlyIamUser');
-    new aws.iam.UserPolicyAttachment('FlyUserPolicyAttachment', {
-      user: flyIamUser.name,
-      policyArn: flyIamPolicy.arn,
-    });
-    const flyAwsAccessKey = new aws.iam.AccessKey('FlyAccessKey', {
-      user: flyIamUser.name,
-    });
-    return { flyIamUser, flyAwsAccessKey };
-  }
+    return { service, serviceRouter };
+  });
 
-  function buildEnv() {
-    const { flyAwsAccessKey } = buildFlyIamUser();
-    const links = allLinks.apply((links) => buildLinks(links));
-    return $util
-      .all([links, baseEnv, flyAwsAccessKey.id, $util.secret(flyAwsAccessKey.secret)])
-      .apply(([links, env, flyAwsAccessKeyId, flyAwsAccessKeySecret]) => ({
-        ...linksToEnv(links),
-        ...env,
-        AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
-        AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
-        AWS_REGION: ($app.providers?.aws.region ?? 'us-east-1') as string,
-        PRIMARY_REGION: regions[0].region,
-      }));
-  }
+  buildCdn();
 
   function buildWebAppImage() {
     const buildArgs = $util
@@ -228,14 +190,19 @@ if (!$dev) {
 
     return new dockerbuild.Image('WebAppImage', {
       tags: [
-        $interpolate`registry.fly.io/${flyApp.name}:${Date.now()}`,
-        $interpolate`registry.fly.io/${flyApp.name}:latest`,
+        $interpolate`gcr.io/${gcp.config.project}/theaistudybible-www:${$app.stage}-${Date.now()}`,
+        $interpolate`gcr.io/${gcp.config.project}/theaistudybible-www:${$app.stage}-latest`,
       ],
       registries: [
         {
-          address: 'registry.fly.io',
-          username: 'x',
-          password: $util.secret(process.env.FLY_API_TOKEN!),
+          address: 'gcr.io',
+          username: '_json_key',
+          password: $util.secret(
+            fs.readFileSync(
+              path.join($cli.paths.root, process.env.GOOGLE_APPLICATION_CREDENTIALS!),
+              'utf-8',
+            ),
+          ),
         },
       ],
       dockerfile: { location: path.join($cli.paths.root, 'docker/www.Dockerfile') },
@@ -248,44 +215,55 @@ if (!$dev) {
     });
   }
 
-  function buildFlyAutoscaler() {
-    const app = new fly.App('FlyAutoscalerApp', {
-      name: `${$app.name}-${$app.stage}-www-autoscaler`,
-    });
-    const env = $util
-      .all([$util.secret(process.env.FLY_API_TOKEN!), flyApp.name])
-      .apply(([flyApiToken, appName]) => ({
-        FAS_ORG: process.env.FLY_ORG!,
-        FAS_APP_NAME: appName,
-        FAS_API_TOKEN: flyApiToken,
-        FAS_REGIONS: regions.map(({ region }) => region).join(','),
-        FAS_STARTED_MACHINE_COUNT: `max(min(ceil(connects / 200), ${regions.reduce((acc, { replicas }) => acc + replicas, 0)}), ${regions.length})`, // 200 connections per machine, max all replicas per region, min 1 machine per region
-        FAS_PROMETHEUS_ADDRESS: `https://api.fly.io/prometheus/${process.env.FLY_ORG!}`,
-        FAS_PROMETHEUS_TOKEN: flyApiToken,
-        FAS_PROMETHEUS_METRIC_NAME: 'connects',
-        FAS_PROMETHEUS_QUERY:
-          'sum(increase(fly_app_tcp_connects_count{app="$APP_NAME"}[1m])) or vector(0)',
-      }));
-    const machine = new fly.Machine(
-      'FlyAutoscalerMachine',
-      {
-        app: app.name,
-        region: 'iad',
-        image: 'flyio/fly-autoscaler:latest',
-        env,
-        cpuType: 'shared',
-        cpus: 1,
-        memory: 256,
+  function buildIamUser() {
+    const webAppIamPolicy = new aws.iam.Policy('WebAppIamPolicy', {
+      policy: {
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Effect: 'Allow',
+            Action: ['s3:*'],
+            Resource: Object.values(storage)
+              .filter((b) => b instanceof sst.aws.Bucket)
+              .flatMap((b) => [b.arn, $interpolate`${b.arn}/*`]),
+          },
+          {
+            Effect: 'Allow',
+            Action: ['sqs:*'],
+            Resource: Object.values(queues).map((q) => q.arn),
+          },
+        ],
       },
-      { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
-    );
-    return { app, machine };
+    });
+    const webAppIamUser = new aws.iam.User('WebAppIamUser');
+    new aws.iam.UserPolicyAttachment('WebAppUserPolicyAttachment', {
+      user: webAppIamUser.name,
+      policyArn: webAppIamPolicy.arn,
+    });
+    const webAppAwsAccessKey = new aws.iam.AccessKey('WebAppAccessKey', {
+      user: webAppIamUser.name,
+    });
+    return { webAppIamUser, webAppAwsAccessKey };
+  }
+
+  function buildEnv() {
+    const { webAppAwsAccessKey } = buildIamUser();
+    const links = allLinks.apply((links) => buildLinks(links));
+    return $util
+      .all([links, baseEnv, webAppAwsAccessKey.id, $util.secret(webAppAwsAccessKey.secret)])
+      .apply(([links, env, webAppAwsAccessKeyId, webAppAwsAccessKeySecret]) => ({
+        ...linksToEnv(links),
+        ...env,
+        AWS_ACCESS_KEY_ID: webAppAwsAccessKeyId,
+        AWS_SECRET_ACCESS_KEY: webAppAwsAccessKeySecret,
+        AWS_REGION: (aws.config.region ?? 'us-east-1') satisfies aws.Region,
+      }));
   }
 
   function buildCdn() {
     const serverOrigin: aws.types.input.cloudfront.DistributionOrigin = {
       originId: 'serverOrigin',
-      domainName: $interpolate`${flyApp.name}.fly.dev`,
+      domainName: serverDomain,
       customOriginConfig: {
         httpPort: 80,
         httpsPort: 443,
@@ -359,7 +337,9 @@ if (!$dev) {
         },
       },
       {
-        dependsOn: [...regionalResources.flatMap(({ machines }) => machines), flyAutoscalerMachine],
+        dependsOn: [
+          ...regionalResources.flatMap(({ service, serviceRouter }) => [service, serviceRouter]),
+        ],
       },
     );
   }
