@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { analyticsApi } from './analytics';
 import {
@@ -198,18 +197,6 @@ if (!$dev) {
       tags: [
         $interpolate`${registryHost}/${repository.project}/${repository.name}:${Date.now()}`,
         $interpolate`${registryHost}/${repository.project}/${repository.name}:latest`,
-      ],
-      registries: [
-        {
-          address: registryHost,
-          username: '_json_key',
-          password: $util.secret(
-            fs.readFileSync(
-              path.resolve($cli.paths.root, process.env.GOOGLE_APPLICATION_CREDENTIALS!),
-              'utf8',
-            ),
-          ),
-        },
       ],
       dockerfile: { location: path.join($cli.paths.root, 'docker/www.Dockerfile') },
       context: { location: $cli.paths.root },
