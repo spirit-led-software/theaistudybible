@@ -71,8 +71,8 @@ export const basicChatModels: ChatModelInfo[] = [
 
 export const advancedChatModels: ChatModelInfo[] = [
   {
-    id: 'gemini-1.5-pro',
-    name: 'Gemini 1.5 Pro',
+    id: 'gemini-2.0-pro-exp-02-05',
+    name: 'Gemini 2.0 Pro',
     description: 'A complex and powerful model trained by Google',
     contextSize: 2_097_152,
     provider: 'google',
@@ -91,13 +91,13 @@ export const advancedChatModels: ChatModelInfo[] = [
     tier: 'advanced',
   },
   {
-    id: 'claude-3-5-sonnet-latest',
-    name: 'Claude 3.5 Sonnet',
+    id: 'claude-3-7-sonnet-20250219',
+    name: 'Claude 3.7 Sonnet',
     description: 'The flagship model of Anthropic',
     contextSize: 200_000,
     provider: 'anthropic',
     host: 'anthropic',
-    link: 'https://www.anthropic.com/news/claude-3-5-sonnet',
+    link: 'https://www.anthropic.com/news/claude-3-7-sonnet',
     tier: 'advanced',
   },
 ];

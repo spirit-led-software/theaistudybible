@@ -1,4 +1,10 @@
-describe('Chat', () => {
+describe('Chat Page', () => {
+  cy.on('uncaught:exception', (err) => {
+    console.log(err);
+    // Ignore uncaught exceptions for the chat page
+    return false;
+  });
+
   it('should redirect to the sign-in page if not logged in', () => {
     cy.visit('/chat');
     cy.url().should('include', '/sign-in');

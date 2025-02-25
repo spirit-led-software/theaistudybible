@@ -64,6 +64,8 @@ ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
 
 ENV PUBLIC_DONATION_LINK ${donation_link}
 
+ENV NODE_ENV production
+
 WORKDIR /build
 
 RUN apt-get -qq update && \

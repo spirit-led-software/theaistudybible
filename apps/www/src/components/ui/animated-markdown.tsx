@@ -1,8 +1,8 @@
 import { cn } from '@/www/lib/utils';
-import { type Accessor, For, createEffect, createMemo } from 'solid-js';
+import { type Accessor, For, createEffect, createMemo, splitProps } from 'solid-js';
 import { createStore, reconcile } from 'solid-js/store';
 import type { SolidMarkdownOptions } from 'solid-markdown';
-import { Markdown } from './markdown';
+import { Markdown, type MarkdownProps } from './markdown';
 
 type Separator = 'word' | 'char';
 
@@ -14,15 +14,14 @@ const animationClasses = {
 
 type Animation = keyof typeof animationClasses;
 
-type AnimatedMarkdownProps = {
-  children: string;
-  components?: SolidMarkdownOptions['components'];
+type AnimatedMarkdownProps = Omit<MarkdownProps, 'renderingStrategy'> & {
   separator?: Separator;
   animation?: Animation;
   animationDurationMs?: number;
 };
 
 export const AnimatedMarkdown = (props: AnimatedMarkdownProps) => {
+  const [local, rest] = splitProps(props, ['class', 'components', 'children']);
   const components: Accessor<SolidMarkdownOptions['components']> = createMemo(() => ({
     text: (textProps) => {
       return (
@@ -35,12 +34,12 @@ export const AnimatedMarkdown = (props: AnimatedMarkdownProps) => {
         </TokenizedText>
       );
     },
-    ...props.components,
+    ...local.components,
   }));
 
   return (
-    <Markdown renderingStrategy='reconcile' components={components()}>
-      {props.children}
+    <Markdown renderingStrategy='reconcile' components={components()} {...rest}>
+      {local.children}
     </Markdown>
   );
 };

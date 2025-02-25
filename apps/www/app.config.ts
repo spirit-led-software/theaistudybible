@@ -32,7 +32,6 @@ export default defineConfig(
       server: {
         preset: 'bun',
         compatibilityDate: '2024-12-02',
-        plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/posthog.ts'],
         experimental: { wasm: true },
         routeRules: {
           '/_build/assets/**': { headers: staticCacheControlHeaders },
@@ -50,7 +49,6 @@ export default defineConfig(
           '/maskable-icon-512x512.png': { headers: defaultCacheControlHeaders },
           '/robots.txt': { headers: doNotCacheHeaders },
         },
-        esbuild: { options: { target: 'esnext' } },
         alias: {
           '@/www': path.resolve(__dirname, './src'),
           '@/schemas': path.resolve(__dirname, '../../packages/schemas/src'),
@@ -60,6 +58,9 @@ export default defineConfig(
           '@/functions': path.resolve(__dirname, '../functions/src'),
           '@/workers': path.resolve(__dirname, '../workers/src'),
           '@/scripts': path.resolve(__dirname, '../../tools/scripts/src'),
+        },
+        $production: {
+          plugins: ['./src/server/plugins/compression.ts', './src/server/plugins/posthog.ts'],
         },
       },
       vite: {

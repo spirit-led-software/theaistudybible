@@ -10,6 +10,7 @@ import { For, Match, Show, Switch } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { UserAvatar } from '../../auth/user-avatar';
 import { Icon } from '../../branding/icon';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../ui/accordion';
 import { AnimatedMarkdown } from '../../ui/animated-markdown';
 import { Button } from '../../ui/button';
 import { Markdown } from '../../ui/markdown';
@@ -41,7 +42,12 @@ export const Message = (props: MessageProps) => {
             </Match>
             <Match when={props.message.role === 'assistant'}>
               <div
-                class='flex size-10 shrink-0 place-items-center justify-center overflow-hidden rounded-full bg-primary p-2'
+                class={cn(
+                  'relative flex size-10 shrink-0 place-items-center justify-center rounded-full bg-primary p-2',
+                  props.isLoading &&
+                    !props.nextMessage &&
+                    'before:absolute before:inset-0 before:scale-110 before:animate-spin before:rounded-full before:border-3 before:border-accent-foreground before:border-t-transparent before:border-r-transparent before:border-l-transparent before:duration-500',
+                )}
                 aria-label='AI assistant avatar'
               >
                 <Icon width={300} height={300} class='shrink-0' aria-hidden='true' />
@@ -117,16 +123,29 @@ export const Message = (props: MessageProps) => {
                   </Match>
                   <Match when={part.type === 'reasoning' && part.reasoning}>
                     {(reasoning) => (
-                      <Show
-                        when={
-                          props.isLoading &&
-                          props.message.role === 'assistant' &&
-                          (!props.nextMessage || idx() === parts.length - 1)
-                        }
-                        fallback={<Markdown>{reasoning()}</Markdown>}
-                      >
-                        <AnimatedMarkdown>{reasoning()}</AnimatedMarkdown>
-                      </Show>
+                      <Accordion>
+                        <AccordionItem value='reasoning'>
+                          <AccordionTrigger class='text-muted-foreground text-sm'>
+                            View reasoning
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <Show
+                              when={
+                                props.isLoading &&
+                                props.message.role === 'assistant' &&
+                                (!props.nextMessage || idx() === parts.length - 1)
+                              }
+                              fallback={
+                                <Markdown class='text-muted-foreground'>{reasoning()}</Markdown>
+                              }
+                            >
+                              <AnimatedMarkdown class='text-muted-foreground'>
+                                {reasoning()}
+                              </AnimatedMarkdown>
+                            </Show>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
                     )}
                   </Match>
                 </Switch>
