@@ -196,8 +196,8 @@ if (!$dev) {
     const registryHost = $interpolate`${repository.location}-docker.pkg.dev`;
     return new dockerbuild.Image('WebAppImage', {
       tags: [
-        $interpolate`${registryHost}/${repository.project}/${repository.name}:${$app.stage}-${Date.now()}`,
-        $interpolate`${registryHost}/${repository.project}/${repository.name}:${$app.stage}-latest`,
+        $interpolate`${registryHost}/${repository.project}/${repository.name}:${Date.now()}`,
+        $interpolate`${registryHost}/${repository.project}/${repository.name}:latest`,
       ],
       registries: [
         {
