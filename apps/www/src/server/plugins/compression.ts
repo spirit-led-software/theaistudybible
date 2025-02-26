@@ -38,6 +38,7 @@ const supportedEncodings = ['gzip', 'br', 'deflate'];
 
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('beforeResponse', (event, response) => {
+    // @ts-ignore - nitro types are conflicting with the types from vinxi
     compressResponse(event, response);
   });
 });
