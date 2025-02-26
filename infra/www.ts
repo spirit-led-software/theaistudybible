@@ -132,13 +132,17 @@ if (!$dev) {
   });
   buildFlyAutoscaler();
 
-  new cloudflare.Record('WebAppDnsRecord', {
-    name: DOMAIN.value,
-    type: 'CNAME',
-    proxied: true,
-    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
-    content: `${flyApp.name}.fly.dev`,
-  });
+  new cloudflare.Record(
+    'WebAppDnsRecord',
+    {
+      name: DOMAIN.value,
+      type: 'CNAME',
+      proxied: true,
+      zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+      content: $interpolate`${flyApp.name}.fly.dev`,
+    },
+    { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
+  );
 
   function buildFlyIamUser() {
     const flyIamPolicy = new aws.iam.Policy('FlyIamPolicy', {
