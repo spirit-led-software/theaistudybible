@@ -20,7 +20,8 @@ if (isProd) {
     name: mailFrom.mailFromDomain,
     type: 'MX',
     ttl: 300,
-    content: '10 feedback-smtp.us-east-1.amazonses.com',
+    content: 'feedback-smtp.us-east-1.amazonses.com',
+    priority: 10,
     proxied: false,
     allowOverwrite: true,
   });
