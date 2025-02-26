@@ -99,7 +99,7 @@ export const cdn = new sst.aws.Router('Cdn', {
       },
     },
   },
-  domain: { name: $interpolate`cdn.${DOMAIN.value}`, dns: sst.aws.dns({ override: true }) },
+  domain: { name: $interpolate`cdn.${DOMAIN.value}`, dns: sst.cloudflare.dns({ override: true }) },
   transform: {
     cdn: (args) => {
       args.wait = !$dev;

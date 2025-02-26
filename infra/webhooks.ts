@@ -12,7 +12,7 @@ export const webhooksApi = new sst.aws.Router('WebhooksApi', {
   routes: { '/*': webhooksApiFn.url },
   domain: {
     name: WEBHOOKS_URL.value.apply((url) => new URL(url).hostname),
-    dns: sst.aws.dns({ override: true }),
+    dns: sst.cloudflare.dns({ override: true }),
   },
   transform: {
     cdn: (args) => {

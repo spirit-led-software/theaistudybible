@@ -38,6 +38,7 @@ const supportedEncodings = ['gzip', 'br', 'deflate'];
 
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('beforeResponse', (event, response) => {
+    // @ts-ignore
     compressResponse(event, response);
   });
 });

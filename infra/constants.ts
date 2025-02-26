@@ -17,7 +17,7 @@ export const WEBHOOKS_URL = new Constant(
   $interpolate`https://webhooks.${DOMAIN.value}`,
 );
 
-export const AWS_HOSTED_ZONE = aws.route53.getZoneOutput({ name: BASE_DOMAIN });
+export const CLOUDFLARE_ZONE_ID = cloudflare.getZoneOutput({ name: BASE_DOMAIN });
 
 export const STRIPE_PUBLISHABLE_KEY = new Constant(
   'StripePublishableKey',

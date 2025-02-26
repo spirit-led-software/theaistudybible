@@ -1,10 +1,10 @@
-import { AWS_HOSTED_ZONE, DOMAIN } from './constants';
+import { CLOUDFLARE_ZONE_ID, DOMAIN } from './constants';
 import { BASE_DOMAIN, isProd } from './utils/constants';
 
 export const email = isProd
   ? new sst.aws.Email(
       'Email',
-      { sender: DOMAIN.value, dns: sst.aws.dns({ override: true }) },
+      { sender: DOMAIN.value, dns: sst.cloudflare.dns({ override: true }) },
       { retainOnDelete: true },
     )
   : sst.aws.Email.get('Email', BASE_DOMAIN, { retainOnDelete: true });
@@ -15,38 +15,39 @@ if (isProd) {
     domain: DOMAIN.value,
     mailFromDomain: $interpolate`mail.${DOMAIN.value}`,
   });
-  new aws.route53.Record('MailFromMX', {
-    zoneId: AWS_HOSTED_ZONE.zoneId,
+  new cloudflare.Record('MailFromMX', {
+    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
     name: mailFrom.mailFromDomain,
     type: 'MX',
     ttl: 300,
-    records: ['10 feedback-smtp.us-east-1.amazonses.com'],
+    content: '10 feedback-smtp.us-east-1.amazonses.com',
+    proxied: false,
     allowOverwrite: true,
   });
-  new aws.route53.Record('MailFromTXT', {
-    zoneId: AWS_HOSTED_ZONE.zoneId,
+  new cloudflare.Record('MailFromTXT', {
+    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
     name: mailFrom.mailFromDomain,
     type: 'TXT',
     ttl: 300,
-    records: ['v=spf1 include:amazonses.com ~all'],
+    content: 'v=spf1 include:amazonses.com ~all',
     allowOverwrite: true,
   });
 
   // BIMI setup
-  new aws.route53.Record('DmarcRecord', {
-    zoneId: AWS_HOSTED_ZONE.zoneId,
+  new cloudflare.Record('DmarcRecord', {
+    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
     name: $interpolate`_dmarc.${DOMAIN.value}`,
     type: 'TXT',
     ttl: 300,
-    records: [$interpolate`v=DMARC1;p=reject;rua=mailto:dmarcreports@${DOMAIN.value}`],
+    content: $interpolate`v=DMARC1;p=reject;rua=mailto:dmarcreports@${DOMAIN.value}`,
     allowOverwrite: true,
   });
-  new aws.route53.Record('BimiRecord', {
-    zoneId: AWS_HOSTED_ZONE.zoneId,
+  new cloudflare.Record('BimiRecord', {
+    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
     name: $interpolate`default._bimi.${DOMAIN.value}`,
     type: 'TXT',
     ttl: 300,
-    records: [$interpolate`v=BIMI1;l=https://${DOMAIN.value}/icon.svg;a=self`],
+    content: $interpolate`v=BIMI1;l=https://${DOMAIN.value}/icon.svg;a=self`,
     allowOverwrite: true,
   });
 }

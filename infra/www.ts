@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { analyticsApi } from './analytics';
 import {
+  CLOUDFLARE_ZONE_ID,
   DOMAIN,
   POSTHOG_API_KEY,
   POSTHOG_UI_HOST,
@@ -129,9 +130,15 @@ if (!$dev) {
     }
     return { region, machines };
   });
-  const { machine: flyAutoscalerMachine } = buildFlyAutoscaler();
+  buildFlyAutoscaler();
 
-  buildCdn();
+  new cloudflare.Record('WebAppDnsRecord', {
+    name: DOMAIN.value,
+    type: 'CNAME',
+    proxied: true,
+    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+    content: `${flyApp.name}.fly.dev`,
+  });
 
   function buildFlyIamUser() {
     const flyIamPolicy = new aws.iam.Policy('FlyIamPolicy', {
@@ -280,87 +287,5 @@ if (!$dev) {
       { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
     );
     return { app, machine };
-  }
-
-  function buildCdn() {
-    const serverOrigin: aws.types.input.cloudfront.DistributionOrigin = {
-      originId: 'serverOrigin',
-      domainName: $interpolate`${flyApp.name}.fly.dev`,
-      customOriginConfig: {
-        httpPort: 80,
-        httpsPort: 443,
-        originProtocolPolicy: 'https-only',
-        originSslProtocols: ['TLSv1.2'],
-        originReadTimeout: 60,
-        originKeepaliveTimeout: 60,
-      },
-    };
-    const serverOriginBehavior: Omit<
-      aws.types.input.cloudfront.DistributionOrderedCacheBehavior,
-      'pathPattern'
-    > = {
-      targetOriginId: serverOrigin.originId,
-      viewerProtocolPolicy: 'redirect-to-https',
-      allowedMethods: ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
-      cachedMethods: ['GET', 'HEAD'],
-      compress: false, // compression is handled by the origin
-      // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
-      // CloudFront's managed AllViewerExceptHostHeader policy
-      originRequestPolicyId: 'b689b0a8-53d0-40ab-baf2-68738e2966ac',
-      cachePolicyId: new aws.cloudfront.CachePolicy('WebAppCdnServerCachePolicy', {
-        maxTtl: 60 * 60 * 24 * 365, // 1 year
-        minTtl: 0,
-        defaultTtl: 0,
-        parametersInCacheKeyAndForwardedToOrigin: {
-          cookiesConfig: { cookieBehavior: 'none' },
-          headersConfig: { headerBehavior: 'none' },
-          queryStringsConfig: { queryStringBehavior: 'all' },
-          enableAcceptEncodingBrotli: true,
-          enableAcceptEncodingGzip: true,
-        },
-      }).id,
-      functionAssociations: [
-        {
-          eventType: 'viewer-request',
-          functionArn: new aws.cloudfront.Function('WebAppServerOriginCdnFn', {
-            runtime: 'cloudfront-js-2.0',
-            code: 'async function handler(event) { event.request.headers["x-forwarded-host"] = event.request.headers.host; return event.request; }',
-          }).arn,
-        },
-      ],
-    };
-
-    const loggingBucket = new sst.aws.Bucket(
-      'WebAppCdnLoggingBucket',
-      {},
-      { retainOnDelete: isProd },
-    );
-    new aws.s3.BucketOwnershipControls('WebAppCdnLoggingBucketOwnershipControls', {
-      bucket: loggingBucket.name,
-      rule: { objectOwnership: 'BucketOwnerPreferred' },
-    });
-
-    return new sst.aws.Cdn(
-      'WebAppCdn',
-      {
-        origins: [serverOrigin],
-        defaultCacheBehavior: serverOriginBehavior,
-        wait: !$dev,
-        invalidation: { paths: ['/*'], wait: !$dev },
-        domain: {
-          name: DOMAIN.value,
-          redirects: DOMAIN.value.apply((domain) => [`www.${domain}`]),
-          dns: sst.aws.dns({ override: true }),
-        },
-        transform: {
-          distribution: (args) => {
-            args.loggingConfig = { bucket: loggingBucket.domain };
-          },
-        },
-      },
-      {
-        dependsOn: [...regionalResources.flatMap(({ machines }) => machines), flyAutoscalerMachine],
-      },
-    );
   }
 }
