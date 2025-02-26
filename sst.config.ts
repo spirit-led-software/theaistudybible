@@ -13,6 +13,7 @@ export default $config({
       'docker-build': '0.0.10',
       'pulumi-stripe': '0.0.24',
       aws: { version: '6.68.0', region: 'us-east-1' },
+      cloudflare: { version: '5.49.1' },
       turso: { version: '0.2.3', organization: process.env.TURSO_ORG! },
     },
   }),
