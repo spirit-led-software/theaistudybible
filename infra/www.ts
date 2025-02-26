@@ -97,7 +97,7 @@ if (!$dev) {
   });
   const webAppImage = buildWebAppImage();
 
-  new fly.Ip('WebAppIpv6', {
+  const ipv6 = new fly.Ip('WebAppIpv6', {
     app: flyApp.name,
     type: 'v6',
   });
@@ -136,10 +136,21 @@ if (!$dev) {
     'WebAppDnsRecord',
     {
       name: DOMAIN.value,
-      type: 'CNAME',
+      type: 'A',
       proxied: true,
       zoneId: CLOUDFLARE_ZONE_ID.zoneId,
-      content: $interpolate`${flyApp.name}.fly.dev`,
+      content: flyApp.sharedIpAddress,
+    },
+    { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
+  );
+  new cloudflare.Record(
+    'WebAppDnsRecordIpv6',
+    {
+      name: DOMAIN.value,
+      type: 'AAAA',
+      proxied: true,
+      zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+      content: ipv6.address,
     },
     { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
   );
