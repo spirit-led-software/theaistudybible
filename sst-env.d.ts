@@ -17,6 +17,10 @@ declare module "sst" {
       "type": "sst.sst.Linkable"
       "url": string
     }
+    "AnalyticsApiRouter": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
     "AnthropicApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -252,6 +256,18 @@ declare module "sst" {
     "VoyageAiApiKey": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "WebAppCdnLoggingBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
+    "WebAppServerServiceRouter-eu-west-1": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
+    "WebAppServerServiceRouter-us-east-1": {
+      "type": "sst.aws.Router"
+      "url": string
     }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
