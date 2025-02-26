@@ -13,7 +13,7 @@
     "db:migrate:prod": "sst shell --stage production -- drizzle-kit migrate",
     "db:migrate": "sst shell -- drizzle-kit migrate",
     "db:seed:prod": "sst shell --stage production -- bun run ./tools/scripts/src/index.ts db seed",
-    "db:seed": "sst shell --stage production -- bun run ./tools/scripts/src/index.ts db seed",
+    "db:seed": "sst shell -- bun run ./tools/scripts/src/index.ts db seed",
     "db:studio:prod": "sst shell --stage production -- drizzle-kit studio",
     "db:studio": "sst shell -- drizzle-kit studio",
     "deploy": "sst deploy",
@@ -69,7 +69,7 @@
     "drizzle-orm": "^0.40.0",
     "drizzle-zod": "0.7.0",
     "langchain": "^0.3.19",
-    "sst": "3.9.10",
+    "sst": "3.9.14",
     "stripe": "^17.7.0",
     "web-push": "^3.6.7",
     "zod": "^3.24.2"

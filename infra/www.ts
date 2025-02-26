@@ -108,7 +108,7 @@ if (!$dev) {
             },
           },
         ],
-        scaling: { minInstanceCount: 0, maxInstanceCount: 100 },
+        scaling: { minInstanceCount: 0, maxInstanceCount: 50 },
         maxInstanceRequestConcurrency: 200,
       },
       deletionProtection: isProd,
