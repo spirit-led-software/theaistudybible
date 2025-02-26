@@ -1,0 +1,22 @@
+{
+  "name": "@theaistudybible/www-new",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "clean": "rimraf .output .vinxi",
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "generate-pwa-assets": "pwa-assets-generator"
+  },
+  "devDependencies": {
+    "@theaistudybible/tsconfig": "workspace:*",
+    "@tanstack/router-plugin": "^1.111.12",
+    "vite-plugin-solid": "^2.11.4"
+  },
+  "dependencies": {
+    "@tanstack/solid-router": "^1.111.11",
+    "@tanstack/start": "^1.111.12",
+    "solid-js": "^1.9.5",
+    "vinxi": "^0.5.3"
+  }
+}

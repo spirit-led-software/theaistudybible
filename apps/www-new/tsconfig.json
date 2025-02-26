@@ -1,0 +1,46 @@
+{
+  "extends": "@theaistudybible/tsconfig",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "allowJs": true,
+    "strict": true,
+    "noEmit": true,
+    "verbatimModuleSyntax": false,
+    "isolatedModules": true,
+    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable", "WebWorker"],
+    "types": [
+      "@types/bun",
+      "vinxi/types/client",
+      "@solidjs/start/env",
+      "vite-plugin-pwa/info",
+      "vite-plugin-pwa/solid"
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "@/www": ["./src"],
+      "@/www/*": ["./src/*"],
+      "@/schemas": ["../../packages/schemas/src"],
+      "@/schemas/*": ["../../packages/schemas/src/*"],
+      "@/core": ["../../packages/core/src"],
+      "@/core/*": ["../../packages/core/src/*"],
+      "@/ai": ["../../packages/ai/src"],
+      "@/ai/*": ["../../packages/ai/src/*"],
+      "@/email": ["../../packages/email/src"],
+      "@/email/*": ["../../packages/email/src/*"],
+      "@/functions": ["../functions/src"],
+      "@/functions/*": ["../functions/src/*"],
+      "@/workers": ["../workers/src"],
+      "@/workers/*": ["../workers/src/*"],
+      "@/scripts": ["../../tools/scripts/src"],
+      "@/scripts/*": ["../../tools/scripts/src/*"]
+    }
+  },
+  "include": ["../../packages/core/globals.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", ".output", ".vinxi"]
+}
