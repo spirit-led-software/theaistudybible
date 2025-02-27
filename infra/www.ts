@@ -95,13 +95,25 @@ if (!$dev) {
     org: process.env.FLY_ORG,
     assignSharedIpAddress: true,
   });
-  const webAppImage = buildWebAppImage();
-
   const ipv6 = new fly.Ip('WebAppIpv6', {
     app: flyApp.name,
     type: 'v6',
   });
+  const cert = new fly.Cert('WebAppCert', {
+    app: flyApp.name,
+    hostname: DOMAIN.value,
+  });
+  new cloudflare.Record('WebAppCertValidationRecord', {
+    name: cert.dnsValidationHostname,
+    type: 'CNAME',
+    proxied: false,
+    ttl: 60,
+    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+    content: cert.dnsValidationTarget,
+    allowOverwrite: true,
+  });
 
+  const webAppImage = buildWebAppImage();
   const env = buildEnv();
   const regionalResources = regions.map(({ region, replicas }) => {
     const machines: fly.Machine[] = [];
@@ -156,14 +168,6 @@ if (!$dev) {
     },
     { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
   );
-  new cloudflare.Record('WebAppDnsRecordCname', {
-    name: DOMAIN.value,
-    type: 'CNAME',
-    proxied: true,
-    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
-    content: $interpolate`${flyApp.name}.fly.dev`,
-    allowOverwrite: true,
-  });
 
   function buildFlyIamUser() {
     const flyIamPolicy = new aws.iam.Policy('FlyIamPolicy', {
