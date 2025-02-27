@@ -45,12 +45,12 @@ export default function App() {
         url={isServer ? getRequestEvent()!.request.url : ''}
         explicitLinks
         root={(props) => (
-          <PosthogProvider>
-            <MetaProvider>
-              <DefaultMetaTags />
-              <ColorModeScript storageType={storageManager.type} />
-              <ColorModeProvider storageManager={storageManager}>
-                <ServiceWorkerProvider>
+          <MetaProvider>
+            <DefaultMetaTags />
+            <ColorModeScript storageType={storageManager.type} />
+            <ColorModeProvider storageManager={storageManager}>
+              <ServiceWorkerProvider>
+                <PosthogProvider>
                   <AuthProvider>
                     <BibleProvider>
                       <ChatProvider>
@@ -72,10 +72,10 @@ export default function App() {
                       </ChatProvider>
                     </BibleProvider>
                   </AuthProvider>
-                </ServiceWorkerProvider>
-              </ColorModeProvider>
-            </MetaProvider>
-          </PosthogProvider>
+                </PosthogProvider>
+              </ServiceWorkerProvider>
+            </ColorModeProvider>
+          </MetaProvider>
         )}
       >
         <FileRoutes />
