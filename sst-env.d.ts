@@ -257,18 +257,6 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "WebAppCdnLoggingBucket": {
-      "name": string
-      "type": "sst.aws.Bucket"
-    }
-    "WebAppServerServiceRouter-eu-west-1": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
-    "WebAppServerServiceRouter-us-east-1": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
     "WebAppUrl": {
       "type": "asb.asb.Constant"
       "value": string
