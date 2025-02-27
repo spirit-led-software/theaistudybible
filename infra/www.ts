@@ -133,13 +133,14 @@ if (!$dev) {
   buildFlyAutoscaler();
 
   new cloudflare.Record(
-    'WebAppDnsRecord',
+    'WebAppDnsRecordIpv4',
     {
       name: DOMAIN.value,
       type: 'A',
       proxied: true,
       zoneId: CLOUDFLARE_ZONE_ID.zoneId,
       content: flyApp.sharedIpAddress,
+      allowOverwrite: true,
     },
     { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
   );
@@ -151,9 +152,18 @@ if (!$dev) {
       proxied: true,
       zoneId: CLOUDFLARE_ZONE_ID.zoneId,
       content: ipv6.address,
+      allowOverwrite: true,
     },
     { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
   );
+  new cloudflare.Record('WebAppDnsRecordCname', {
+    name: DOMAIN.value,
+    type: 'CNAME',
+    proxied: true,
+    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+    content: $interpolate`${flyApp.name}.fly.dev`,
+    allowOverwrite: true,
+  });
 
   function buildFlyIamUser() {
     const flyIamPolicy = new aws.iam.Policy('FlyIamPolicy', {
