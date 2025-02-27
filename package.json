@@ -80,12 +80,9 @@
     "@biomejs/biome",
     "@parcel/watcher",
     "@sentry/cli",
-    "@sentry/profiling-node",
-    "@swc/core",
     "core-js",
     "cypress",
     "esbuild",
-    "protobufjs",
     "sharp"
   ]
 }
