@@ -1,0 +1,15 @@
+---
+description: Typescript
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+# TypeScript Best Practices
+- Use strict TypeScript for all code
+- Prefer type aliases over interfaces
+- Avoid 'any'; use specific types or unknown
+- Replace enums with const maps/objects
+- Leverage discriminated unions where appropriate
+- Use type inference when obvious
+- Implement branded types for type-safe IDs
+- Use const assertions for literal types
+- Leverage utility types for DRY type definitions

@@ -1,0 +1,48 @@
+---
+description: General Rules to Follow
+globs: 
+alwaysApply: true
+---
+# Naming Conventions
+- Components: PascalCase
+- Functions: camelCase with auxiliary verbs (isLoading, hasError)
+- Directories: kebab-case (auth-wizard, user-settings)
+- Types: PascalCase with descriptive names
+- Constants: SCREAMING_SNAKE_CASE
+- Favor named exports over default exports
+
+# Security Best Practices
+- Implement proper input sanitization
+- Use environment variables for sensitive data
+- Implement rate limiting for API endpoints
+- Validate user permissions at every level
+- Sanitize AI outputs before rendering
+- Implement proper CORS policies
+- Use Content Security Policy headers
+
+# AI Integration Patterns
+- Implement proper token counting and management
+- Structure system prompts for consistent outputs
+- Handle streaming responses efficiently
+- Implement proper error handling for AI calls
+- Cache AI responses when appropriate
+- Use vector embeddings for semantic search
+- Implement retry logic for API failures
+
+# Testing Strategy
+- Write unit tests for utility functions
+- Implement integration tests for API endpoints
+- Use component testing for UI elements
+- Implement E2E tests for critical paths
+- Mock external services in tests
+- Use proper test isolation
+- Implement proper error boundary testing
+
+# Documentation
+- Document complex business logic
+- Add JSDoc comments for public APIs
+- Document environment setup requirements
+- Keep README files up to date
+- Document deployment procedures
+- Add inline comments for complex algorithms
+- Document AI prompt templates

@@ -5,9 +5,10 @@ on:
     branches: [main]
     paths-ignore:
       - 'README.md'
-      - '.vscode'
-      - '.cursorrules'
-      - '.github'
+      - '.vscode/**'
+      - '.github/**'
+      - '.cursor/**'
+      - '.husky/**'
   workflow_dispatch:
 
 concurrency: production

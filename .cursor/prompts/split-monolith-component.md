@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
 Please split the following component into smaller, more manageable components
 
 Here are some rules to follow:
