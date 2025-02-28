@@ -1,11 +1,7 @@
 // TODO: Use this once bun fixes this issue: https://github.com/oven-sh/bun/issues/13072
 import { cache } from '@/core/cache';
-import type {
-  LanguageModelV1,
-  Experimental_LanguageModelV1Middleware as LanguageModelV1Middleware,
-  LanguageModelV1StreamPart,
-} from 'ai';
-import { simulateReadableStream } from 'ai/test';
+import type { LanguageModelV1, LanguageModelV1Middleware, LanguageModelV1StreamPart } from 'ai';
+import { simulateReadableStream } from 'ai';
 
 export const cacheMiddleware: LanguageModelV1Middleware = {
   wrapGenerate: async ({ doGenerate, params }) => {
