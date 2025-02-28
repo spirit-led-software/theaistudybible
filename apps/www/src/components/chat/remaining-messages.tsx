@@ -11,7 +11,7 @@ export const RemainingMessages = (props: RemainingMessagesProps) => {
     <div class='mx-auto h-3 w-fit'>
       <QueryBoundary query={props.remainingMessagesQuery}>
         {({ remaining }) => (
-          <span class='fade-in animate-in text-muted-foreground text-xs'>
+          <span class='text-muted-foreground text-xs'>
             You have {remaining.remaining} messages remaining until{' '}
             {formatDate(remaining.reset, 'M/d/yy h:mm a')}
           </span>
