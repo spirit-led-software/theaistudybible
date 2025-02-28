@@ -133,6 +133,23 @@ export default {
             'word-break': 'keep-all',
           },
         },
+        'spin-slow': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'bounce-slow': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-15px)' },
+        },
+        gradient: {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
+        'float-up-down': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -144,6 +161,10 @@ export default {
         'blur-in': 'blur-in 0.2s ease-in-out',
         typewriter: 'typewriter 0.2s ease-in-out',
         'nowrap-to-wrap': 'nowrap-to-wrap 0.3s ease-in-out',
+        'spin-slow': 'spin-slow 8s linear infinite',
+        'bounce-slow': 'bounce-slow 3s ease-in-out infinite',
+        gradient: 'gradient 15s ease infinite',
+        'float-up-down': 'float-up-down 3s ease-in-out infinite',
       },
     },
   },

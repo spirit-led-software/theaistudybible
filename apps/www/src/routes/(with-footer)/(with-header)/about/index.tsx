@@ -1,9 +1,19 @@
 import { Button } from '@/www/components/ui/button';
+import { Callout, CalloutContent, CalloutTitle } from '@/www/components/ui/callout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/www/components/ui/card';
-import { GradientH1, H2, P } from '@/www/components/ui/typography';
+import {
+  GradientH1,
+  H2,
+  Lead,
+  List,
+  ListItem,
+  Muted,
+  P,
+  Strong,
+} from '@/www/components/ui/typography';
 import { Meta, Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
-import { BookOpenText, MessageSquare, Search, ShieldCheck, Sparkles, Star } from 'lucide-solid';
+import { BookOpenText, Check, MessageSquare, Search, ShieldCheck, Sparkles } from 'lucide-solid';
 import { Heart } from 'lucide-solid';
 import { For } from 'solid-js';
 
@@ -28,7 +38,7 @@ export default function AboutPage() {
         'Discover interconnected verses with our powerful vector search, uncovering deep semantic relationships.',
     },
     {
-      icon: Star,
+      icon: ShieldCheck,
       title: 'Personalized Insights',
       description:
         'Receive tailored study suggestions and devotionals based on your reading history and interests.',
@@ -41,15 +51,44 @@ export default function AboutPage() {
     },
   ];
 
+  const pricingPlans = [
+    {
+      name: 'Free',
+      price: '$0',
+      period: 'forever',
+      description: 'Basic access to Bible study tools',
+      features: [
+        'Access to all Bible translations',
+        'Basic AI assistance',
+        'AI-generated devotionals',
+        'Personal annotations',
+        'Limited searches per day',
+      ],
+    },
+    {
+      name: 'Pro',
+      price: '$9.99',
+      period: 'per month',
+      description: 'Enhanced study experience with premium features',
+      features: [
+        'Everything in Free',
+        'Advanced AI models',
+        'Unlimited searches',
+        'Priority support',
+      ],
+    },
+  ];
+
   return (
     <>
       <MetaTags />
       <div class='mx-auto max-w-4xl space-y-12 px-4 py-12'>
         <header class='space-y-4 text-center'>
           <GradientH1>Here's What We Do</GradientH1>
-          <P class='text-muted-foreground text-xl'>
-            Empowering your spiritual journey with cutting-edge AI technology
-          </P>
+          <Lead class='mx-auto max-w-2xl text-muted-foreground text-xl'>
+            Empowering your spiritual journey with cutting-edge AI technology that makes Bible study
+            more accessible, engaging, and insightful
+          </Lead>
         </header>
 
         <section>
@@ -60,10 +99,10 @@ export default function AboutPage() {
           <div class='grid gap-8 md:grid-cols-2'>
             <For each={features}>
               {(feature) => (
-                <Card>
+                <Card class='border transition-all hover:border-primary/70 hover:shadow-sm'>
                   <CardHeader>
                     <CardTitle>
-                      <feature.icon class='mr-2 inline-block' />
+                      <feature.icon class='mr-2 inline-block text-primary dark:text-primary-foreground' />
                       {feature.title}
                     </CardTitle>
                   </CardHeader>
@@ -96,11 +135,107 @@ export default function AboutPage() {
           </CardContent>
         </Card>
 
-        <div class='flex justify-center'>
-          <Button as={A} href='/bible' class='px-6 py-3 text-lg'>
-            Start Your Journey
-          </Button>
-        </div>
+        {/* Pricing Section */}
+        <section>
+          <H2 class='mb-6 text-center font-semibold text-2xl'>Simple, Transparent Pricing</H2>
+          <div class='grid gap-8 md:grid-cols-2'>
+            <For each={pricingPlans}>
+              {(plan) => (
+                <Card
+                  class={
+                    plan.name === 'Pro'
+                      ? 'relative overflow-hidden border-2 border-primary shadow-sm'
+                      : 'hover:border-primary/30 hover:shadow-sm'
+                  }
+                >
+                  {plan.name === 'Pro' && (
+                    <div class='-right-12 absolute top-6 rotate-45 bg-primary px-12 py-1 text-primary-foreground text-sm'>
+                      Popular
+                    </div>
+                  )}
+                  <CardHeader>
+                    <CardTitle class='text-center'>{plan.name}</CardTitle>
+                    <div class='text-center'>
+                      <Strong class='text-3xl'>{plan.price}</Strong>
+                      <Muted class='inline'> {plan.period}</Muted>
+                    </div>
+                    <P class='text-center text-muted-foreground'>{plan.description}</P>
+                  </CardHeader>
+                  <CardContent>
+                    <List class='space-y-2'>
+                      <For each={plan.features}>
+                        {(feature) => (
+                          <ListItem class='flex items-center'>
+                            <Check class='mr-2 h-4 w-4 text-primary dark:text-primary-foreground' />
+                            <p class='m-0'>{feature}</p>
+                          </ListItem>
+                        )}
+                      </For>
+                    </List>
+                    <div class='mt-6'>
+                      <Button
+                        as={A}
+                        href={plan.name === 'Pro' ? '/pro' : '/bible'}
+                        class={`w-full ${plan.name === 'Pro' ? 'bg-linear-to-r from-primary to-accent hover:opacity-90' : ''}`}
+                      >
+                        {plan.name === 'Pro' ? 'Start 7-Day Free Trial' : 'Get Started Free'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </For>
+          </div>
+        </section>
+
+        {/* FAQ Section - Simplified with link */}
+        <section>
+          <H2 class='mb-6 text-center font-semibold text-2xl'>Have Questions?</H2>
+          <Card>
+            <CardContent class='p-6 text-center'>
+              <P class='mb-4 text-muted-foreground'>
+                Find answers to common questions about our platform, features, pricing, and more on
+                our dedicated FAQ page.
+              </P>
+              <Button as={A} href='/about/faq' variant='outline' class='mx-auto'>
+                View Full FAQ
+              </Button>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* CTA Section */}
+        <Callout
+          variant='default'
+          class='border-l-primary bg-linear-to-r from-primary/5 to-accent/5 shadow-sm'
+        >
+          <CalloutTitle class='text-xl'>
+            Ready to transform your Bible study experience?
+          </CalloutTitle>
+          <CalloutContent>
+            <P class='mb-4'>
+              Join thousands of users who are discovering new insights in Scripture with our
+              AI-powered tools.
+            </P>
+            <div class='flex flex-col justify-center gap-4 sm:flex-row'>
+              <Button
+                as={A}
+                href='/pro'
+                class='animate-fade-in bg-gradient-to-r from-primary to-accent shadow-md transition-transform hover:scale-105 hover:opacity-90 hover:shadow-lg hover:shadow-primary/20 dark:hover:shadow-primary/40'
+              >
+                Start Free Trial
+              </Button>
+              <Button
+                as={A}
+                href='/bible'
+                variant='outline'
+                class='animate-fade-in border-primary/20 shadow transition-transform [animation-delay:100ms] hover:scale-105 hover:border-primary/50 hover:bg-primary/5 hover:shadow-lg dark:border-primary-foreground/50 dark:bg-background/80 dark:text-primary-foreground dark:shadow-primary-foreground/20 dark:hover:border-primary-foreground/70 dark:hover:bg-primary-foreground/10'
+              >
+                Start Reading
+              </Button>
+            </div>
+          </CalloutContent>
+        </Callout>
       </div>
     </>
   );

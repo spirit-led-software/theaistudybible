@@ -44,7 +44,7 @@ export const protectAdmin = query((redirectUrl?: string) => {
 export const protectPro = query(async (redirectUrl?: string) => {
   'use server';
   const { subscription } = await getProSubscription();
-  if (!subscription) {
+  if (!subscription || subscription.status !== 'active') {
     return redirect(redirectUrl ?? '/pro');
   }
   return { success: true };
@@ -53,7 +53,7 @@ export const protectPro = query(async (redirectUrl?: string) => {
 export const protectNotPro = query(async (redirectUrl?: string) => {
   'use server';
   const { subscription } = await getProSubscription();
-  if (subscription) {
+  if (subscription?.status === 'active') {
     return redirect(redirectUrl ?? '/');
   }
   return { success: true };

@@ -46,3 +46,49 @@ alwaysApply: true
 - Document deployment procedures
 - Add inline comments for complex algorithms
 - Document AI prompt templates
+
+# Current Feature Set
+## Core AI Features
+1. **AI Scripture Assistant**
+   - Interactive AI-powered chat assistant for biblical exploration
+   - Contextual awareness of the current passage being read
+   - Uses vector search to provide scripture-grounded responses
+   - Available in both standalone mode and while reading scripture
+   - Designed to maintain theological accuracy with pastoral care
+   - Cites sources and provides proper scripture references
+
+2. **Bible Vector Similarity Search**
+   - Advanced semantic search using vector embeddings
+   - Identifies conceptually related passages beyond keyword matching
+   - Discovers theological connections across different books and chapters
+   - Supports cross-translation semantic search
+   - Provides relevance scoring for search results
+   - Enables exploration of biblical themes and concepts
+
+3. **AI-Generated Devotionals**
+   - Daily devotional content created through AI
+   - Scripture-focused reflections with practical applications
+   - Personalized to user preferences where appropriate
+   - Publicly available to all users
+   - Includes prayer suggestions and reflection questions
+   - Updates regularly with fresh content
+
+## User Study Features
+4. **Personal Scripture Annotations**
+   - Highlighting system for marking important verses
+   - Color-coded highlighting options for different themes or topics
+   - Bookmarking system for saving entire chapters
+   - Personal notes on individual verses or whole chapters
+   - Persistent storage of user annotations across devices
+   - Easy retrieval of previously annotated content
+
+5. **Bible Reading Experience**
+   - Multiple translation support with easy switching
+   - Clean, distraction-free reading interface
+   - Chapter and verse navigation
+   - Cross-reference support
+   - Mobile-optimized responsive design
+   - Progressive Web App for offline capability
+
+DO NOT MAKE UP ANY FAKE TESTIMONIALS OR DATA EVER!
+

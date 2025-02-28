@@ -3,13 +3,16 @@ import { users } from '@/core/database/schema';
 import { stripe } from '@/core/stripe';
 import { syncStripeData } from '@/core/stripe/utils';
 import { QueryBoundary } from '@/www/components/query-boundary';
+import { Badge } from '@/www/components/ui/badge';
 import { Button } from '@/www/components/ui/button';
+import { Callout, CalloutContent, CalloutTitle } from '@/www/components/ui/callout';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from '@/www/components/ui/switch';
-import { H1, List, ListItem } from '@/www/components/ui/typography';
+import { GradientH1, Lead, List, ListItem, Muted, P } from '@/www/components/ui/typography';
 import { useProSubscription } from '@/www/hooks/use-pro-subscription';
-import { useProtectNotPro } from '@/www/hooks/use-protect';
+import { useProtect, useProtectNotPro } from '@/www/hooks/use-protect';
+import { cn } from '@/www/lib/utils';
 import { requireAuth } from '@/www/server/utils/auth';
 import { Meta, Title } from '@solidjs/meta';
 import {
@@ -23,6 +26,7 @@ import { GET } from '@solidjs/start';
 import { loadStripe } from '@stripe/stripe-js';
 import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-query';
 import { eq } from 'drizzle-orm';
+import { Check } from 'lucide-solid';
 import { For, Show, createEffect, createSignal } from 'solid-js';
 import { toast } from 'solid-sonner';
 import { Resource } from 'sst';
@@ -53,6 +57,11 @@ const createCheckoutSessionAction = action(async (priceId: string) => {
     customer: user.stripeCustomerId!,
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
+    payment_method_collection: 'if_required',
+    subscription_data: {
+      trial_period_days: 7,
+      trial_settings: { end_behavior: { missing_payment_method: 'cancel' } },
+    },
     success_url: `${import.meta.env.PUBLIC_WEBAPP_URL}/pro?success=true`,
     cancel_url: `${import.meta.env.PUBLIC_WEBAPP_URL}/pro?canceled=true`,
     metadata: { userId: user.id },
@@ -81,8 +90,9 @@ export const route = {
   },
 } satisfies RouteDefinition;
 
-export default function CreditPurchasePage() {
+export default function ProPage() {
   useProtectNotPro('/profile');
+  useProtect(`/sign-in?redirectUrl=${encodeURIComponent('/pro')}`);
 
   const createCheckoutSession = useAction(createCheckoutSessionAction);
   const syncSubscription = useAction(syncSubscriptionAction);
@@ -128,68 +138,76 @@ export default function CreditPurchasePage() {
     <Show when={!hasPro()} fallback={<Navigate href='/profile' />}>
       <MetaTags />
       <div class='container flex h-full w-full overflow-y-auto'>
-        <div class='container flex max-w-2xl flex-1 flex-col px-4 py-8'>
-          <div class='flex flex-col items-center gap-2 pb-8'>
-            <H1 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
+        <div class='container flex max-w-5xl flex-1 flex-col items-center px-4 py-8'>
+          <div class='flex flex-col items-center gap-2 pb-6'>
+            <GradientH1 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
               Upgrade to Pro
-            </H1>
+            </GradientH1>
+            <Lead class='max-w-2xl text-center text-muted-foreground'>
+              Unlock the full potential of AI-powered Bible study with advanced features, higher
+              usage limits, and priority support
+            </Lead>
           </div>
 
-          <div class='mx-auto w-full max-w-md'>
+          {/* Main Card Section - Enhanced to be center of attention */}
+          <div class='relative z-10 mx-auto mt-4 mb-16 w-full max-w-xl'>
+            <div class='-inset-1 absolute animate-pulse rounded-xl bg-gradient-to-r from-primary/40 via-primary to-accent-foreground/90 opacity-75 blur-lg filter group-hover:opacity-100' />
             <QueryBoundary
               query={query}
               loadingFallback={
                 <div class='flex h-full w-full items-center justify-center'>
-                  <Skeleton width={200} height={200} class='rounded-lg' />
+                  <Skeleton width={400} height={400} class='rounded-xl' />
                 </div>
               }
             >
               {({ product, prices }) => (
-                <Card class='relative flex flex-col overflow-hidden border-2 transition-all hover:border-primary'>
+                <Card class='relative flex flex-col overflow-hidden rounded-xl border-2 border-primary shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl'>
                   {!isYearly() && (
-                    <div class='-right-12 absolute top-6 rotate-45 bg-primary px-12 py-1 text-primary-foreground text-sm'>
+                    <div class='-right-12 absolute top-6 rotate-45 bg-primary px-12 py-1 font-bold text-primary-foreground text-sm'>
                       Popular
                     </div>
                   )}
-                  <CardHeader class='space-y-4'>
+                  <CardHeader class='space-y-6 pt-6 pb-2'>
                     <Switch
                       checked={isYearly()}
                       onChange={setIsYearly}
                       class='flex items-center justify-center gap-4'
                     >
-                      <SwitchLabel>Monthly</SwitchLabel>
+                      <SwitchLabel class={cn(!isYearly() && 'font-semibold')}>Monthly</SwitchLabel>
                       <SwitchControl>
                         <SwitchThumb />
                       </SwitchControl>
-                      <SwitchLabel>Yearly</SwitchLabel>
+                      <SwitchLabel class={cn(isYearly() && 'font-semibold')}>Yearly</SwitchLabel>
                     </Switch>
 
-                    <CardTitle class='text-center font-bold text-2xl'>
+                    <CardTitle class='text-center font-extrabold text-3xl'>
                       {isYearly() ? 'Yearly' : 'Monthly'} Plan
                     </CardTitle>
 
-                    <div class='flex flex-col items-center gap-2'>
-                      <div class='flex items-baseline font-semibold text-2xl'>
+                    <div class='flex flex-col items-center gap-3'>
+                      <div class='flex items-baseline font-bold text-3xl'>
                         ${isYearly() ? prices[1].unitAmount / 100 : prices[0].unitAmount / 100}
-                        <span class='font-normal text-base text-muted-foreground'>
-                          /{isYearly() ? 'year' : 'month'}
-                        </span>
+                        <Muted class='ml-1 inline text-lg'>/{isYearly() ? 'year' : 'month'}</Muted>
                       </div>
 
                       {isYearly() && (
-                        <div class='w-fit rounded-full bg-primary/10 px-3 py-1 text-primary text-sm'>
+                        <div class='w-fit rounded-full bg-primary/20 px-4 py-1 font-medium text-primary text-sm'>
                           Save 17%
                         </div>
                       )}
+
+                      <Badge variant='secondary' class='mt-1 px-4 py-1 text-base'>
+                        Includes 7-day free trial
+                      </Badge>
                     </div>
                   </CardHeader>
 
-                  <CardContent>
-                    <List>
+                  <CardContent class='px-8 py-4'>
+                    <List class='space-y-3'>
                       <For each={product.features}>
                         {(feature) => (
-                          <ListItem class='flex items-center'>
-                            <span class='mr-2'>✓</span>
+                          <ListItem class='flex items-center text-base'>
+                            <Check class='mr-3 h-5 w-5 text-primary dark:text-primary-foreground' />
                             {feature}
                           </ListItem>
                         )}
@@ -197,21 +215,75 @@ export default function CreditPurchasePage() {
                     </List>
                   </CardContent>
 
-                  <CardFooter>
+                  <CardFooter class='flex flex-col gap-4 p-8'>
                     <Button
-                      class='w-full'
+                      class='w-full bg-linear-to-r from-primary to-primary-foreground/90 py-6 font-semibold text-lg text-primary-foreground shadow-md transition-all hover:opacity-90 hover:shadow-lg'
                       onClick={() =>
                         handlePurchase.mutate(isYearly() ? prices[1].id : prices[0].id)
                       }
                       disabled={handlePurchase.isPending}
                     >
-                      Get Started
+                      Start Your Free Trial
                     </Button>
+                    <Muted class='text-center'>
+                      No charge for 7 days. Cancel anytime. Subscription will auto-renew after
+                      trial.
+                    </Muted>
                   </CardFooter>
                 </Card>
               )}
             </QueryBoundary>
           </div>
+
+          {/* Value Proposition - Less prominent */}
+          <div class='mb-8 grid max-w-4xl grid-cols-1 gap-4 opacity-90 md:grid-cols-3'>
+            <Card class='border bg-background/80 transition-all hover:border-primary/40 hover:shadow-sm'>
+              <CardHeader>
+                <CardTitle class='text-center'>Deeper Insights</CardTitle>
+              </CardHeader>
+              <CardContent class='text-center'>
+                <P class='text-muted-foreground text-sm'>
+                  Access advanced AI models that provide more nuanced theological understanding and
+                  contextual awareness
+                </P>
+              </CardContent>
+            </Card>
+            <Card class='border bg-background/80 transition-all hover:border-primary/40 hover:shadow-sm'>
+              <CardHeader>
+                <CardTitle class='text-center'>Higher Usage Limits</CardTitle>
+              </CardHeader>
+              <CardContent class='text-center'>
+                <P class='text-muted-foreground text-sm'>
+                  Higher daily limits on AI interactions, searches, or study sessions - study as
+                  much as you want
+                </P>
+              </CardContent>
+            </Card>
+            <Card class='border bg-background/80 transition-all hover:border-primary/40 hover:shadow-sm'>
+              <CardHeader>
+                <CardTitle class='text-center'>Priority Support</CardTitle>
+              </CardHeader>
+              <CardContent class='text-center'>
+                <P class='text-muted-foreground text-sm'>
+                  Get faster responses and dedicated assistance from our team whenever you need help
+                </P>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Free Trial Callout - Less prominent */}
+          <Callout
+            variant='default'
+            class='mb-8 max-w-4xl border border-primary/20 bg-muted/30 shadow-sm'
+          >
+            <CalloutTitle>Free Trial Available</CalloutTitle>
+            <CalloutContent>
+              <P>
+                Try Pro with a <strong>7-day free trial</strong>. Cancel anytime during your trial
+                at no cost.
+              </P>
+            </CalloutContent>
+          </Callout>
         </div>
       </div>
     </Show>
