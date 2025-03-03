@@ -17,10 +17,6 @@ declare module "sst" {
       "type": "sst.sst.Linkable"
       "url": string
     }
-    "AnalyticsApiRouter": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
     "AnthropicApiKey": {
       "type": "sst.sst.Secret"
       "value": string
@@ -139,6 +135,43 @@ declare module "sst" {
     "IndexDataSourceFilesQueue": {
       "type": "sst.aws.Queue"
       "url": string
+    }
+    "MinistrySubMonthlyPrice": {
+      "active": boolean
+      "currency": string
+      "id": string
+      "product": string
+      "recurring": {
+        "aggregateUsage": string
+        "interval": string
+        "intervalCount": number
+        "usageType": string
+      }
+      "type": "stripe.index/price.Price"
+      "unitAmount": number
+    }
+    "MinistrySubProduct": {
+      "active": boolean
+      "default_price": string
+      "description": string
+      "features": any
+      "id": string
+      "name": string
+      "type": "stripe.index/product.Product"
+    }
+    "MinistrySubYearlyPrice": {
+      "active": boolean
+      "currency": string
+      "id": string
+      "product": string
+      "recurring": {
+        "aggregateUsage": string
+        "interval": string
+        "intervalCount": number
+        "usageType": string
+      }
+      "type": "stripe.index/price.Price"
+      "unitAmount": number
     }
     "OpenAiApiKey": {
       "type": "sst.sst.Secret"
