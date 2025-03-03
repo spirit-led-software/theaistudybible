@@ -3,7 +3,7 @@ import { Button } from '@/www/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
 import { useAuth } from '@/www/contexts/auth';
 import { useChatStore } from '@/www/contexts/chat';
-import { useProSubscription } from '@/www/hooks/use-pro-subscription';
+import { useSubscription } from '@/www/hooks/use-pro-subscription';
 import { cn } from '@/www/lib/utils';
 import { useNavigate } from '@solidjs/router';
 import { Lock } from 'lucide-solid';
@@ -12,7 +12,7 @@ import { Anthropic, DeepSeek, Google, Meta, Mistral, OpenAI } from '../ui/brand-
 
 export const SelectModelButton = () => {
   const [store, setStore] = useChatStore();
-  const { hasPro } = useProSubscription();
+  const { isActive } = useSubscription();
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
 
@@ -54,7 +54,7 @@ export const SelectModelButton = () => {
         </Switch>
       </PopoverTrigger>
       <PopoverContent class='flex w-52 flex-col items-start overflow-hidden p-0'>
-        <Show when={!hasPro() && !isAdmin()}>
+        <Show when={!isActive() && !isAdmin()}>
           <div class='mb-1 w-full rounded-lg rounded-b-none bg-gradient-to-r from-primary/10 to-accent/10 p-3 shadow-sm dark:border-primary/30'>
             <div class='flex flex-col gap-2'>
               <div class='flex items-center gap-2'>
@@ -88,7 +88,7 @@ export const SelectModelButton = () => {
                 setStore('modelId', `${model.host}:${model.id}`);
                 setOpen(false);
               }}
-              disabled={model.tier === 'advanced' && !hasPro() && !isAdmin()}
+              disabled={model.tier === 'advanced' && !isActive() && !isAdmin()}
             >
               <div class='flex items-center gap-2'>
                 <div class='size-6'>

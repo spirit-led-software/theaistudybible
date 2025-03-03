@@ -1,25 +1,23 @@
-import type { SubscriptionData } from '@/core/stripe/types';
 import { createQuery } from '@tanstack/solid-query';
-import { createEffect, createSignal } from 'solid-js';
-import { getProSubscription } from '../server/functions/pro';
+import { createMemo } from 'solid-js';
+import { getSubscription } from '../server/functions/pro';
 
-export const useProSubscription = () => {
-  const [subscription, setSubscription] = createSignal<SubscriptionData | null>(null);
-
+export const useSubscription = () => {
   const query = createQuery(() => ({
     queryKey: ['user-subscription'],
-    queryFn: () => getProSubscription(),
+    queryFn: () => getSubscription(),
+    placeholderData: (prev) => prev ?? { subscription: null, type: 'free' as const },
   }));
 
-  createEffect(() => {
-    if (query.status === 'success') {
-      setSubscription(query.data.subscription);
-    }
-  });
-
   return {
-    hasPro: () => subscription()?.status === 'active',
-    subscription,
+    isActive: createMemo(
+      () =>
+        query.data?.subscription?.status === 'active' ||
+        query.data?.subscription?.status === 'trialing',
+    ),
+    isPro: createMemo(() => query.data?.type === 'pro'),
+    isMinistry: createMemo(() => query.data?.type === 'ministry'),
+    subscription: createMemo(() => query.data?.subscription),
     refetch: query.refetch,
   };
 };

@@ -35,7 +35,13 @@ export const proSubProduct = new stripe.Product('ProSubProduct', {
   active: true,
   name: 'Pro Subscription',
   description: 'Subscription for Pro users',
-  features: ['Advanced AI Models', 'Higher Daily AI Limits', 'More features coming soon...'],
+  features: [
+    'Everything in Free',
+    'Advanced AI Models',
+    '100 Messages Per Day',
+    '10 Images Per Day',
+    'More features coming soon...',
+  ],
 });
 export const proSubMonthlyPrice = new stripe.Price('ProSubMonthlyPrice', {
   product: proSubProduct.id,
@@ -50,6 +56,32 @@ export const proSubYearlyPrice = new stripe.Price('ProSubYearlyPrice', {
   currency: 'usd',
   recurring: { intervalCount: 1, interval: 'year' },
   unitAmount: 100 * 99.99,
+});
+
+export const ministrySubProduct = new stripe.Product('MinistrySubProduct', {
+  active: true,
+  name: 'Ministry Subscription',
+  description: 'Subscription for ministry users',
+  features: [
+    'Everything in Pro',
+    'Unlimited Messages',
+    '100 Images Per Day',
+    'More features coming soon...',
+  ],
+});
+export const ministrySubMonthlyPrice = new stripe.Price('MinistrySubMonthlyPrice', {
+  product: ministrySubProduct.id,
+  active: true,
+  currency: 'usd',
+  recurring: { intervalCount: 1, interval: 'month' },
+  unitAmount: 100 * 29.99,
+});
+export const ministrySubYearlyPrice = new stripe.Price('MinistrySubYearlyPrice', {
+  product: ministrySubProduct.id,
+  active: true,
+  currency: 'usd',
+  recurring: { intervalCount: 1, interval: 'year' },
+  unitAmount: 100 * 299.99,
 });
 
 sst.Linkable.wrap(stripe.WebhookEndpoint, (resource) => ({

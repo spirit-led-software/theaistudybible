@@ -1,7 +1,7 @@
 import { useAuth } from '@/www/contexts/auth';
-import { useProSubscription } from '@/www/hooks/use-pro-subscription';
+import { useSubscription } from '@/www/hooks/use-pro-subscription';
 import { cn } from '@/www/lib/utils';
-import { createMemo, splitProps } from 'solid-js';
+import { Match, Switch, createMemo, splitProps } from 'solid-js';
 import { Avatar, AvatarFallback, AvatarImage, type AvatarRootProps } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 
@@ -9,7 +9,7 @@ export const UserAvatar = (props: AvatarRootProps) => {
   const [local, rest] = splitProps(props, ['class']);
 
   const { user } = useAuth();
-  const { hasPro } = useProSubscription();
+  const { isPro, isMinistry } = useSubscription();
 
   const src = createMemo(() => user()?.image || undefined);
   const fallback = createMemo(
@@ -25,14 +25,24 @@ export const UserAvatar = (props: AvatarRootProps) => {
         <AvatarImage src={src()} class='size-full' />
         <AvatarFallback class='size-full'>{fallback()}</AvatarFallback>
       </Avatar>
-      {hasPro() && (
-        <Badge
-          variant='outline'
-          class='-right-2 -bottom-2 absolute h-fit w-fit bg-card px-1 py-0.5 text-[8px]'
-        >
-          Pro
-        </Badge>
-      )}
+      <Switch>
+        <Match when={isPro()}>
+          <Badge
+            variant='outline'
+            class='-right-2 -bottom-2 absolute h-fit w-fit bg-card px-1 py-0.5 text-[8px]'
+          >
+            Pro
+          </Badge>
+        </Match>
+        <Match when={isMinistry()}>
+          <Badge
+            variant='outline'
+            class='-right-2 -bottom-2 absolute h-fit w-fit bg-card px-1 py-0.5 text-[8px]'
+          >
+            Ministry
+          </Badge>
+        </Match>
+      </Switch>
     </span>
   );
 };

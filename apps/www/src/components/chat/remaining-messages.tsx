@@ -12,8 +12,10 @@ export const RemainingMessages = (props: RemainingMessagesProps) => {
       <QueryBoundary query={props.remainingMessagesQuery}>
         {({ remaining }) => (
           <span class='text-muted-foreground text-xs'>
-            You have {remaining.remaining} messages remaining until{' '}
-            {formatDate(remaining.reset, 'M/d/yy h:mm a')}
+            <strong>
+              {remaining.remaining === Number.POSITIVE_INFINITY ? 'Unlimited' : remaining.remaining}
+            </strong>{' '}
+            messages remaining until <strong>{formatDate(remaining.reset, 'M/d/yy h:mm a')}</strong>
           </span>
         )}
       </QueryBoundary>

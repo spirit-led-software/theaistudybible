@@ -1,19 +1,10 @@
 import { Button } from '@/www/components/ui/button';
 import { Callout, CalloutContent, CalloutTitle } from '@/www/components/ui/callout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/www/components/ui/card';
-import {
-  GradientH1,
-  H2,
-  Lead,
-  List,
-  ListItem,
-  Muted,
-  P,
-  Strong,
-} from '@/www/components/ui/typography';
+import { GradientH1, H2, Lead, P } from '@/www/components/ui/typography';
 import { Meta, Title } from '@solidjs/meta';
 import { A } from '@solidjs/router';
-import { BookOpenText, Check, MessageSquare, Search, ShieldCheck, Sparkles } from 'lucide-solid';
+import { BookOpenText, MessageSquare, Search, ShieldCheck, Sparkles } from 'lucide-solid';
 import { Heart } from 'lucide-solid';
 import { For } from 'solid-js';
 
@@ -48,34 +39,6 @@ export default function AboutPage() {
       title: 'Ethical AI',
       description:
         'Our AI is designed with respect for diverse theological perspectives and adheres to strict ethical guidelines.',
-    },
-  ];
-
-  const pricingPlans = [
-    {
-      name: 'Free',
-      price: '$0',
-      period: 'forever',
-      description: 'Basic access to Bible study tools',
-      features: [
-        'Access to all Bible translations',
-        'Basic AI assistance',
-        'AI-generated devotionals',
-        'Personal annotations',
-        'Limited searches per day',
-      ],
-    },
-    {
-      name: 'Pro',
-      price: '$9.99',
-      period: 'per month',
-      description: 'Enhanced study experience with premium features',
-      features: [
-        'Everything in Free',
-        'Advanced AI models',
-        'Unlimited searches',
-        'Priority support',
-      ],
     },
   ];
 
@@ -134,59 +97,6 @@ export default function AboutPage() {
             </P>
           </CardContent>
         </Card>
-
-        {/* Pricing Section */}
-        <section>
-          <H2 class='mb-6 text-center font-semibold text-2xl'>Simple, Transparent Pricing</H2>
-          <div class='grid gap-8 md:grid-cols-2'>
-            <For each={pricingPlans}>
-              {(plan) => (
-                <Card
-                  class={
-                    plan.name === 'Pro'
-                      ? 'relative overflow-hidden border-2 border-primary shadow-sm'
-                      : 'hover:border-primary/30 hover:shadow-sm'
-                  }
-                >
-                  {plan.name === 'Pro' && (
-                    <div class='-right-12 absolute top-6 rotate-45 bg-primary px-12 py-1 text-primary-foreground text-sm'>
-                      Popular
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle class='text-center'>{plan.name}</CardTitle>
-                    <div class='text-center'>
-                      <Strong class='text-3xl'>{plan.price}</Strong>
-                      <Muted class='inline'> {plan.period}</Muted>
-                    </div>
-                    <P class='text-center text-muted-foreground'>{plan.description}</P>
-                  </CardHeader>
-                  <CardContent>
-                    <List class='space-y-2'>
-                      <For each={plan.features}>
-                        {(feature) => (
-                          <ListItem class='flex items-center'>
-                            <Check class='mr-2 h-4 w-4 text-primary dark:text-primary-foreground' />
-                            <p class='m-0'>{feature}</p>
-                          </ListItem>
-                        )}
-                      </For>
-                    </List>
-                    <div class='mt-6'>
-                      <Button
-                        as={A}
-                        href={plan.name === 'Pro' ? '/pro' : '/bible'}
-                        class={`w-full ${plan.name === 'Pro' ? 'bg-linear-to-r from-primary to-accent hover:opacity-90' : ''}`}
-                      >
-                        {plan.name === 'Pro' ? 'Start 7-Day Free Trial' : 'Get Started Free'}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </For>
-          </div>
-        </section>
 
         {/* FAQ Section - Simplified with link */}
         <section>

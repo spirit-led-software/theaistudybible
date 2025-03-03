@@ -1,3 +1,4 @@
+import { Resource } from 'sst';
 import { stripe } from '.';
 import { cache } from '../cache';
 import type { SubscriptionData } from './types';
@@ -23,10 +24,23 @@ export async function syncStripeData(customerId?: string | null): Promise<Subscr
   // If a user can have multiple subscriptions, that's your problem
   const subscription = subscriptions.data[0];
 
+  let productId: string | null = null;
+  const product = subscription.items.data[0].plan.product;
+  if (!product) {
+    throw new Error('Product not found');
+  }
+
+  if (typeof product === 'string') {
+    productId = product;
+  } else {
+    productId = product.id;
+  }
+
   // Store complete subscription state
   const subData: SubscriptionData = {
     subscriptionId: subscription.id,
     status: subscription.status,
+    productId,
     priceId: subscription.items.data[0].price.id,
     currentPeriodEnd: subscription.current_period_end,
     currentPeriodStart: subscription.current_period_start,
@@ -50,4 +64,18 @@ export async function getStripeData(customerId?: string | null): Promise<Subscri
   const customer = await cache.get<SubscriptionData>(`stripe:customer:${customerId}`);
   if (!customer) return await syncStripeData(customerId);
   return customer;
+}
+
+export function isPro(subData: SubscriptionData): boolean {
+  return (
+    (subData.status === 'active' || subData.status === 'trialing') &&
+    subData.productId === Resource.ProSubProduct.id
+  );
+}
+
+export function isMinistry(subData: SubscriptionData): boolean {
+  return (
+    (subData.status === 'active' || subData.status === 'trialing') &&
+    subData.productId === Resource.MinistrySubProduct.id
+  );
 }

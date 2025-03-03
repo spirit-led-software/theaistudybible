@@ -8,10 +8,11 @@ import { Button } from '@/www/components/ui/button';
 import { Callout, CalloutContent, CalloutTitle } from '@/www/components/ui/callout';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { Skeleton } from '@/www/components/ui/skeleton';
-import { Switch, SwitchControl, SwitchLabel, SwitchThumb } from '@/www/components/ui/switch';
+import {} from '@/www/components/ui/switch';
+import { Tabs, TabsList, TabsTrigger } from '@/www/components/ui/tabs';
 import { GradientH1, Lead, List, ListItem, Muted, P } from '@/www/components/ui/typography';
-import { useProSubscription } from '@/www/hooks/use-pro-subscription';
-import { useProtect, useProtectNotPro } from '@/www/hooks/use-protect';
+import { useSubscription } from '@/www/hooks/use-pro-subscription';
+import { useProtect, useProtectFree } from '@/www/hooks/use-protect';
 import { cn } from '@/www/lib/utils';
 import { requireAuth } from '@/www/server/utils/auth';
 import { Meta, Title } from '@solidjs/meta';
@@ -34,8 +35,16 @@ import { Resource } from 'sst';
 const getProducts = GET(() => {
   'use server';
   return Promise.resolve({
-    product: Resource.ProSubProduct,
-    prices: [Resource.ProSubMonthlyPrice, Resource.ProSubYearlyPrice],
+    products: [
+      {
+        ...Resource.ProSubProduct,
+        prices: [Resource.ProSubMonthlyPrice, Resource.ProSubYearlyPrice],
+      },
+      {
+        ...Resource.MinistrySubProduct,
+        prices: [Resource.MinistrySubMonthlyPrice, Resource.MinistrySubYearlyPrice],
+      },
+    ],
   });
 });
 
@@ -57,7 +66,6 @@ const createCheckoutSessionAction = action(async (priceId: string) => {
     customer: user.stripeCustomerId!,
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
-    payment_method_collection: 'if_required',
     subscription_data: {
       trial_period_days: 7,
       trial_settings: { end_behavior: { missing_payment_method: 'cancel' } },
@@ -91,20 +99,25 @@ export const route = {
 } satisfies RouteDefinition;
 
 export default function ProPage() {
-  useProtectNotPro('/profile');
+  useProtectFree('/profile');
   useProtect(`/sign-in?redirectUrl=${encodeURIComponent('/pro')}`);
 
   const createCheckoutSession = useAction(createCheckoutSessionAction);
   const syncSubscription = useAction(syncSubscriptionAction);
 
-  const [searchParams] = useSearchParams();
+  const { isActive, refetch } = useSubscription();
+
+  const [searchParams, setSearchParams] = useSearchParams();
   createEffect(() => {
     if (searchParams?.success) {
       toast.success('Purchase successful');
       void syncSubscription();
+      setSearchParams({});
     } else if (searchParams?.canceled) {
       toast.error('Purchase canceled');
+      setSearchParams({});
     }
+    refetch();
   });
 
   const query = createQuery(() => getProductsQueryOptions);
@@ -132,16 +145,16 @@ export default function ProPage() {
   }));
 
   const [isYearly, setIsYearly] = createSignal(false);
-  const { hasPro } = useProSubscription();
+  const [selectedProductIndex, setSelectedProductIndex] = createSignal(0);
 
   return (
-    <Show when={!hasPro()} fallback={<Navigate href='/profile' />}>
+    <Show when={!isActive()} fallback={<Navigate href='/profile' />}>
       <MetaTags />
       <div class='container flex h-full w-full overflow-y-auto'>
         <div class='container flex max-w-5xl flex-1 flex-col items-center px-4 py-8'>
           <div class='flex flex-col items-center gap-2 pb-6'>
             <GradientH1 class='inline-block bg-linear-to-r from-primary to-accent-foreground bg-clip-text text-center text-transparent dark:from-accent-foreground dark:to-secondary-foreground'>
-              Upgrade to Pro
+              Choose Your Plan
             </GradientH1>
             <Lead class='max-w-2xl text-center text-muted-foreground'>
               Unlock the full potential of AI-powered Bible study with advanced features, higher
@@ -149,8 +162,25 @@ export default function ProPage() {
             </Lead>
           </div>
 
-          {/* Main Card Section - Enhanced to be center of attention */}
-          <div class='relative z-10 mx-auto mt-4 mb-16 w-full max-w-xl'>
+          {/* Billing Period Switch */}
+          <div class='mb-8'>
+            <Tabs
+              value={isYearly() ? 'yearly' : 'monthly'}
+              onChange={(v) => setIsYearly(v === 'yearly')}
+            >
+              <TabsList class='w-64'>
+                <TabsTrigger value='monthly' class='flex-1'>
+                  Monthly
+                </TabsTrigger>
+                <TabsTrigger value='yearly' class='flex-1'>
+                  Yearly
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          {/* Main Card Section */}
+          <div class='relative z-10 mx-auto mt-4 mb-16 w-full max-w-5xl'>
             <div class='-inset-1 absolute animate-pulse rounded-xl bg-gradient-to-r from-primary/40 via-primary to-accent-foreground/90 opacity-75 blur-lg filter group-hover:opacity-100' />
             <QueryBoundary
               query={query}
@@ -160,77 +190,90 @@ export default function ProPage() {
                 </div>
               }
             >
-              {({ product, prices }) => (
-                <Card class='relative flex flex-col overflow-hidden rounded-xl border-2 border-primary shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl'>
-                  {!isYearly() && (
-                    <div class='-right-12 absolute top-6 rotate-45 bg-primary px-12 py-1 font-bold text-primary-foreground text-sm'>
-                      Popular
-                    </div>
-                  )}
-                  <CardHeader class='space-y-6 pt-6 pb-2'>
-                    <Switch
-                      checked={isYearly()}
-                      onChange={setIsYearly}
-                      class='flex items-center justify-center gap-4'
-                    >
-                      <SwitchLabel class={cn(!isYearly() && 'font-semibold')}>Monthly</SwitchLabel>
-                      <SwitchControl>
-                        <SwitchThumb />
-                      </SwitchControl>
-                      <SwitchLabel class={cn(isYearly() && 'font-semibold')}>Yearly</SwitchLabel>
-                    </Switch>
-
-                    <CardTitle class='text-center font-extrabold text-3xl'>
-                      {isYearly() ? 'Yearly' : 'Monthly'} Plan
-                    </CardTitle>
-
-                    <div class='flex flex-col items-center gap-3'>
-                      <div class='flex items-baseline font-bold text-3xl'>
-                        ${isYearly() ? prices[1].unitAmount / 100 : prices[0].unitAmount / 100}
-                        <Muted class='ml-1 inline text-lg'>/{isYearly() ? 'year' : 'month'}</Muted>
-                      </div>
-
-                      {isYearly() && (
-                        <div class='w-fit rounded-full bg-primary/20 px-4 py-1 font-medium text-primary text-sm'>
-                          Save 17%
-                        </div>
-                      )}
-
-                      <Badge variant='secondary' class='mt-1 px-4 py-1 text-base'>
-                        Includes 7-day free trial
-                      </Badge>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent class='px-8 py-4'>
-                    <List class='space-y-3'>
-                      <For each={product.features}>
-                        {(feature) => (
-                          <ListItem class='flex items-center text-base'>
-                            <Check class='mr-3 h-5 w-5 text-primary dark:text-primary-foreground' />
-                            {feature}
-                          </ListItem>
+              {({ products }) => (
+                <div class='grid grid-cols-1 gap-8 md:grid-cols-2'>
+                  <For each={products}>
+                    {(product, index) => (
+                      <Card
+                        class={cn(
+                          'relative flex flex-col overflow-hidden rounded-xl border-2 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl',
+                          selectedProductIndex() === index() ? 'border-primary' : 'border-muted',
                         )}
-                      </For>
-                    </List>
-                  </CardContent>
+                        onClick={() => setSelectedProductIndex(index())}
+                      >
+                        {index() === 0 && !isYearly() && (
+                          <div class='-right-12 absolute top-6 rotate-45 bg-primary px-12 py-1 font-bold text-primary-foreground text-sm'>
+                            Popular
+                          </div>
+                        )}
+                        <CardHeader class='space-y-6 pt-6 pb-2'>
+                          <CardTitle class='text-center font-extrabold text-2xl'>
+                            {product.name}
+                          </CardTitle>
 
-                  <CardFooter class='flex flex-col gap-4 p-8'>
-                    <Button
-                      class='w-full bg-linear-to-r from-primary to-primary-foreground/90 py-6 font-semibold text-lg text-primary-foreground shadow-md transition-all hover:opacity-90 hover:shadow-lg'
-                      onClick={() =>
-                        handlePurchase.mutate(isYearly() ? prices[1].id : prices[0].id)
-                      }
-                      disabled={handlePurchase.isPending}
-                    >
-                      Start Your Free Trial
-                    </Button>
-                    <Muted class='text-center'>
-                      No charge for 7 days. Cancel anytime. Subscription will auto-renew after
-                      trial.
-                    </Muted>
-                  </CardFooter>
-                </Card>
+                          <div class='flex flex-col items-center gap-3'>
+                            <div class='flex items-baseline font-bold text-3xl'>
+                              $
+                              {isYearly()
+                                ? product.prices[1].unitAmount / 100
+                                : product.prices[0].unitAmount / 100}
+                              <Muted class='ml-1 inline text-lg'>
+                                /{isYearly() ? 'year' : 'month'}
+                              </Muted>
+                            </div>
+
+                            {isYearly() && (
+                              <div class='w-fit rounded-full bg-primary/20 px-4 py-1 font-medium text-primary text-sm'>
+                                Save 17%
+                              </div>
+                            )}
+
+                            <Badge variant='secondary' class='mt-1 px-4 py-1 text-base'>
+                              Includes 7-day free trial
+                            </Badge>
+                          </div>
+                        </CardHeader>
+
+                        <CardContent class='px-8 py-4'>
+                          <List class='space-y-3'>
+                            <For each={product.features}>
+                              {(feature) => (
+                                <ListItem class='flex items-center text-base'>
+                                  <Check class='mr-3 h-5 w-5 text-primary dark:text-primary-foreground' />
+                                  {feature}
+                                </ListItem>
+                              )}
+                            </For>
+                          </List>
+                        </CardContent>
+
+                        <CardFooter class='flex flex-col gap-4 p-8'>
+                          <Button
+                            class={cn(
+                              'w-full py-6 font-semibold text-lg shadow-md transition-all hover:opacity-90 hover:shadow-lg',
+                              selectedProductIndex() === index()
+                                ? 'bg-linear-to-r from-primary to-primary-foreground/90 text-primary-foreground'
+                                : 'bg-muted text-muted-foreground hover:bg-muted/90',
+                            )}
+                            onClick={() => {
+                              setSelectedProductIndex(index());
+                              handlePurchase.mutate(
+                                isYearly() ? product.prices[1].id : product.prices[0].id,
+                              );
+                            }}
+                            disabled={handlePurchase.isPending}
+                          >
+                            Start Your Free Trial
+                          </Button>
+                          <Muted class='text-center'>
+                            No charge for 7 days. Cancel anytime. Subscription will auto-renew after
+                            trial.
+                          </Muted>
+                        </CardFooter>
+                      </Card>
+                    )}
+                  </For>
+                </div>
               )}
             </QueryBoundary>
           </div>

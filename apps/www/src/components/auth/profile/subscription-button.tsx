@@ -1,7 +1,7 @@
 import { stripe } from '@/core/stripe';
 import type { SubscriptionData } from '@/core/stripe/types';
-import { getStripeData } from '@/core/stripe/utils';
-import { useProSubscription } from '@/www/hooks/use-pro-subscription';
+import { getStripeData, syncStripeData } from '@/core/stripe/utils';
+import { useSubscription } from '@/www/hooks/use-pro-subscription';
 import { requireAuth } from '@/www/server/utils/auth';
 import { A, action, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
@@ -19,17 +19,20 @@ import {
   DialogTrigger,
 } from '../../ui/dialog';
 
-type ActiveSubscription = SubscriptionData & { status: 'active' };
+type ActiveSubscription = SubscriptionData & { status: 'active' | 'trialing' };
 
 const unsubscribeAction = action(async () => {
   'use server';
   const { user } = requireAuth();
   if (!user.stripeCustomerId) throw new Error('User has no Stripe customer ID');
+
   const subData = await getStripeData(user.stripeCustomerId);
-  if (subData.status !== 'active') throw new Error('User has no active subscription');
-  await stripe.subscriptions.update(subData.subscriptionId, {
-    cancel_at_period_end: true,
-  });
+  if (subData.status !== 'active' && subData.status !== 'trialing') {
+    throw new Error('User has no active subscription');
+  }
+
+  await stripe.subscriptions.update(subData.subscriptionId, { cancel_at_period_end: true });
+  await syncStripeData(user.stripeCustomerId);
   return { success: true };
 });
 
@@ -37,9 +40,14 @@ const renewAction = action(async () => {
   'use server';
   const { user } = requireAuth();
   if (!user.stripeCustomerId) throw new Error('User has no Stripe customer ID');
+
   const subData = await getStripeData(user.stripeCustomerId);
-  if (subData.status !== 'active') throw new Error('User has no active subscription');
+  if (subData.status !== 'active' && subData.status !== 'trialing') {
+    throw new Error('User has no active subscription');
+  }
+
   await stripe.subscriptions.update(subData.subscriptionId, { cancel_at_period_end: false });
+  await syncStripeData(user.stripeCustomerId);
   return { success: true };
 });
 
@@ -49,7 +57,7 @@ export const SubscriptionButton = (props: SubscriptionButtonProps) => {
   const unsubscribe = useAction(unsubscribeAction);
   const renew = useAction(renewAction);
 
-  const { hasPro, subscription, refetch } = useProSubscription();
+  const { isActive, subscription, refetch, isPro } = useSubscription();
   const [isOpen, setIsOpen] = createSignal(false);
 
   const handleUnsubscribe = createMutation(() => ({
@@ -88,20 +96,15 @@ export const SubscriptionButton = (props: SubscriptionButtonProps) => {
     >
       <Match
         when={
-          subscription()?.status === 'active' &&
-          (subscription() as ActiveSubscription).cancelAtPeriodEnd &&
-          (subscription() as ActiveSubscription)
+          (subscription()?.status === 'active' || subscription()?.status === 'trialing') &&
+          (subscription() as ActiveSubscription).cancelAtPeriodEnd
         }
-        keyed
       >
-        {(subscription) => (
-          <Button onClick={() => handleRenew.mutate()} {...props}>
-            Subscription ending on {formatDate(subscription.currentPeriodEnd, 'MMMM d, yyyy')}.
-            Renew?
-          </Button>
-        )}
+        <Button onClick={() => handleRenew.mutate()} {...props}>
+          Renew
+        </Button>
       </Match>
-      <Match when={hasPro() && (subscription() as ActiveSubscription)} keyed>
+      <Match when={isActive() && (subscription() as ActiveSubscription)} keyed>
         {(subscription) => (
           <Dialog open={isOpen()} onOpenChange={setIsOpen}>
             <DialogTrigger as={Button} {...props}>
@@ -112,8 +115,9 @@ export const SubscriptionButton = (props: SubscriptionButtonProps) => {
                 <DialogTitle>Unsubscribe</DialogTitle>
               </DialogHeader>
               <DialogDescription>
-                Are you sure you want to unsubscribe from the Pro plan? Your subscription will end
-                on {formatDate(subscription.currentPeriodEnd, 'MMMM d, yyyy')}
+                Are you sure you want to unsubscribe from the {isPro() ? 'Pro' : 'Ministry'} plan?
+                Your subscription will end on{' '}
+                {formatDate(new Date(subscription.currentPeriodEnd * 1000), 'MMMM d, yyyy')}
               </DialogDescription>
               <DialogFooter>
                 <Button variant='outline' onClick={() => setIsOpen(false)}>

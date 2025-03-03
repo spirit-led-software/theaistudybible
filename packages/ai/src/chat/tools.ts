@@ -2,7 +2,7 @@ import { cache } from '@/core/cache';
 import { db } from '@/core/database';
 import { chapterBookmarks, userGeneratedImages, verseHighlights } from '@/core/database/schema';
 import { s3 } from '@/core/storage';
-import { getStripeData } from '@/core/stripe/utils';
+import { getStripeData, isMinistry, isPro } from '@/core/stripe/utils';
 import { createId } from '@/core/utils/id';
 import type { Role } from '@/schemas/roles/types';
 import type { User } from '@/schemas/users/types';
@@ -288,17 +288,24 @@ export const generateImageTool = (input: {
         .describe('The size of the generated image. More detailed images need a larger size.'),
     }),
     execute: async ({ prompt, size }, { abortSignal }) => {
+      const rlPrefix = 'image-generation';
       let ratelimit = new Ratelimit({
-        prefix: 'image-generation',
+        prefix: rlPrefix,
         redis: cache,
         limiter: Ratelimit.slidingWindow(2, '24h'),
       });
       const subData = await getStripeData(input.user.stripeCustomerId);
-      if (subData?.status === 'active' || input.roles?.some((role) => role.id === 'admin')) {
+      if (isPro(subData)) {
         ratelimit = new Ratelimit({
-          prefix: 'image-generation',
+          prefix: rlPrefix,
           redis: cache,
           limiter: Ratelimit.slidingWindow(10, '24h'),
+        });
+      } else if (isMinistry(subData) || input.roles?.some((role) => role.id === 'admin')) {
+        ratelimit = new Ratelimit({
+          prefix: rlPrefix,
+          redis: cache,
+          limiter: Ratelimit.slidingWindow(100, '24h'),
         });
       }
 

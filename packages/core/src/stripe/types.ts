@@ -4,6 +4,7 @@ export type SubscriptionData =
       subscriptionId: string;
       status: string;
       priceId: string;
+      productId: string;
       currentPeriodEnd: number;
       currentPeriodStart: number;
       cancelAtPeriodEnd: boolean;

@@ -137,10 +137,7 @@ const FAQ: Component = () => {
 
         <div class='mt-12 max-w-4xl'>
           <Tabs defaultValue='general' class='w-full'>
-            <TabsList
-              class='mb-8 grid w-full border border-border bg-background hover:bg-muted/10'
-              style={{ 'grid-template-columns': 'repeat(auto-fit, minmax(150px, 1fr))' }}
-            >
+            <TabsList class='mb-8 grid h-fit w-full grid-cols-1 border border-border sm:grid-cols-2 md:grid-cols-4'>
               <For each={faqCategories}>
                 {(category) => (
                   <TabsTrigger
@@ -164,10 +161,10 @@ const FAQ: Component = () => {
                           value={`${category.value}-item-${idx()}`}
                           class='border-border'
                         >
-                          <AccordionTrigger class='hover:bg-muted/20'>
+                          <AccordionTrigger class='p-5 text-left hover:bg-muted/20'>
                             {faq.question}
                           </AccordionTrigger>
-                          <AccordionContent class='bg-muted/5'>
+                          <AccordionContent class='bg-muted/5 p-5'>
                             <P class='text-muted-foreground'>{faq.answer}</P>
                           </AccordionContent>
                         </AccordionItem>

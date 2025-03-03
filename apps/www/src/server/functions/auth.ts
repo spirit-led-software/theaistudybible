@@ -1,6 +1,6 @@
 import { query, redirect } from '@solidjs/router';
 import { auth } from '../utils/auth';
-import { getProSubscription } from './pro';
+import { getSubscription } from './pro';
 
 /**
  * Protects the route from being accessed by unauthenticated users.
@@ -41,20 +41,28 @@ export const protectAdmin = query((redirectUrl?: string) => {
   return Promise.resolve({ success: true });
 }, 'protect-admin');
 
-export const protectPro = query(async (redirectUrl?: string) => {
+/**
+ * Protects the route from being accessed by users without a subscription.
+ * @param redirectUrl - The URL to redirect to if the user has no subscription. Defaults to '/pro'.
+ */
+export const protectNotFree = query(async (redirectUrl?: string) => {
   'use server';
-  const { subscription } = await getProSubscription();
-  if (!subscription || subscription.status !== 'active') {
+  const { subscription } = await getSubscription();
+  if (subscription?.status !== 'active' && subscription?.status !== 'trialing') {
     return redirect(redirectUrl ?? '/pro');
   }
   return { success: true };
-}, 'protect-pro');
+}, 'protect-not-free');
 
-export const protectNotPro = query(async (redirectUrl?: string) => {
+/**
+ * Protects the route from being accessed by users with a subscription.
+ * @param redirectUrl - The URL to redirect to if the user has a subscription. Defaults to '/profile'.
+ */
+export const protectFree = query(async (redirectUrl?: string) => {
   'use server';
-  const { subscription } = await getProSubscription();
-  if (subscription?.status === 'active') {
-    return redirect(redirectUrl ?? '/');
+  const { subscription } = await getSubscription();
+  if (subscription?.status === 'active' || subscription?.status === 'trialing') {
+    return redirect(redirectUrl ?? '/profile');
   }
   return { success: true };
-}, 'protect-not-pro');
+}, 'protect-free');

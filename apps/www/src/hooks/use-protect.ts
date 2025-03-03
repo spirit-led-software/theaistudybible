@@ -3,8 +3,8 @@ import {
   protect,
   protectAdmin,
   protectAnonymous,
-  protectNotPro,
-  protectPro,
+  protectFree,
+  protectNotFree,
 } from '../server/functions/auth';
 
 export const useProtect = (redirectUrl?: string) => {
@@ -19,10 +19,10 @@ export const useProtectAdmin = (redirectUrl?: string) => {
   return createAsync(() => protectAdmin(redirectUrl));
 };
 
-export const useProtectPro = (redirectUrl?: string) => {
-  return createAsync(() => protectPro(redirectUrl));
+export const useProtectNotFree = (redirectUrl?: string) => {
+  return createAsync(() => protectNotFree(redirectUrl));
 };
 
-export const useProtectNotPro = (redirectUrl?: string) => {
-  return createAsync(() => protectNotPro(redirectUrl));
+export const useProtectFree = (redirectUrl?: string) => {
+  return createAsync(() => protectFree(redirectUrl));
 };
