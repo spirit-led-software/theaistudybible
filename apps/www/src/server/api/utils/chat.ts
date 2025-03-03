@@ -23,7 +23,7 @@ export async function getChatRateLimit(user: User, roles?: Role[] | null) {
     return new Ratelimit({
       prefix: rlPrefix,
       redis: cache,
-      limiter: Ratelimit.slidingWindow(Number.POSITIVE_INFINITY, '24h'),
+      limiter: Ratelimit.slidingWindow(Number.MAX_SAFE_INTEGER, '24h'),
     });
   }
 
