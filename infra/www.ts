@@ -87,16 +87,16 @@ export const webAppDevCmd = new sst.x.DevCommand('WebAppDev', {
 });
 
 if (!$dev) {
-  const flyApp = new fly.App('WebApp', {
-    name: `${$app.name}-${$app.stage}-www`,
+  const flyApp = new fly.App('WebAppFlyApp', {
+    name: `${$app.name}-${$app.stage}-webapp`,
     org: process.env.FLY_ORG,
     assignSharedIpAddress: true,
   });
-  const ipv6 = new fly.Ip('WebAppIpv6', {
+  const ipv6 = new fly.Ip('WebAppFlyIpV6', {
     app: flyApp.name,
     type: 'v6',
   });
-  const cert = new fly.Cert('WebAppCert', {
+  const cert = new fly.Cert('WebAppFlyCert', {
     app: flyApp.name,
     hostname: DOMAIN.value,
   });
@@ -116,7 +116,7 @@ if (!$dev) {
     const machines: fly.Machine[] = [];
     for (let i = 0; i < replicas; i++) {
       machines.push(
-        new fly.Machine(`WebAppMachine-${region}-${i}`, {
+        new fly.Machine(`WebAppFlyMachine-${region}-${i}`, {
           app: flyApp.name,
           region,
           image: webAppImage.ref,
@@ -166,8 +166,8 @@ if (!$dev) {
     { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
   );
 
-  function buildFlyIamUser() {
-    const flyIamPolicy = new aws.iam.Policy('FlyIamPolicy', {
+  function buildIamUser() {
+    const iamPolicy = new aws.iam.Policy('WebAppIamPolicy', {
       policy: {
         Version: '2012-10-17',
         Statement: [
@@ -186,27 +186,27 @@ if (!$dev) {
         ],
       },
     });
-    const flyIamUser = new aws.iam.User('FlyIamUser');
-    new aws.iam.UserPolicyAttachment('FlyUserPolicyAttachment', {
-      user: flyIamUser.name,
-      policyArn: flyIamPolicy.arn,
+    const iamUser = new aws.iam.User('WebAppIamUser');
+    new aws.iam.UserPolicyAttachment('WebAppUserPolicyAttachment', {
+      user: iamUser.name,
+      policyArn: iamPolicy.arn,
     });
-    const flyAwsAccessKey = new aws.iam.AccessKey('FlyAccessKey', {
-      user: flyIamUser.name,
+    const awsAccessKey = new aws.iam.AccessKey('WebAppAccessKey', {
+      user: iamUser.name,
     });
-    return { flyIamUser, flyAwsAccessKey };
+    return { iamUser, awsAccessKey };
   }
 
   function buildEnv() {
-    const { flyAwsAccessKey } = buildFlyIamUser();
+    const { awsAccessKey } = buildIamUser();
     const links = allLinks.apply((links) => buildLinks(links));
     return $util
-      .all([links, baseEnv, flyAwsAccessKey.id, $util.secret(flyAwsAccessKey.secret)])
-      .apply(([links, env, flyAwsAccessKeyId, flyAwsAccessKeySecret]) => ({
+      .all([links, baseEnv, awsAccessKey.id, $util.secret(awsAccessKey.secret)])
+      .apply(([links, env, awsAccessKeyId, awsAccessKeySecret]) => ({
         ...linksToEnv(links),
         ...env,
-        AWS_ACCESS_KEY_ID: flyAwsAccessKeyId,
-        AWS_SECRET_ACCESS_KEY: flyAwsAccessKeySecret,
+        AWS_ACCESS_KEY_ID: awsAccessKeyId,
+        AWS_SECRET_ACCESS_KEY: awsAccessKeySecret,
         AWS_REGION: ($app.providers?.aws.region ?? 'us-east-1') as string,
         PRIMARY_REGION: regions[0].region,
       }));
@@ -282,8 +282,8 @@ if (!$dev) {
   }
 
   function buildFlyAutoscaler() {
-    const app = new fly.App('FlyAutoscalerApp', {
-      name: `${$app.name}-${$app.stage}-www-autoscaler`,
+    const app = new fly.App('AutoscalerAppFlyApp', {
+      name: `${$app.name}-${$app.stage}-webapp-autoscaler`,
     });
     const env = $util
       .all([$util.secret(process.env.FLY_API_TOKEN!), flyApp.name])
@@ -300,7 +300,7 @@ if (!$dev) {
           'sum(increase(fly_app_tcp_connects_count{app="$APP_NAME"}[1m])) or vector(0)',
       }));
     const machine = new fly.Machine(
-      'FlyAutoscalerMachine',
+      'AutoscalerFlyMachine',
       {
         app: app.name,
         region: 'iad',
