@@ -26,6 +26,7 @@ COPY --link ./tools/scripts/package.json ./tools/scripts/package.json
 COPY --link ./tools/tsconfig/package.json ./tools/tsconfig/package.json
 COPY --link ./pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --link ./pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --link ./.npmrc ./.npmrc
 
 RUN pnpm install --recursive --frozen-lockfile
 
