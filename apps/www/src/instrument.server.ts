@@ -8,6 +8,7 @@ Sentry.init({
   dsn: process.env.PUBLIC_SENTRY_DSN,
   tracesSampleRate: isDev ? 0 : isProd ? 1.0 : 0.5,
   environment: process.env.PUBLIC_STAGE,
+  registerEsmLoaderHooks: false,
 });
 
 process.on('beforeExit', async () => {
