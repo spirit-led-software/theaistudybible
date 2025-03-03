@@ -25,10 +25,7 @@ type RegionConfig = {
 };
 
 const regions: RegionConfig[] = isProd
-  ? [
-      { region: 'iad', replicas: 4 },
-      { region: 'fra', replicas: 4 },
-    ]
+  ? [{ region: 'iad', replicas: 4 }]
   : [{ region: 'iad', replicas: 1 }];
 
 const baseEnv = $util
@@ -135,7 +132,7 @@ if (!$dev) {
             },
           ],
           cpuType: 'shared',
-          cpus: isProd ? 4 : 1,
+          cpus: isProd ? 2 : 1,
           memory: isProd ? 1024 : 512,
         }),
       );
