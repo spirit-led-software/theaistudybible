@@ -282,7 +282,8 @@ if (!$dev) {
   }
 
   function buildFlyAutoscaler() {
-    const app = new fly.App('AutoscalerAppFlyApp', {
+    const app = new fly.App('WebAppAutoscalerFlyApp', {
+      org: process.env.FLY_ORG,
       name: `${$app.name}-${$app.stage}-webapp-autoscaler`,
     });
     const env = $util
@@ -300,7 +301,7 @@ if (!$dev) {
           'sum(increase(fly_app_tcp_connects_count{app="$APP_NAME"}[1m])) or vector(0)',
       }));
     const machine = new fly.Machine(
-      'AutoscalerFlyMachine',
+      'WebAppAutoscalerFlyMachine',
       {
         app: app.name,
         region: 'iad',
