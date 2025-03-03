@@ -157,7 +157,7 @@ const app = new Hono<{
         properties: { message: lastMessage },
       });
 
-      let pingInterval: Timer | undefined;
+      let pingInterval: NodeJS.Timeout | undefined;
       const dataStream = createDataStream({
         execute: async (dataStream) => {
           // Ping the stream every 200ms to avoid idle connection timeout

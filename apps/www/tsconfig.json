@@ -15,7 +15,7 @@
     "isolatedModules": true,
     "lib": ["ESNext", "ESNext.AsyncIterable", "DOM", "DOM.Iterable", "WebWorker"],
     "types": [
-      "@types/bun",
+      "@types/node",
       "vinxi/types/client",
       "@solidjs/start/env",
       "vite-plugin-pwa/info",

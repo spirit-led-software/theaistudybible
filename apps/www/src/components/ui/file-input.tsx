@@ -27,7 +27,7 @@ const FileInput = <T extends ValidComponent = 'div'>(props: FileInputProps<T>) =
   const [internalFiles, setInternalFiles] = createSignal<FileList | null>(null);
   const [isDragging, setIsDragging] = createSignal(false);
   let dragCounter = 0;
-  let timeout: Timer | undefined;
+  let timeout: NodeJS.Timeout | undefined;
 
   const files = createMemo(() => props.value ?? internalFiles());
   const setFiles = (newFiles: FileList | null) => {

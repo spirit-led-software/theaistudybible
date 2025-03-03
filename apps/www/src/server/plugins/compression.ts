@@ -37,10 +37,7 @@ const compressibleTypes = [
 const supportedEncodings = ['gzip', 'br', 'deflate'];
 
 export default defineNitroPlugin((nitroApp) => {
-  nitroApp.hooks.hook('beforeResponse', (event, response) => {
-    // @ts-ignore
-    compressResponse(event, response);
-  });
+  nitroApp.hooks.hook('beforeResponse', compressResponse);
 });
 
 function compressResponse(event: H3Event, response: { body?: unknown }) {

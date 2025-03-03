@@ -30,7 +30,7 @@ export default defineConfig(
     {
       middleware: './src/middleware.ts',
       server: {
-        preset: 'bun',
+        preset: 'node-server',
         compatibilityDate: '2024-12-02',
         experimental: { wasm: true },
         routeRules: {

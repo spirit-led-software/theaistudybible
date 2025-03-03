@@ -46,31 +46,31 @@ jobs:
 
       - name: Type check
         run: |
-          bun run type-check
+          pnpm run type-check
 
       - name: Lint
         run: |
-          bun run lint
+          pnpm run lint
 
       - name: Test
         run: |
-          bun run test
+          pnpm run test
 
       - name: Deploy
         run: |
-          bun run deploy
+          pnpm run deploy
 
       - name: Run DB migrations
         run: |
-          bun run db:migrate
+          pnpm run db:migrate
 
       - name: Seed DB
         run: |
-          bun run db:seed
+          pnpm run db:seed
 
       - name: Run E2E tests
         run: |
-          bun run test:e2e
+          pnpm run test:e2e
       
       - name: CI Cleanup
         uses: ./.github/actions/ci-cleanup

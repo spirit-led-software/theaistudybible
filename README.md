@@ -22,7 +22,6 @@ The AI Study Bible is a digital study Bible that uses artificial intelligence to
 ### Prerequisites
 
 - Node.js 18+
-- Bun 1.1.26+
 - AWS CLI configured with appropriate credentials
 
 ### Installation
@@ -35,7 +34,7 @@ The AI Study Bible is a digital study Bible that uses artificial intelligence to
 
 2. Install dependencies
    ```
-   bun install
+   pnpm install
    ```
 
 3. Set up environment variables
@@ -46,5 +45,5 @@ The AI Study Bible is a digital study Bible that uses artificial intelligence to
 
 4. Start the development server
    ```
-   bun run dev
+   pnpm run dev
    ```

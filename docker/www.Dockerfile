@@ -1,4 +1,4 @@
-FROM oven/bun:1.2-slim AS base
+FROM node:22-slim AS base
 
 ########################################################
 # Install
@@ -21,9 +21,9 @@ COPY --link ./packages/email/package.json ./packages/email/package.json
 COPY --link ./packages/schemas/package.json ./packages/schemas/package.json
 COPY --link ./tools/scripts/package.json ./tools/scripts/package.json
 COPY --link ./tools/tsconfig/package.json ./tools/tsconfig/package.json
-COPY --link ./bun.lock ./bun.lock
+COPY --link ./pnpm-lock.yaml ./pnpm-lock.yaml
 
-RUN bun install --frozen-lockfile
+RUN pnpm install
 
 ########################################################
 # Build
@@ -73,10 +73,20 @@ RUN apt-get -qq update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=install /install/node_modules ./node_modules
+COPY --from=install /install/apps/www/node_modules ./apps/www/node_modules
+COPY --from=install /install/apps/functions/node_modules ./apps/functions/node_modules
+COPY --from=install /install/apps/workers/node_modules ./apps/workers/node_modules
+COPY --from=install /install/packages/ai/node_modules ./packages/ai/node_modules
+COPY --from=install /install/packages/core/node_modules ./packages/core/node_modules
+COPY --from=install /install/packages/email/node_modules ./packages/email/node_modules
+COPY --from=install /install/packages/schemas/node_modules ./packages/schemas/node_modules
+COPY --from=install /install/tools/scripts/node_modules ./tools/scripts/node_modules
+COPY --from=install /install/tools/tsconfig/node_modules ./tools/tsconfig/node_modules
+
 COPY --link . .
 
 WORKDIR /build/apps/www
-RUN bun run build
+RUN pnpm run build
 
 ########################################################
 # Release
@@ -113,7 +123,8 @@ RUN apt-get -qq update && \
 COPY --from=build /build/apps/www/.output .
 
 WORKDIR /app/server
-ENTRYPOINT [ "bun", "run", "--preload", "./instrument.server.mjs", "./index.mjs" ]
+ENV NODE_OPTIONS "--import ./instrument.server.mjs"
+ENTRYPOINT [ "node", "./index.mjs" ]
 EXPOSE ${PORT}
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
   CMD curl -f http://localhost:${PORT}/health || exit 1

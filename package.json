@@ -5,15 +5,15 @@
   "type": "module",
   "scripts": {
     "build": "turbo run build",
-    "clean-install": "rimraf bun.lock .sst --glob '**/node_modules' && bun install --no-cache && sst install",
+    "clean-install": "rimraf pnpm-lock.yaml .sst --glob '**/node_modules' && pnpm cache delete && pnpm install -r && sst install",
     "clean": "turbo run clean",
     "cy:open:prod": "sst shell --stage production -- cypress open",
     "cy:open": "sst shell -- cypress open",
     "db:generate": "sst shell --stage production -- drizzle-kit generate",
     "db:migrate:prod": "sst shell --stage production -- drizzle-kit migrate",
     "db:migrate": "sst shell -- drizzle-kit migrate",
-    "db:seed:prod": "sst shell --stage production -- bun run ./tools/scripts/src/index.ts db seed",
-    "db:seed": "sst shell --stage production -- bun run ./tools/scripts/src/index.ts db seed",
+    "db:seed:prod": "sst shell --stage production -- tsx ./tools/scripts/src/index.ts db seed",
+    "db:seed": "sst shell -- tsx ./tools/scripts/src/index.ts db seed",
     "db:studio:prod": "sst shell --stage production -- drizzle-kit studio",
     "db:studio": "sst shell -- drizzle-kit studio",
     "deploy": "sst deploy",
@@ -23,11 +23,11 @@
     "lint:fix": "biome lint --write .",
     "lint": "biome lint .",
     "prepare": "husky",
-    "prerelease": "bun run type-check && bun run format && bun run lint:fix && bun run build && bun run test",
+    "prerelease": "pnpm run type-check && pnpm run format && pnpm run lint:fix && pnpm run build && pnpm run test",
     "refresh": "sst refresh",
     "remove": "sst remove",
-    "scripts:prod": "sst shell --stage production -- bun run ./tools/scripts/src/index.ts",
-    "scripts": "sst shell -- bun run ./tools/scripts/src/index.ts",
+    "scripts:prod": "sst shell --stage production -- tsx ./tools/scripts/src/index.ts",
+    "scripts": "sst shell -- tsx ./tools/scripts/src/index.ts",
     "secret:list": "sst secret list",
     "secret:remove": "sst secret remove",
     "secret:set": "sst secret set",
@@ -35,19 +35,19 @@
     "test:e2e": "sst shell -- cypress run",
     "test": "sst shell -- vitest run",
     "type-check": "tsc --noEmit && turbo run type-check",
-    "upgrade": "bun run ./tools/scripts/src/index.ts upgrade && sst upgrade"
+    "upgrade": "pnpm update -rL && sst upgrade"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/aws-lambda": "^8.10.147",
-    "@types/bun": "^1.2.4",
-    "@types/node": "^22.13.8",
+    "@types/node": "^22.13.9",
     "@types/web-push": "^3.6.4",
     "cypress": "^14.1.0",
     "cypress-wait-until": "^3.0.2",
     "drizzle-kit": "^0.30.5",
     "husky": "^9.1.7",
     "rimraf": "^6.0.1",
+    "tsx": "^4.19.3",
     "turbo": "^2.4.4",
     "typescript": "^5.8.2",
     "vite-tsconfig-paths": "^5.1.4",
@@ -74,15 +74,5 @@
     "web-push": "^3.6.7",
     "zod": "^3.24.2"
   },
-  "packageManager": "bun@1.2.2",
-  "workspaces": ["apps/*", "packages/*", "tools/*"],
-  "trustedDependencies": [
-    "@biomejs/biome",
-    "@parcel/watcher",
-    "@sentry/cli",
-    "core-js",
-    "cypress",
-    "esbuild",
-    "sharp"
-  ]
+  "packageManager": "pnpm@9.14.2"
 }

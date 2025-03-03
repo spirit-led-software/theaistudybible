@@ -42,7 +42,7 @@ jobs:
 
       - name: Unlock
         run: |
-          bun sst unlock
+          pnpm sst unlock
 
       - name: CI Cleanup
         uses: ./.github/actions/ci-cleanup

@@ -1,2 +1,2 @@
-bun run format:check
-bun run lint:fix
+pnpm run format:check
+pnpm run lint:fix

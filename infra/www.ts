@@ -79,7 +79,7 @@ export const webAppDevCmd = new sst.x.DevCommand('WebAppDev', {
   dev: {
     title: 'WebApp',
     directory: 'apps/www',
-    command: 'bun run dev',
+    command: 'pnpm run dev',
     autostart: true,
   },
   environment: baseEnv,

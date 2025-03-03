@@ -4,15 +4,6 @@ import { hideBin } from 'yargs/helpers';
 
 await yargs(hideBin(process.argv))
   .scriptName('scripts')
-  .command(
-    'upgrade',
-    'Upgrade all packages',
-    (yargs) => yargs,
-    async () => {
-      const { upgradePackages } = await import('./upgrade');
-      await upgradePackages();
-    },
-  )
   .command('auth', 'Auth commands', (yargs) =>
     yargs.command(
       'cleanup-sessions',
