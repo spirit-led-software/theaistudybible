@@ -202,7 +202,7 @@ importers:
         version: 0.0.4
       '@sentry/solidstart':
         specifier: ^9.3.0
-        version: 9.3.0(pmfczgea5w4rsi6ke4vkaftl3e)
+        version: 9.3.0(3be134e0145d28f99f94cdf597e5d219)
       '@solid-primitives/clipboard':
         specifier: ^1.6.0
         version: 1.6.0(solid-js@1.9.5)
@@ -13315,7 +13315,7 @@ snapshots:
     optionalDependencies:
       '@solidjs/router': 0.15.3(solid-js@1.9.5)
 
-  '@sentry/solidstart@9.3.0(pmfczgea5w4rsi6ke4vkaftl3e)':
+  '@sentry/solidstart@9.3.0(3be134e0145d28f99f94cdf597e5d219)':
     dependencies:
       '@sentry/core': 9.3.0
       '@sentry/node': 9.3.0
@@ -16784,7 +16784,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.0))
+      retry-axios: 2.6.0(axios@1.7.9)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -18577,7 +18577,7 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
 
-  retry-axios@2.6.0(axios@1.7.9(debug@4.4.0)):
+  retry-axios@2.6.0(axios@1.7.9):
     dependencies:
       axios: 1.7.9(debug@4.4.0)
 

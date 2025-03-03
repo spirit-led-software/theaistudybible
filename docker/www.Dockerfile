@@ -1,4 +1,7 @@
 FROM node:22-slim AS base
+ENV PNPM_HOME=/pnpm
+ENV PATH=$PNPM_HOME:$PATH
+RUN corepack enable
 
 ########################################################
 # Install
@@ -123,8 +126,7 @@ RUN apt-get -qq update && \
 COPY --from=build /build/apps/www/.output .
 
 WORKDIR /app/server
-ENV NODE_OPTIONS "--import ./instrument.server.mjs"
-ENTRYPOINT [ "node", "./index.mjs" ]
+ENTRYPOINT [ "node", "--import", "./instrument.server.mjs", "./index.mjs" ]
 EXPOSE ${PORT}
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
   CMD curl -f http://localhost:${PORT}/health || exit 1

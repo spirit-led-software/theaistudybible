@@ -34,7 +34,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
-        pnpm install
+        pnpm install --recursive --frozen-lockfile
 
     - name: Install SST Providers
       shell: bash
