@@ -35,7 +35,13 @@ export function TextContent(props: TextContentProps) {
       }
       const contentIds = gatherElementIdsByVerseNumber(props.content.verseNumber!);
       const text = contentIds
-        .map((id) => document.getElementById(id)?.textContent)
+        .map((id) => {
+          const el = document.getElementById(id)!;
+          if (el.getAttribute('data-type') === 'verse') {
+            return `${el.textContent} `;
+          }
+          return el.textContent;
+        })
         .join('')
         .trim();
       return [

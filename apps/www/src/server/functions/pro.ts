@@ -17,6 +17,5 @@ export const getSubscription = GET(async () => {
       type = 'ministry';
     }
   }
-  console.log('subData', subData);
   return { subscription: subData, type };
 });

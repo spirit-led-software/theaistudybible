@@ -117,7 +117,7 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
           if (prev && prev.number + 1 !== info.number) {
             text += '... ';
           }
-          text += `${info.number} ${info.text}`;
+          text += info.text;
           // Add space between verses
           if (index !== array.length - 1) {
             text += ' ';

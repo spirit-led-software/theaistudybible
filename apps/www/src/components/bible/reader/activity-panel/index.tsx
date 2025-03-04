@@ -173,7 +173,24 @@ export const ActivityPanelMenu = () => {
           <Notebook class='mr-3' />
           Notes
         </DropdownMenuItem>
-        <Show when={brStore.selectedIds.length}>
+        <Show
+          when={brStore.selectedIds.length}
+          fallback={
+            <Show when={'share' in navigator}>
+              <DropdownMenuItem
+                onSelect={() =>
+                  navigator.share({
+                    title: brStore.verse ? brStore.verse.name : brStore.chapter.name,
+                    url: window.location.href,
+                  })
+                }
+              >
+                <Share class='mr-3' />
+                Share
+              </DropdownMenuItem>
+            </Show>
+          }
+        >
           <ReferencesMenuItem />
           <DropdownMenuItem onSelect={() => setValue('share')}>
             <Share class='mr-3' />
