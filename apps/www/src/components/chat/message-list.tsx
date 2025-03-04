@@ -1,14 +1,14 @@
 import type { useChat } from '@/www/hooks/use-chat';
 import type { Message as AiMessage } from 'ai';
 import { ChevronUp } from 'lucide-solid';
-import { For, type Setter, Show } from 'solid-js';
+import { type Accessor, For, type Setter, Show } from 'solid-js';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 import { EmptyWindow } from './empty-window';
 import { Message } from './message';
 
 export type ChatMessageListProps = {
-  messages: AiMessage[];
+  messages: Accessor<AiMessage[]>;
   messagesQuery: ReturnType<typeof useChat>['messagesQuery'];
   isLoading: boolean;
   append: ReturnType<typeof useChat>['append'];
@@ -39,7 +39,7 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
       </div>
       <div class='flex w-full flex-1 flex-col items-center justify-end'>
         <For
-          each={props.messages}
+          each={props.messages()}
           fallback={
             <EmptyWindow append={props.append} additionalContext={props.additionalContext} />
           }
@@ -50,9 +50,9 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
                 <div ref={props.setTopOfLastMessageRef} class='h-px w-full shrink-0' />
               </Show>
               <Message
-                previousMessage={props.messages[idx() - 1]}
+                previousMessage={props.messages()[idx() - 1]}
                 message={message}
-                nextMessage={props.messages[idx() + 1]}
+                nextMessage={props.messages()[idx() + 1]}
                 addToolResult={props.addToolResult}
                 isLoading={props.isLoading}
               />

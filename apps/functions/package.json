@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@sentry/aws-serverless": "^9.3.0",
-    "@sentry/esbuild-plugin": "^3.2.1",
+    "@sentry/esbuild-plugin": "^3.2.2",
     "@theaistudybible/tsconfig": "workspace:*",
     "posthog-node": "^4.8.1"
   },
@@ -19,6 +19,6 @@
     "@theaistudybible/schemas": "workspace:*",
     "hono": "^4.7.2",
     "pdf-parse": "^1.1.1",
-    "svix": "^1.61.1"
+    "svix": "^1.61.2"
   }
 }

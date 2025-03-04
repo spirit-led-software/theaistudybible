@@ -142,12 +142,10 @@ export const ChatWindow = (props: ChatWindowProps) => {
         <div
           ref={setScrollRef}
           class='flex w-full flex-1 flex-col overflow-y-auto overflow-x-hidden'
-          role='log'
-          aria-live='polite'
           aria-label='Chat messages'
         >
           <ChatMessageList
-            messages={messages()}
+            messages={messages}
             messagesQuery={messagesQuery}
             isLoading={isLoading()}
             append={append}
@@ -156,7 +154,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
             setTopOfLastMessageRef={setTopOfLastMessageRef}
             lastMessageIdx={lastMessageIdx()}
           />
-          <div ref={setBottomRef} class='h-28 w-full shrink-0' />
+          <div ref={setBottomRef} class='h-40 w-full shrink-0' />
         </div>
         <ChatInput
           input={input}
