@@ -1,4 +1,4 @@
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import { useSubscription } from '@/www/hooks/use-pro-subscription';
 import { cn } from '@/www/lib/utils';
 import { Match, Switch, createMemo, splitProps } from 'solid-js';

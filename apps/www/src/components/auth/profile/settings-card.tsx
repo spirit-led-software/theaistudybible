@@ -1,7 +1,7 @@
 import { db } from '@/core/database';
 import { userSettings } from '@/core/database/schema';
 import { UpdateUserSettingsSchema } from '@/schemas/users/settings';
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import { requireAuth } from '@/www/server/utils/auth';
 import { createForm, setValue, zodForm } from '@modular-forms/solid';
 import { action, useAction } from '@solidjs/router';

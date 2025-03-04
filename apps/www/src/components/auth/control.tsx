@@ -1,4 +1,4 @@
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import type { JSX } from 'solid-js';
 
 export const AuthLoaded = (props: { children: JSX.Element; fallback?: JSX.Element }) => {

@@ -4,7 +4,7 @@ import {
   getPasskeyCredential,
   verifyWebAuthnChallenge,
 } from '@/core/auth/providers/webauthn';
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import {
   decodePKIXECDSASignature,
   decodeSEC1PublicKey,

@@ -1,5 +1,5 @@
 import { lucia } from '@/core/auth';
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import { cn } from '@/www/lib/utils';
 import { requireAuth } from '@/www/server/utils/auth';
 import { type ConfigColorMode, useColorMode } from '@kobalte/core';

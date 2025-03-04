@@ -8,7 +8,7 @@ import {
 } from '@/core/auth/providers/webauthn';
 import { fnv1a } from '@/core/utils/hash';
 import { QueryBoundary } from '@/www/components/query-boundary';
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import { requireAuth } from '@/www/server/utils/auth';
 import { bigEndian } from '@oslojs/binary';
 import { ECDSAPublicKey, p256 } from '@oslojs/crypto/ecdsa';

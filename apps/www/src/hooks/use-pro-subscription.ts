@@ -7,6 +7,7 @@ export const useSubscription = () => {
     queryKey: ['user-subscription'],
     queryFn: () => getSubscription(),
     placeholderData: (prev) => prev ?? { subscription: null, type: 'free' as const },
+    staleTime: 1000 * 60 * 5,
   }));
 
   return {

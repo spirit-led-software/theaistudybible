@@ -9,7 +9,7 @@ import {
 import { db } from '@/core/database';
 import { userSettings, users } from '@/core/database/schema';
 import { fnv1a } from '@/core/utils/hash';
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { bigEndian } from '@oslojs/binary';
 import { ECDSAPublicKey, p256 } from '@oslojs/crypto/ecdsa';

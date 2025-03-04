@@ -1,8 +1,8 @@
 import { allChatModels, defaultChatModel } from '@/ai/models';
 import { Button } from '@/www/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/popover';
-import { useAuth } from '@/www/contexts/auth';
 import { useChatStore } from '@/www/contexts/chat';
+import { useAuth } from '@/www/hooks/use-auth';
 import { useSubscription } from '@/www/hooks/use-pro-subscription';
 import { cn } from '@/www/lib/utils';
 import { useNavigate } from '@solidjs/router';

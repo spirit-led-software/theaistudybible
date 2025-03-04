@@ -1,4 +1,4 @@
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import { A } from '@solidjs/router';
 import {
   BookOpen,

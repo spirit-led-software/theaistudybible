@@ -1,4 +1,4 @@
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import { Mail } from 'lucide-solid';
 import { Show } from 'solid-js';
 import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';

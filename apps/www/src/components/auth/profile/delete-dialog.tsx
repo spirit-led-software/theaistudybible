@@ -3,7 +3,7 @@ import { db } from '@/core/database';
 import { users } from '@/core/database/schema';
 import { stripe } from '@/core/stripe';
 import { getStripeData } from '@/core/stripe/utils';
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import { requireAuth } from '@/www/server/utils/auth';
 import { action, redirect, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';

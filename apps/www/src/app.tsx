@@ -10,7 +10,6 @@ import { Logo } from './components/branding/logo';
 import { NotificationPromptDialog } from './components/notification-prompt-dialog';
 import { SentryRouter } from './components/sentry/router';
 import { Toaster } from './components/ui/sonner';
-import { AuthProvider } from './contexts/auth';
 import { BibleProvider } from './contexts/bible';
 import { ChatProvider } from './contexts/chat';
 import { DevotionProvider } from './contexts/devotion';
@@ -51,27 +50,25 @@ export default function App() {
             <ColorModeProvider storageManager={storageManager}>
               <ServiceWorkerProvider>
                 <PosthogProvider>
-                  <AuthProvider>
-                    <BibleProvider>
-                      <ChatProvider>
-                        <DevotionProvider>
-                          <Suspense
-                            fallback={
-                              <div class='flex min-h-full w-full items-center justify-center'>
-                                <div class='w-full max-w-xl'>
-                                  <Logo />
-                                </div>
+                  <BibleProvider>
+                    <ChatProvider>
+                      <DevotionProvider>
+                        <Suspense
+                          fallback={
+                            <div class='flex min-h-full w-full items-center justify-center'>
+                              <div class='w-full max-w-xl'>
+                                <Logo />
                               </div>
-                            }
-                          >
-                            {props.children}
-                            <Toaster />
-                            <NotificationPromptDialog />
-                          </Suspense>
-                        </DevotionProvider>
-                      </ChatProvider>
-                    </BibleProvider>
-                  </AuthProvider>
+                            </div>
+                          }
+                        >
+                          {props.children}
+                          <Toaster />
+                          <NotificationPromptDialog />
+                        </Suspense>
+                      </DevotionProvider>
+                    </ChatProvider>
+                  </BibleProvider>
                 </PosthogProvider>
               </ServiceWorkerProvider>
             </ColorModeProvider>

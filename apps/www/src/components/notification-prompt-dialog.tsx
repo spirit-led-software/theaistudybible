@@ -1,10 +1,10 @@
+import { useAuth } from '@/www/hooks/use-auth';
 import { makePersisted } from '@solid-primitives/storage';
 import { BellRing } from 'lucide-solid';
 import { Bell } from 'lucide-solid';
 import { Bookmark } from 'lucide-solid';
 import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import { useAuth } from '../contexts/auth';
 import { PushNotificationToggle } from './push-notification-toggle';
 import { Button } from './ui/button';
 import {

@@ -1,6 +1,6 @@
 import { signUp } from '@/core/auth/providers/credentials';
 import { signUpSchema } from '@/core/auth/providers/credentials/schemas';
-import { useAuth } from '@/www/contexts/auth';
+import { useAuth } from '@/www/hooks/use-auth';
 import { createForm, zodForm } from '@modular-forms/solid';
 import { action, redirect, useAction } from '@solidjs/router';
 import { createMutation } from '@tanstack/solid-query';
