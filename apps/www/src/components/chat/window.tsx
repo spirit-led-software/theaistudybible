@@ -45,8 +45,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
     stop,
     addToolResult,
     chatQuery,
-    followUpSuggestionsQuery,
     remainingMessagesQuery,
+    chatSuggestionsResult,
   } = useChat(() => chatConfig());
 
   const isLoading = createMemo(() => status() === 'submitted' || status() === 'streaming');
@@ -150,7 +150,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
             messages={messages()}
             messagesQuery={messagesQuery}
             isLoading={isLoading()}
-            followUpSuggestionsQuery={followUpSuggestionsQuery}
             append={append}
             addToolResult={addToolResult}
             additionalContext={props.additionalContext}
@@ -163,11 +162,13 @@ export const ChatWindow = (props: ChatWindowProps) => {
           input={input}
           setInput={setInput}
           handleSubmit={handleSubmit}
+          append={append}
           scrollToBottom={scrollToBottom}
-          isLoading={isLoading()}
-          isAtBottom={isAtBottom()}
+          isLoading={isLoading}
+          isAtBottom={isAtBottom}
           stop={stop}
           remainingMessagesQuery={remainingMessagesQuery}
+          chatSuggestionsResult={chatSuggestionsResult}
         />
       </div>
     </SidebarProvider>

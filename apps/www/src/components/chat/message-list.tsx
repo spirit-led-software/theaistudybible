@@ -6,13 +6,11 @@ import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 import { EmptyWindow } from './empty-window';
 import { Message } from './message';
-import { SuggestionsMessage } from './message/suggestions';
 
 export type ChatMessageListProps = {
   messages: AiMessage[];
   messagesQuery: ReturnType<typeof useChat>['messagesQuery'];
   isLoading: boolean;
-  followUpSuggestionsQuery: ReturnType<typeof useChat>['followUpSuggestionsQuery'];
   append: ReturnType<typeof useChat>['append'];
   addToolResult: ReturnType<typeof useChat>['addToolResult'];
   additionalContext?: string;
@@ -61,20 +59,6 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
             </>
           )}
         </For>
-        <Show
-          when={
-            !props.isLoading &&
-            !props.followUpSuggestionsQuery.isFetching &&
-            props.followUpSuggestionsQuery.data
-          }
-          keyed
-        >
-          {({ suggestions }) => (
-            <Show when={suggestions.length > 0}>
-              <SuggestionsMessage suggestions={suggestions} append={props.append} />
-            </Show>
-          )}
-        </Show>
       </div>
     </div>
   );

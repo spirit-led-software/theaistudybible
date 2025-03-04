@@ -37,7 +37,7 @@ importers:
         version: 1.34.4
       ai:
         specifier: ^4.1.50
-        version: 4.1.50(react@19.0.0)(zod@3.24.2)
+        version: 4.1.51(react@19.0.0)(zod@3.24.2)
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -128,14 +128,14 @@ importers:
         version: 1.1.1
       svix:
         specifier: ^1.61.1
-        version: 1.61.1
+        version: 1.61.2
     devDependencies:
       '@sentry/aws-serverless':
         specifier: ^9.3.0
         version: 9.3.0
       '@sentry/esbuild-plugin':
         specifier: ^3.2.1
-        version: 3.2.1
+        version: 3.2.2
       '@theaistudybible/tsconfig':
         specifier: workspace:*
         version: link:../../tools/tsconfig
@@ -395,7 +395,7 @@ importers:
         version: 1.2.0
       braintrust:
         specifier: ^0.0.186
-        version: 0.0.186(@aws-sdk/credential-provider-web-identity@3.758.0)(openai@4.86.1(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.1.0(svelte@5.22.0))(svelte@5.22.0)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2)
+        version: 0.0.186(@aws-sdk/credential-provider-web-identity@3.758.0)(openai@4.86.1(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.1.0(svelte@5.22.1))(svelte@5.22.1)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2)
       openai:
         specifier: ^4.86.1
         version: 4.86.1(ws@8.18.1)(zod@3.24.2)
@@ -444,7 +444,7 @@ importers:
         version: 4.12.0
       ohash:
         specifier: ^2.0.10
-        version: 2.0.10
+        version: 2.0.11
       sentry-integration-libsql-client:
         specifier: ^1.3.1
         version: 1.3.1(@libsql/client@0.14.0)(@sentry/node@9.3.0)
@@ -3719,11 +3719,11 @@ packages:
   '@redocly/ajv@8.11.2':
     resolution: {integrity: sha512-io1JpnwtIcvojV7QKDUSIuMN/ikdOUd1ReEnUnMKGfDVridQZ31J0MmIuqwuRjWDZfmvr+Q0MqCcfHM2gTivOg==}
 
-  '@redocly/config@0.21.0':
-    resolution: {integrity: sha512-JBtrrjBIURTnzb7KUIWOF46vSgpfC3rO6Mm8LjtRjtTNCLTyB+mOuU7HrTkVcvUCEBuSuzkivlTHMWT4JETz9A==}
+  '@redocly/config@0.22.0':
+    resolution: {integrity: sha512-gAy93Ddo01Z3bHuVdPWfCwzgfaYgMdaZPcfL7JZ7hWJoK9V0lXDbigTWkhiPFAaLWzbOJ+kbUQG1+XwIm0KRGQ==}
 
-  '@redocly/openapi-core@1.32.1':
-    resolution: {integrity: sha512-nZvPWneybAWen2rhFksvhpA1VYIsr2bIrpJU4z20SQeH8BKUzPRiO+EtCodRqQQe/NIvf/tD85POtLRJ9PjaiA==}
+  '@redocly/openapi-core@1.32.2':
+    resolution: {integrity: sha512-E1GvI1lPAX1rJSrgoFJewWoenoPrG4VTm91WPGkbFPC4r+qcdwZzlL9rxbkY0kB5BiFeUr+l0xZxb5wjL5Fv7A==}
     engines: {node: '>=18.17.0', npm: '>=9.5.0'}
 
   '@rollup/plugin-alias@5.1.1':
@@ -3945,8 +3945,8 @@ packages:
     resolution: {integrity: sha512-V2g1Y1I5eSe7dtUVMBvAJr8BaLRr4CLrgNgtPaZyMT4Rnps82SrZ5zqmEkLXPumlXhLUWR6qzoMNN2u+RXVXfQ==}
     engines: {node: '>= 14'}
 
-  '@sentry/babel-plugin-component-annotate@3.2.1':
-    resolution: {integrity: sha512-tUp2e+CERpRFzTftjPxt7lg4BF0R3K+wGfeJyIqrc0tbJ2y6duT8OD0ArWoOi1g8xQ73NDn1/mEeS8pC+sbjTQ==}
+  '@sentry/babel-plugin-component-annotate@3.2.2':
+    resolution: {integrity: sha512-D+SKQ266ra/wo87s9+UI/rKQi3qhGPCR8eSCDe0VJudhjHsqyNU+JJ5lnIGCgmZaWFTXgdBP/gdr1Iz1zqGs4Q==}
     engines: {node: '>= 14'}
 
   '@sentry/browser@9.3.0':
@@ -3957,8 +3957,8 @@ packages:
     resolution: {integrity: sha512-1esQdgSUCww9XAntO4pr7uAM5cfGhLsgTK9MEwAKNfvpMYJi9NUTYa3A7AZmdA8V6107Lo4OD7peIPrDRbaDCg==}
     engines: {node: '>= 14'}
 
-  '@sentry/bundler-plugin-core@3.2.1':
-    resolution: {integrity: sha512-1wId05LXf6LyTeNwqyhSDSWYbYtFT/NQRqq3sW7hcL4nZuAgzT82PSvxeeCgR/D2qXOj7RCYXXZtyWzzo3wtXA==}
+  '@sentry/bundler-plugin-core@3.2.2':
+    resolution: {integrity: sha512-YGrtmqQ2jMixccX2slVG/Lw7pCGJL3DGB3clmY9mO8QBEBIN3/gEANiHJVWwRidpUOS/0b7yVVGAdwZ87oPwTg==}
     engines: {node: '>= 14'}
 
   '@sentry/cli-darwin@2.42.2':
@@ -4015,8 +4015,8 @@ packages:
     resolution: {integrity: sha512-SxQ4z7wTkfguvYb2ctNEMU9kVAbhl9ymfjhLnrvtygTwL5soLqAKdco/lX/4P9K9Osgb2Dl6urQWRl+AhzKVbQ==}
     engines: {node: '>=18'}
 
-  '@sentry/esbuild-plugin@3.2.1':
-    resolution: {integrity: sha512-z6Zn/c1oxWHDMGga5t6MLERgDFnoJc7k1FFErATzezzYLbYZsO/9qQZxMIkT/lZgbS6+uvj/xfuUo+2tiHjfXg==}
+  '@sentry/esbuild-plugin@3.2.2':
+    resolution: {integrity: sha512-hLyaWDJ62DqXTgzyNInvJDhw+sixNXfV/Ao1geyqom0U5g9vWZKtbGImMCGJWYmkEwNu6XwWBSr5D6Jk3k57XQ==}
     engines: {node: '>= 14'}
 
   '@sentry/node@9.3.0':
@@ -4469,6 +4469,11 @@ packages:
 
   '@surma/rollup-plugin-off-main-thread@2.2.3':
     resolution: {integrity: sha512-lR8q/9W7hZpMWweNiAKU7NQerBnzQQLvi8qnTDU/fxItPhtZVMbPV3lbCwjhIlNBe9Bbr5V+KHshvWmVSG9cxQ==}
+
+  '@sveltejs/acorn-typescript@1.0.5':
+    resolution: {integrity: sha512-IwQk4yfwLdibDlrXVE04jTZYlLnwsTT2PIOQQGNLWfjavGifnk1JD1LcZjZaBTRcxZu2FfPfNLOE04DSu9lqtQ==}
+    peerDependencies:
+      acorn: ^8.9.0
 
   '@swc/counter@0.1.3':
     resolution: {integrity: sha512-e2BR4lsJkkRlKZ/qCHPw9ZaSxc0MVUd7gtbtaB7aMvHeJVYe8sOB8DBZkP2DtISHGSku9sCK6T6cnY0CtXrOCQ==}
@@ -5117,8 +5122,8 @@ packages:
       zod:
         optional: true
 
-  ai@4.1.50:
-    resolution: {integrity: sha512-YBNeemrJKDrxoBQd3V9aaxhKm5q5YyRcF7PZE7W0NmLuvsdva/1aQNYTAsxs47gQFdvqfYmlFy4B0E+356OlPA==}
+  ai@4.1.51:
+    resolution: {integrity: sha512-CuJgbi2Ktfv/7jjxvUhFOGZ8OFxWQ8a7ZF19lwJuVLauL4uWHLetm6R3iaafahJ8ZkueSbhR/Bnroy5apd1nCw==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18 || ^19 || ^19.0.0-rc
@@ -7778,11 +7783,11 @@ packages:
   ofetch@1.4.1:
     resolution: {integrity: sha512-QZj2DfGplQAr2oj9KzceK9Hwz6Whxazmn85yYeVuS3u9XTMOGMRx0kO95MQ+vLsj/S/NwBDMMLU5hpxvI6Tklw==}
 
-  ohash@1.1.5:
-    resolution: {integrity: sha512-AtXrG/lMFjPBWj3uhWYFwYVZQqutPYRsv6nnPLTipnC+gJuMFc+WFzf/jx+94Ebray1vxfQfEFDtpIpppOe4xQ==}
+  ohash@1.1.6:
+    resolution: {integrity: sha512-TBu7PtV8YkAZn0tSxobKY2n2aAQva936lhRrj6957aDaCf9IEtqsKbgMzXE/F/sjqYOwmrukeORHNLe5glk7Cg==}
 
-  ohash@2.0.10:
-    resolution: {integrity: sha512-jf9szh2McTXpXGqejbfHxy4wcs6CXc6MShfzLIdHuCrl2W3qG49qutlOMq1Bdmvpv3s/XJffTu4ElRBPtIOncQ==}
+  ohash@2.0.11:
+    resolution: {integrity: sha512-RdR9FQrFwNBNXAr4GixM8YaRZRJ5PUWbKYbE5eOsrwAjJW0q2REGcf79oYPsLyskQCZG1PLN+S/K1V00joZAoQ==}
 
   oidc-token-hash@5.1.0:
     resolution: {integrity: sha512-y0W+X7Ppo7oZX6eovsRkuzcSM40Bicg2JEJkDJ4irIt1wsYAP5MLSNv+QAogO8xivMffw/9OvV3um1pxXgt1uA==}
@@ -8819,15 +8824,15 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte@5.22.0:
-    resolution: {integrity: sha512-Av/1qn4JEhuLB5xHMoiaKhxnBgf4NfDarvCh7mplaNqwXWpNq+3IPCDAHS31HGsRaclexhYLb3y4vxdgkrN0JQ==}
+  svelte@5.22.1:
+    resolution: {integrity: sha512-b9DQGnfrZc+km4u3j6qkEY87pYe23yfgBT03CkeBlYST+Wzij7ut1o0BSoQ+UmiyAO1nPh9DMJJCoGDdUOrunw==}
     engines: {node: '>=18'}
 
   svix-fetch@3.0.0:
     resolution: {integrity: sha512-rcADxEFhSqHbraZIsjyZNh4TF6V+koloX1OzZ+AQuObX9mZ2LIMhm1buZeuc5BIZPftZpJCMBsSiBaeszo9tRw==}
 
-  svix@1.61.1:
-    resolution: {integrity: sha512-NOl+EXnZzOsUausqLRzG3ACflho9FWf8HW0FG7gT1Jnik9Uj4j1Qp9U8NRpZHjska6NAFrnOSKobpdPHWgu5eA==}
+  svix@1.61.2:
+    resolution: {integrity: sha512-F16110fvmGf6+Oj/4UO3vllZn7/d4KeVNOv70irN8XYbMI3R3AMWOTyTli1qauFUud4CWYIMRfhpRxVGxdvcHg==}
 
   swr@2.3.2:
     resolution: {integrity: sha512-RosxFpiabojs75IwQ316DGoDRmOqtiAj0tg8wCcbEu4CiLZBs/a9QNtHV7TUfDXmmlgqij/NqzKq/eLelyv9xA==}
@@ -9898,13 +9903,13 @@ snapshots:
     optionalDependencies:
       solid-js: 1.9.5
 
-  '@ai-sdk/svelte@0.0.57(svelte@5.22.0)(zod@3.24.2)':
+  '@ai-sdk/svelte@0.0.57(svelte@5.22.1)(zod@3.24.2)':
     dependencies:
       '@ai-sdk/provider-utils': 1.0.22(zod@3.24.2)
       '@ai-sdk/ui-utils': 0.0.50(zod@3.24.2)
-      sswr: 2.1.0(svelte@5.22.0)
+      sswr: 2.1.0(svelte@5.22.1)
     optionalDependencies:
-      svelte: 5.22.0
+      svelte: 5.22.1
     transitivePeerDependencies:
       - zod
 
@@ -12936,12 +12941,12 @@ snapshots:
       require-from-string: 2.0.2
       uri-js-replace: 1.0.1
 
-  '@redocly/config@0.21.0': {}
+  '@redocly/config@0.22.0': {}
 
-  '@redocly/openapi-core@1.32.1(supports-color@9.4.0)':
+  '@redocly/openapi-core@1.32.2(supports-color@9.4.0)':
     dependencies:
       '@redocly/ajv': 8.11.2
-      '@redocly/config': 0.21.0
+      '@redocly/config': 0.22.0
       colorette: 1.4.0
       https-proxy-agent: 7.0.6(supports-color@9.4.0)
       js-levenshtein: 1.1.6
@@ -13163,7 +13168,7 @@ snapshots:
 
   '@sentry/babel-plugin-component-annotate@2.22.6': {}
 
-  '@sentry/babel-plugin-component-annotate@3.2.1': {}
+  '@sentry/babel-plugin-component-annotate@3.2.2': {}
 
   '@sentry/browser@9.3.0':
     dependencies:
@@ -13187,10 +13192,10 @@ snapshots:
       - encoding
       - supports-color
 
-  '@sentry/bundler-plugin-core@3.2.1':
+  '@sentry/bundler-plugin-core@3.2.2':
     dependencies:
       '@babel/core': 7.26.9
-      '@sentry/babel-plugin-component-annotate': 3.2.1
+      '@sentry/babel-plugin-component-annotate': 3.2.2
       '@sentry/cli': 2.42.2
       dotenv: 16.4.7
       find-up: 5.0.0
@@ -13249,9 +13254,9 @@ snapshots:
 
   '@sentry/core@9.3.0': {}
 
-  '@sentry/esbuild-plugin@3.2.1':
+  '@sentry/esbuild-plugin@3.2.2':
     dependencies:
-      '@sentry/bundler-plugin-core': 3.2.1
+      '@sentry/bundler-plugin-core': 3.2.2
       unplugin: 1.0.1
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -13932,6 +13937,10 @@ snapshots:
       json5: 2.2.3
       magic-string: 0.25.9
       string.prototype.matchall: 4.0.12
+
+  '@sveltejs/acorn-typescript@1.0.5(acorn@8.14.0)':
+    dependencies:
+      acorn: 8.14.0
 
   '@swc/counter@0.1.3': {}
 
@@ -14940,13 +14949,13 @@ snapshots:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
-  ai@3.4.33(openai@4.86.1(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.1.0(svelte@5.22.0))(svelte@5.22.0)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2):
+  ai@3.4.33(openai@4.86.1(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.1.0(svelte@5.22.1))(svelte@5.22.1)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2):
     dependencies:
       '@ai-sdk/provider': 0.0.26
       '@ai-sdk/provider-utils': 1.0.22(zod@3.24.2)
       '@ai-sdk/react': 0.0.70(react@19.0.0)(zod@3.24.2)
       '@ai-sdk/solid': 0.0.54(solid-js@1.9.5)(zod@3.24.2)
-      '@ai-sdk/svelte': 0.0.57(svelte@5.22.0)(zod@3.24.2)
+      '@ai-sdk/svelte': 0.0.57(svelte@5.22.1)(zod@3.24.2)
       '@ai-sdk/ui-utils': 0.0.50(zod@3.24.2)
       '@ai-sdk/vue': 0.0.59(vue@3.5.13(typescript@5.8.2))(zod@3.24.2)
       '@opentelemetry/api': 1.9.0
@@ -14958,14 +14967,14 @@ snapshots:
     optionalDependencies:
       openai: 4.86.1(ws@8.18.1)(zod@3.24.2)
       react: 19.0.0
-      sswr: 2.1.0(svelte@5.22.0)
-      svelte: 5.22.0
+      sswr: 2.1.0(svelte@5.22.1)
+      svelte: 5.22.1
       zod: 3.24.2
     transitivePeerDependencies:
       - solid-js
       - vue
 
-  ai@4.1.50(react@19.0.0)(zod@3.24.2):
+  ai@4.1.51(react@19.0.0)(zod@3.24.2):
     dependencies:
       '@ai-sdk/provider': 1.0.9
       '@ai-sdk/provider-utils': 2.1.10(zod@3.24.2)
@@ -15254,13 +15263,13 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  braintrust@0.0.186(@aws-sdk/credential-provider-web-identity@3.758.0)(openai@4.86.1(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.1.0(svelte@5.22.0))(svelte@5.22.0)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2):
+  braintrust@0.0.186(@aws-sdk/credential-provider-web-identity@3.758.0)(openai@4.86.1(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.1.0(svelte@5.22.1))(svelte@5.22.1)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2):
     dependencies:
       '@ai-sdk/provider': 1.0.9
       '@braintrust/core': 0.0.80
       '@next/env': 14.2.24
       '@vercel/functions': 1.6.0(@aws-sdk/credential-provider-web-identity@3.758.0)
-      ai: 3.4.33(openai@4.86.1(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.1.0(svelte@5.22.0))(svelte@5.22.0)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2)
+      ai: 3.4.33(openai@4.86.1(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.1.0(svelte@5.22.1))(svelte@5.22.1)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2)
       argparse: 2.0.1
       chalk: 4.1.2
       cli-progress: 3.12.0
@@ -15325,7 +15334,7 @@ snapshots:
       giget: 1.2.5
       jiti: 2.4.2
       mlly: 1.7.4
-      ohash: 1.1.5
+      ohash: 1.1.6
       pathe: 1.1.2
       perfect-debounce: 1.0.0
       pkg-types: 1.3.1
@@ -16592,7 +16601,7 @@ snapshots:
       defu: 6.1.4
       destr: 2.0.3
       iron-webcrypto: 1.2.1
-      ohash: 1.1.5
+      ohash: 1.1.6
       radix3: 1.1.2
       ufo: 1.5.4
       uncrypto: 0.1.3
@@ -17856,7 +17865,7 @@ snapshots:
       mlly: 1.7.4
       node-fetch-native: 1.6.6
       ofetch: 1.4.1
-      ohash: 1.1.5
+      ohash: 1.1.6
       openapi-typescript: 7.6.1(typescript@5.8.2)
       pathe: 1.1.2
       perfect-debounce: 1.0.0
@@ -17986,9 +17995,9 @@ snapshots:
       node-fetch-native: 1.6.6
       ufo: 1.5.4
 
-  ohash@1.1.5: {}
+  ohash@1.1.6: {}
 
-  ohash@2.0.10: {}
+  ohash@2.0.11: {}
 
   oidc-token-hash@5.1.0: {}
 
@@ -18039,7 +18048,7 @@ snapshots:
 
   openapi-typescript@7.6.1(typescript@5.8.2):
     dependencies:
-      '@redocly/openapi-core': 1.32.1(supports-color@9.4.0)
+      '@redocly/openapi-core': 1.32.2(supports-color@9.4.0)
       ansi-colors: 4.1.3
       change-case: 5.4.4
       parse-json: 8.1.0
@@ -19075,9 +19084,9 @@ snapshots:
       sst-linux-x64: 3.9.23
       sst-linux-x86: 3.9.23
 
-  sswr@2.1.0(svelte@5.22.0):
+  sswr@2.1.0(svelte@5.22.1):
     dependencies:
-      svelte: 5.22.0
+      svelte: 5.22.1
       swrev: 4.0.0
 
   stackback@0.0.2: {}
@@ -19230,13 +19239,13 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte@5.22.0:
+  svelte@5.22.1:
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@jridgewell/sourcemap-codec': 1.5.0
+      '@sveltejs/acorn-typescript': 1.0.5(acorn@8.14.0)
       '@types/estree': 1.0.6
       acorn: 8.14.0
-      acorn-typescript: 1.4.13(acorn@8.14.0)
       aria-query: 5.3.2
       axobject-query: 4.1.0
       clsx: 2.1.1
@@ -19254,7 +19263,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  svix@1.61.1:
+  svix@1.61.2:
     dependencies:
       '@stablelib/base64': 1.0.1
       '@types/node': 22.13.9

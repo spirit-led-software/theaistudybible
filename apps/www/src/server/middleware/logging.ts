@@ -16,7 +16,7 @@ export namespace loggingMiddleware {
         getHeader(nativeEvent, 'x-real-ip') ??
         'unknown';
 
-      console.log(`${requestId} <-- ${request.method} ${url.pathname}`);
+      console.log(`${requestId} <-- ${request.method} ${url.pathname}${url.search}`);
       console.log(`${requestId} (?) IP: ${ip} | User-Agent: ${userAgent}`);
       if (Resource.Dev.value === 'true') {
         const body = await request.clone().text();

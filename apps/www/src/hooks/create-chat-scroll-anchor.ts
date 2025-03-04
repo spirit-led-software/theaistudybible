@@ -60,7 +60,7 @@ export const createChatScrollAnchor = (input?: Accessor<CreateChatScrollAnchorIn
 
       if (scrollRef && bottomRef) {
         const observer = new MutationObserver(() => {
-          if (isAtBottom() && (isTopVisible() || !isLoading())) {
+          if (isAtBottom() && isLoading() && (!topOfLastMessageRef() || isTopVisible())) {
             bottomRef.scrollIntoView({ behavior: 'instant', block: 'end' });
           }
         });

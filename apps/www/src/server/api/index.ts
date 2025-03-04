@@ -6,6 +6,7 @@ import bibles from './endpoints/public/bibles';
 import dataSources from './endpoints/public/data-sources';
 import devotions from './endpoints/public/devotions';
 import chat from './endpoints/secure/chat';
+import chatSuggestions from './endpoints/secure/chat-suggestions';
 import chats from './endpoints/secure/chats';
 import generatedImages from './endpoints/secure/generated-images';
 import messages from './endpoints/secure/messages';
@@ -36,6 +37,7 @@ export const app = new Hono<{
   .route('/devotions', devotions)
   // Secure routes
   .route('/chat', chat)
+  .route('/chat-suggestions', chatSuggestions)
   .route('/chats', chats)
   .route('/generated-images', generatedImages)
   .route('/messages', messages)

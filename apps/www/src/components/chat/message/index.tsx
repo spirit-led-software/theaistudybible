@@ -104,7 +104,8 @@ export const Message = (props: MessageProps) => {
                         when={
                           props.isLoading &&
                           props.message.role === 'assistant' &&
-                          (!props.nextMessage || idx() === parts.length - 1)
+                          !props.nextMessage &&
+                          idx() === parts.length - 1
                         }
                         fallback={<Markdown>{text()}</Markdown>}
                       >
