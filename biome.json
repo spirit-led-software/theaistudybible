@@ -18,7 +18,8 @@
       "**/pnpm-lock.yaml",
       "**/migrations",
       "**/sst-env.d.ts",
-      "packages/core/src/utils/bibles/__tests__/MAT.json"
+      "packages/core/src/utils/bibles/__tests__/MAT.json",
+      "apps/www/app/routeTree.gen.ts"
     ]
   },
   "formatter": {

@@ -1,0 +1,194 @@
+import { useAuth } from '@/www/hooks/use-auth';
+import { Link } from '@tanstack/react-router';
+import {
+  BookOpen,
+  Bookmark,
+  CreditCard,
+  CreditCardIcon,
+  FileText,
+  HelpCircle,
+  Highlighter,
+  Info,
+  Lightbulb,
+  Mail,
+  MessageCircle,
+  Notebook,
+  Shield,
+} from 'lucide-react';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuTrigger,
+} from '../ui/navigation-menu';
+import { H6, P } from '../ui/typography';
+
+export type MenuProps = {
+  orientation?: 'vertical' | 'horizontal';
+};
+
+export const Menu = (props: MenuProps) => {
+  const { isAdmin } = useAuth();
+
+  return (
+    <NavigationMenu orientation={props.orientation} className='w-full gap-1'>
+      <NavigationMenuItem>
+        <NavigationMenuLink
+          asChild
+          className='bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground focus:bg-primary/80 focus:text-primary-foreground'
+        >
+          <Link to='/about/install'>Install</Link>
+        </NavigationMenuLink>
+      </NavigationMenuItem>
+      <NavigationMenuItem>
+        <NavigationMenuTrigger className='justify-between bg-transparent'>
+          About
+        </NavigationMenuTrigger>
+        <NavigationMenuContent className='grid w-[500px] grid-cols-3 gap-2'>
+          <NavigationMenuLink className='h-full w-full' asChild>
+            <Link to='/about'>
+              <H6 className='flex items-center gap-2'>
+                <Info />
+                About
+              </H6>
+              <P>Learn about our mission</P>
+            </Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink className='h-full w-full' asChild>
+            <Link to='/about/faq'>
+              <H6 className='flex items-center gap-2'>
+                <HelpCircle />
+                FAQ
+              </H6>
+              <P>Frequently asked questions</P>
+            </Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink className='h-full w-full' asChild>
+            <Link to='/privacy'>
+              <H6 className='flex items-center gap-2'>
+                <Shield />
+                Privacy
+              </H6>
+              <P>Learn about our privacy practices</P>
+            </Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink className='h-full w-full' asChild>
+            <Link to='/terms'>
+              <H6 className='flex items-center gap-2'>
+                <FileText />
+                Terms
+              </H6>
+              <P>Learn about our terms of service</P>
+            </Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink asChild className='h-full w-full'>
+            <a href='mailto:support@theaistudybible.com'>
+              <H6 className='flex items-center gap-2'>
+                <Mail />
+                Contact
+              </H6>
+              <P>Contact us via email</P>
+            </a>
+          </NavigationMenuLink>
+          <NavigationMenuLink asChild className='h-full w-full'>
+            <a href={import.meta.env.PUBLIC_DONATION_LINK}>
+              <H6 className='flex items-center gap-2'>
+                <CreditCard />
+                Donate
+              </H6>
+              <P>Support our mission</P>
+            </a>
+          </NavigationMenuLink>
+        </NavigationMenuContent>
+      </NavigationMenuItem>
+      <NavigationMenuItem>
+        <NavigationMenuTrigger className='justify-between bg-transparent'>
+          Bible
+        </NavigationMenuTrigger>
+        <NavigationMenuContent className='grid w-[400px] grid-cols-2 gap-2'>
+          <NavigationMenuLink asChild className='h-full w-full'>
+            <Link to='/bible'>
+              <H6 className='flex items-center gap-2'>
+                <BookOpen />
+                Read
+              </H6>
+              <P>Read the Bible</P>
+            </Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink asChild className='h-full w-full'>
+            <Link to='/profile/highlights'>
+              <H6 className='flex items-center gap-2'>
+                <Highlighter />
+                Highlights
+              </H6>
+              <P>View your highlights</P>
+            </Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink asChild className='h-full w-full'>
+            <Link to='/profile/notes'>
+              <H6 className='flex items-center gap-2'>
+                <Notebook />
+                Notes
+              </H6>
+              <P>View your notes</P>
+            </Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink asChild className='h-full w-full'>
+            <Link to='/profile/bookmarks'>
+              <H6 className='flex items-center gap-2'>
+                <Bookmark />
+                Bookmarks
+              </H6>
+              <P>View your bookmarks</P>
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenuContent>
+      </NavigationMenuItem>
+      <NavigationMenuItem>
+        <NavigationMenuTrigger className='justify-between bg-transparent'>AI</NavigationMenuTrigger>
+        <NavigationMenuContent className='grid w-[500px] grid-cols-3 gap-2'>
+          <NavigationMenuLink asChild className='h-full w-full'>
+            <Link to='/chat'>
+              <H6 className='flex items-center gap-2'>
+                <MessageCircle />
+                Chat
+              </H6>
+              <P>Engage with AI about Christianity</P>
+            </Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink asChild className='h-full w-full'>
+            <Link to='/devotion'>
+              <H6 className='flex items-center gap-2'>
+                <Lightbulb />
+                Devotions
+              </H6>
+              <P>View today's devotion</P>
+            </Link>
+          </NavigationMenuLink>
+          <NavigationMenuLink asChild className='h-full w-full'>
+            <Link to='/pro'>
+              <H6 className='flex items-center gap-2'>
+                <CreditCardIcon />
+                Pro
+              </H6>
+              <P>Unlock Pro AI features</P>
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenuContent>
+      </NavigationMenuItem>
+      {isAdmin && (
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild className='bg-transparent'>
+            <Link to='/admin'>
+              <H6 className='flex items-center gap-2'>
+                <Shield />
+                Admin
+              </H6>
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      )}
+    </NavigationMenu>
+  );
+};
