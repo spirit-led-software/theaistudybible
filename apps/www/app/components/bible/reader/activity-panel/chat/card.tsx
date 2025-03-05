@@ -7,12 +7,12 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/www/components/ui/c
 import { DrawerClose } from '@/www/components/ui/drawer';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { createMemo } from 'solid-js';
+import { useMemo } from 'react';
 
 export const ChatCard = () => {
-  const [brStore] = useBibleReaderStore();
+  const brStore = useBibleReaderStore();
 
-  const additionalContext = createMemo(() => {
+  const additionalContext = useMemo(() => {
     if (brStore.selectedText) {
       return `"${brStore.selectedText}" - ${brStore.selectedTitle}`;
     }
@@ -23,7 +23,7 @@ export const ChatCard = () => {
       return `"${contentsToText(brStore.chapter.content)}" - ${brStore.chapter.name}`;
     }
     return undefined;
-  });
+  }, [brStore.selectedText, brStore.selectedTitle, brStore.verse, brStore.chapter]);
 
   return (
     <Card className='flex w-full flex-1 flex-col overflow-hidden'>
@@ -34,19 +34,19 @@ export const ChatCard = () => {
             <CardContent className='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
               <div className='flex h-full w-full flex-col place-items-center justify-center'>
                 <P>
-                  Please <Button as={SignInButton} /> to chat
+                  Please <SignInButton>Sign In</SignInButton> to chat
                 </P>
               </div>
             </CardContent>
             <CardFooter className='flex justify-end'>
-              <DrawerClose as={Button} variant='outline'>
-                Close
-              </DrawerClose>
+              <Button variant='outline' asChild>
+                <DrawerClose>Close</DrawerClose>
+              </Button>
             </CardFooter>
           </>
         }
       >
-        <ChatWindow additionalContext={additionalContext()} />
+        <ChatWindow additionalContext={additionalContext} />
       </SignedIn>
     </Card>
   );

@@ -27,12 +27,18 @@ export type MessageProps = {
   isLoading: boolean;
 };
 
-export const Message = (props: MessageProps) => {
+export const Message = ({
+  message,
+  previousMessage,
+  nextMessage,
+  addToolResult,
+  isLoading,
+}: MessageProps) => {
   const [, copy] = useCopyToClipboard();
 
   const modelInfo = useMemo(() => {
     const modelId =
-      (props.message.annotations?.find(
+      (message.annotations?.find(
         (a) =>
           typeof a === 'object' &&
           a !== null &&
@@ -42,26 +48,26 @@ export const Message = (props: MessageProps) => {
       ) as { modelId: string } | undefined) ?? {};
 
     return allChatModels.find((m) => `${m.host}:${m.id}` === modelId);
-  }, [props.message.annotations]);
+  }, [message.annotations]);
 
   return (
     <article
       className={cn(
         'flex w-full max-w-3xl space-x-4 overflow-hidden px-3 py-4',
-        props.previousMessage?.role === props.message.role ? 'border-t-0' : 'border-t',
+        previousMessage?.role === message.role ? 'border-t-0' : 'border-t',
       )}
-      aria-label={`${props.message.role === 'assistant' ? 'AI' : 'User'} message`}
+      aria-label={`${message.role === 'assistant' ? 'AI' : 'User'} message`}
     >
       <div className='mt-2 flex h-full w-10 shrink-0 items-start'>
-        {props.previousMessage?.role !== props.message.role &&
-          (props.message.role === 'user' ? (
+        {previousMessage?.role !== message.role &&
+          (message.role === 'user' ? (
             <UserAvatar className='size-10 shrink-0' aria-label='User avatar' />
-          ) : props.message.role === 'assistant' ? (
+          ) : message.role === 'assistant' ? (
             <div
               className={cn(
                 'relative flex size-10 shrink-0 place-items-center justify-center rounded-full bg-primary p-2',
-                props.isLoading &&
-                  !props.nextMessage &&
+                isLoading &&
+                  !nextMessage &&
                   'before:absolute before:inset-0 before:scale-110 before:animate-spin before:rounded-full before:border-3 before:border-accent-foreground before:border-t-transparent before:border-r-transparent before:border-l-transparent before:duration-500',
               )}
               aria-label='AI assistant avatar'
@@ -71,22 +77,22 @@ export const Message = (props: MessageProps) => {
           ) : null)}
       </div>
       <div className='flex w-full flex-col gap-4 overflow-hidden'>
-        {(props.message.parts?.length ?? 0) === 0 ? (
+        {(message.parts?.length ?? 0) === 0 ? (
           <>
-            {(props.message.toolInvocations?.length ?? 0) > 0 &&
-              props.message.toolInvocations &&
-              props.message.toolInvocations.map((toolInvocation) => (
+            {(message.toolInvocations?.length ?? 0) > 0 &&
+              message.toolInvocations &&
+              message.toolInvocations.map((toolInvocation) => (
                 <Tool
                   key={toolInvocation.toolCallId}
                   toolInvocation={toolInvocation}
-                  addToolResult={props.addToolResult}
-                  isLoading={props.isLoading && !props.nextMessage}
+                  addToolResult={addToolResult}
+                  isLoading={isLoading && !nextMessage}
                 />
               ))}
-            {props.message.content && <Markdown>{props.message.content}</Markdown>}
+            {message.content && <Markdown>{message.content}</Markdown>}
           </>
         ) : (
-          props.message.parts?.map((part, idx) => (
+          message.parts?.map((part, idx) => (
             <Fragment key={`${part.type}-${idx}`}>
               {part.type === 'text' && <Markdown>{part.text}</Markdown>}
               {part.type === 'reasoning' && (
@@ -104,14 +110,14 @@ export const Message = (props: MessageProps) => {
               {part.type === 'tool-invocation' && (
                 <Tool
                   toolInvocation={part.toolInvocation}
-                  addToolResult={props.addToolResult}
-                  isLoading={props.isLoading && !props.nextMessage}
+                  addToolResult={addToolResult}
+                  isLoading={isLoading && !nextMessage}
                 />
               )}
             </Fragment>
           ))
         )}
-        {props.message.role === 'assistant' && props.message.role !== props.nextMessage?.role && (
+        {message.role === 'assistant' && message.role !== nextMessage?.role && (
           <div className='flex items-center gap-1' role='toolbar' aria-label='Message actions'>
             {modelInfo && (
               <Button
@@ -128,14 +134,14 @@ export const Message = (props: MessageProps) => {
               variant='ghost'
               className='h-fit w-fit p-1'
               onClick={() => {
-                copy(props.message.content);
+                copy(message.content);
                 toast.success('Text copied');
               }}
               aria-label='Copy message'
             >
               <Copy size={15} aria-hidden='true' />
             </Button>
-            <MessageReactionButtons messageId={getMessageId(props.message)} />
+            <MessageReactionButtons messageId={getMessageId(message)} />
           </div>
         )}
       </div>

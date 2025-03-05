@@ -9,33 +9,36 @@ import { Spinner } from '@/www/components/ui/spinner';
 import { ToggleGroup, ToggleGroupItem } from '@/www/components/ui/toggle-group';
 import { P } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { requireAuth } from '@/www/server/utils/auth';
-import { action, useAction } from '@solidjs/router';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { requireAuthMiddleware } from '@/www/server/middleware/auth';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createServerFn } from '@tanstack/react-start';
 import { and, eq, inArray } from 'drizzle-orm';
-import { Show, createSignal } from 'solid-js';
-import { toast } from 'solid-sonner';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { z } from 'zod';
 import { useActivityPanel } from '..';
 import { ColorItem } from './color-item';
 
-const updateHighlightsAction = action(
-  async ({
-    color,
-    bibleAbbreviation,
-    chapterCode,
-    verseNumbers,
-  }: { color: string; bibleAbbreviation: string; chapterCode: string; verseNumbers: number[] }) => {
-    'use server';
-    console.log('updateHighlightsAction', { color, bibleAbbreviation, chapterCode, verseNumbers });
-    const { user } = requireAuth();
+const updateHighlights = createServerFn({ method: 'POST' })
+  .middleware([requireAuthMiddleware])
+  .validator(
+    z.object({
+      color: z.string().optional().default('#FFD700'),
+      bibleAbbreviation: z.string(),
+      chapterCode: z.string(),
+      verseNumbers: z.array(z.number()),
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    const { user } = context;
     const query = db
       .insert(verseHighlights)
       .values(
-        verseNumbers.map((vn) => ({
-          color,
+        data.verseNumbers.map((vn) => ({
+          color: data.color,
           userId: user.id,
-          bibleAbbreviation,
-          verseCode: `${chapterCode}.${vn}`,
+          bibleAbbreviation: data.bibleAbbreviation,
+          verseCode: `${data.chapterCode}.${vn}`,
         })),
       )
       .onConflictDoUpdate({
@@ -44,7 +47,7 @@ const updateHighlightsAction = action(
           verseHighlights.bibleAbbreviation,
           verseHighlights.verseCode,
         ],
-        set: { color },
+        set: { color: data.color },
       })
       .returning();
     console.log('query:', query.toSQL().sql);
@@ -52,49 +55,49 @@ const updateHighlightsAction = action(
     const highlights = await query;
 
     return { highlights };
-  },
-);
+  });
 
-const deleteHighlightsAction = action(
-  async ({
-    bibleAbbreviation,
-    chapterCode,
-    verseNumbers,
-  }: { bibleAbbreviation: string; chapterCode: string; verseNumbers: number[] }) => {
-    'use server';
-    const { user } = requireAuth();
+const deleteHighlights = createServerFn({ method: 'POST' })
+  .middleware([requireAuthMiddleware])
+  .validator(
+    z.object({
+      bibleAbbreviation: z.string(),
+      chapterCode: z.string(),
+      verseNumbers: z.array(z.number()),
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    const { user } = context;
     await db.delete(verseHighlights).where(
       and(
         eq(verseHighlights.userId, user.id),
-        eq(verseHighlights.bibleAbbreviation, bibleAbbreviation),
+        eq(verseHighlights.bibleAbbreviation, data.bibleAbbreviation),
         inArray(
           verseHighlights.verseCode,
-          verseNumbers.map((vn) => `${chapterCode}.${vn}`),
+          data.verseNumbers.map((vn) => `${data.chapterCode}.${vn}`),
         ),
       ),
     );
     return { success: true };
-  },
-);
+  });
 
 export const HighlightCard = () => {
-  const updateHighlights = useAction(updateHighlightsAction);
-  const deleteHighlights = useAction(deleteHighlightsAction);
-
   const qc = useQueryClient();
-  const [brStore, setBrStore] = useBibleReaderStore();
+  const brStore = useBibleReaderStore();
   const { setValue } = useActivityPanel();
 
-  const addHighlightsMutation = createMutation(() => ({
+  const addHighlightsMutation = useMutation({
     mutationFn: (props: { color?: string; verseNumbers: number[] }) =>
       updateHighlights({
-        ...props,
-        chapterCode: brStore.chapter.code,
-        bibleAbbreviation: brStore.bible.abbreviation,
-        color: props.color ?? '#FFD700',
+        data: {
+          ...props,
+          chapterCode: brStore.chapter.code,
+          bibleAbbreviation: brStore.bible.abbreviation,
+          color: props.color ?? '#FFD700',
+        },
       }),
     onSuccess: () => {
-      setBrStore('selectedVerseInfos', []);
+      brStore.setSelectedVerseInfos([]);
       setValue(undefined);
     },
     onError: (err) => {
@@ -105,17 +108,19 @@ export const HighlightCard = () => {
       qc.invalidateQueries({
         queryKey: ['highlights'],
       }),
-  }));
+  });
 
-  const deleteHighlightsMutation = createMutation(() => ({
+  const deleteHighlightsMutation = useMutation({
     mutationFn: (props: { verseNumbers: number[] }) =>
       deleteHighlights({
-        ...props,
-        bibleAbbreviation: brStore.bible.abbreviation,
-        chapterCode: brStore.chapter.code,
+        data: {
+          ...props,
+          bibleAbbreviation: brStore.bible.abbreviation,
+          chapterCode: brStore.chapter.code,
+        },
       }),
     onSuccess: () => {
-      setBrStore('selectedVerseInfos', []);
+      brStore.setSelectedVerseInfos([]);
       setValue(undefined);
     },
     onError: (err) => {
@@ -125,9 +130,9 @@ export const HighlightCard = () => {
       qc.invalidateQueries({
         queryKey: ['highlights'],
       }),
-  }));
+  });
 
-  const [tgValue, setTgValue] = createSignal<string | null>(null);
+  const [tgValue, setTgValue] = useState<string | null>(null);
 
   return (
     <Card>
@@ -138,13 +143,13 @@ export const HighlightCard = () => {
             <CardContent className='flex w-full flex-1 flex-col place-items-center justify-center pt-6'>
               <div className='flex h-full w-full flex-col place-items-center justify-center'>
                 <P className='text-lg'>
-                  Please <Button as={SignInButton} /> to highlight
+                  Please <SignInButton>Sign In</SignInButton> to highlight
                 </P>
               </div>
             </CardContent>
             <CardFooter className='flex justify-end'>
-              <DrawerClose as={Button} variant='outline'>
-                Close
+              <DrawerClose asChild>
+                <Button variant='outline'>Close</Button>
               </DrawerClose>
             </CardFooter>
           </>
@@ -155,8 +160,9 @@ export const HighlightCard = () => {
         </CardHeader>
         <CardContent>
           <ToggleGroup
+            type='single'
             className='grid grid-cols-4 grid-rows-2'
-            onChange={(value) => setTgValue(value)}
+            onValueChange={(value) => setTgValue(value)}
           >
             <ToggleGroupItem value='clear' className='flex justify-center sm:justify-start'>
               <span className='flex items-center space-x-2'>
@@ -174,29 +180,31 @@ export const HighlightCard = () => {
           </ToggleGroup>
         </CardContent>
         <CardFooter className='flex justify-end gap-2'>
-          <DrawerClose as={Button} variant='outline'>
-            Close
+          <DrawerClose asChild>
+            <Button variant='outline'>Close</Button>
           </DrawerClose>
           <Button
             disabled={
-              !tgValue() || addHighlightsMutation.isPending || deleteHighlightsMutation.isPending
+              !tgValue || addHighlightsMutation.isPending || deleteHighlightsMutation.isPending
             }
             onClick={() => {
-              if (tgValue() === 'clear') {
+              if (tgValue === 'clear') {
                 deleteHighlightsMutation.mutate({
                   verseNumbers: brStore.selectedVerseInfos.map((v) => v.number),
                 });
               } else {
                 addHighlightsMutation.mutate({
                   verseNumbers: brStore.selectedVerseInfos.map((v) => v.number),
-                  color: tgValue() || undefined,
+                  color: tgValue || undefined,
                 });
               }
             }}
           >
-            <Show when={addHighlightsMutation.isPending} fallback={'Save'}>
+            {addHighlightsMutation.isPending ? (
               <Spinner size='sm' variant='primary-foreground' />
-            </Show>
+            ) : (
+              'Save'
+            )}
           </Button>
         </CardFooter>
       </SignedIn>

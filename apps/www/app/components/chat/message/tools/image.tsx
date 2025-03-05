@@ -6,6 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/www/components/ui/dialog';
+import { Image, ImageFallback, ImageImage } from '@/www/components/ui/image';
 import { Markdown } from '@/www/components/ui/markdown';
 import { Spinner } from '@/www/components/ui/spinner';
 import { H5, H6 } from '@/www/components/ui/typography';
@@ -67,47 +68,24 @@ export const GenerateImageTool = (props: GenerateImageToolProps) => {
                   <div className='h-auto w-[128px]'>
                     <Dialog>
                       <DialogTrigger>
-                        <div className='relative'>
-                          <img
-                            src={result.image.url!}
-                            alt={result.image.prompt ?? result.image.userPrompt}
-                            loading='lazy'
-                            width={128}
-                            className='h-auto w-full rounded-md'
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const fallback = target.nextElementSibling;
-                              if (fallback) fallback.classList.remove('hidden');
-                            }}
-                          />
-                          <div className='flex hidden h-full min-h-52 w-full items-center justify-center rounded-md bg-muted'>
+                        <Image className='w-full'>
+                          <ImageImage src={result.image.url!} />
+                          <ImageFallback>
                             <Spinner size='sm' />
-                          </div>
-                        </div>
+                          </ImageFallback>
+                        </Image>
                       </DialogTrigger>
                       <DialogContent className='max-w-[var(--breakpoint-lg)]'>
                         <DialogHeader>
                           <DialogTitle>Generated Image</DialogTitle>
                         </DialogHeader>
                         <a href={result.image.url!} target='_blank' rel='noopener noreferrer'>
-                          <div className='relative'>
-                            <img
-                              src={result.image.url!}
-                              alt={result.image.prompt ?? result.image.userPrompt}
-                              loading='lazy'
-                              className='h-auto w-full rounded-md'
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const fallback = target.nextElementSibling;
-                                if (fallback) fallback.classList.remove('hidden');
-                              }}
-                            />
-                            <div className='flex hidden h-full min-h-52 w-full items-center justify-center rounded-md bg-muted'>
+                          <Image className='w-full'>
+                            <ImageImage src={result.image.url!} />
+                            <ImageFallback>
                               <Spinner size='sm' />
-                            </div>
-                          </div>
+                            </ImageFallback>
+                          </Image>
                         </a>
                       </DialogContent>
                     </Dialog>

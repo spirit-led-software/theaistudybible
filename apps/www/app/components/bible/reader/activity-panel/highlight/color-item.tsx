@@ -12,7 +12,7 @@ export const ColorItem = (props: ColorItemProps) => {
         <span
           className={'size-4 rounded-full'}
           style={{
-            'background-color': props.hex,
+            backgroundColor: props.hex,
           }}
         />
         <span className='hidden sm:flex'>{props.title}</span>
