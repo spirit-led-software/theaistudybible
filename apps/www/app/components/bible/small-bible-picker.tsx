@@ -119,11 +119,12 @@ export function SmallBiblePicker({
                 <CommandList>
                   <CommandEmpty>Not Found</CommandEmpty>
                   {uniqueLanguages.map((language) => (
-                    <CommandGroup id={language.iso} heading={language.nameLocal}>
+                    <CommandGroup key={language.iso} id={language.iso} heading={language.nameLocal}>
                       {bibles
                         .filter((bible) => bible.biblesToLanguages[0].language.iso === language.iso)
                         .map((foundBible) => (
                           <CommandItem
+                            key={foundBible.abbreviation}
                             value={foundBible.abbreviation}
                             keywords={[
                               foundBible.name,

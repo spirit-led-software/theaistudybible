@@ -152,11 +152,13 @@ function Sidebar({
   collapsible = 'offcanvas',
   className,
   children,
+  gapFixerClassName,
   ...props
 }: React.ComponentProps<'div'> & {
   side?: 'left' | 'right';
-  variant?: 'sidebar' | 'floating' | 'inset';
+  variant?: 'sidebar' | 'floating' | 'inset' | 'sheet';
   collapsible?: 'offcanvas' | 'icon' | 'none';
+  gapFixerClassName?: string;
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
 
@@ -175,7 +177,7 @@ function Sidebar({
     );
   }
 
-  if (isMobile) {
+  if (isMobile || variant === 'sheet') {
     return (
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
         <SheetContent
@@ -218,6 +220,7 @@ function Sidebar({
           variant === 'floating' || variant === 'inset'
             ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]'
             : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon)',
+          gapFixerClassName,
         )}
       />
       <div

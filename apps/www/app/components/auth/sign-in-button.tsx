@@ -1,21 +1,17 @@
-import { A } from '@solidjs/router';
-import { type ParentProps, splitProps } from 'solid-js';
-import { Button, type ButtonProps } from '../ui/button';
+import { Link } from '@tanstack/react-router';
+import type { ComponentProps } from 'react';
+import { Button } from '../ui/button';
 
-export type SignInButtonProps = ParentProps<ButtonProps> & {
+export type SignInButtonProps = ComponentProps<typeof Button> & {
   redirectUrl?: string;
 };
 
-export const SignInButton = (props: SignInButtonProps) => {
-  const [local, rest] = splitProps(props, ['children', 'redirectUrl']);
-
+export const SignInButton = ({ children, redirectUrl, ...rest }: SignInButtonProps) => {
   return (
-    <Button
-      as={A}
-      href={`/sign-in?redirectUrl=${encodeURIComponent(local.redirectUrl ?? '/')}`}
-      {...rest}
-    >
-      {local.children ?? 'Sign In'}
+    <Button asChild {...rest}>
+      <Link to='/sign-in' search={{ redirectUrl }}>
+        {children ?? 'Sign In'}
+      </Link>
     </Button>
   );
 };

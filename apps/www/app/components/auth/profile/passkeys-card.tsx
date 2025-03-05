@@ -282,7 +282,10 @@ export function PasskeysCard() {
             <div className='space-y-2'>
               {passkeys.length > 0 ? (
                 passkeys.map((passkey) => (
-                  <div className='flex items-center justify-between rounded-lg border p-3'>
+                  <div
+                    key={passkey.id}
+                    className='flex items-center justify-between rounded-lg border p-3'
+                  >
                     <div>
                       <div className='font-medium'>{passkey.name}</div>
                       <div className='text-muted-foreground text-sm'>

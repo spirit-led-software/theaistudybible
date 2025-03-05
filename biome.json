@@ -19,7 +19,8 @@
       "**/migrations",
       "**/sst-env.d.ts",
       "packages/core/src/utils/bibles/__tests__/MAT.json",
-      "apps/www/app/routeTree.gen.ts"
+      "apps/www/app/routeTree.gen.ts",
+      "apps/www/src/**"
     ]
   },
   "formatter": {
@@ -45,7 +46,7 @@
         "noBannedTypes": "error"
       },
       "correctness": {
-        "useJsxKeyInIterable": "off",
+        "useJsxKeyInIterable": "error",
         "noUnusedImports": "error",
         "noUnusedVariables": "error",
         "noUnusedFunctionParameters": "error",

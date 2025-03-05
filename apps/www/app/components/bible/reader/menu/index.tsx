@@ -18,11 +18,12 @@ export const BibleReaderMenu = () => {
   const brStore = useBibleReaderStore((state) => ({
     chapter: state.chapter,
   }));
+
   return (
     <div
       className={cn(
         'sm:-translate-x-1/2 sticky right-0 flex w-fit items-center gap-2 rounded-b-md border bg-background/90 p-1 shadow-xs backdrop-blur-md transition-all duration-300 ease-in-out sm:inset-x-1/2',
-        isHeaderVisible() ? 'top-18' : 'top-0',
+        isHeaderVisible ? 'top-18' : 'top-0',
       )}
     >
       <BookPicker />

@@ -16,29 +16,29 @@ export const getHighlightedContent = (content: string, query: string, truncateAt
 
     return (
       <span className='inline'>
-        {excerpt
-          .split(new RegExp(`(${escapedQuery})`, 'gi'))
-          .map((part) =>
-            part.toLowerCase() === query.toLowerCase() ? (
-              <span className='inline bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
-            ) : (
-              part
-            ),
-          )}
+        {excerpt.split(new RegExp(`(${escapedQuery})`, 'gi')).map((part) =>
+          part.toLowerCase() === query.toLowerCase() ? (
+            <span className='inline bg-yellow-200/50 dark:bg-yellow-500/30' key={part}>
+              {part}
+            </span>
+          ) : (
+            part
+          ),
+        )}
       </span>
     );
   }
   return (
     <span className='inline'>
-      {content
-        .split(new RegExp(`(${escapedQuery})`, 'gi'))
-        .map((part) =>
-          part.toLowerCase() === query.toLowerCase() ? (
-            <span className='inline bg-yellow-200/50 dark:bg-yellow-500/30'>{part}</span>
-          ) : (
-            part
-          ),
-        )}
+      {content.split(new RegExp(`(${escapedQuery})`, 'gi')).map((part) =>
+        part.toLowerCase() === query.toLowerCase() ? (
+          <span className='inline bg-yellow-200/50 dark:bg-yellow-500/30' key={part}>
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
     </span>
   );
 };
