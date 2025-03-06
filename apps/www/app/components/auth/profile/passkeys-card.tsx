@@ -277,8 +277,7 @@ export function PasskeysCard() {
           notFoundFallback={
             <div className='text-center text-muted-foreground'>No passkeys found</div>
           }
-        >
-          {({ passkeys }) => (
+          render={({ passkeys }) => (
             <div className='space-y-2'>
               {passkeys.length > 0 ? (
                 passkeys.map((passkey) => (
@@ -307,7 +306,7 @@ export function PasskeysCard() {
               )}
             </div>
           )}
-        </QueryBoundary>
+        />
 
         <Dialog
           open={isAddingPasskey}

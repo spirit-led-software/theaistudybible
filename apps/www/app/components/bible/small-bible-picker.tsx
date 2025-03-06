@@ -96,8 +96,7 @@ export function SmallBiblePicker({
           <Spinner size='sm' />
         </Button>
       }
-    >
-      {({ bibles }) => {
+      render={({ bibles }) => {
         const uniqueLanguages = bibles.reduce((acc, bible) => {
           if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {
             acc.push(bible.biblesToLanguages[0].language);
@@ -159,6 +158,6 @@ export function SmallBiblePicker({
           </Popover>
         );
       }}
-    </QueryBoundary>
+    />
   );
 }

@@ -1,12 +1,10 @@
 import { setUser as setSentryUser } from '@sentry/react';
 import { useQuery } from '@tanstack/react-query';
+import posthog from 'posthog-js';
 import { useEffect, useMemo } from 'react';
-import { usePosthog } from '../contexts/posthog';
 import { getAuth } from '../server/functions/auth';
 
 export const useAuth = () => {
-  const posthog = usePosthog();
-
   const { data, refetch } = useQuery({
     queryKey: ['auth'],
     queryFn: () => getAuth(),
@@ -27,11 +25,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     if (user) {
-      posthog?.identify(user.id, { email: user.email });
-    }
-  }, [user, posthog]);
-  useEffect(() => {
-    if (user) {
+      posthog.identify(user.id, { email: user.email });
       setSentryUser({ id: user.id, email: user.email });
     }
   }, [user]);

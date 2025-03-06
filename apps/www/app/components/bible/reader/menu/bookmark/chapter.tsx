@@ -134,8 +134,7 @@ export const ChapterBookmarkMenuItem = () => {
           <p>Loading...</p>
         </div>
       }
-    >
-      {({ hasBookmark }) =>
+      render={({ hasBookmark }) =>
         hasBookmark ? (
           <DropdownMenuItem
             onSelect={() => deleteBookmarkMutation.mutate()}
@@ -157,6 +156,6 @@ export const ChapterBookmarkMenuItem = () => {
           </DropdownMenuItem>
         )
       }
-    </QueryBoundary>
+    />
   );
 };

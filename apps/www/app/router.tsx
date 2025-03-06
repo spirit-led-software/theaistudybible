@@ -6,7 +6,14 @@ import { CodeBlock, H1, P } from './components/ui/typography';
 import { routeTree } from './routeTree.gen';
 
 export function createRouter() {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 5,
+        gcTime: 1000 * 60 * 60 * 24,
+      },
+    },
+  });
 
   return routerWithQueryClient(
     createTanStackRouter({
@@ -14,21 +21,18 @@ export function createRouter() {
       scrollRestoration: true,
       context: { queryClient },
       defaultPreload: 'intent',
-      defaultErrorComponent: ({ error, reset }) => {
-        console.error(error);
-        return (
-          <div className='flex min-h-full w-full flex-col items-center justify-center'>
-            <div className='mx-auto flex max-w-3xl flex-col items-center justify-center px-2'>
-              <H1>An error occurred</H1>
-              <P>{error.message}</P>
-              {error.stack && <CodeBlock className='mt-2'>{error.stack}</CodeBlock>}
-              <Button className='mt-4' onClick={reset}>
-                Reset
-              </Button>
-            </div>
+      defaultErrorComponent: ({ error, reset }) => (
+        <div className='flex min-h-full w-full flex-col items-center justify-center'>
+          <div className='mx-auto flex max-w-3xl flex-col items-center justify-center px-2'>
+            <H1>An error occurred</H1>
+            <P>{error.message}</P>
+            {error.stack && <CodeBlock className='mt-2'>{error.stack}</CodeBlock>}
+            <Button className='mt-4' onClick={reset}>
+              Reset
+            </Button>
           </div>
-        );
-      },
+        </div>
+      ),
     }),
     queryClient,
   );

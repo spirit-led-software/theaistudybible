@@ -8,10 +8,20 @@ import {
 } from '@/www/components/ui/dropdown-menu';
 import { Spinner } from '@/www/components/ui/spinner';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { useCanShare } from '@/www/hooks/use-can-share';
 import { cn } from '@/www/lib/utils';
 import { useNavigate } from '@tanstack/react-router';
 import { Highlighter, Image, MessageCircle, Notebook, Share, Sparkles, X } from 'lucide-react';
-import { Suspense, createContext, lazy, useContext, useEffect, useRef, useState } from 'react';
+import {
+  Suspense,
+  createContext,
+  lazy,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useResizeObserver, useWindowSize } from 'usehooks-ts';
 import { ReferencesMenuItem } from './references/menu-item';
 
@@ -51,10 +61,13 @@ export const ActivityPanel = ({ children, defaultValue }: ActivityPanelProps) =>
   const [value, setValue] = useState(defaultValue);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const contextValue = useMemo(
+    () => ({ value, setValue, isMenuOpen, setIsMenuOpen }),
+    [value, isMenuOpen],
+  );
+
   return (
-    <ActivityPanelContext.Provider value={{ value, setValue, isMenuOpen, setIsMenuOpen }}>
-      {children}
-    </ActivityPanelContext.Provider>
+    <ActivityPanelContext.Provider value={contextValue}>{children}</ActivityPanelContext.Provider>
   );
 };
 
@@ -71,6 +84,8 @@ export const ActivityPanelMenu = () => {
   const brStore = useBibleReaderStore();
   const { setValue, isMenuOpen, setIsMenuOpen } = useActivityPanel();
   const windowSize = useWindowSize();
+
+  const canShare = useCanShare();
 
   const buttonRef = useRef<HTMLButtonElement>(null);
   const buttonContentRef = useRef<HTMLDivElement>(null);
@@ -163,7 +178,7 @@ export const ActivityPanelMenu = () => {
           Notes
         </DropdownMenuItem>
         {brStore.selectedIds.length ? (
-          'share' in navigator && (
+          canShare && (
             <DropdownMenuItem
               onSelect={() =>
                 navigator.share({

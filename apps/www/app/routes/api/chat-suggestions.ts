@@ -21,7 +21,7 @@ const chatSuggestionsApiSchema = z.object({
 });
 
 export const APIRoute = createAPIFileRoute('/api/chat-suggestions')({
-  GET: async ({ request }) => {
+  POST: async ({ request }) => {
     const validationResult = chatSuggestionsApiSchema.safeParse(await request.json());
     if (!validationResult.success) {
       return json({ error: validationResult.error.message }, { status: 400 });

@@ -9,8 +9,9 @@ export type RemainingMessagesProps = {
 export const RemainingMessages = (props: RemainingMessagesProps) => {
   return (
     <div className='mx-auto h-3 w-fit'>
-      <QueryBoundary query={props.remainingMessagesQuery}>
-        {({ remaining }) => (
+      <QueryBoundary
+        query={props.remainingMessagesQuery}
+        render={({ remaining }) => (
           <span className='text-muted-foreground text-xs'>
             <strong>
               {remaining.remaining === Number.POSITIVE_INFINITY ? 'Unlimited' : remaining.remaining}
@@ -18,7 +19,7 @@ export const RemainingMessages = (props: RemainingMessagesProps) => {
             messages remaining until <strong>{formatDate(remaining.reset, 'M/d/yy h:mm a')}</strong>
           </span>
         )}
-      </QueryBoundary>
+      />
     </div>
   );
 };

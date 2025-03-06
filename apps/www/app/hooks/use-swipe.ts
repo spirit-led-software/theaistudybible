@@ -29,8 +29,8 @@ export function useSwipe(elementRef: RefObject<HTMLElement | null>, handlers: Sw
       }
     }
 
-    el.addEventListener('touchstart', handleTouchStart);
-    el.addEventListener('touchend', handleTouchEnd);
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       el.removeEventListener('touchstart', handleTouchStart);

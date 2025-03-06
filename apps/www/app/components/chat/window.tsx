@@ -1,7 +1,8 @@
 import { useBibleStore } from '@/www/contexts/bible';
 import { useChat } from '@/www/hooks/use-chat';
 import { useChatScrollAnchor } from '@/www/hooks/use-chat-scroll-anchor';
-import { useLocation, useNavigate, useSearch } from '@tanstack/react-router';
+import { useIsChatPage } from '@/www/hooks/use-is-chat-page';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { type RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { useWindowSize } from 'usehooks-ts';
@@ -49,11 +50,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const { width } = useWindowSize();
   const isMobile = useMemo(() => width < 768, [width]);
 
-  const pathname = useLocation({
-    select: (location) => location.pathname,
-  });
-  const isChatPage = useMemo(() => pathname.startsWith('/chat'), [pathname]);
-
+  const isChatPage = useIsChatPage();
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile && isChatPage);
   useEffect(() => {
     setIsSidebarOpen(!isMobile && isChatPage);
@@ -61,13 +58,13 @@ export const ChatWindow = (props: ChatWindowProps) => {
 
   useEffect(() => {
     chatStore.setChatId(id ?? null);
-  });
+  }, [id, chatStore.setChatId]);
 
   useEffect(() => {
     if (chatQuery.status === 'success') {
       chatStore.setChat(chatQuery.data.chat);
     }
-  });
+  }, [chatQuery.status, chatQuery.data?.chat, chatStore.setChat]);
 
   useEffect(() => {
     if (error) {
@@ -92,13 +89,12 @@ export const ChatWindow = (props: ChatWindowProps) => {
     [appendBase, scrollToBottom],
   );
 
-  const searchParams = useSearch({ from: '/_with-sidebar/chat' });
+  const searchParams = useSearch({ strict: false });
   const navigate = useNavigate();
   useEffect(() => {
     const query = searchParams?.query;
     if (query) {
-      const messageContent = Array.isArray(query) ? query[0] : query;
-      append({ role: 'user', content: messageContent });
+      append({ role: 'user', content: query });
       navigate({
         from: '/chat',
         search: { query: undefined },

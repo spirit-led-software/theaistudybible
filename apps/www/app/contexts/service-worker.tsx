@@ -1,6 +1,6 @@
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { captureException as captureSentryException } from '@sentry/react';
-import { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
+import { type ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 type ServiceWorkerContextType = {
   registration: ServiceWorkerRegistration | undefined;
@@ -27,11 +27,9 @@ export const ServiceWorkerProvider = ({ children }: ServiceWorkerProviderProps) 
     }
   }, [registration]);
 
-  return (
-    <ServiceWorkerContext.Provider value={{ registration }}>
-      {children}
-    </ServiceWorkerContext.Provider>
-  );
+  const value = useMemo(() => ({ registration }), [registration]);
+
+  return <ServiceWorkerContext.Provider value={value}>{children}</ServiceWorkerContext.Provider>;
 };
 
 export const useServiceWorker = () => {

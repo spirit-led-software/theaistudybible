@@ -66,8 +66,7 @@ export const ReferencesCard = () => {
               ))}
             </div>
           }
-        >
-          {({ references }) => (
+          render={({ references }) => (
             <div className='flex w-full flex-1 flex-col space-y-4 overflow-y-auto rounded-lg border p-5'>
               {references.map((reference, idx) => (
                 <div key={reference.id} className='flex w-full flex-col items-start justify-start'>
@@ -95,7 +94,7 @@ export const ReferencesCard = () => {
               ))}
             </div>
           )}
-        </QueryBoundary>
+        />
       </CardContent>
       <CardFooter className='justify-end space-x-2'>
         <DrawerClose asChild>

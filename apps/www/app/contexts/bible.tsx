@@ -96,7 +96,7 @@ export const useBibleStore = <T = BibleStore>(selector?: (state: BibleStore) => 
   }
 
   if (!selector) {
-    return useStore(bibleStoreContext, (state: BibleStore) => state) as T;
+    return useStore(bibleStoreContext) as T;
   }
 
   return useStore(bibleStoreContext, useShallow(selector));

@@ -148,8 +148,9 @@ export const NotesCard = () => {
         </CardHeader>
         <CardContent className='overflow-y-auto py-4'>
           <div ref={autoAnimateRef} className='grid grid-cols-1 gap-2'>
-            <QueryBoundary query={query}>
-              {(data) => {
+            <QueryBoundary
+              query={query}
+              render={(data) => {
                 const notes = data.pages.flatMap((page) => page.notes as unknown) as NoteType[];
                 return (
                   <>
@@ -179,7 +180,7 @@ export const NotesCard = () => {
                   </>
                 );
               }}
-            </QueryBoundary>
+            />
           </div>
         </CardContent>
         <CardFooter className='flex justify-end gap-2 border-t pt-4'>

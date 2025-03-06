@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useRouter, useRouterState } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { z } from 'zod';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
@@ -150,7 +150,6 @@ export type VerseReaderProps = {
 
 export function VerseReader(props: VerseReaderProps) {
   const navigate = useNavigate();
-  const { preloadRoute } = useRouter();
   const routerState = useRouterState();
 
   const { setBible, setBook, setChapter, setVerse } = useBibleStore((state) => ({
@@ -165,10 +164,7 @@ export function VerseReader(props: VerseReaderProps) {
   const query = useQuery(getVerseReaderQueryOptions(props));
 
   return (
-    <div
-      className='flex h-full w-full max-w-3xl flex-1 flex-col justify-center py-5'
-      ref={containerRef}
-    >
+    <div className='flex h-full w-full max-w-3xl flex-1 flex-col justify-center' ref={containerRef}>
       <QueryBoundary
         query={query}
         notFoundFallback={
@@ -189,25 +185,29 @@ export function VerseReader(props: VerseReaderProps) {
             </div>
           </div>
         }
-      >
-        {({ bible, book, chapter, verse, rightsHolder }) => {
+        render={({ bible, book, chapter, verse, rightsHolder }) => {
           const previousVerse =
             verse.previous ?? chapter.previous?.verses[0] ?? book.previous?.chapters[0]?.verses[0];
           const previousVerseRoute =
             `/bible/${bible.abbreviation}/${previousVerse?.code.split('.')[0]}` +
             `/${previousVerse?.code.split('.')[1]}/${previousVerse?.number}`;
-          if (previousVerse) {
-            preloadRoute({ to: previousVerseRoute });
-          }
 
           const nextVerse =
             verse.next ?? chapter.next?.verses[0] ?? book.next?.chapters[0]?.verses[0];
           const nextVerseRoute =
             `/bible/${bible.abbreviation}/${nextVerse?.code.split('.')[0]}` +
             `/${nextVerse?.code.split('.')[1]}/${nextVerse?.number}`;
-          if (nextVerse) {
-            preloadRoute({ to: nextVerseRoute });
-          }
+
+          const router = useRouter();
+          useEffect(() => {
+            if (previousVerse) {
+              router.preloadRoute({ to: previousVerseRoute });
+            }
+
+            if (nextVerse) {
+              router.preloadRoute({ to: nextVerseRoute });
+            }
+          }, [router, previousVerse, nextVerse, previousVerseRoute, nextVerseRoute]);
 
           useSwipe(containerRef, {
             onSwipeLeft: () => {
@@ -292,7 +292,7 @@ export function VerseReader(props: VerseReaderProps) {
             </BibleReaderProvider>
           );
         }}
-      </QueryBoundary>
+      />
     </div>
   );
 }

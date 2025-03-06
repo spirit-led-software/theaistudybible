@@ -9,7 +9,6 @@ import { Toaster } from '../components/ui/sonner';
 import { BibleProvider } from '../contexts/bible';
 import { ChatProvider } from '../contexts/chat';
 import { DevotionProvider } from '../contexts/devotion';
-import { PosthogProvider } from '../contexts/posthog';
 import { ServiceWorkerProvider } from '../contexts/service-worker';
 import { getAuth } from '../server/functions/auth';
 
@@ -53,23 +52,22 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html>
+    <html suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
         <ServiceWorkerProvider>
-          <PosthogProvider>
-            <BibleProvider>
-              <ChatProvider>
-                <DevotionProvider>
-                  {children}
-                  <Toaster />
-                  <NotificationPromptDialog />
-                </DevotionProvider>
-              </ChatProvider>
-            </BibleProvider>
-          </PosthogProvider>
+          <BibleProvider>
+            <ChatProvider>
+              <DevotionProvider>
+                {children}
+                <Toaster />
+                <NotificationPromptDialog />
+                {/* <PosthogInit /> */}
+              </DevotionProvider>
+            </ChatProvider>
+          </BibleProvider>
         </ServiceWorkerProvider>
         <TanStackRouterDevtools position='bottom-right' />
         <ReactQueryDevtools buttonPosition='bottom-left' />

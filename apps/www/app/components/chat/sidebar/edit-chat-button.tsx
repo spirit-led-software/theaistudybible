@@ -19,13 +19,12 @@ import {
   FormMessage,
 } from '@/www/components/ui/form';
 import { Input } from '@/www/components/ui/input';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createServerFn } from '@tanstack/react-start';
 import { and, eq } from 'drizzle-orm';
 import { Pencil } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -35,8 +34,7 @@ const editChatSchema = z.object({
   name: z.string().min(1, { message: 'Chat name is required.' }),
 });
 
-// Create server function for editing chats
-const editChatServerFn = createServerFn({ method: 'POST' })
+const editChat = createServerFn({ method: 'POST' })
   .validator(
     z.object({
       chatId: z.string(),
@@ -44,7 +42,6 @@ const editChatServerFn = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    // Server-side auth check and database update
     const [chat] = await db
       .update(chats)
       .set({
@@ -64,7 +61,6 @@ export const EditChatButton = (props: EditChatButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  // Setup form with zod validation
   const form = useForm<z.infer<typeof editChatSchema>>({
     resolver: zodResolver(editChatSchema),
     defaultValues: {
@@ -72,18 +68,11 @@ export const EditChatButton = (props: EditChatButtonProps) => {
     },
   });
 
-  // When chat prop changes, update the form value
-  useEffect(() => {
-    form.reset({ name: props.chat.name });
-  }, [props.chat.name, form]);
-
-  // Setup mutation for editing chat
   const editChatMutation = useMutation({
     mutationFn: (values: z.infer<typeof editChatSchema>) =>
-      editChatServerFn({ data: { chatId: props.chat.id, name: values.name } }),
+      editChat({ data: { chatId: props.chat.id, name: values.name } }),
     onSuccess: () => {
       setIsOpen(false);
-      // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['chats'] });
       queryClient.invalidateQueries({ queryKey: ['chat', { chatId: props.chat.id }] });
       toast.success('Chat updated successfully');
@@ -95,16 +84,11 @@ export const EditChatButton = (props: EditChatButtonProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogTrigger asChild>
-            <Button variant='ghost' size='icon'>
-              <Pencil size={16} />
-            </Button>
-          </DialogTrigger>
-        </TooltipTrigger>
-        <TooltipContent>Edit Chat</TooltipContent>
-      </Tooltip>
+      <DialogTrigger asChild>
+        <Button variant='ghost' size='icon'>
+          <Pencil size={16} />
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Chat</DialogTitle>

@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useRouter } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { z } from 'zod';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
@@ -103,7 +103,6 @@ export type ChapterReaderProps = {
 
 export function ChapterReader(props: ChapterReaderProps) {
   const navigate = useNavigate();
-  const router = useRouter();
 
   const { setBible, setBook, setChapter, setVerse } = useBibleStore((state) => ({
     setBible: state.setBible,
@@ -147,19 +146,23 @@ export function ChapterReader(props: ChapterReaderProps) {
             </div>
           </div>
         }
-      >
-        {({ bible, book, chapter, rightsHolder }) => {
+        render={({ bible, book, chapter, rightsHolder }) => {
           const previousChapter = chapter.previous ?? book.previous?.chapters[0];
           const previousChapterRoute = `/bible/${bible.abbreviation}/${previousChapter?.code.split('.')[0]}/${previousChapter?.number}`;
-          if (previousChapter) {
-            router.preloadRoute({ to: previousChapterRoute });
-          }
 
           const nextChapter = chapter.next ?? book.next?.chapters[0];
           const nextChapterRoute = `/bible/${bible.abbreviation}/${nextChapter?.code.split('.')[0]}/${nextChapter?.number}`;
-          if (nextChapter) {
-            router.preloadRoute({ to: nextChapterRoute });
-          }
+
+          const router = useRouter();
+          useEffect(() => {
+            if (previousChapter) {
+              router.preloadRoute({ to: previousChapterRoute });
+            }
+
+            if (nextChapter) {
+              router.preloadRoute({ to: nextChapterRoute });
+            }
+          }, [router, previousChapter, nextChapter, previousChapterRoute, nextChapterRoute]);
 
           useSwipe(containerRef, {
             onSwipeLeft: () => {
@@ -237,7 +240,7 @@ export function ChapterReader(props: ChapterReaderProps) {
             </BibleReaderProvider>
           );
         }}
-      </QueryBoundary>
+      />
     </div>
   );
 }

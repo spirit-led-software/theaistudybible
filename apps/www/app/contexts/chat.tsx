@@ -82,7 +82,7 @@ export const useChatStore = <T = ChatStore>(selector?: (state: ChatStore) => T):
   }
 
   if (!selector) {
-    return useStore(chatStoreContext, (state) => state) as T;
+    return useStore(chatStoreContext) as T;
   }
 
   return useStore(chatStoreContext, useShallow(selector));

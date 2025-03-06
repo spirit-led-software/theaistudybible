@@ -2,6 +2,7 @@ import type { useChat } from '@/www/hooks/use-chat';
 import type { Message as AiMessage } from '@ai-sdk/react';
 import { ChevronUp } from 'lucide-react';
 import type { RefObject } from 'react';
+import React from 'react';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 import { EmptyWindow } from './empty-window';
@@ -42,19 +43,18 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
           <EmptyWindow append={props.append} additionalContext={props.additionalContext} />
         ) : (
           props.messages.map((message, idx) => (
-            <>
+            <React.Fragment key={message.id}>
               {idx === props.lastMessageIdx && (
                 <div ref={props.topOfLastMessageRef} className='h-px w-full shrink-0' />
               )}
               <Message
-                key={message.id}
                 previousMessage={props.messages[idx - 1]}
                 message={message}
                 nextMessage={props.messages[idx + 1]}
                 addToolResult={props.addToolResult}
                 isLoading={props.isLoading}
               />
-            </>
+            </React.Fragment>
           ))
         )}
       </div>

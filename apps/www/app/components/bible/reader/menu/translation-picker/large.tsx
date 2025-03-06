@@ -29,8 +29,9 @@ export function LargeTranslationPicker() {
   const [search, setSearch] = useState('');
 
   return (
-    <QueryBoundary query={query}>
-      {({ bibles }) => {
+    <QueryBoundary
+      query={query}
+      render={({ bibles }) => {
         const filteredBibles = bibles.filter(
           (bible) =>
             bible.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -94,6 +95,6 @@ export function LargeTranslationPicker() {
           </div>
         );
       }}
-    </QueryBoundary>
+    />
   );
 }

@@ -3,16 +3,18 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/comp
 import { DrawerClose } from '@/www/components/ui/drawer';
 import { Textarea } from '@/www/components/ui/textarea';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
+import { useCanShare } from '@/www/hooks/use-can-share';
 import { useLocation } from '@tanstack/react-router';
-import { useCopyToClipboard } from 'usehooks-ts';
 import { Copy } from 'lucide-react';
 import { useRef } from 'react';
 import { toast } from 'sonner';
+import { useCopyToClipboard } from 'usehooks-ts';
 
 export const ShareCard = () => {
   const brStore = useBibleReaderStore();
   const location = useLocation();
 
+  const canShare = useCanShare();
   const [, copyToClipboard] = useCopyToClipboard();
 
   const shareInputRef = useRef<HTMLTextAreaElement>(null);
@@ -44,7 +46,7 @@ export const ShareCard = () => {
         >
           <Copy />
         </Button>
-        {typeof navigator !== 'undefined' && 'share' in navigator && (
+        {canShare && (
           <Button
             onClick={() =>
               navigator.share({

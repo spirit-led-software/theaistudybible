@@ -51,8 +51,7 @@ export function ReferencesMenuItem(props: ReferencesMenuItemProps) {
       query={query}
       loadingFallback={<DisabledMenuItem />}
       errorFallback={() => <DisabledMenuItem />}
-    >
-      {({ hasReferences }) => (
+      render={({ hasReferences }) => (
         <DropdownMenuItem
           disabled={!hasReferences}
           onSelect={() => {
@@ -64,6 +63,6 @@ export function ReferencesMenuItem(props: ReferencesMenuItemProps) {
           References
         </DropdownMenuItem>
       )}
-    </QueryBoundary>
+    />
   );
 }

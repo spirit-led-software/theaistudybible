@@ -62,9 +62,7 @@ export type BibleReaderProviderProps = {
 
 export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
   const navigate = useNavigate();
-  const searchParams = useSearch({
-    from: '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode_/$chapterNumber',
-  });
+  const searchParams = useSearch({ strict: false });
   const getVerseInfosFromVerseSearchParams = useCallback(() => {
     const verseNumbers = searchParams.verseNumbers;
     if (!verseNumbers) return [];
@@ -299,7 +297,7 @@ export const useBibleReaderStore = <T = BibleReaderStore>(
   }
 
   if (!selector) {
-    return useStore(bibleReaderStoreContext, (state) => state) as T;
+    return useStore(bibleReaderStoreContext) as T;
   }
 
   return useStore(bibleReaderStoreContext, useShallow(selector));

@@ -64,9 +64,9 @@ export function PushNotificationToggle(props: PushNotificationToggleProps) {
   const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') return;
     // Check if push notifications are supported
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    if (!('PushManager' in window) || !('serviceWorker' in navigator)) {
       setIsSupported(false);
       return;
     }
@@ -84,7 +84,7 @@ export function PushNotificationToggle(props: PushNotificationToggleProps) {
     } catch (error) {
       console.error('Error checking push subscription:', error);
     }
-  });
+  }, [registration]);
 
   const handleSubscribeToPushNotifications = useMutation({
     mutationFn: async () => {

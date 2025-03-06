@@ -50,7 +50,7 @@ export const useDevotionStore = <T = DevotionStore>(selector?: (store: DevotionS
   }
 
   if (!selector) {
-    return useStore(devotionStoreContext, (state) => state) as T;
+    return useStore(devotionStoreContext) as T;
   }
 
   return useStore(devotionStoreContext, useShallow(selector));

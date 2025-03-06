@@ -1,7 +1,7 @@
 import { cn } from '@/www/lib/utils';
 import { useLocation } from '@tanstack/react-router';
 import { MenuIcon } from 'lucide-react';
-import { createContext, useState } from 'react';
+import { createContext, useMemo, useState } from 'react';
 import { useCallback, useContext, useEffect } from 'react';
 import { SignedIn, SignedOut } from '../auth/control';
 import { SignInButton } from '../auth/sign-in-button';
@@ -25,10 +25,13 @@ export const NavigationHeaderProvider = (props: { children: React.ReactNode }) =
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
+  const value = useMemo(
+    () => ({ isVisible, setIsVisible, lastScrollY, setLastScrollY }),
+    [isVisible, lastScrollY],
+  );
+
   return (
-    <NavigationHeaderContext.Provider
-      value={{ isVisible, setIsVisible, lastScrollY, setLastScrollY }}
-    >
+    <NavigationHeaderContext.Provider value={value}>
       {props.children}
     </NavigationHeaderContext.Provider>
   );

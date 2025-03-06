@@ -136,8 +136,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
             </Button>
           </>
         }
-      >
-        {({ reaction }) =>
+        render={({ reaction }) =>
           reaction ? (
             <>
               <Button
@@ -208,7 +207,7 @@ export const MessageReactionButtons = (props: MessageReactionButtonsProps) => {
             </>
           )
         }
-      </QueryBoundary>
+      />
       <Dialog
         open={dislikeDialogOpen}
         onOpenChange={setDislikeDialogOpen}

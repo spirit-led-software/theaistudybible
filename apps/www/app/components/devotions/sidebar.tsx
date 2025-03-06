@@ -105,8 +105,9 @@ export const DevotionSidebar = () => {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <QueryBoundary query={devotionsQuery}>
-          {(data) => {
+        <QueryBoundary
+          query={devotionsQuery}
+          render={(data) => {
             const devotions = data.pages.flatMap((page) => page.devotions);
             return (
               <SidebarMenu className='pr-2'>
@@ -159,7 +160,7 @@ export const DevotionSidebar = () => {
               </SidebarMenu>
             );
           }}
-        </QueryBoundary>
+        />
       </SidebarContent>
       <SidebarFooter />
     </Sidebar>

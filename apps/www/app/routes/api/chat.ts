@@ -37,7 +37,7 @@ const chatApiSchema = z.object({
 });
 
 export const APIRoute = createAPIFileRoute('/api/chat')({
-  GET: async ({ request }) => {
+  POST: async ({ request }) => {
     const validationResult = chatApiSchema.safeParse(await request.json());
     if (!validationResult.success) {
       return json({ error: validationResult.error.message }, { status: 400 });

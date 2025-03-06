@@ -2,7 +2,6 @@ import { toTitleCase } from '@/core/utils/string';
 import { useDevotionStore } from '@/www/contexts/devotion';
 import { ChevronLeft, SidebarIcon } from 'lucide-react';
 import { useMemo } from 'react';
-import { Button } from '../ui/button';
 import { SidebarTrigger, useSidebar } from '../ui/sidebar';
 import { H6 } from '../ui/typography';
 
@@ -22,10 +21,8 @@ export const DevotionMenu = () => {
       aria-label='Devotion header'
     >
       <div className='flex w-full max-w-3xl items-center gap-2 py-1'>
-        <SidebarTrigger asChild>
-          <Button variant='ghost' size='icon' aria-label='View Devotions'>
-            {open ? <ChevronLeft /> : <SidebarIcon />}
-          </Button>
+        <SidebarTrigger variant='ghost' size='icon' aria-label='View Devotions'>
+          {open ? <ChevronLeft /> : <SidebarIcon />}
         </SidebarTrigger>
         <H6 className='truncate' aria-label='Devotion topic'>
           {devotionTopic}

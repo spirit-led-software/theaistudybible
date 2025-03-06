@@ -93,13 +93,12 @@ export function ChapterPicker(props: ChapterPickerProps) {
           <AccordionTrigger>{props.book.shortName}</AccordionTrigger>
           <AccordionContent className='grid grid-cols-4 gap-1'>
             <QueryBoundary
+              query={query}
               loadingFallback={Array(24).map((_, idx) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: Fine here
                 <Skeleton key={idx} className='h-full w-full rounded-lg' />
               ))}
-              query={query}
-            >
-              {({ book, chapters }) =>
+              render={({ book, chapters }) =>
                 chapters.map((foundChapter, idx) => (
                   <Button
                     key={foundChapter.code}
@@ -123,7 +122,7 @@ export function ChapterPicker(props: ChapterPickerProps) {
                   </Button>
                 ))
               }
-            </QueryBoundary>
+            />
           </AccordionContent>
         </AccordionItem>
       </Accordion>

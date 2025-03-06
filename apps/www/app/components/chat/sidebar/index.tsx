@@ -1,12 +1,12 @@
 import { db } from '@/core/database';
 import { chats as chatsTable, messages as messagesTable } from '@/core/database/schema';
 import { ilike } from '@/core/database/utils';
+import { useIsChatPage } from '@/www/hooks/use-is-chat-page';
 import { cn } from '@/www/lib/utils';
 import { requireAuthMiddleware } from '@/www/server/middleware/auth';
 import { getHighlightedContent } from '@/www/utils/get-highlighted-content';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { useLocation } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { formatDate } from 'date-fns';
 import { type SQL, and, desc, eq, getTableColumns } from 'drizzle-orm';
@@ -82,7 +82,10 @@ export const getChatsQueryOptions = (searchQuery?: string) => ({
 export const ChatSidebar = () => {
   const navigate = useNavigate();
 
-  const chatStore = useChatStore();
+  const { chat: storeChat, setChatId } = useChatStore((s) => ({
+    chat: s.chat,
+    setChatId: s.setChatId,
+  }));
   const { isMobile, toggleSidebar } = useSidebar();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -91,9 +94,7 @@ export const ChatSidebar = () => {
     placeholderData: (prev) => prev,
   });
 
-  const isChatPage = useLocation({
-    select: (location) => location.pathname.startsWith('/chat'),
-  });
+  const isChatPage = useIsChatPage();
 
   return (
     <Sidebar
@@ -110,9 +111,12 @@ export const ChatSidebar = () => {
                 size='icon'
                 variant='ghost'
                 onClick={() => {
-                  chatStore.setChatId(null);
+                  setChatId(null);
                   if (!isChatPage || isMobile) {
                     toggleSidebar();
+                  }
+                  if (isChatPage) {
+                    navigate({ to: '/chat' });
                   }
                 }}
                 aria-label='Start new chat'
@@ -145,8 +149,9 @@ export const ChatSidebar = () => {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <QueryBoundary query={chatsQuery}>
-          {(data) => {
+        <QueryBoundary
+          query={chatsQuery}
+          render={(data) => {
             const chats = data.pages.flatMap((page) => page.chats);
             return (
               <SidebarMenu className='pr-2'>
@@ -161,12 +166,12 @@ export const ChatSidebar = () => {
                       data-index={idx}
                       className={cn(
                         'group/chat-item flex h-fit w-full items-center justify-between overflow-hidden rounded-lg px-1 hover:bg-accent',
-                        chatStore.chat?.id === chat.id && 'bg-muted',
+                        storeChat?.id === chat.id && 'bg-muted',
                       )}
                     >
                       <SidebarMenuButton
                         onClick={() => {
-                          chatStore.setChatId(chat.id);
+                          setChatId(chat.id);
                           if (isChatPage) {
                             navigate({ to: `/chat/${chat.id}` });
                           }
@@ -206,7 +211,7 @@ export const ChatSidebar = () => {
               </SidebarMenu>
             );
           }}
-        </QueryBoundary>
+        />
       </SidebarContent>
       <SidebarFooter>
         {isChatPage && (

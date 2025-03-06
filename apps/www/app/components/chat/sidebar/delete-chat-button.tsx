@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/www/components/ui/dialog';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
+import {} from '@/www/components/ui/tooltip';
 import { useChatStore } from '@/www/contexts/chat';
 import { requireAuthMiddleware } from '@/www/server/middleware/auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -73,16 +73,11 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogTrigger asChild>
-            <Button variant='ghost' size='icon' className='size-8'>
-              <Trash size={16} />
-            </Button>
-          </DialogTrigger>
-        </TooltipTrigger>
-        <TooltipContent>Delete chat</TooltipContent>
-      </Tooltip>
+      <DialogTrigger asChild>
+        <Button variant='ghost' size='icon' className='size-8'>
+          <Trash size={16} />
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Are you sure you want to delete this chat?</DialogTitle>

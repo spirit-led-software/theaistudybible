@@ -1,23 +1,18 @@
-import { useLocation } from '@tanstack/react-router';
+import { useIsChatPage } from '@/www/hooks/use-is-chat-page';
 import { ChevronLeft, SidebarIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { useChatStore } from '../../contexts/chat';
 import { UserButton } from '../auth/user-button';
-import { Button } from '../ui/button';
 import { SidebarTrigger, useSidebar } from '../ui/sidebar';
 import { H6 } from '../ui/typography';
 import { EditChatButton } from './sidebar/edit-chat-button';
 
 export const ChatMenu = () => {
-  const pathname = useLocation({
-    select: (l) => l.pathname,
-  });
-  const isChatPage = useMemo(() => pathname.startsWith('/chat'), [pathname]);
-
   const chatStore = useChatStore();
-  const { open } = useSidebar();
-
   const chatName = useMemo(() => chatStore.chat?.name ?? 'New Chat', [chatStore.chat]);
+
+  const { open } = useSidebar();
+  const isChatPage = useIsChatPage();
 
   return (
     <div
@@ -26,10 +21,8 @@ export const ChatMenu = () => {
       aria-label='Chat header'
     >
       <div className='flex w-full items-center gap-2 overflow-hidden'>
-        <SidebarTrigger asChild>
-          <Button variant='ghost' size='icon' aria-label='Open Chat History Sidebar'>
-            {open ? <ChevronLeft /> : <SidebarIcon />}
-          </Button>
+        <SidebarTrigger variant='ghost' size='icon' aria-label='Open Chat History Sidebar'>
+          {open ? <ChevronLeft /> : <SidebarIcon />}
         </SidebarTrigger>
         <H6 className='truncate' aria-label='Chat name'>
           {chatName}

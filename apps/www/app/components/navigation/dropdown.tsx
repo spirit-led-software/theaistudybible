@@ -1,5 +1,6 @@
 import { useAuth } from '@/www/hooks/use-auth';
-import { Link, useLocation, useNavigate } from '@tanstack/react-router';
+import { useBeforeLeave } from '@/www/hooks/use-before-leave';
+import { Link, useNavigate } from '@tanstack/react-router';
 import {
   BookOpen,
   CreditCard,
@@ -12,7 +13,7 @@ import {
   MessageCircle,
   Shield,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
@@ -31,21 +32,12 @@ import {
 export type NavigationDropdownProps = React.ComponentProps<typeof Button>;
 
 export const NavigationDropdown = ({ children, ...props }: NavigationDropdownProps) => {
-  const path = useLocation({
-    select: (s) => s.pathname,
-  });
-  const prevPath = useRef(path);
   const navigate = useNavigate();
 
   const { isAdmin } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
-  useEffect(() => {
-    if (prevPath.current !== path) {
-      setIsOpen(false);
-    }
-    prevPath.current = path;
-  }, [path]);
+  useBeforeLeave(() => setIsOpen(false));
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

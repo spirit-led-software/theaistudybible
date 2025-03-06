@@ -116,11 +116,9 @@ export const ReaderContent = (props: ReaderContentProps) => {
     textSize: state.textSize,
   }));
 
-  const search = useSearch({
-    from: '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode_/$chapterNumber',
-  });
+  const search = useSearch({ strict: false });
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof document === 'undefined') return;
 
     const verseNumbers = search.verseNumbers;
     if (verseNumbers?.length) {

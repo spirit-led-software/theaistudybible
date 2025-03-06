@@ -2,7 +2,7 @@ import { List, ListItem } from '@/www/components/ui/typography';
 import { useAuth } from '@/www/hooks/use-auth';
 import { Bell, BellRing, Bookmark } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { usePersistedState } from '../hooks/use-persisted-state';
+import { useLocalStorage } from 'usehooks-ts';
 import { PushNotificationToggle } from './push-notification-toggle';
 import { Button } from './ui/button';
 import {
@@ -24,21 +24,17 @@ export function NotificationPromptDialog() {
   const { isLoaded, isSignedIn } = useAuth();
 
   const [isSupported, setIsSupported] = useState(false);
-  const [hasShownPrompt, setHasShownPrompt] = usePersistedState(
-    NOTIFICATION_PROMPT_SHOWN_KEY,
-    false,
-  );
-  const [lastPromptTime, setLastPromptTime] = usePersistedState<number | null>(
+  const [hasShownPrompt, setHasShownPrompt] = useLocalStorage(NOTIFICATION_PROMPT_SHOWN_KEY, false);
+  const [lastPromptTime, setLastPromptTime] = useLocalStorage<number | null>(
     NOTIFICATION_LAST_PROMPT_TIME_KEY,
     null,
   );
-  const [hasOptedOut, setHasOptedOut] = usePersistedState(NOTIFICATION_OPTED_OUT_KEY, false);
+  const [hasOptedOut, setHasOptedOut] = useLocalStorage(NOTIFICATION_OPTED_OUT_KEY, false);
   const [showPrompt, setShowPrompt] = useState(false);
 
   // Check if notifications are supported
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!('Notification' in window)) return;
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
     if (Notification.permission !== 'default') return;
     setIsSupported(true);
   }, []);

@@ -9,6 +9,7 @@ export type ChatScrollButtonProps = {
 export const ChatScrollButton = (props: ChatScrollButtonProps) => {
   return (
     <Button
+      type='button'
       variant='outline'
       size='icon'
       className='-translate-x-1/2 -top-12 absolute bottom-22 left-1/2 z-40 size-10 rounded-full border-2 bg-background shadow-xl'

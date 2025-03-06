@@ -22,7 +22,7 @@ importers:
         version: 3.758.0
       '@langchain/community':
         specifier: ^0.3.34
-        version: 0.3.34(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.758.0)(@aws-sdk/credential-provider-node@3.758.0)(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2)))(@libsql/client@0.14.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@2.0.5(@upstash/redis@1.34.5))(@upstash/redis@1.34.5)(@upstash/vector@1.2.1)(axios@1.7.9)(crypto-js@4.2.0)(fast-xml-parser@5.0.8)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.1.4)(ioredis@5.6.0)(jsdom@26.0.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.50.1)(ws@8.18.1)
+        version: 0.3.34(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.758.0)(@aws-sdk/credential-provider-node@3.758.0)(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.51.0)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2)))(@libsql/client@0.14.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@2.0.5(@upstash/redis@1.34.5))(@upstash/redis@1.34.5)(@upstash/vector@1.2.1)(axios@1.7.9)(crypto-js@4.2.0)(fast-xml-parser@5.0.8)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.2.0)(ioredis@5.6.0)(jsdom@26.0.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.51.0)(ws@8.18.1)
       '@langchain/core':
         specifier: ^0.3.42
         version: 0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2))
@@ -128,11 +128,11 @@ importers:
         version: 1.1.1
       svix:
         specifier: ^1.61.2
-        version: 1.61.2
+        version: 1.61.3
     devDependencies:
       '@sentry/aws-serverless':
         specifier: ^9.3.0
-        version: 9.4.0
+        version: 9.5.0
       '@sentry/esbuild-plugin':
         specifier: ^3.2.2
         version: 3.2.2
@@ -147,7 +147,7 @@ importers:
     dependencies:
       '@sentry/cloudflare':
         specifier: ^9.3.0
-        version: 9.4.0(@cloudflare/workers-types@4.20250303.0)
+        version: 9.5.0(@cloudflare/workers-types@4.20250303.0)
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20250303.0
@@ -265,10 +265,10 @@ importers:
         version: 1.1.8(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@sentry/node':
         specifier: ^9.3.0
-        version: 9.4.0
+        version: 9.5.0
       '@sentry/react':
-        specifier: ^9.3.0
-        version: 9.4.0(react@19.0.0)
+        specifier: ^9.5.0
+        version: 9.5.0(react@19.0.0)
       '@stripe/stripe-js':
         specifier: ^5.8.0
         version: 5.9.2
@@ -519,7 +519,7 @@ importers:
         version: 2.2.2
       '@sentry/node':
         specifier: ^9.3.0
-        version: 9.4.0
+        version: 9.5.0
       '@theaistudybible/schemas':
         specifier: workspace:*
         version: link:../schemas
@@ -537,7 +537,7 @@ importers:
         version: 2.0.11
       sentry-integration-libsql-client:
         specifier: ^1.3.1
-        version: 1.3.1(@libsql/client@0.14.0)(@sentry/node@9.4.0)
+        version: 1.3.1(@libsql/client@0.14.0)(@sentry/node@9.5.0)
     devDependencies:
       '@theaistudybible/tsconfig':
         specifier: workspace:*
@@ -593,7 +593,7 @@ importers:
         version: 19.0.10
       react-email:
         specifier: 3.0.7
-        version: 3.0.7(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 3.0.7(@opentelemetry/api@1.9.0)(@playwright/test@1.51.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   packages/schemas:
     devDependencies:
@@ -3586,8 +3586,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@playwright/test@1.50.1':
-    resolution: {integrity: sha512-Jii3aBg+CEDpgnuDxEp/h7BimHcUTDlpEtce89xEumlJ5ef2hqepZ+PWp1DDpYC/VO9fmWVI1IlEaoI5fK9FXQ==}
+  '@playwright/test@1.51.0':
+    resolution: {integrity: sha512-dJ0dMbZeHhI+wb77+ljx/FeC8VBP6j/rj9OAojO08JI80wTZy6vRk9KvHKiDCUh4iMpEiseMgqRBIeW+eKX6RA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -4537,32 +4537,32 @@ packages:
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
 
-  '@sentry-internal/browser-utils@9.4.0':
-    resolution: {integrity: sha512-huoSluJhyhN/EFXpRhUIFg0DQICrE9bCGZ4TBSG7l0zOVm3i957W5pUiE5qQkR7wmAfCuJ8Dh/tgo4ngSA21Gg==}
+  '@sentry-internal/browser-utils@9.5.0':
+    resolution: {integrity: sha512-AE9jgeI5+KyGvLR0vf1I6sesi0NZXZe6pDlZNXyg+pWZB2vkE9dksE8ZsoU+YiD9zjUqazgPcVyb3O0VvmaCGw==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/feedback@9.4.0':
-    resolution: {integrity: sha512-EgytfcwvV2eoyQQv4vxXzs5cgEhwuKKQu4oN3IUk7+6fY9lKKfBvCme+477Lx7jZ/O4Xe5o3QjTbamnwtHZokg==}
+  '@sentry-internal/feedback@9.5.0':
+    resolution: {integrity: sha512-p+yOTufEYHP1RLwkD+aZwpCNS4/2l6t4uHgphjYrEC2U/U2mtZQh+EvlBAt0wY/eiKC4/acPNrF5yFD/4A7a0A==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay-canvas@9.4.0':
-    resolution: {integrity: sha512-qPIlEEKQSA5FCP8++NmyQXANGcXm9W+saGEdlXKY0oKwACP/9sIUidkz78IOfvKFe46g5j9EqxJV3sFhitXJ0w==}
+  '@sentry-internal/replay-canvas@9.5.0':
+    resolution: {integrity: sha512-W7MS7/9Z8uP2i0pbndxqz2VcGlFPc7Bv6gCoxRdGIWUWSBS9rsRbryO0sM0PwwuHt2mQtWMqwjYykcR441RBRA==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay@9.4.0':
-    resolution: {integrity: sha512-eQnmbVcAJlUpEL/zYhG5cBXwqD4BdFqZcN/OGIPYdiJ6WnNhgk4oD9sSx05caq1STN8HRubw0DmBPb9XSqJi/g==}
+  '@sentry-internal/replay@9.5.0':
+    resolution: {integrity: sha512-fBBNimElAnu865HT3MJ6xH2P26KvkZvAYt+yRrWr+x5zS5KvjBYUPsSI+F0FTE14XmLW9q7DlNUl5iAZhXSy3g==}
     engines: {node: '>=18'}
 
-  '@sentry/aws-serverless@9.4.0':
-    resolution: {integrity: sha512-oyqx0Ek2S2qVcv0HX6kdR4ev+GBk9YkeZwmQ4ddQEOgCN3Sy4TCy45d3qbCQi4Xayeg1LoPLhZUwmCwV831IUQ==}
+  '@sentry/aws-serverless@9.5.0':
+    resolution: {integrity: sha512-oPcn2lm6N2aHlAI4FVyJa3HVemPiIb+hLnOg5JO7kRsCeAREoPx10AVpU02LjEG7pzVZV9tHgzRCFq+XTzyNxA==}
     engines: {node: '>=18'}
 
   '@sentry/babel-plugin-component-annotate@3.2.2':
     resolution: {integrity: sha512-D+SKQ266ra/wo87s9+UI/rKQi3qhGPCR8eSCDe0VJudhjHsqyNU+JJ5lnIGCgmZaWFTXgdBP/gdr1Iz1zqGs4Q==}
     engines: {node: '>= 14'}
 
-  '@sentry/browser@9.4.0':
-    resolution: {integrity: sha512-meMKoalrlmd5VAHAl0XVkLmt3FXxHIQxFWu0ymyPTfajK6yYs8MBjT/ZIEAXnOg0M0TlB2HNY2owMKDnwTTi/g==}
+  '@sentry/browser@9.5.0':
+    resolution: {integrity: sha512-HYSPW8GjknuYykJgOialKFyWg7ldmrbD1AKTIhksqdsNXLER07YeVWFAbe+xSYa1ZwwC8/s6vQJP9ZOoH1BaVg==}
     engines: {node: '>=18'}
 
   '@sentry/bundler-plugin-core@3.2.2':
@@ -4615,8 +4615,8 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
-  '@sentry/cloudflare@9.4.0':
-    resolution: {integrity: sha512-NAyV6OoCc0vblHAIrkNEmG8xOf3xjlhEbbzy0UsiSzRjrNQ6hHKgKqbjATouuyoVBvDBEDQ+1sMRoc3GbRU6iQ==}
+  '@sentry/cloudflare@9.5.0':
+    resolution: {integrity: sha512-L6FMQWtaIcGwR/afrtCaiHwadKCxzNu5W3gIAAFKlTZ2mMJVKKnL/3B+bA1nXAv4xeYNPcanDl2VnzzMyAXLMQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cloudflare/workers-types': ^4.x
@@ -4624,20 +4624,20 @@ packages:
       '@cloudflare/workers-types':
         optional: true
 
-  '@sentry/core@9.4.0':
-    resolution: {integrity: sha512-Edd/uWDGZ+1CMuVVWdxIOm1rBhzgpqiqz984TZu20wryoIoRsA8ZllUar6N+cWK17VusNY0OS2DozKO69y7fVQ==}
+  '@sentry/core@9.5.0':
+    resolution: {integrity: sha512-NMqyFdyg26ECAfnibAPKT8vvAt4zXp4R7dYtQnwJKhEJEVkgAshcNYeJ2D95ZLMVOqlqhTtTPnw1vqf+v9ePZg==}
     engines: {node: '>=18'}
 
   '@sentry/esbuild-plugin@3.2.2':
     resolution: {integrity: sha512-hLyaWDJ62DqXTgzyNInvJDhw+sixNXfV/Ao1geyqom0U5g9vWZKtbGImMCGJWYmkEwNu6XwWBSr5D6Jk3k57XQ==}
     engines: {node: '>= 14'}
 
-  '@sentry/node@9.4.0':
-    resolution: {integrity: sha512-DNcoQ3pj+03XJn9fuiNJM+9TksQFDpOhKPGppwL9kF0P7DS2eLyls4o2Ec+gtdDSu8Gcyes7sVD7Cw6J61bC2Q==}
+  '@sentry/node@9.5.0':
+    resolution: {integrity: sha512-+XVPjGIhiYlqIUZG8eQC0GWSjvhQsA4TLxa/loEp0jLDzzilN1ACNNn/LICNL+8f1jXI/CFJ0da6k4DyyhoUOQ==}
     engines: {node: '>=18'}
 
-  '@sentry/opentelemetry@9.4.0':
-    resolution: {integrity: sha512-utayMpcdgohSdET1PPsqOfS26XpVEuNkDYwNFqM8mciXsqqox1DgHQ985jicnziNcowGsSYjR6SazVPFauQkBw==}
+  '@sentry/opentelemetry@9.5.0':
+    resolution: {integrity: sha512-Df6S44rnDC5mE1l5D0zNlvNbDawE5nfs2inOPqLMCynTpFas9exAfz77A3TPZX76c5eCy9c1Jd+RDKT1YWiJGg==}
     engines: {node: '>=18'}
     peerDependencies:
       '@opentelemetry/api': ^1.9.0
@@ -4647,8 +4647,8 @@ packages:
       '@opentelemetry/sdk-trace-base': ^1.30.1
       '@opentelemetry/semantic-conventions': ^1.28.0
 
-  '@sentry/react@9.4.0':
-    resolution: {integrity: sha512-CnCCpSTr4Qr1reyjS2G5cO1Epin/eQ/X5HuGvuWv3sq5loRtkgcHQei1IhOlbNTcnY9r1PeUFgloRgASe8idzg==}
+  '@sentry/react@9.5.0':
+    resolution: {integrity: sha512-ixOlKuMxWKSK73u41vY2wQNkQpZJo4fwRkA6r4oy745ldcwhGlOy/TMACdotbHCn4ULC86rVZN5r49mH6SV5+w==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
@@ -7153,8 +7153,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  ibm-cloud-sdk-core@5.1.4:
-    resolution: {integrity: sha512-RXdCryEel2IM2RW1DZ42SJba1oZOwwbKmDARDDn4Uzb1HxO7RhEULNCdH5WoUwaSW07ObgFqwGNwraR92MCV3A==}
+  ibm-cloud-sdk-core@5.2.0:
+    resolution: {integrity: sha512-urz3bArghYe4AgTpxPBm1ohrzyeRRlekBN9kQAeQn39ixjoHo0qhN9zL6iCayvcZITA2zpuk/FnzP2gEiz8PZg==}
     engines: {node: '>=18'}
 
   ico-endec@0.1.6:
@@ -8495,13 +8495,13 @@ packages:
   pkg-types@2.1.0:
     resolution: {integrity: sha512-wmJwA+8ihJixSoHKxZJRBQG1oY8Yr9pGLzRmSsNms0iNWyHHAlZCa7mmKiFR10YPZuz/2k169JiS/inOjBCZ2A==}
 
-  playwright-core@1.50.1:
-    resolution: {integrity: sha512-ra9fsNWayuYumt+NiM069M6OkcRb1FZSK8bgi66AtpFoWkg2+y0bJSNmkFrWhMbEBbVKC/EruAHH3g0zmtwGmQ==}
+  playwright-core@1.51.0:
+    resolution: {integrity: sha512-x47yPE3Zwhlil7wlNU/iktF7t2r/URR3VLbH6EknJd/04Qc/PSJ0EY3CMXipmglLG+zyRxW6HNo2EGbKLHPWMg==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.50.1:
-    resolution: {integrity: sha512-G8rwsOQJ63XG6BbKj2w5rHeavFjy5zynBA9zsJMMtBoe/Uf757oG12NXz6e6OirF7RCrTVAKFXbLmn1RbL7Qaw==}
+  playwright@1.51.0:
+    resolution: {integrity: sha512-442pTfGM0xxfCYxuBa/Pu6B2OqxqqaYq39JS8QDMGThUvIOCd6s0ANDog3uwA0cHavVlnTQzGCN7Id2YekDSXA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -9348,11 +9348,11 @@ packages:
   svix-fetch@3.0.0:
     resolution: {integrity: sha512-rcADxEFhSqHbraZIsjyZNh4TF6V+koloX1OzZ+AQuObX9mZ2LIMhm1buZeuc5BIZPftZpJCMBsSiBaeszo9tRw==}
 
-  svix@1.61.2:
-    resolution: {integrity: sha512-F16110fvmGf6+Oj/4UO3vllZn7/d4KeVNOv70irN8XYbMI3R3AMWOTyTli1qauFUud4CWYIMRfhpRxVGxdvcHg==}
+  svix@1.61.3:
+    resolution: {integrity: sha512-epPQhzBxAgKpPbLJbS3ABmOAMtYNKnG8wFxt8r8y9OtVRJ9Z0iJtE93rbOjZxM1tvASdsp9PltDJl6swF7hDpA==}
 
-  swr@2.3.2:
-    resolution: {integrity: sha512-RosxFpiabojs75IwQ316DGoDRmOqtiAj0tg8wCcbEu4CiLZBs/a9QNtHV7TUfDXmmlgqij/NqzKq/eLelyv9xA==}
+  swr@2.3.3:
+    resolution: {integrity: sha512-dshNvs3ExOqtZ6kJBaAsabhPdHyeY4P2cKwRCniDVifBMoG/SVI7tfLWqPXriVspf2Rg4tPzXJTnwaihIeFw2A==}
     peerDependencies:
       react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -10416,7 +10416,7 @@ snapshots:
     dependencies:
       '@ai-sdk/provider-utils': 1.0.22(zod@3.24.2)
       '@ai-sdk/ui-utils': 0.0.50(zod@3.24.2)
-      swr: 2.3.2(react@19.0.0)
+      swr: 2.3.3(react@19.0.0)
       throttleit: 2.1.0
     optionalDependencies:
       react: 19.0.0
@@ -10426,7 +10426,7 @@ snapshots:
     dependencies:
       '@ai-sdk/provider-utils': 2.1.11(zod@3.24.2)
       '@ai-sdk/ui-utils': 1.1.17(zod@3.24.2)
-      swr: 2.3.2(react@19.0.0)
+      swr: 2.3.3(react@19.0.0)
       throttleit: 2.1.0
     optionalDependencies:
       react: 19.0.0
@@ -11837,11 +11837,11 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@browserbasehq/stagehand@1.14.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)':
+  '@browserbasehq/stagehand@1.14.0(@playwright/test@1.51.0)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)':
     dependencies:
       '@anthropic-ai/sdk': 0.27.3
       '@browserbasehq/sdk': 2.3.0
-      '@playwright/test': 1.50.1
+      '@playwright/test': 1.51.0
       deepmerge: 4.3.1
       dotenv: 16.4.7
       openai: 4.86.2(ws@8.18.1)(zod@3.24.2)
@@ -12468,7 +12468,7 @@ snapshots:
       '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2)))
       '@types/node': 18.19.79
       extend: 3.0.2
-      ibm-cloud-sdk-core: 5.1.4
+      ibm-cloud-sdk-core: 5.2.0
     transitivePeerDependencies:
       - '@langchain/core'
       - supports-color
@@ -12599,16 +12599,16 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@langchain/community@0.3.34(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.758.0)(@aws-sdk/credential-provider-node@3.758.0)(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2)))(@libsql/client@0.14.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@2.0.5(@upstash/redis@1.34.5))(@upstash/redis@1.34.5)(@upstash/vector@1.2.1)(axios@1.7.9)(crypto-js@4.2.0)(fast-xml-parser@5.0.8)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.1.4)(ioredis@5.6.0)(jsdom@26.0.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.50.1)(ws@8.18.1)':
+  '@langchain/community@0.3.34(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.758.0)(@aws-sdk/credential-provider-node@3.758.0)(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.51.0)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2)))(@libsql/client@0.14.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@2.0.5(@upstash/redis@1.34.5))(@upstash/redis@1.34.5)(@upstash/vector@1.2.1)(axios@1.7.9)(crypto-js@4.2.0)(fast-xml-parser@5.0.8)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.2.0)(ioredis@5.6.0)(jsdom@26.0.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.51.0)(ws@8.18.1)':
     dependencies:
-      '@browserbasehq/stagehand': 1.14.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)
+      '@browserbasehq/stagehand': 1.14.0(@playwright/test@1.51.0)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)
       '@ibm-cloud/watsonx-ai': 1.5.1(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2)))
       '@langchain/core': 0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2))
       '@langchain/openai': 0.4.4(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2)))(ws@8.18.1)
       binary-extensions: 2.3.0
       expr-eval: 2.0.2
       flat: 5.0.2
-      ibm-cloud-sdk-core: 5.1.4
+      ibm-cloud-sdk-core: 5.2.0
       js-yaml: 4.1.0
       langchain: 0.3.19(@langchain/core@0.3.42(openai@4.86.2(ws@8.18.1)(zod@3.24.2)))(axios@1.7.9)(openai@4.86.2(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
       langsmith: 0.3.12(openai@4.86.2(ws@8.18.1)(zod@3.24.2))
@@ -12634,7 +12634,7 @@ snapshots:
       jsonwebtoken: 9.0.2
       lodash: 4.17.21
       pdf-parse: 1.1.1
-      playwright: 1.50.1
+      playwright: 1.51.0
       ws: 8.18.1
     transitivePeerDependencies:
       - '@langchain/anthropic'
@@ -13204,9 +13204,9 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@playwright/test@1.50.1':
+  '@playwright/test@1.51.0':
     dependencies:
-      playwright: 1.50.1
+      playwright: 1.51.0
 
   '@poppinss/colors@4.1.4':
     dependencies:
@@ -14174,45 +14174,45 @@ snapshots:
       domhandler: 5.0.3
       selderee: 0.11.0
 
-  '@sentry-internal/browser-utils@9.4.0':
+  '@sentry-internal/browser-utils@9.5.0':
     dependencies:
-      '@sentry/core': 9.4.0
+      '@sentry/core': 9.5.0
 
-  '@sentry-internal/feedback@9.4.0':
+  '@sentry-internal/feedback@9.5.0':
     dependencies:
-      '@sentry/core': 9.4.0
+      '@sentry/core': 9.5.0
 
-  '@sentry-internal/replay-canvas@9.4.0':
+  '@sentry-internal/replay-canvas@9.5.0':
     dependencies:
-      '@sentry-internal/replay': 9.4.0
-      '@sentry/core': 9.4.0
+      '@sentry-internal/replay': 9.5.0
+      '@sentry/core': 9.5.0
 
-  '@sentry-internal/replay@9.4.0':
+  '@sentry-internal/replay@9.5.0':
     dependencies:
-      '@sentry-internal/browser-utils': 9.4.0
-      '@sentry/core': 9.4.0
+      '@sentry-internal/browser-utils': 9.5.0
+      '@sentry/core': 9.5.0
 
-  '@sentry/aws-serverless@9.4.0':
+  '@sentry/aws-serverless@9.5.0':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-aws-lambda': 0.50.3(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation-aws-sdk': 0.49.1(@opentelemetry/api@1.9.0)
-      '@sentry/core': 9.4.0
-      '@sentry/node': 9.4.0
+      '@sentry/core': 9.5.0
+      '@sentry/node': 9.5.0
       '@types/aws-lambda': 8.10.147
     transitivePeerDependencies:
       - supports-color
 
   '@sentry/babel-plugin-component-annotate@3.2.2': {}
 
-  '@sentry/browser@9.4.0':
+  '@sentry/browser@9.5.0':
     dependencies:
-      '@sentry-internal/browser-utils': 9.4.0
-      '@sentry-internal/feedback': 9.4.0
-      '@sentry-internal/replay': 9.4.0
-      '@sentry-internal/replay-canvas': 9.4.0
-      '@sentry/core': 9.4.0
+      '@sentry-internal/browser-utils': 9.5.0
+      '@sentry-internal/feedback': 9.5.0
+      '@sentry-internal/replay': 9.5.0
+      '@sentry-internal/replay-canvas': 9.5.0
+      '@sentry/core': 9.5.0
 
   '@sentry/bundler-plugin-core@3.2.2':
     dependencies:
@@ -14268,13 +14268,13 @@ snapshots:
       - encoding
       - supports-color
 
-  '@sentry/cloudflare@9.4.0(@cloudflare/workers-types@4.20250303.0)':
+  '@sentry/cloudflare@9.5.0(@cloudflare/workers-types@4.20250303.0)':
     dependencies:
-      '@sentry/core': 9.4.0
+      '@sentry/core': 9.5.0
     optionalDependencies:
       '@cloudflare/workers-types': 4.20250303.0
 
-  '@sentry/core@9.4.0': {}
+  '@sentry/core@9.5.0': {}
 
   '@sentry/esbuild-plugin@3.2.2':
     dependencies:
@@ -14285,7 +14285,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@sentry/node@9.4.0':
+  '@sentry/node@9.5.0':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/context-async-hooks': 1.30.1(@opentelemetry/api@1.9.0)
@@ -14318,13 +14318,13 @@ snapshots:
       '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.30.0
       '@prisma/instrumentation': 6.4.1(@opentelemetry/api@1.9.0)
-      '@sentry/core': 9.4.0
-      '@sentry/opentelemetry': 9.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.30.0)
+      '@sentry/core': 9.5.0
+      '@sentry/opentelemetry': 9.5.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.30.0)
       import-in-the-middle: 1.13.1
     transitivePeerDependencies:
       - supports-color
 
-  '@sentry/opentelemetry@9.4.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.30.0)':
+  '@sentry/opentelemetry@9.5.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.30.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/context-async-hooks': 1.30.1(@opentelemetry/api@1.9.0)
@@ -14332,12 +14332,12 @@ snapshots:
       '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.30.0
-      '@sentry/core': 9.4.0
+      '@sentry/core': 9.5.0
 
-  '@sentry/react@9.4.0(react@19.0.0)':
+  '@sentry/react@9.5.0(react@19.0.0)':
     dependencies:
-      '@sentry/browser': 9.4.0
-      '@sentry/core': 9.4.0
+      '@sentry/browser': 9.5.0
+      '@sentry/core': 9.5.0
       hoist-non-react-statics: 3.3.2
       react: 19.0.0
 
@@ -16063,7 +16063,7 @@ snapshots:
   axios@1.7.9(debug@4.4.0):
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.0)
-      form-data: 4.0.0
+      form-data: 4.0.2
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -17786,7 +17786,7 @@ snapshots:
 
   husky@9.1.7: {}
 
-  ibm-cloud-sdk-core@5.1.4:
+  ibm-cloud-sdk-core@5.2.0:
     dependencies:
       '@types/debug': 4.1.12
       '@types/node': 22.13.9
@@ -18931,7 +18931,7 @@ snapshots:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 
-  next@15.1.2(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  next@15.1.2(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       '@next/env': 15.1.2
       '@swc/counter': 0.1.3
@@ -18952,7 +18952,7 @@ snapshots:
       '@next/swc-win32-arm64-msvc': 15.1.2
       '@next/swc-win32-x64-msvc': 15.1.2
       '@opentelemetry/api': 1.9.0
-      '@playwright/test': 1.50.1
+      '@playwright/test': 1.51.0
       sharp: 0.33.5
     transitivePeerDependencies:
       - '@babel/core'
@@ -19374,11 +19374,11 @@ snapshots:
       exsolve: 1.0.2
       pathe: 2.0.3
 
-  playwright-core@1.50.1: {}
+  playwright-core@1.51.0: {}
 
-  playwright@1.50.1:
+  playwright@1.51.0:
     dependencies:
-      playwright-core: 1.50.1
+      playwright-core: 1.51.0
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -19525,7 +19525,7 @@ snapshots:
       react: 19.0.0
       scheduler: 0.25.0
 
-  react-email@3.0.7(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  react-email@3.0.7(@opentelemetry/api@1.9.0)(@playwright/test@1.51.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       '@babel/core': 7.24.5
       '@babel/parser': 7.24.5
@@ -19537,7 +19537,7 @@ snapshots:
       glob: 10.3.4
       log-symbols: 4.1.0
       mime-types: 2.1.35
-      next: 15.1.2(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next: 15.1.2(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       normalize-path: 3.0.0
       ora: 5.4.1
       socket.io: 4.8.1
@@ -19975,10 +19975,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  sentry-integration-libsql-client@1.3.1(@libsql/client@0.14.0)(@sentry/node@9.4.0):
+  sentry-integration-libsql-client@1.3.1(@libsql/client@0.14.0)(@sentry/node@9.5.0):
     dependencies:
       '@libsql/client': 0.14.0
-      '@sentry/node': 9.4.0
+      '@sentry/node': 9.5.0
       sqlite-statement-type: 1.1.0
 
   serialize-javascript@6.0.2:
@@ -20432,7 +20432,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  svix@1.61.2:
+  svix@1.61.3:
     dependencies:
       '@stablelib/base64': 1.0.1
       '@types/node': 22.13.9
@@ -20443,7 +20443,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  swr@2.3.2(react@19.0.0):
+  swr@2.3.3(react@19.0.0):
     dependencies:
       dequal: 2.0.3
       react: 19.0.0

@@ -72,8 +72,9 @@ export function BookPicker({ className, ...props }: BookPickerProps) {
       <PopoverContent side='bottom' className='w-[250px] p-0'>
         <Command value={brStore.book.shortName}>
           <CommandInput placeholder='Search books...' />
-          <QueryBoundary query={query}>
-            {({ books }) => (
+          <QueryBoundary
+            query={query}
+            render={({ books }) => (
               <CommandList>
                 <CommandEmpty>Not Found</CommandEmpty>
                 {books.map((book) => (
@@ -81,7 +82,7 @@ export function BookPicker({ className, ...props }: BookPickerProps) {
                 ))}
               </CommandList>
             )}
-          </QueryBoundary>
+          />
         </Command>
       </PopoverContent>
     </Popover>

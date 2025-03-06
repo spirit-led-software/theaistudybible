@@ -121,6 +121,7 @@ export const useChat = (props?: UseChatProps) => {
       chatId,
     },
     onError: (err) => {
+      console.error(err);
       captureSentryException(err);
       return props?.onError?.(err);
     },
@@ -160,10 +161,6 @@ export const useChat = (props?: UseChatProps) => {
     }),
   });
   useEffect(() => {
-    if (useChatResult.status === 'streaming' || useChatResult.status === 'submitted') {
-      return;
-    }
-
     if (messagesQuery.status === 'success') {
       useChatResult.setMessages(
         // @ts-ignore
@@ -173,7 +170,7 @@ export const useChat = (props?: UseChatProps) => {
           .map(normalizeMessage),
       );
     }
-  }, [useChatResult.status, useChatResult.setMessages, messagesQuery.status, messagesQuery.data]);
+  }, [useChatResult.setMessages, messagesQuery.status, messagesQuery.data]);
 
   const remainingMessagesQuery = useQuery(getRemainingMessagesQueryProps());
 
