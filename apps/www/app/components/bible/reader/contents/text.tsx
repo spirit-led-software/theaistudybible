@@ -3,7 +3,7 @@ import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
 import type { HighlightInfo } from '@/www/types/bible';
 import { gatherElementIdsByVerseNumber, hexToRgb } from '@/www/utils';
-import { createMemo } from 'solid-js';
+import { useMemo } from 'react';
 
 export type TextContentProps = {
   content: TextContentType;
@@ -11,29 +11,30 @@ export type TextContentProps = {
   // biome-ignore lint/suspicious/noExplicitAny: We need to pass all props to the span
   props: any;
   highlights?: HighlightInfo[];
-  class?: string;
+  className?: string;
 };
 
-export function TextContent(props: TextContentProps) {
-  const [brStore, setBrStore] = useBibleReaderStore();
-  const highlightColor = createMemo(
-    () =>
-      props.highlights?.find(({ verseNumber }) => verseNumber === props.content.verseNumber)?.color,
+export function TextContent({ content, style, props, highlights, className }: TextContentProps) {
+  const brStore = useBibleReaderStore();
+  const highlightColor = useMemo(
+    () => highlights?.find(({ verseNumber }) => verseNumber === content.verseNumber)?.color,
+    [highlights, content.verseNumber],
   );
-  const selected = createMemo(() =>
-    brStore.selectedVerseInfos.some((i) => i.contentIds.includes(props.content.id)),
+  const selected = useMemo(
+    () => brStore.selectedVerseInfos.some((i) => i.contentIds.includes(content.id)),
+    [brStore.selectedVerseInfos, content.id],
   );
 
   const handleClick = () => {
-    if (props.content.verseNumber === undefined) {
+    if (content.verseNumber === undefined) {
       return;
     }
 
-    setBrStore('selectedVerseInfos', (prev) => {
-      if (prev.find(({ number }) => number === props.content.verseNumber)) {
-        return prev.filter(({ number }) => number !== props.content.verseNumber);
+    brStore.setSelectedVerseInfos((prev) => {
+      if (prev.find(({ number }) => number === content.verseNumber)) {
+        return prev.filter(({ number }) => number !== content.verseNumber);
       }
-      const contentIds = gatherElementIdsByVerseNumber(props.content.verseNumber!);
+      const contentIds = gatherElementIdsByVerseNumber(content.verseNumber!);
       const text = contentIds
         .map((id) => {
           const el = document.getElementById(id)!;
@@ -47,7 +48,7 @@ export function TextContent(props: TextContentProps) {
       return [
         ...prev,
         {
-          number: props.content.verseNumber!,
+          number: content.verseNumber!,
           contentIds,
           text,
         },
@@ -55,8 +56,8 @@ export function TextContent(props: TextContentProps) {
     });
   };
 
-  const bgColor = createMemo(() => {
-    const hlColor = highlightColor();
+  const bgColor = useMemo(() => {
+    const hlColor = highlightColor;
     if (hlColor) {
       const rgb = hexToRgb(hlColor);
       if (rgb) {
@@ -64,27 +65,27 @@ export function TextContent(props: TextContentProps) {
       }
     }
     return 'transparent';
-  });
+  }, [highlightColor]);
 
   return (
     <span
-      id={props.content.id}
-      data-type={props.content.type}
-      data-verse-number={props.content.verseNumber}
-      {...props.props}
+      id={content.id}
+      data-type={content.type}
+      data-verse-number={content.verseNumber}
+      {...props}
       className={cn(
-        props.style,
+        style,
         'inline decoration-transparent underline-offset-4 transition duration-500',
-        props.content.verseNumber !== undefined && 'hover:cursor-pointer',
-        selected() && 'underline decoration-foreground decoration-dotted',
-        props.class,
+        content.verseNumber !== undefined && 'hover:cursor-pointer',
+        selected && 'underline decoration-foreground decoration-dotted',
+        className,
       )}
       style={{
-        'background-color': bgColor(),
+        backgroundColor: bgColor,
       }}
       onClick={handleClick}
     >
-      {props.content.text}
+      {content.text}
     </span>
   );
 }

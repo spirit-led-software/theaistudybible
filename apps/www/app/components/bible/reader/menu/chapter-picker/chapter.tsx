@@ -12,53 +12,59 @@ import { CommandItem } from '@/www/components/ui/command';
 import { Skeleton } from '@/www/components/ui/skeleton';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
-import { A } from '@solidjs/router';
-import { GET } from '@solidjs/start';
-import { createQuery } from '@tanstack/solid-query';
-import { Check } from 'lucide-solid';
-import { For } from 'solid-js';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
+import { Check } from 'lucide-react';
+import { z } from 'zod';
 
-const getChapterPickerData = GET(async (input: { bibleAbbreviation: string; bookCode: string }) => {
-  'use server';
-  const bibleData = await db.query.bibles.findFirst({
-    where: (bibles, { and, eq }) =>
-      and(eq(bibles.abbreviation, input.bibleAbbreviation), eq(bibles.readyForPublication, true)),
-    columns: { abbreviation: true },
-    with: {
-      books: {
-        limit: 1,
-        where: (books, { eq }) => eq(books.code, input.bookCode),
-        columns: { code: true },
-        with: {
-          chapters: {
-            orderBy: (chapters, { asc }) => asc(chapters.number),
-            columns: { code: true, number: true },
+const getChapterPickerData = createServerFn({ method: 'GET' })
+  .validator(
+    z.object({
+      bibleAbbreviation: z.string(),
+      bookCode: z.string(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const bibleData = await db.query.bibles.findFirst({
+      where: (bibles, { and, eq }) =>
+        and(eq(bibles.abbreviation, data.bibleAbbreviation), eq(bibles.readyForPublication, true)),
+      columns: { abbreviation: true },
+      with: {
+        books: {
+          limit: 1,
+          where: (books, { eq }) => eq(books.code, data.bookCode),
+          columns: { code: true },
+          with: {
+            chapters: {
+              orderBy: (chapters, { asc }) => asc(chapters.number),
+              columns: { code: true, number: true },
+            },
           },
         },
       },
-    },
+    });
+
+    if (!bibleData) {
+      throw new Error('Bible not found');
+    }
+
+    const { books, ...bible } = bibleData;
+    if (!books[0]) {
+      throw new Error('Book not found');
+    }
+
+    const { chapters, ...book } = books[0];
+
+    return { bible, book, chapters };
   });
-
-  if (!bibleData) {
-    throw new Error('Bible not found');
-  }
-
-  const { books, ...bible } = bibleData;
-  if (!books[0]) {
-    throw new Error('Book not found');
-  }
-
-  const { chapters, ...book } = books[0];
-
-  return { bible, book, chapters };
-});
 
 export const chapterPickerQueryOptions = (input: {
   bibleAbbreviation: string;
   bookCode: string;
 }) => ({
   queryKey: ['chapter-picker', input],
-  queryFn: () => getChapterPickerData(input),
+  queryFn: () => getChapterPickerData({ data: input }),
   staleTime: 1000 * 60 * 60, // 1 hour
 });
 
@@ -67,38 +73,43 @@ export type ChapterPickerProps = {
 };
 
 export function ChapterPicker(props: ChapterPickerProps) {
-  const [brStore] = useBibleReaderStore();
+  const brStore = useBibleReaderStore((s) => ({
+    bible: s.bible,
+    chapter: s.chapter,
+    verse: s.verse,
+  }));
 
-  const query = createQuery(() => ({
-    ...chapterPickerQueryOptions({
+  const query = useQuery(
+    chapterPickerQueryOptions({
       bibleAbbreviation: brStore.bible.abbreviation,
       bookCode: props.book.code,
     }),
-  }));
+  );
 
   return (
     <CommandItem value={props.book.shortName} className='aria-selected:bg-background'>
-      <Accordion collapsible className='w-full'>
+      <Accordion type='single' collapsible className='w-full'>
         <AccordionItem value={props.book.code}>
           <AccordionTrigger>{props.book.shortName}</AccordionTrigger>
           <AccordionContent className='grid grid-cols-4 gap-1'>
             <QueryBoundary
-              loadingFallback={
-                <For each={Array(24)}>
-                  {() => <Skeleton width={48} height={48} className='rounded-lg' />}
-                </For>
-              }
+              loadingFallback={Array(24).map((_, idx) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: Fine here
+                <Skeleton key={idx} className='h-full w-full rounded-lg' />
+              ))}
               query={query}
             >
-              {({ book, chapters }) => (
-                <For each={chapters}>
-                  {(foundChapter, idx) => (
-                    <Button
-                      data-index={idx()}
-                      variant='outline'
-                      as={A}
-                      href={`/bible/${brStore.bible.abbreviation}/${book.code}/${foundChapter.number}`}
-                      className='flex place-items-center justify-center overflow-visible'
+              {({ book, chapters }) =>
+                chapters.map((foundChapter, idx) => (
+                  <Button
+                    key={foundChapter.code}
+                    asChild
+                    data-index={idx}
+                    variant='outline'
+                    className='flex place-items-center justify-center overflow-visible'
+                  >
+                    <Link
+                      to={`/bible/${brStore.bible.abbreviation}/${book.code}/${foundChapter.number}`}
                     >
                       <Check
                         size={10}
@@ -108,10 +119,10 @@ export function ChapterPicker(props: ChapterPickerProps) {
                         )}
                       />
                       {foundChapter.number}
-                    </Button>
-                  )}
-                </For>
-              )}
+                    </Link>
+                  </Button>
+                ))
+              }
             </QueryBoundary>
           </AccordionContent>
         </AccordionItem>

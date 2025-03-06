@@ -5,57 +5,81 @@ import { DropdownMenuItem } from '@/www/components/ui/dropdown-menu';
 import { Spinner } from '@/www/components/ui/spinner';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { useAuth } from '@/www/hooks/use-auth';
-import { auth, requireAuth } from '@/www/server/utils/auth';
-import { action, useAction } from '@solidjs/router';
-import { GET } from '@solidjs/start';
-import { createMutation, createQuery } from '@tanstack/solid-query';
+import { authMiddleware, requireAuthMiddleware } from '@/www/server/middleware/auth';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { createServerFn } from '@tanstack/react-start';
 import { and, eq } from 'drizzle-orm';
-import { Bookmark } from 'lucide-solid';
-import { Show } from 'solid-js';
-import { toast } from 'solid-sonner';
+import { Bookmark } from 'lucide-react';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
-const getHasBookmark = GET(async (bibleAbbreviation: string, chapterCode: string) => {
-  'use server';
-  const { user } = auth();
-  if (!user) {
-    return { hasBookmark: false };
-  }
+const getHasBookmark = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .validator(
+    z.object({
+      bibleAbbreviation: z.string(),
+      chapterCode: z.string(),
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    const { user } = context;
+    if (!user) {
+      return { hasBookmark: false };
+    }
 
-  const bookmark = await db.query.chapterBookmarks.findFirst({
-    where: (chapterBookmarks, { and, eq }) =>
-      and(
-        eq(chapterBookmarks.userId, user.id),
-        eq(chapterBookmarks.bibleAbbreviation, bibleAbbreviation),
-        eq(chapterBookmarks.chapterCode, chapterCode),
-      ),
+    const bookmark = await db.query.chapterBookmarks.findFirst({
+      where: (chapterBookmarks, { and, eq }) =>
+        and(
+          eq(chapterBookmarks.userId, user.id),
+          eq(chapterBookmarks.bibleAbbreviation, data.bibleAbbreviation),
+          eq(chapterBookmarks.chapterCode, data.chapterCode),
+        ),
+    });
+    return { hasBookmark: !!bookmark };
   });
-  return { hasBookmark: !!bookmark };
-});
 
-const addBookmarkAction = action(async (bibleAbbreviation: string, chapterCode: string) => {
-  'use server';
-  const { user } = requireAuth();
-  await db
-    .insert(chapterBookmarks)
-    .values({ bibleAbbreviation, chapterCode, userId: user.id })
-    .onConflictDoNothing();
-  return { success: true };
-});
+const addBookmark = createServerFn({ method: 'POST' })
+  .middleware([requireAuthMiddleware])
+  .validator(
+    z.object({
+      bibleAbbreviation: z.string(),
+      chapterCode: z.string(),
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    const { user } = context;
+    await db
+      .insert(chapterBookmarks)
+      .values({
+        bibleAbbreviation: data.bibleAbbreviation,
+        chapterCode: data.chapterCode,
+        userId: user.id,
+      })
+      .onConflictDoNothing();
+    return { success: true };
+  });
 
-const deleteBookmarkAction = action(async (bibleAbbreviation: string, chapterCode: string) => {
-  'use server';
-  const { user } = requireAuth();
-  await db
-    .delete(chapterBookmarks)
-    .where(
-      and(
-        eq(chapterBookmarks.userId, user.id),
-        eq(chapterBookmarks.bibleAbbreviation, bibleAbbreviation),
-        eq(chapterBookmarks.chapterCode, chapterCode),
-      ),
-    );
-  return { success: true };
-});
+const deleteBookmark = createServerFn({ method: 'POST' })
+  .middleware([requireAuthMiddleware])
+  .validator(
+    z.object({
+      bibleAbbreviation: z.string(),
+      chapterCode: z.string(),
+    }),
+  )
+  .handler(async ({ context, data }) => {
+    const { user } = context;
+    await db
+      .delete(chapterBookmarks)
+      .where(
+        and(
+          eq(chapterBookmarks.userId, user.id),
+          eq(chapterBookmarks.bibleAbbreviation, data.bibleAbbreviation),
+          eq(chapterBookmarks.chapterCode, data.chapterCode),
+        ),
+      );
+    return { success: true };
+  });
 
 export const getChapterBookmarkQueryOptions = ({
   bibleAbbreviation,
@@ -65,38 +89,41 @@ export const getChapterBookmarkQueryOptions = ({
   chapterCode: string;
 }) => ({
   queryKey: ['bookmark', { bibleAbbreviation, chapterCode }],
-  queryFn: () => getHasBookmark(bibleAbbreviation, chapterCode),
+  queryFn: () => getHasBookmark({ data: { bibleAbbreviation, chapterCode } }),
 });
 
 export const ChapterBookmarkMenuItem = () => {
-  const addBookmark = useAction(addBookmarkAction);
-  const deleteBookmark = useAction(deleteBookmarkAction);
-
   const { isSignedIn } = useAuth();
-  const [brStore] = useBibleReaderStore();
+  const brStore = useBibleReaderStore();
 
-  const query = createQuery(() =>
+  const query = useQuery(
     getChapterBookmarkQueryOptions({
       bibleAbbreviation: brStore.bible.abbreviation,
       chapterCode: brStore.chapter.code,
     }),
   );
 
-  const addBookmarkMutation = createMutation(() => ({
-    mutationFn: () => addBookmark(brStore.bible.abbreviation, brStore.chapter.code),
+  const addBookmarkMutation = useMutation({
+    mutationFn: () =>
+      addBookmark({
+        data: { bibleAbbreviation: brStore.bible.abbreviation, chapterCode: brStore.chapter.code },
+      }),
     onSettled: () => query.refetch(),
     onError: (error) => {
       toast.error(error.message);
     },
-  }));
+  });
 
-  const deleteBookmarkMutation = createMutation(() => ({
-    mutationFn: () => deleteBookmark(brStore.bible.abbreviation, brStore.chapter.code),
+  const deleteBookmarkMutation = useMutation({
+    mutationFn: () =>
+      deleteBookmark({
+        data: { bibleAbbreviation: brStore.bible.abbreviation, chapterCode: brStore.chapter.code },
+      }),
     onSettled: () => query.refetch(),
     onError: (error) => {
       toast.error(error.message);
     },
-  }));
+  });
 
   return (
     <QueryBoundary
@@ -108,22 +135,8 @@ export const ChapterBookmarkMenuItem = () => {
         </div>
       }
     >
-      {({ hasBookmark }) => (
-        <Show
-          when={hasBookmark}
-          fallback={
-            <DropdownMenuItem
-              onSelect={() => addBookmarkMutation.mutate()}
-              disabled={
-                !isSignedIn() || addBookmarkMutation.isPending || deleteBookmarkMutation.isPending
-              }
-              className='disabled:pointer-events-auto'
-            >
-              <Bookmark className='mr-2' />
-              Add Bookmark
-            </DropdownMenuItem>
-          }
-        >
+      {({ hasBookmark }) =>
+        hasBookmark ? (
           <DropdownMenuItem
             onSelect={() => deleteBookmarkMutation.mutate()}
             disabled={addBookmarkMutation.isPending || deleteBookmarkMutation.isPending}
@@ -131,8 +144,19 @@ export const ChapterBookmarkMenuItem = () => {
             <Bookmark className='mr-2' />
             Remove Bookmark
           </DropdownMenuItem>
-        </Show>
-      )}
+        ) : (
+          <DropdownMenuItem
+            onSelect={() => addBookmarkMutation.mutate()}
+            disabled={
+              !isSignedIn || addBookmarkMutation.isPending || deleteBookmarkMutation.isPending
+            }
+            className='disabled:pointer-events-auto'
+          >
+            <Bookmark className='mr-2' />
+            Add Bookmark
+          </DropdownMenuItem>
+        )
+      }
     </QueryBoundary>
   );
 };

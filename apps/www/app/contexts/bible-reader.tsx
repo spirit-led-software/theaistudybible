@@ -3,6 +3,7 @@ import { formNumberSequenceString } from '@/core/utils/number';
 import type { Content } from '@/schemas/bibles/contents';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import { useNavigate, useSearch } from '@tanstack/react-router';
+import type React from 'react';
 import { type ReactNode, createContext, useContext, useEffect, useRef } from 'react';
 import { useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -30,12 +31,16 @@ export type BibleReaderState = {
 };
 
 export type BibleReaderActions = {
-  setBible: (bible: Bible) => void;
-  setBook: (book: Book) => void;
-  setChapter: (chapter: Omit<Chapter, 'content'> & { content?: Content[] }) => void;
-  setVerse: (verse: (Omit<Verse, 'content'> & { content?: Content[] }) | null) => void;
-  setSelectedVerseInfos: (selectedVerseInfos: SelectedVerseInfo[]) => void;
-  setTextSize: (textSize: BibleReaderTextSize) => void;
+  setBible: React.Dispatch<React.SetStateAction<Bible>>;
+  setBook: React.Dispatch<React.SetStateAction<Book>>;
+  setChapter: React.Dispatch<
+    React.SetStateAction<Omit<Chapter, 'content'> & { content?: Content[] }>
+  >;
+  setVerse: React.Dispatch<
+    React.SetStateAction<(Omit<Verse, 'content'> & { content?: Content[] }) | null>
+  >;
+  setSelectedVerseInfos: React.Dispatch<React.SetStateAction<SelectedVerseInfo[]>>;
+  setTextSize: React.Dispatch<React.SetStateAction<BibleReaderTextSize>>;
   updateComputedValues: () => void;
 };
 
@@ -151,22 +156,69 @@ export const BibleReaderProvider = ({
             }),
             selectedText: calculateSelectedText(selectedVerseInfos),
 
-            setBible: (bible: Bible) => set({ bible }),
-            setBook: (book: Book) => set({ book }),
-            setChapter: (chapter) => set({ chapter }),
-            setVerse: (verse) => set({ verse }),
-            setSelectedVerseInfos: (selectedVerseInfos) => {
+            setBible: (input) => {
+              let bible: Bible;
+              if (typeof input === 'function') {
+                bible = input(get().bible);
+              } else {
+                bible = input;
+              }
+              set({ bible });
+            },
+            setBook: (input) => {
+              let book: Book;
+              if (typeof input === 'function') {
+                book = input(get().book);
+              } else {
+                book = input;
+              }
+              set({ book });
+            },
+            setChapter: (input) => {
+              let chapter: Omit<Chapter, 'content'> & { content?: Content[] };
+              if (typeof input === 'function') {
+                chapter = input(get().chapter);
+              } else {
+                chapter = input;
+              }
+              set({ chapter });
+            },
+            setVerse: (input) => {
+              let verse: (Omit<Verse, 'content'> & { content?: Content[] }) | null;
+              if (typeof input === 'function') {
+                verse = input(get().verse);
+              } else {
+                verse = input;
+              }
+              set({ verse });
+            },
+            setSelectedVerseInfos: (input) => {
+              let selectedVerseInfos: SelectedVerseInfo[];
+              if (typeof input === 'function') {
+                selectedVerseInfos = input(get().selectedVerseInfos);
+              } else {
+                selectedVerseInfos = input;
+              }
+
               set({
                 selectedVerseInfos,
                 selectedIds: calculateSelectedIds(selectedVerseInfos),
                 selectedTitle: calculateSelectedTitle({
                   ...get(),
-                  selectedVerseInfos,
+                  selectedVerseInfos: selectedVerseInfos,
                 }),
                 selectedText: calculateSelectedText(selectedVerseInfos),
               });
             },
-            setTextSize: (textSize) => set({ textSize }),
+            setTextSize: (input) => {
+              let textSize: BibleReaderTextSize;
+              if (typeof input === 'function') {
+                textSize = input(get().textSize);
+              } else {
+                textSize = input;
+              }
+              set({ textSize });
+            },
             updateComputedValues: () => {
               const state = get();
               set({

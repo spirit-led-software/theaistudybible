@@ -5,11 +5,10 @@ import { type StoreApi, createStore } from 'zustand/vanilla';
 
 export type DevotionState = {
   devotion: Devotion | null;
-  setDevotion: (devotion: Devotion | null) => void;
 };
 
 export type DevotionActions = {
-  setDevotion: (devotion: Devotion | null) => void;
+  setDevotion: React.Dispatch<React.SetStateAction<Devotion | null>>;
 };
 
 export type DevotionStore = DevotionState & DevotionActions;
@@ -26,9 +25,17 @@ export type DevotionProviderProps = {
 export const DevotionProvider = ({ devotion, children }: DevotionProviderProps) => {
   const storeRef = useRef<DevotionContextValue>(null);
   if (!storeRef.current) {
-    storeRef.current = createStore<DevotionStore>()((set) => ({
+    storeRef.current = createStore<DevotionStore>()((set, get) => ({
       devotion: devotion ?? null,
-      setDevotion: (devotion) => set({ devotion }),
+      setDevotion: (input) => {
+        let devotion: Devotion | null;
+        if (typeof input === 'function') {
+          devotion = input(get().devotion);
+        } else {
+          devotion = input;
+        }
+        set({ devotion });
+      },
     }));
   }
 

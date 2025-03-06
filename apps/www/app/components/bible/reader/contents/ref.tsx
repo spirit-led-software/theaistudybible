@@ -1,8 +1,8 @@
 import type { TextContent } from '@/schemas/bibles/contents';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
-import { A } from '@solidjs/router';
-import { createMemo } from 'solid-js';
+import { Link } from '@tanstack/react-router';
+import { useMemo } from 'react';
 
 export type RefContentProps = {
   content: TextContent;
@@ -11,33 +11,33 @@ export type RefContentProps = {
   attrs: any;
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   props: any;
-  class?: string;
+  className?: string;
 };
 
-export function RefContent(props: RefContentProps) {
-  const [brStore] = useBibleReaderStore();
+export function RefContent({ content, style, attrs, props, className }: RefContentProps) {
+  const bible = useBibleReaderStore((state) => state.bible);
 
-  const link = createMemo(() => {
-    const [bookCode, chapterAndVerse] = props.attrs.loc.split(' ');
+  const link = useMemo(() => {
+    const [bookCode, chapterAndVerse] = attrs.loc.split(' ');
 
     const [chapter, verse] = chapterAndVerse.split(':');
-    let link = `/bible/${brStore.bible.abbreviation}/${bookCode}/${chapter}`;
+    let link = `/bible/${bible.abbreviation}/${bookCode}/${chapter}`;
     if (verse) {
       link += `/${verse}`;
     }
     return link;
-  });
+  }, [attrs.loc, bible.abbreviation]);
 
   return (
-    <A
-      id={props.content.id}
-      data-type={props.content.type}
-      data-verse-number={props.content.verseNumber}
-      {...props.props}
-      className={cn(props.style, 'hover:underline', props.class)}
-      href={link()}
+    <Link
+      id={content.id}
+      data-type={content.type}
+      data-verse-number={content.verseNumber}
+      {...props}
+      className={cn(style, 'hover:underline', className)}
+      to={link}
     >
-      {props.content.text}
-    </A>
+      {content.text}
+    </Link>
   );
 }

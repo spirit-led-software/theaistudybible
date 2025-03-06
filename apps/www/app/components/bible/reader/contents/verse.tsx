@@ -6,9 +6,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/www/components/ui/pop
 import { H5 } from '@/www/components/ui/typography';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
-import { A } from '@solidjs/router';
-import { Notebook } from 'lucide-solid';
-import { For, Show } from 'solid-js';
+import { Link } from '@tanstack/react-router';
+import { Notebook } from 'lucide-react';
+import { useMemo } from 'react';
 
 export type VerseContentProps = {
   content: VerseContentType;
@@ -20,7 +20,13 @@ export type VerseContentProps = {
 };
 
 export const VerseContent = (props: VerseContentProps) => {
-  const [brStore] = useBibleReaderStore();
+  const brStore = useBibleReaderStore();
+
+  const notes = useMemo(() => {
+    return props.notes?.filter(
+      (note) => note.verseCode.split('.').at(-1) === props.content.number.toString(),
+    );
+  }, [props.notes, props.content.number]);
 
   return (
     <span
@@ -34,46 +40,32 @@ export const VerseContent = (props: VerseContentProps) => {
         props.class,
       )}
     >
-      <Show
-        when={
-          props.notes?.some(
-            (note) => note.verseCode.split('.').at(-1) === props.content.number.toString(),
-          ) &&
-          props.notes?.filter(
-            (note) => note.verseCode.split('.').at(-1) === props.content.number.toString(),
-          )
-        }
-        keyed
-      >
-        {(notes) => (
-          <Popover>
-            <PopoverTrigger
-              as={Button}
-              variant='ghost'
-              size='icon'
-              className='size-6 p-1.5 align-sub'
-            >
+      {notes?.length && notes.length > 0 && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant='ghost' size='icon' className='size-6 p-1.5 align-sub'>
               <Notebook />
-            </PopoverTrigger>
-            <PopoverContent className='flex max-h-96 w-80 flex-col gap-2 overflow-y-auto p-4'>
-              <H5>User note{notes.length > 1 ? 's' : ''}</H5>
-              <For each={notes}>
-                {(note) => (
-                  <div className='flex max-h-52 w-full shrink-0 flex-col overflow-y-auto rounded-lg border p-2'>
-                    <Markdown>{note.content}</Markdown>
-                  </div>
-                )}
-              </For>
-            </PopoverContent>
-          </Popover>
-        )}
-      </Show>
-      <A
-        href={`/bible/${brStore.bible.abbreviation}/${brStore.book.code}/${brStore.chapter.number}/${props.content.number}`}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className='flex max-h-96 w-80 flex-col gap-2 overflow-y-auto p-4'>
+            <H5>User note{notes.length > 1 ? 's' : ''}</H5>
+            {notes.map((note, idx) => (
+              <div
+                key={`${note.bibleAbbreviation}-${note.verseCode}-${idx}`}
+                className='flex max-h-52 w-full shrink-0 flex-col overflow-y-auto rounded-lg border p-2'
+              >
+                <Markdown>{note.content}</Markdown>
+              </div>
+            ))}
+          </PopoverContent>
+        </Popover>
+      )}
+      <Link
+        to={`/bible/${brStore.bible.abbreviation}/${brStore.book.code}/${brStore.chapter.number}/${props.content.number}`}
         className='hover:underline'
       >
         {props.content.number}
-      </A>
+      </Link>
     </span>
   );
 };

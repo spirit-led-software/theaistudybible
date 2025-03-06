@@ -13,10 +13,10 @@ export type BibleState = {
 };
 
 export type BibleActions = {
-  setBible: (bible: Bible | null) => void;
-  setBook: (book: Book | null) => void;
-  setChapter: (chapter: Omit<Chapter, 'content'> | null) => void;
-  setVerse: (verse: Omit<Verse, 'content'> | null) => void;
+  setBible: React.Dispatch<React.SetStateAction<Bible | null>>;
+  setBook: React.Dispatch<React.SetStateAction<Book | null>>;
+  setChapter: React.Dispatch<React.SetStateAction<Omit<Chapter, 'content'> | null>>;
+  setVerse: React.Dispatch<React.SetStateAction<Omit<Verse, 'content'> | null>>;
 };
 
 export type BibleStore = BibleState & BibleActions;
@@ -38,15 +38,47 @@ export const BibleProvider = ({ bible, book, chapter, verse, children }: BiblePr
   if (!storeRef.current) {
     storeRef.current = createStore<BibleStore>()(
       persist(
-        (set) => ({
+        (set, get) => ({
           bible: bible ?? null,
           book: book ?? null,
           chapter: chapter ?? null,
           verse: verse ?? null,
-          setBible: (bible) => set({ bible }),
-          setBook: (book) => set({ book }),
-          setChapter: (chapter) => set({ chapter }),
-          setVerse: (verse) => set({ verse }),
+          setBible: (input) => {
+            let bible: Bible | null;
+            if (typeof input === 'function') {
+              bible = input(get().bible);
+            } else {
+              bible = input;
+            }
+            set({ bible });
+          },
+          setBook: (input) => {
+            let book: Book | null;
+            if (typeof input === 'function') {
+              book = input(get().book);
+            } else {
+              book = input;
+            }
+            set({ book });
+          },
+          setChapter: (input) => {
+            let chapter: Omit<Chapter, 'content'> | null;
+            if (typeof input === 'function') {
+              chapter = input(get().chapter);
+            } else {
+              chapter = input;
+            }
+            set({ chapter });
+          },
+          setVerse: (input) => {
+            let verse: Omit<Verse, 'content'> | null;
+            if (typeof input === 'function') {
+              verse = input(get().verse);
+            } else {
+              verse = input;
+            }
+            set({ verse });
+          },
         }),
         { name: 'bible' },
       ),

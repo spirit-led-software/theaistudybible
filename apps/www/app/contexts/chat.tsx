@@ -11,9 +11,9 @@ export type ChatState = {
 };
 
 export type ChatActions = {
-  setChatId: (chatId: string | null) => void;
-  setChat: (chat: Chat | null) => void;
-  setModelId: (modelId: string | null) => void;
+  setChatId: React.Dispatch<React.SetStateAction<string | null>>;
+  setChat: React.Dispatch<React.SetStateAction<Chat | null>>;
+  setModelId: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
 export type ChatStore = ChatState & ChatActions;
@@ -34,14 +34,37 @@ export const ChatProvider = ({ chatId, modelId, children }: ChatProviderProps) =
   if (!storeRef.current) {
     storeRef.current = createStore<ChatStore>()(
       persist(
-        (set) => ({
+        (set, get) => ({
           chatId: chatId ?? null,
           chat: null,
           modelId: modelId ?? null,
-
-          setChatId: (chatId) => set({ chatId }),
-          setChat: (chat) => set({ chat }),
-          setModelId: (modelId) => set({ modelId }),
+          setChatId: (input) => {
+            let chatId: string | null;
+            if (typeof input === 'function') {
+              chatId = input(get().chatId);
+            } else {
+              chatId = input;
+            }
+            set({ chatId });
+          },
+          setChat: (input) => {
+            let chat: Chat | null;
+            if (typeof input === 'function') {
+              chat = input(get().chat);
+            } else {
+              chat = input;
+            }
+            set({ chat });
+          },
+          setModelId: (input) => {
+            let modelId: string | null;
+            if (typeof input === 'function') {
+              modelId = input(get().modelId);
+            } else {
+              modelId = input;
+            }
+            set({ modelId });
+          },
         }),
         { name: 'chat' },
       ),

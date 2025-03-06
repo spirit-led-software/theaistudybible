@@ -11,8 +11,6 @@ type PosthogProviderProps = {
 
 export const PosthogProvider = ({ children }: PosthogProviderProps) => {
   const [posthogClient, setPosthogClient] = useState<PostHog | undefined>();
-  const previousPathnameRef = useRef<string>('');
-  const router = useRouter();
 
   // Initialize PostHog client
   useEffect(() => {
@@ -20,7 +18,7 @@ export const PosthogProvider = ({ children }: PosthogProviderProps) => {
       import('posthog-js').then((posthog) => {
         const client = posthog.default.init(import.meta.env.PUBLIC_POSTHOG_KEY || '', {
           api_host: import.meta.env.PUBLIC_POSTHOG_HOST || 'https://app.posthog.com',
-          autocapture: false,
+          autocapture: true,
           capture_pageview: false,
           capture_pageleave: true,
           disable_session_recording: true,
@@ -46,9 +44,11 @@ export const PosthogProvider = ({ children }: PosthogProviderProps) => {
     }
   }, [posthogClient]);
 
+  const router = useRouter();
+  const previousPathnameRef = useRef(router.state.location.pathname);
   // Track page views
   useEffect(() => {
-    const unsubscribe = router.subscribe('onRendered', (event) => {
+    const unsubscribe = router.subscribe('onLoad', (event) => {
       const pathname = event.toLocation.pathname;
       const search = event.toLocation.search;
 
@@ -62,9 +62,7 @@ export const PosthogProvider = ({ children }: PosthogProviderProps) => {
       previousPathnameRef.current = pathname;
     });
 
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, [posthogClient, router]);
 
   return <PosthogContext.Provider value={posthogClient}>{children}</PosthogContext.Provider>;
