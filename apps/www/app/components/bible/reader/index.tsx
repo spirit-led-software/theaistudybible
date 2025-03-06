@@ -4,15 +4,15 @@ import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
 import { authMiddleware } from '@/www/server/middleware/auth';
 import { gatherElementIdsByVerseNumber } from '@/www/utils';
+import { useQuery } from '@tanstack/react-query';
+import { useSearch } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
+import { useEffect } from 'react';
 import { z } from 'zod';
 import { ActivityPanel, ActivityPanelContent, ActivityPanelMenu } from './activity-panel';
 import { Contents } from './contents';
 
 import './contents/contents.css';
-import { useQuery } from '@tanstack/react-query';
-import { useSearch } from '@tanstack/react-router';
-import { useEffect } from 'react';
 
 const getHighlights = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
@@ -117,24 +117,19 @@ export const ReaderContent = (props: ReaderContentProps) => {
   }));
 
   const search = useSearch({
-    from: '/_with-footer/_with-header/bible/$bibleAbbreviation/$bookCode/$chapterCode',
+    from: '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode_/$chapterNumber',
   });
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const verseNumber = search.verseNumber as string;
-    if (!verseNumber) return;
-
-    if (verseNumber) {
-      const verseNumbers = Array.isArray(verseNumber) ? verseNumber : verseNumber.split(',');
-      if (!verseNumbers.length) return;
-
+    const verseNumbers = search.verseNumbers;
+    if (verseNumbers?.length) {
       const ids = gatherElementIdsByVerseNumber(Number(verseNumbers[0]));
       if (ids.length) {
         document.getElementById(ids[0])?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
-  });
+  }, [search.verseNumbers]);
 
   const highlightsQuery = useQuery({
     queryKey: [

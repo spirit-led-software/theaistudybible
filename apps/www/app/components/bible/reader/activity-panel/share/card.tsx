@@ -1,29 +1,21 @@
 import { Button } from '@/www/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/www/components/ui/card';
 import { DrawerClose } from '@/www/components/ui/drawer';
-import { TextField, TextFieldTextArea } from '@/www/components/ui/text-field';
+import { Textarea } from '@/www/components/ui/textarea';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
-import { writeClipboard } from '@solid-primitives/clipboard';
-import { createSocialShare } from '@solid-primitives/share';
-import { useLocation } from '@solidjs/router';
-import { Copy } from 'lucide-solid';
-import { Match, Switch } from 'solid-js';
-import { toast } from 'solid-sonner';
-import { EmailShareButton, FacebookShareButton, XShareButton } from './buttons';
+import { useLocation } from '@tanstack/react-router';
+import { useCopyToClipboard } from 'usehooks-ts';
+import { Copy } from 'lucide-react';
+import { useRef } from 'react';
+import { toast } from 'sonner';
 
 export const ShareCard = () => {
-  const [brStore] = useBibleReaderStore();
+  const brStore = useBibleReaderStore();
   const location = useLocation();
 
-  let shareInputRef: HTMLTextAreaElement | undefined;
+  const [, copyToClipboard] = useCopyToClipboard();
 
-  const [share] = createSocialShare(() => ({
-    title: `${brStore.selectedTitle} - ${brStore.selectedText}`,
-    quote: `${brStore.selectedText} (${brStore.selectedTitle})`,
-    description: 'Shared verse from The AI Study Bible.',
-    url: `${import.meta.env.PUBLIC_WEBAPP_URL}${location.pathname}${location.search}`,
-    hashtags: 'theaistudybible,ai,studybible,bible,verse,scripture,scriptures',
-  }));
+  const shareInputRef = useRef<HTMLTextAreaElement>(null);
 
   return (
     <Card className='w-full'>
@@ -31,61 +23,40 @@ export const ShareCard = () => {
         <CardTitle>Share</CardTitle>
       </CardHeader>
       <CardContent>
-        <TextField>
-          <TextFieldTextArea
-            ref={shareInputRef}
-            value={brStore.selectedText}
-            className='w-full resize-none'
-            autoResize={true}
-          />
-        </TextField>
+        <Textarea
+          ref={shareInputRef}
+          value={brStore.selectedText}
+          className='w-full resize-none'
+          autoResize={true}
+        />
       </CardContent>
       <CardFooter className='justify-end space-x-2'>
-        <DrawerClose as={Button} variant='outline'>
-          Close
+        <DrawerClose asChild>
+          <Button variant='outline'>Close</Button>
         </DrawerClose>
         <Button
           onClick={() => {
-            if (shareInputRef) {
-              void writeClipboard([
-                new ClipboardItem({
-                  'text/plain': new Blob([shareInputRef.value], {
-                    type: 'text/plain',
-                  }),
-                }),
-              ]);
+            if (shareInputRef.current) {
+              copyToClipboard(shareInputRef.current.value);
               toast.success('Copied to clipboard');
             }
           }}
         >
           <Copy />
         </Button>
-        <Switch
-          fallback={
-            <Button variant='outline' disabled>
-              Share
-            </Button>
-          }
-        >
-          <Match when={typeof navigator !== 'undefined' && 'share' in navigator}>
-            <Button
-              onClick={() =>
-                navigator.share({
-                  title: brStore.selectedTitle,
-                  text: brStore.selectedText,
-                  url: window.location.href,
-                })
-              }
-            >
-              Share
-            </Button>
-          </Match>
-          <Match when={typeof navigator !== 'undefined' && !('share' in navigator)}>
-            <XShareButton share={share} />
-            <FacebookShareButton share={share} />
-            <EmailShareButton share={share} />
-          </Match>
-        </Switch>
+        {typeof navigator !== 'undefined' && 'share' in navigator && (
+          <Button
+            onClick={() =>
+              navigator.share({
+                title: brStore.selectedTitle,
+                text: brStore.selectedText,
+                url: `${import.meta.env.PUBLIC_WEBAPP_URL}${location.pathname}${location.search}`,
+              })
+            }
+          >
+            Share
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

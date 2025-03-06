@@ -1,13 +1,15 @@
 import { db } from '@/core/database';
 import { dataSources } from '@/core/database/schema';
 import type { DataSource } from '@/schemas/data-sources/types';
-import { requireAdmin } from '@/www/server/utils/auth';
-import { action, useAction } from '@solidjs/router';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { requireAdminMiddleware } from '@/www/server/middleware/auth';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createServerFn } from '@tanstack/react-start';
 import { eq } from 'drizzle-orm';
-import { createSignal, splitProps } from 'solid-js';
-import { toast } from 'solid-sonner';
-import { Button, type ButtonProps } from '../../ui/button';
+import type React from 'react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { z } from 'zod';
+import { Button } from '../../ui/button';
 import {
   Dialog,
   DialogContent,
@@ -18,28 +20,32 @@ import {
   DialogTrigger,
 } from '../../ui/dialog';
 
-const deleteDataSourceAction = action(async (id: string) => {
-  'use server';
-  requireAdmin();
-  const [dataSource] = await db.delete(dataSources).where(eq(dataSources.id, id)).returning();
-  return { dataSource };
-});
+const deleteDataSource = createServerFn({ method: 'POST' })
+  .middleware([requireAdminMiddleware])
+  .validator(
+    z.object({
+      id: z.string(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const [dataSource] = await db
+      .delete(dataSources)
+      .where(eq(dataSources.id, data.id))
+      .returning();
+    return { dataSource };
+  });
 
-export type DeleteDataSourceButtonProps = ButtonProps & {
+export type DeleteDataSourceButtonProps = React.ComponentProps<typeof Button> & {
   dataSource: DataSource;
 };
 
-export const DeleteDataSourceButton = (props: DeleteDataSourceButtonProps) => {
-  const [local, rest] = splitProps(props, ['dataSource']);
-
-  const deleteDataSource = useAction(deleteDataSourceAction);
-
+export const DeleteDataSourceButton = ({ dataSource, ...props }: DeleteDataSourceButtonProps) => {
   const qc = useQueryClient();
 
-  const [isOpen, setIsOpen] = createSignal(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleDelete = createMutation(() => ({
-    mutationFn: () => deleteDataSource(local.dataSource.id),
+  const handleDelete = useMutation({
+    mutationFn: () => deleteDataSource({ data: { id: dataSource.id } }),
     onSuccess: () => {
       setIsOpen(false);
       toast.success('Data source deleted');
@@ -48,16 +54,18 @@ export const DeleteDataSourceButton = (props: DeleteDataSourceButtonProps) => {
       toast.error(error.message);
     },
     onSettled: () => qc.invalidateQueries({ queryKey: ['data-sources'] }),
-  }));
+  });
 
   return (
-    <Dialog open={isOpen()} onOpenChange={setIsOpen}>
-      <DialogTrigger as={Button} variant='destructive' {...rest} />
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant='destructive' {...props} />
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Delete Data Source</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete {local.dataSource.name}? This action cannot be undone.
+            Are you sure you want to delete {dataSource.name}? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

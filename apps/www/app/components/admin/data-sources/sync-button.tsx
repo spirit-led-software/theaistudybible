@@ -1,42 +1,43 @@
 import { sqs } from '@/core/queues';
 import type { DataSource } from '@/schemas/data-sources/types';
-import { requireAdmin } from '@/www/server/utils/auth';
+import { requireAdminMiddleware } from '@/www/server/middleware/auth';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
-import { useAction } from '@solidjs/router';
-import { action } from '@solidjs/router';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
-import { splitProps } from 'solid-js';
-import { toast } from 'solid-sonner';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createServerFn } from '@tanstack/react-start';
+import { toast } from 'sonner';
 import { Resource } from 'sst';
-import { Button, type ButtonProps } from '../../ui/button';
+import { z } from 'zod';
+import { Button } from '../../ui/button';
 
-const queueSyncDataSourceAction = action(async (id: string) => {
-  'use server';
-  requireAdmin();
-  const response = await sqs.send(
-    new SendMessageCommand({
-      QueueUrl: Resource.DataSourcesSyncQueue.url,
-      MessageBody: JSON.stringify({ id, manual: true }),
+const queueSyncDataSource = createServerFn({ method: 'POST' })
+  .middleware([requireAdminMiddleware])
+  .validator(
+    z.object({
+      id: z.string(),
     }),
-  );
-  if (response.$metadata.httpStatusCode !== 200) {
-    throw new Error('Failed to queue data source sync');
-  }
-  return { success: true };
-});
+  )
+  .handler(async ({ data }) => {
+    const response = await sqs.send(
+      new SendMessageCommand({
+        QueueUrl: Resource.DataSourcesSyncQueue.url,
+        MessageBody: JSON.stringify({ id: data.id, manual: true }),
+      }),
+    );
+    if (response.$metadata.httpStatusCode !== 200) {
+      throw new Error('Failed to queue data source sync');
+    }
+    return { success: true };
+  });
 
-export type SyncDataSourceButtonProps = Omit<ButtonProps, 'onClick'> & {
+export type SyncDataSourceButtonProps = Omit<React.ComponentProps<typeof Button>, 'onClick'> & {
   dataSource: DataSource;
 };
 
-const SyncDataSourceButton = (props: SyncDataSourceButtonProps) => {
-  const [local, rest] = splitProps(props, ['dataSource']);
-
-  const queueSyncDataSource = useAction(queueSyncDataSourceAction);
+const SyncDataSourceButton = ({ dataSource, ...props }: SyncDataSourceButtonProps) => {
   const queryClient = useQueryClient();
 
-  const handleClick = createMutation(() => ({
-    mutationFn: () => queueSyncDataSource(local.dataSource.id),
+  const handleClick = useMutation({
+    mutationFn: () => queueSyncDataSource({ data: { id: dataSource.id } }),
     onSuccess: () => {
       toast.success('Data source sync queued');
     },
@@ -46,14 +47,10 @@ const SyncDataSourceButton = (props: SyncDataSourceButtonProps) => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['dataSources'] });
     },
-  }));
+  });
 
   return (
-    <Button
-      disabled={local.dataSource.type === 'FILE'}
-      onClick={() => handleClick.mutate()}
-      {...rest}
-    />
+    <Button disabled={dataSource.type === 'FILE'} onClick={() => handleClick.mutate()} {...props} />
   );
 };
 

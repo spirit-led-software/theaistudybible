@@ -20,3 +20,5 @@ declare global {
   }
   interface ImportMetaEnv extends Env {}
 }
+
+export {};

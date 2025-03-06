@@ -4,14 +4,13 @@ import { QueryBoundary } from '@/www/components/query-boundary';
 import { Button } from '@/www/components/ui/button';
 import { Input } from '@/www/components/ui/input';
 import { H2, P } from '@/www/components/ui/typography';
-import { A } from '@solidjs/router';
-import { GET } from '@solidjs/start';
-import { createQuery } from '@tanstack/solid-query';
-import { Search } from 'lucide-solid';
-import { For, createSignal } from 'solid-js';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
+import { Search } from 'lucide-react';
+import { useState } from 'react';
 
-const getBibles = GET(async () => {
-  'use server';
+const getBibles = createServerFn({ method: 'GET' }).handler(async () => {
   const bibles = await db.query.bibles.findMany({
     where: (bibles, { eq }) => eq(bibles.readyForPublication, true),
     with: { biblesToLanguages: { with: { language: true } } },
@@ -25,17 +24,17 @@ export const largeTranslationPickerQueryOptions = {
 };
 
 export function LargeTranslationPicker() {
-  const query = createQuery(() => largeTranslationPickerQueryOptions);
+  const query = useQuery(largeTranslationPickerQueryOptions);
 
-  const [search, setSearch] = createSignal('');
+  const [search, setSearch] = useState('');
 
   return (
     <QueryBoundary query={query}>
       {({ bibles }) => {
         const filteredBibles = bibles.filter(
           (bible) =>
-            bible.name.toLowerCase().includes(search().toLowerCase()) ||
-            bible.abbreviation.toLowerCase().includes(search().toLowerCase()),
+            bible.name.toLowerCase().includes(search.toLowerCase()) ||
+            bible.abbreviation.toLowerCase().includes(search.toLowerCase()),
         );
         const uniqueLanguages = filteredBibles.reduce((acc, bible) => {
           if (!acc.some((language) => language.iso === bible.biblesToLanguages[0].language.iso)) {
@@ -53,7 +52,7 @@ export function LargeTranslationPicker() {
                 <Input
                   type='search'
                   placeholder='Search translations'
-                  value={search()}
+                  value={search}
                   onChange={(e) => {
                     setSearch(e.target.value);
                   }}
@@ -64,22 +63,19 @@ export function LargeTranslationPicker() {
                 <P className='text-accent-foreground text-xs'>{filteredBibles.length}</P>
               </div>
               <div className='mt-2 flex w-full flex-col space-y-4'>
-                <For each={uniqueLanguages}>
-                  {(language) => (
+                {uniqueLanguages.map((language) => (
+                  <div key={language.iso} className='flex w-full flex-col space-y-2'>
+                    <div className='font-bold text-lg'>{language.nameLocal}</div>
                     <div className='flex w-full flex-col space-y-2'>
-                      <div className='font-bold text-lg'>{language.nameLocal}</div>
-                      <div className='flex w-full flex-col space-y-2'>
-                        <For
-                          each={bibles.filter(
-                            (bible) => bible.biblesToLanguages[0].language.iso === language.iso,
-                          )}
-                        >
-                          {(bible) => (
-                            <Button
-                              className='flex h-fit w-full flex-col items-start justify-start overflow-hidden text-start'
-                              as={A}
-                              href={`/bible/${bible.abbreviation}`}
-                            >
+                      {bibles
+                        .filter((bible) => bible.biblesToLanguages[0].language.iso === language.iso)
+                        .map((bible) => (
+                          <Button
+                            key={bible.abbreviation}
+                            className='flex h-fit w-full flex-col items-start justify-start overflow-hidden text-start'
+                            asChild
+                          >
+                            <Link to={`/bible/${bible.abbreviation}`}>
                               <div className='line-clamp-2 text-wrap font-bold text-lg'>
                                 {bible.abbreviationLocal}
                               </div>
@@ -87,13 +83,12 @@ export function LargeTranslationPicker() {
                               <div className='line-clamp-2 text-wrap text-accent-foreground text-xs'>
                                 {bible.description}
                               </div>
-                            </Button>
-                          )}
-                        </For>
-                      </div>
+                            </Link>
+                          </Button>
+                        ))}
                     </div>
-                  )}
-                </For>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

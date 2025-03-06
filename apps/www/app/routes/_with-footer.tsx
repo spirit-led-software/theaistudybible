@@ -1,5 +1,5 @@
+import { NavigationFooter } from '@/www/components/navigation/footer';
 import { Outlet, createFileRoute } from '@tanstack/react-router';
-import { NavigationFooter } from 'src/components/navigation/footer';
 
 export const Route = createFileRoute('/_with-footer')({
   component: RouteComponent,

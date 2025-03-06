@@ -4,9 +4,10 @@ import type { Content } from '@/schemas/bibles/contents';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import type React from 'react';
-import { type ReactNode, createContext, useContext, useEffect, useRef } from 'react';
+import { type ReactNode, createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import { type StoreApi, createStore } from 'zustand/vanilla';
 import { useBibleStore } from './bible';
 
@@ -59,25 +60,18 @@ export type BibleReaderProviderProps = {
   children: ReactNode;
 };
 
-export const BibleReaderProvider = ({
-  bible,
-  book,
-  chapter,
-  verse,
-  selectedVerseInfos: initialSelectedVerseInfos,
-  children,
-}: BibleReaderProviderProps) => {
-  const searchParams = useSearch({ strict: false });
+export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
   const navigate = useNavigate();
+  const searchParams = useSearch({
+    from: '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode_/$chapterNumber',
+  });
+  const getVerseInfosFromVerseSearchParams = useCallback(() => {
+    const verseNumbers = searchParams.verseNumbers;
+    if (!verseNumbers) return [];
 
-  const getVerseInfosFromVerseSearchParams = () => {
-    const verseNumberParam = searchParams.verseNumber;
-    if (!verseNumberParam) return [];
-
-    const content = verse ? verse.content : chapter.content;
+    const content = props.verse ? props.verse.content : props.chapter.content;
     if (!content || !content.length) return [];
 
-    const verseNumbers: number[] = verseNumberParam.split(',').map(Number);
     if (verseNumbers.length) {
       return verseNumbers.map((verseNumber) => {
         const texts = findTextContentByVerseNumbers(content, [verseNumber]);
@@ -90,14 +84,14 @@ export const BibleReaderProvider = ({
     }
 
     return [];
-  };
+  }, [props.chapter, searchParams, props.verse]);
 
   // Helper functions for computed properties
-  function calculateSelectedIds(verseInfos: SelectedVerseInfo[]): string[] {
+  const calculateSelectedIds = useCallback((verseInfos: SelectedVerseInfo[]): string[] => {
     return verseInfos.flatMap((info) => info.contentIds);
-  }
+  }, []);
 
-  function calculateSelectedTitle(state: BibleReaderState): string {
+  const calculateSelectedTitle = useCallback((state: BibleReaderState): string => {
     if (state.selectedVerseInfos.length === 0) {
       return '';
     }
@@ -105,9 +99,9 @@ export const BibleReaderProvider = ({
       new Set<number>(state.selectedVerseInfos.map((info) => info.number).sort((a, b) => a - b)),
     );
     return `${state.book.shortName} ${state.chapter.number}:${formNumberSequenceString(verseNumbers)} (${state.bible.abbreviationLocal})`;
-  }
+  }, []);
 
-  function calculateSelectedText(selectedVerseInfos: SelectedVerseInfo[]): string {
+  const calculateSelectedText = useCallback((selectedVerseInfos: SelectedVerseInfo[]): string => {
     return selectedVerseInfos
       .sort((a, b) => a.number - b.number)
       .flatMap((info, index, array) => {
@@ -125,7 +119,7 @@ export const BibleReaderProvider = ({
       })
       .join('')
       .trim();
-  }
+  }, []);
 
   const storeRef = useRef<BibleReaderContextValue>(null);
   if (!storeRef.current) {
@@ -133,21 +127,21 @@ export const BibleReaderProvider = ({
       persist(
         (set, get) => {
           const selectedVerseInfos =
-            initialSelectedVerseInfos ?? getVerseInfosFromVerseSearchParams();
+            props.selectedVerseInfos ?? getVerseInfosFromVerseSearchParams();
 
           return {
-            bible,
-            book,
-            chapter,
-            verse: verse ?? null,
+            bible: props.bible,
+            book: props.book,
+            chapter: props.chapter,
+            verse: props.verse ?? null,
             selectedVerseInfos,
             textSize: 'md' as BibleReaderTextSize,
             selectedIds: calculateSelectedIds(selectedVerseInfos),
             selectedTitle: calculateSelectedTitle({
-              bible,
-              book,
-              chapter,
-              verse: verse ?? null,
+              bible: props.bible,
+              book: props.book,
+              chapter: props.chapter,
+              verse: props.verse ?? null,
               selectedVerseInfos,
               textSize: 'md',
               selectedIds: [],
@@ -235,24 +229,54 @@ export const BibleReaderProvider = ({
   }
 
   // Sync with Bible store
-  const bibleStore = useBibleStore();
-
+  const bible = useBibleStore((state) => state.bible);
   useEffect(() => {
-    const state = storeRef.current!.getState();
-    bibleStore.setBible(state.bible);
-    bibleStore.setBook(state.book);
-    bibleStore.setChapter(state.chapter);
-    bibleStore.setVerse(state.verse);
-  }, [bibleStore]);
+    if (bible) {
+      storeRef.current?.setState((state) => ({
+        ...state,
+        bible,
+      }));
+    }
+  }, [bible]);
+
+  const book = useBibleStore((state) => state.book);
+  useEffect(() => {
+    if (book) {
+      storeRef.current?.setState((state) => ({
+        ...state,
+        book,
+      }));
+    }
+  }, [book]);
+
+  const chapter = useBibleStore((state) => state.chapter);
+  useEffect(() => {
+    if (chapter) {
+      storeRef.current?.setState((state) => ({
+        ...state,
+        chapter,
+      }));
+    }
+  }, [chapter]);
+
+  const verse = useBibleStore((state) => state.verse);
+  useEffect(() => {
+    if (verse) {
+      storeRef.current?.setState((state) => ({
+        ...state,
+        verse,
+      }));
+    }
+  }, [verse]);
 
   useEffect(() => {
     // Subscribe to changes in selectedVerseInfos
     const unsubscribe = storeRef.current!.subscribe((state) => {
       const verseNumbers = Array.from(new Set(state.selectedVerseInfos.map((info) => info.number)));
       navigate({
+        from: '/bible/$bibleAbbreviation/$bookCode/$chapterNumber',
         replace: true,
-        // @ts-ignore
-        search: { verseNumber: verseNumbers.join(',') },
+        search: { verseNumbers: verseNumbers },
       });
     });
 
@@ -260,7 +284,9 @@ export const BibleReaderProvider = ({
   }, [navigate]);
 
   return (
-    <BibleReaderContext.Provider value={storeRef.current}>{children}</BibleReaderContext.Provider>
+    <BibleReaderContext.Provider value={storeRef.current}>
+      {props.children}
+    </BibleReaderContext.Provider>
   );
 };
 
@@ -276,5 +302,5 @@ export const useBibleReaderStore = <T = BibleReaderStore>(
     return useStore(bibleReaderStoreContext, (state) => state) as T;
   }
 
-  return useStore(bibleReaderStoreContext, selector);
+  return useStore(bibleReaderStoreContext, useShallow(selector));
 };

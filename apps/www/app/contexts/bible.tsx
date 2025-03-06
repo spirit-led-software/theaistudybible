@@ -3,6 +3,7 @@ import { type ReactNode, createContext, useContext, useRef } from 'react';
 import type { StoreApi } from 'zustand';
 import { useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import { createStore } from 'zustand/vanilla';
 
 export type BibleState = {
@@ -98,5 +99,5 @@ export const useBibleStore = <T = BibleStore>(selector?: (state: BibleStore) => 
     return useStore(bibleStoreContext, (state: BibleStore) => state) as T;
   }
 
-  return useStore(bibleStoreContext, selector);
+  return useStore(bibleStoreContext, useShallow(selector));
 };

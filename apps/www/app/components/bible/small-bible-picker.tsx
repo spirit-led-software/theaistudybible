@@ -32,7 +32,10 @@ export const smallBiblePickerQueryOptions = () => ({
   placeholderData: { bibles: [] },
 });
 
-export type SmallBiblePickerProps = Omit<React.ComponentProps<typeof Button>, 'children'> & {
+export type SmallBiblePickerProps = Omit<
+  React.ComponentProps<typeof Button>,
+  'children' | 'value' | 'onValueChange' | 'defaultValue'
+> & {
   value?: string | Bible;
   onValueChange?: (bible?: Bible) => void;
   defaultValue?: string | Bible;
@@ -106,6 +109,7 @@ export function SmallBiblePicker({
           <Popover>
             <PopoverTrigger asChild>
               <Button
+                variant='outline'
                 className={cn('flex items-center justify-between text-nowrap', className)}
                 {...props}
               >

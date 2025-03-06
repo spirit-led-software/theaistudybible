@@ -33,6 +33,7 @@ export function Contents({ contents, highlights, notes, className }: ContentsPro
       case 'text': {
         return (
           <TextContent
+            key={content.id}
             content={content}
             style={style}
             props={addProps}
@@ -44,6 +45,7 @@ export function Contents({ contents, highlights, notes, className }: ContentsPro
       case 'ref': {
         return (
           <RefContent
+            key={content.id}
             content={content}
             style={style}
             attrs={attrs}
@@ -55,6 +57,7 @@ export function Contents({ contents, highlights, notes, className }: ContentsPro
       case 'verse': {
         return (
           <VerseContent
+            key={content.id}
             content={content}
             style={style}
             className={className}
@@ -66,6 +69,7 @@ export function Contents({ contents, highlights, notes, className }: ContentsPro
       case 'char': {
         return (
           <CharContent
+            key={content.id}
             content={content}
             style={style}
             className={className}
@@ -78,6 +82,7 @@ export function Contents({ contents, highlights, notes, className }: ContentsPro
       case 'para': {
         return (
           <p
+            key={content.id}
             id={content.id}
             data-type={content.type}
             {...addProps}
@@ -88,7 +93,7 @@ export function Contents({ contents, highlights, notes, className }: ContentsPro
         );
       }
       case 'note': {
-        return <NoteContent content={content} props={addProps} />;
+        return <NoteContent key={content.id} content={content} props={addProps} />;
       }
       default: {
         return null;

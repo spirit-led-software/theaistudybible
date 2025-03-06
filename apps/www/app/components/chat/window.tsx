@@ -2,9 +2,9 @@ import { useBibleStore } from '@/www/contexts/bible';
 import { useChat } from '@/www/hooks/use-chat';
 import { useChatScrollAnchor } from '@/www/hooks/use-chat-scroll-anchor';
 import { useLocation, useNavigate, useSearch } from '@tanstack/react-router';
-import { useWindowSize } from '@uidotdev/usehooks';
 import { type RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { useWindowSize } from 'usehooks-ts';
 import { useChatStore } from '../../contexts/chat';
 import { SidebarProvider } from '../ui/sidebar';
 import { ChatInput } from './input';
@@ -47,7 +47,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
   const isLoading = useMemo(() => status === 'submitted' || status === 'streaming', [status]);
 
   const { width } = useWindowSize();
-  const isMobile = useMemo(() => (width ?? 0) < 768, [width]);
+  const isMobile = useMemo(() => width < 768, [width]);
 
   const pathname = useLocation({
     select: (location) => location.pathname,
@@ -92,7 +92,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
     [appendBase, scrollToBottom],
   );
 
-  const searchParams = useSearch({ strict: false });
+  const searchParams = useSearch({ from: '/_with-sidebar/chat' });
   const navigate = useNavigate();
   useEffect(() => {
     const query = searchParams?.query;
@@ -100,7 +100,8 @@ export const ChatWindow = (props: ChatWindowProps) => {
       const messageContent = Array.isArray(query) ? query[0] : query;
       append({ role: 'user', content: messageContent });
       navigate({
-        params: { query: null },
+        from: '/chat',
+        search: { query: undefined },
       });
     }
   }, [searchParams, navigate, append]);

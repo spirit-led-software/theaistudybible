@@ -1,5 +1,5 @@
-import { A, useLocation } from '@solidjs/router';
-import { Menu } from 'lucide-solid';
+import { Link, useLocation } from '@tanstack/react-router';
+import { Menu } from 'lucide-react';
 import { LogoSmall } from '../branding/logo-small';
 import { NavigationDropdown } from '../navigation/dropdown';
 import {
@@ -20,7 +20,7 @@ const AdminSidebar = () => {
   const location = useLocation();
 
   return (
-    <Sidebar className='h-full' gapFixerclassName='h-full'>
+    <Sidebar className='h-full' gapFixerClassName='h-full'>
       <SidebarHeader>
         <H3>Admin</H3>
       </SidebarHeader>
@@ -30,12 +30,8 @@ const AdminSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={location.pathname === '/admin/devotion'}
-                  as={A}
-                  href='/admin/devotion'
-                >
-                  Generate Devotion
+                <SidebarMenuButton isActive={location.pathname === '/admin/devotion'} asChild>
+                  <Link to='/admin/devotion'>Generate Devotion</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -48,10 +44,9 @@ const AdminSidebar = () => {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   isActive={location.pathname === '/admin/push-notification'}
-                  as={A}
-                  href='/admin/push-notification'
+                  asChild
                 >
-                  Send a Push Notification
+                  <Link to='/admin/push-notification'>Send a Push Notification</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -62,12 +57,8 @@ const AdminSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={location.pathname === '/admin/bible'}
-                  as={A}
-                  href='/admin/bible'
-                >
-                  Add a Bible
+                <SidebarMenuButton isActive={location.pathname === '/admin/bible'} asChild>
+                  <Link to='/admin/bible'>Add a Bible</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -78,21 +69,13 @@ const AdminSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={location.pathname === '/admin/data-sources'}
-                  as={A}
-                  href='/admin/data-sources'
-                >
-                  All Data Sources
+                <SidebarMenuButton isActive={location.pathname === '/admin/data-sources'} asChild>
+                  <Link to='/admin/data-sources'>All Data Sources</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={location.pathname === '/admin/data-source'}
-                  as={A}
-                  href='/admin/data-source'
-                >
-                  Add a Data Source
+                <SidebarMenuButton isActive={location.pathname === '/admin/data-source'} asChild>
+                  <Link to='/admin/data-source'>Add a Data Source</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -104,7 +87,7 @@ const AdminSidebar = () => {
           variant='ghost'
           className='flex h-fit w-full items-center justify-between px-4 py-1'
         >
-          <LogoSmall width={128} height={64} className='h-auto w-24' lightclassName='dark:hidden' />
+          <LogoSmall width={128} height={64} className='h-auto w-24' lightClassName='dark:hidden' />
           <Menu />
         </NavigationDropdown>
       </SidebarFooter>

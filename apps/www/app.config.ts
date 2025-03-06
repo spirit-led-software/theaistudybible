@@ -27,7 +27,7 @@ const doNotCacheHeaders = {
 export default defineConfig({
   server: {
     preset: 'node-server',
-    compatibilityDate: '2024-12-02',
+    compatibilityDate: '2025-03-06',
     experimental: { wasm: true },
     routeRules: {
       '/_build/assets/**': { headers: staticCacheControlHeaders },
@@ -119,6 +119,6 @@ export default defineConfig({
       }),
       process.env.ANALYZE === 'true' && analyzer(),
     ],
-    ssr: { external: ['posthog-js', '@stripe/stripe-js', 'motion'] },
+    ssr: { external: ['posthog-js', '@stripe/stripe-js'] },
   },
 });

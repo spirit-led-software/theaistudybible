@@ -21,7 +21,7 @@ const getChapterReaderData = createServerFn({ method: 'GET' })
     z.object({
       bibleAbbreviation: z.string(),
       bookCode: z.string(),
-      chapterNum: z.number(),
+      chapterNumber: z.number(),
     }),
   )
   .handler(async ({ data }) => {
@@ -36,7 +36,7 @@ const getChapterReaderData = createServerFn({ method: 'GET' })
           with: {
             chapters: {
               limit: 1,
-              where: (chapters, { eq }) => eq(chapters.number, data.chapterNum),
+              where: (chapters, { eq }) => eq(chapters.number, data.chapterNumber),
               with: {
                 previous: { columns: { code: true, number: true, name: true } },
                 next: { columns: { code: true, number: true, name: true } },
@@ -88,7 +88,7 @@ const getChapterReaderData = createServerFn({ method: 'GET' })
 export const chapterReaderQueryOptions = (props: {
   bibleAbbreviation: string;
   bookCode: string;
-  chapterNum: number;
+  chapterNumber: number;
 }) => ({
   queryKey: ['chapter-reader', props],
   queryFn: () => getChapterReaderData({ data: props }),
@@ -98,7 +98,7 @@ export const chapterReaderQueryOptions = (props: {
 export type ChapterReaderProps = {
   bibleAbbreviation: string;
   bookCode: string;
-  chapterNum: number;
+  chapterNumber: number;
 };
 
 export function ChapterReader(props: ChapterReaderProps) {
@@ -116,7 +116,7 @@ export function ChapterReader(props: ChapterReaderProps) {
     chapterReaderQueryOptions({
       bibleAbbreviation: props.bibleAbbreviation,
       bookCode: props.bookCode,
-      chapterNum: props.chapterNum,
+      chapterNumber: props.chapterNumber,
     }),
   );
 

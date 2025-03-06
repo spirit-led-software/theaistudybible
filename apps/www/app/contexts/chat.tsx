@@ -2,6 +2,7 @@ import type { Chat } from '@/schemas/chats/types';
 import { type ReactNode, createContext, useContext, useRef } from 'react';
 import { useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import { type StoreApi, createStore } from 'zustand/vanilla';
 
 export type ChatState = {
@@ -84,5 +85,5 @@ export const useChatStore = <T = ChatStore>(selector?: (state: ChatStore) => T):
     return useStore(chatStoreContext, (state) => state) as T;
   }
 
-  return useStore(chatStoreContext, selector);
+  return useStore(chatStoreContext, useShallow(selector));
 };

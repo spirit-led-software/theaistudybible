@@ -249,9 +249,7 @@ export const chats = sqliteTable(
   'chats',
   {
     ...baseModel,
-    userId: text('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
     name: text('name').notNull().default('New Chat'),
     customName: integer('custom_name', { mode: 'boolean' }).notNull().default(false),
   },
@@ -293,12 +291,10 @@ export const messages = sqliteTable(
     chatId: text('chat_id')
       .notNull()
       .references(() => chats.id, { onDelete: 'cascade' }),
-    userId: text('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
     originMessageId: text('origin_message_id').references((): AnySQLiteColumn => messages.id, {
       onDelete: 'cascade',
     }),
+    userId: text('user_id').notNull(),
 
     // Fields required by the ai sdk
     content: text('content').notNull().default(''),

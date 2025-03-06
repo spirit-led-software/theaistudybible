@@ -1,38 +1,36 @@
 import { generateDevotion } from '@/ai/devotion';
-import { auth } from '@/www/server/utils/auth';
-import { createMutation } from '@tanstack/solid-query';
-import { createSignal } from 'solid-js';
-import { toast } from 'solid-sonner';
+import { requireAdminMiddleware } from '@/www/server/middleware/auth';
+import { useMutation } from '@tanstack/react-query';
+import { createServerFn } from '@tanstack/react-start';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../ui/card';
 
-const triggerGenerateDevotion = async () => {
-  'use server';
-  const { roles } = auth();
-  if (!roles?.some((role) => role.id === 'admin')) {
-    throw new Error('You must be an admin to access this resource.');
-  }
-  const devotion = await generateDevotion();
-  return { devotion };
-};
+const triggerGenerateDevotion = createServerFn({ method: 'POST' })
+  .middleware([requireAdminMiddleware])
+  .handler(async () => {
+    const devotion = await generateDevotion();
+    return { devotion };
+  });
 
 export const DevotionsContent = () => {
-  const [toastId, setToastId] = createSignal<string | number>();
+  const [toastId, setToastId] = useState<string | number>();
 
-  const triggerDevotionMutation = createMutation(() => ({
+  const triggerDevotionMutation = useMutation({
     mutationFn: () => triggerGenerateDevotion(),
     onMutate: () => {
       setToastId(toast.loading('Generating...', { duration: Number.POSITIVE_INFINITY }));
     },
     onSuccess: () => {
-      toast.dismiss(toastId());
+      toast.dismiss(toastId);
       toast.success('Devotion generated!');
     },
     onError: (error) => {
-      toast.dismiss(toastId());
+      toast.dismiss(toastId);
       toast.error(error.message);
     },
-  }));
+  });
 
   return (
     <Card>

@@ -5,7 +5,7 @@ import { formatDate } from 'date-fns';
 import { Resource } from 'sst';
 
 export const systemPrompt = (options: {
-  user: User;
+  user?: User | null;
   settings?: UserSettings | null;
   bible?: Bible | null;
   additionalContext?: string | null;
@@ -82,7 +82,7 @@ ${
 `
     : ''
 }${
-  options.user.firstName
+  options.user?.firstName
     ? `
 - **User Context**: ${options.user.firstName}${options.user.lastName ? ` ${options.user.lastName}` : ''}
 `

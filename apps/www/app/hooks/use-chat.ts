@@ -2,6 +2,7 @@ import { normalizeMessage } from '@/ai/utils/normalize-message';
 import { db } from '@/core/database';
 import type { Prettify } from '@/core/types/util';
 import { createId } from '@/core/utils/id';
+import { chatSuggestionsSchema } from '@/www/schemas/chat-suggestions';
 import {
   type UseChatOptions,
   useChat as useAIChat,
@@ -10,20 +11,24 @@ import {
 import { captureException as captureSentryException } from '@sentry/react';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createServerFn } from '@tanstack/react-start';
+import { getRequestIP } from '@tanstack/react-start/server';
 import { isNull } from 'drizzle-orm';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
-import { chatSuggestionsSchema } from '../server/api/schemas/chat-suggestions';
-import { requireAuthMiddleware } from '../server/middleware/auth';
+import { authMiddleware } from '../server/middleware/auth';
 import { getChatRateLimit } from '../server/utils/chat';
 
 const getChat = createServerFn({ method: 'GET' })
   .validator(z.object({ chatId: z.string() }))
-  .middleware([requireAuthMiddleware])
+  .middleware([authMiddleware])
   .handler(async ({ context, data }) => {
+    const userId = context.user?.id ?? getRequestIP({ xForwardedFor: true });
+    if (!userId) {
+      return { chat: null };
+    }
+
     const chat = await db.query.chats.findFirst({
-      where: (chats, { and, eq }) =>
-        and(eq(chats.id, data.chatId), eq(chats.userId, context.user.id)),
+      where: (chats, { and, eq }) => and(eq(chats.id, data.chatId), eq(chats.userId, userId)),
     });
     return { chat: chat ?? null };
   });
@@ -35,13 +40,18 @@ export const getChatQueryProps = (chatId: string) => ({
 
 // @ts-ignore
 const getChatMessages = createServerFn({ method: 'GET' })
-  .middleware([requireAuthMiddleware])
+  .middleware([authMiddleware])
   .validator(z.object({ chatId: z.string(), limit: z.number(), offset: z.number() }))
   .handler(async ({ context, data }) => {
+    const userId = context.user?.id ?? getRequestIP({ xForwardedFor: true });
+    if (!userId) {
+      return { messages: [] };
+    }
+
     const messages = await db.query.messages.findMany({
       where: (messages, { eq, and, or, ne, not }) =>
         and(
-          eq(messages.userId, context.user.id),
+          eq(messages.userId, userId),
           eq(messages.chatId, data.chatId),
           not(messages.regenerated),
           or(isNull(messages.finishReason), ne(messages.finishReason, 'error')),
@@ -66,10 +76,20 @@ export const getChatMessagesQueryProps = (chatId: string) => ({
 });
 
 export const getRemainingMessages = createServerFn({ method: 'GET' })
-  .middleware([requireAuthMiddleware])
+  .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const rateLimit = await getChatRateLimit(context.user, context.roles);
-    const remaining = await rateLimit.getRemaining(context.user.id);
+    const userId = context.user?.id ?? getRequestIP({ xForwardedFor: true });
+    if (!userId) {
+      return {
+        remaining: {
+          remaining: 0,
+          reset: new Date(),
+        },
+      };
+    }
+
+    const rateLimit = await getChatRateLimit({ user: context.user, roles: context.roles });
+    const remaining = await rateLimit.getRemaining(userId);
     return { remaining };
   });
 

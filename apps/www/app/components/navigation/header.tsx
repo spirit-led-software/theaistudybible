@@ -81,15 +81,15 @@ export function NavigationHeader({ sticky = true }: NavigationHeaderProps) {
             width={128}
             height={64}
             className='h-auto w-24'
-            lightClass='sm:hidden dark:hidden'
-            darkClass='dark:sm:hidden'
+            lightClassName='sm:hidden dark:hidden'
+            darkClassName='dark:sm:hidden'
           />
         </NavigationDropdown>
         <Logo
           width={256}
           height={64}
-          lightClass='hidden sm:block dark:hidden'
-          darkClass='hidden dark:hidden dark:sm:block'
+          lightClassName='hidden sm:block dark:hidden'
+          darkClassName='hidden dark:hidden dark:sm:block'
         />
       </div>
       <div className='hidden items-center justify-center sm:flex sm:grow'>

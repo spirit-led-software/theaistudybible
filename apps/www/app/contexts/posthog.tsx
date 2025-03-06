@@ -16,15 +16,12 @@ export const PosthogProvider = ({ children }: PosthogProviderProps) => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       import('posthog-js').then((posthog) => {
-        const client = posthog.default.init(import.meta.env.PUBLIC_POSTHOG_KEY || '', {
-          api_host: import.meta.env.PUBLIC_POSTHOG_HOST || 'https://app.posthog.com',
+        const client = posthog.default.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
+          api_host: import.meta.env.PUBLIC_POSTHOG_API_HOST,
           autocapture: true,
           capture_pageview: false,
           capture_pageleave: true,
           disable_session_recording: true,
-          bootstrap: {
-            distinctID: import.meta.env.PUBLIC_POSTHOG_DISTINCT_ID || '',
-          },
         });
         setPosthogClient(client);
       });

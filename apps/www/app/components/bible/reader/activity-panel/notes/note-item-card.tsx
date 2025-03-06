@@ -11,52 +11,53 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/www/components/ui/dialog';
+import { Label } from '@/www/components/ui/label';
 import { Markdown } from '@/www/components/ui/markdown';
-import {
-  TextField,
-  TextFieldErrorMessage,
-  TextFieldLabel,
-  TextFieldTextArea,
-} from '@/www/components/ui/text-field';
+import { Textarea } from '@/www/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/www/components/ui/tooltip';
-import { requireAuth } from '@/www/server/utils/auth';
-import { A, action, useAction } from '@solidjs/router';
-import { createMutation, useQueryClient } from '@tanstack/solid-query';
+import { requireAuthMiddleware } from '@/www/server/middleware/auth';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
+import { createServerFn } from '@tanstack/react-start';
 import { and, eq } from 'drizzle-orm';
-import { HelpCircle } from 'lucide-solid';
-import { Show, createSignal } from 'solid-js';
+import { HelpCircle } from 'lucide-react';
+import { useState } from 'react';
+import { z } from 'zod';
 
-const editNoteAction = action(
-  async (props: {
-    type: 'chapter' | 'verse';
-    bibleAbbreviation: string;
-    code: string;
-    content: string;
-  }) => {
-    'use server';
-    const { user } = requireAuth();
+const editNote = createServerFn({ method: 'POST' })
+  .middleware([requireAuthMiddleware])
+  .validator(
+    z.object({
+      type: z.enum(['chapter', 'verse']),
+      bibleAbbreviation: z.string(),
+      code: z.string(),
+      content: z.string().min(1, 'Cannot be empty'),
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    const { user } = context;
     let note: VerseNote | ChapterNote;
-    if (props.type === 'chapter') {
+    if (data.type === 'chapter') {
       [note] = await db
         .update(chapterNotes)
-        .set({ content: props.content })
+        .set({ content: data.content })
         .where(
           and(
             eq(chapterNotes.userId, user.id),
-            eq(chapterNotes.bibleAbbreviation, props.bibleAbbreviation),
-            eq(chapterNotes.chapterCode, props.code),
+            eq(chapterNotes.bibleAbbreviation, data.bibleAbbreviation),
+            eq(chapterNotes.chapterCode, data.code),
           ),
         )
         .returning();
-    } else if (props.type === 'verse') {
+    } else if (data.type === 'verse') {
       [note] = await db
         .update(verseNotes)
-        .set({ content: props.content })
+        .set({ content: data.content })
         .where(
           and(
             eq(verseNotes.userId, user.id),
-            eq(verseNotes.bibleAbbreviation, props.bibleAbbreviation),
-            eq(verseNotes.verseCode, props.code),
+            eq(verseNotes.bibleAbbreviation, data.bibleAbbreviation),
+            eq(verseNotes.verseCode, data.code),
           ),
         )
         .returning();
@@ -64,43 +65,44 @@ const editNoteAction = action(
       throw new Error('Invalid note type');
     }
     return { note };
-  },
-);
+  });
 
-const deleteNoteAction = action(
-  async (props: {
-    type: 'chapter' | 'verse';
-    bibleAbbreviation: string;
-    code: string;
-  }) => {
-    'use server';
-    const { user } = requireAuth();
-    if (props.type === 'chapter') {
+const deleteNote = createServerFn({ method: 'POST' })
+  .middleware([requireAuthMiddleware])
+  .validator(
+    z.object({
+      type: z.enum(['chapter', 'verse']),
+      bibleAbbreviation: z.string(),
+      code: z.string(),
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    const { user } = context;
+    if (data.type === 'chapter') {
       await db
         .delete(chapterNotes)
         .where(
           and(
             eq(chapterNotes.userId, user.id),
-            eq(chapterNotes.bibleAbbreviation, props.bibleAbbreviation),
-            eq(chapterNotes.chapterCode, props.code),
+            eq(chapterNotes.bibleAbbreviation, data.bibleAbbreviation),
+            eq(chapterNotes.chapterCode, data.code),
           ),
         );
-    } else if (props.type === 'verse') {
+    } else if (data.type === 'verse') {
       await db
         .delete(verseNotes)
         .where(
           and(
             eq(verseNotes.userId, user.id),
-            eq(verseNotes.bibleAbbreviation, props.bibleAbbreviation),
-            eq(verseNotes.verseCode, props.code),
+            eq(verseNotes.bibleAbbreviation, data.bibleAbbreviation),
+            eq(verseNotes.verseCode, data.code),
           ),
         );
     } else {
       throw new Error('Invalid note type');
     }
     return { success: true };
-  },
-);
+  });
 
 export type NoteItemCardProps = {
   note: ChapterNote | VerseNote;
@@ -112,39 +114,36 @@ export type NoteItemCardProps = {
 };
 
 export const NoteItemCard = (props: NoteItemCardProps) => {
-  const editNote = useAction(editNoteAction);
-  const deleteNote = useAction(deleteNoteAction);
-
   const qc = useQueryClient();
 
-  const [isEditingNote, setIsEditingNote] = createSignal(false);
-  const [editNoteContent, setEditNoteContent] = createSignal(props.note.content);
-  const [showPreview, setShowPreview] = createSignal(false);
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [editNoteContent, setEditNoteContent] = useState(props.note.content);
+  const [showPreview, setShowPreview] = useState(false);
 
-  const editNoteMutation = createMutation(() => ({
+  const editNoteMutation = useMutation({
     mutationFn: (mProps: {
       type: 'verse' | 'chapter';
       bibleAbbreviation: string;
       code: string;
       content: string;
-    }) => editNote(mProps),
+    }) => editNote({ data: mProps }),
     onSettled: () =>
       qc.invalidateQueries({
         queryKey: ['notes'],
       }),
-  }));
+  });
 
-  const deleteNoteMutation = createMutation(() => ({
+  const deleteNoteMutation = useMutation({
     mutationFn: (mProps: {
       type: 'verse' | 'chapter';
       bibleAbbreviation: string;
       code: string;
-    }) => deleteNote(mProps),
+    }) => deleteNote({ data: mProps }),
     onSettled: () =>
       qc.invalidateQueries({
         queryKey: ['notes'],
       }),
-  }));
+  });
 
   const title = () => {
     if (props.verse) {
@@ -159,129 +158,117 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
         <CardTitle>{title()}</CardTitle>
       </CardHeader>
       <CardContent className='flex grow flex-col overflow-y-auto'>
-        <Show
-          when={isEditingNote()}
-          fallback={
-            <div className='overflow-y-auto whitespace-pre-wrap rounded-lg border bg-background p-2'>
-              <Markdown>{props.note.content}</Markdown>
-            </div>
-          }
-        >
-          <TextField
-            value={editNoteContent()}
-            onChange={setEditNoteContent}
-            validationState={editNoteContent().trim() ? 'valid' : 'invalid'}
-            className='space-y-2'
-          >
+        {isEditingNote ? (
+          <div className='space-y-2'>
             <div className='flex w-full items-center justify-between'>
               <Tooltip>
-                <TooltipTrigger as={TextFieldLabel} className='flex items-center'>
-                  Content <HelpCircle size={16} className='ml-1' />
+                <TooltipTrigger asChild>
+                  <Label className='flex items-center'>
+                    Content <HelpCircle size={16} className='ml-1' />
+                  </Label>
                 </TooltipTrigger>
                 <TooltipContent>
                   Accepts{' '}
-                  <Button
-                    as={A}
-                    variant='link'
-                    size='sm'
-                    className='p-0'
-                    href='https://www.markdownguide.org/'
-                  >
-                    markdown
+                  <Button asChild variant='link' size='sm' className='p-0'>
+                    <a href='https://www.markdownguide.org/'>markdown</a>
                   </Button>
                 </TooltipContent>
               </Tooltip>
-              <TextFieldLabel
-                as={Button}
+              <Button
+                asChild
                 variant='link'
                 size='sm'
                 className='p-0 text-xs hover:no-underline'
-                onClick={() => setShowPreview(!showPreview())}
+                onClick={() => setShowPreview(!showPreview)}
               >
-                {showPreview() ? 'Hide Preview' : 'Show Preview'}
-              </TextFieldLabel>
+                <Label>{showPreview ? 'Hide Preview' : 'Show Preview'}</Label>
+              </Button>
             </div>
-            <Show
-              when={!showPreview()}
-              fallback={
-                <div className='whitespace-pre-wrap rounded-lg border bg-background p-5'>
-                  <Markdown>{editNoteContent()}</Markdown>
-                </div>
-              }
-            >
-              <TextFieldTextArea data-corvu-no-drag />
-            </Show>
-            <TextFieldErrorMessage>Cannot be empty</TextFieldErrorMessage>
-          </TextField>
-        </Show>
+            {showPreview ? (
+              <Textarea
+                value={editNoteContent}
+                onChange={(e) => setEditNoteContent(e.target.value)}
+              />
+            ) : (
+              <div className='whitespace-pre-wrap rounded-lg border bg-background p-5'>
+                <Markdown>{editNoteContent}</Markdown>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className='overflow-y-auto whitespace-pre-wrap rounded-lg border bg-background p-2'>
+            <Markdown>{props.note.content}</Markdown>
+          </div>
+        )}
       </CardContent>
       <CardFooter className='flex justify-end space-x-2'>
-        <Show
-          when={!isEditingNote()}
-          fallback={
-            <>
-              <Button variant='outline' onClick={() => setIsEditingNote(false)}>
-                Cancel
-              </Button>
-              <Button
-                disabled={!editNoteContent().trim()}
-                onClick={() => {
-                  setIsEditingNote(false);
-                  editNoteMutation.mutate({
-                    type: 'verseCode' in props.note ? 'verse' : 'chapter',
-                    bibleAbbreviation: props.bible.abbreviation,
-                    code: 'verseCode' in props.note ? props.note.verseCode : props.note.chapterCode,
-                    content: editNoteContent(),
-                  });
-                }}
-              >
-                Save
-              </Button>
-            </>
-          }
-        >
-          <Dialog>
-            <DialogTrigger
-              as={Button}
-              variant='outline'
+        {isEditingNote ? (
+          <>
+            <Button variant='outline' onClick={() => setIsEditingNote(false)}>
+              Cancel
+            </Button>
+            <Button
+              disabled={!editNoteContent.trim()}
               onClick={() => {
                 setIsEditingNote(false);
+                editNoteMutation.mutate({
+                  type: 'verseCode' in props.note ? 'verse' : 'chapter',
+                  bibleAbbreviation: props.bible.abbreviation,
+                  code: 'verseCode' in props.note ? props.note.verseCode : props.note.chapterCode,
+                  content: editNoteContent,
+                });
               }}
             >
-              Delete
-            </DialogTrigger>
-            <DialogContent className='space-y-2 sm:max-w-[425px]'>
-              <DialogHeader>
-                <DialogTitle>Are you sure you want to delete this note?</DialogTitle>
-              </DialogHeader>
-              <DialogFooter>
+              Save
+            </Button>
+          </>
+        ) : (
+          <>
+            <Dialog>
+              <DialogTrigger asChild>
                 <Button
-                  type='submit'
-                  variant='destructive'
+                  variant='outline'
                   onClick={() => {
-                    deleteNoteMutation.mutate({
-                      type: 'verseCode' in props.note ? 'verse' : 'chapter',
-                      bibleAbbreviation: props.bible.abbreviation,
-                      code:
-                        'verseCode' in props.note ? props.note.verseCode : props.note.chapterCode,
-                    });
+                    setIsEditingNote(false);
                   }}
                 >
                   Delete
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Button onClick={() => setIsEditingNote(!isEditingNote())}>Edit</Button>
-          <Show when={props.showViewButton}>
-            <Button
-              as={A}
-              href={`/bible/${props.bible.abbreviation}/${props.book.code}/${props.chapter.number}${props.verse ? `/${props.verse.number}` : ''}`}
-            >
-              View
-            </Button>
-          </Show>
-        </Show>
+              </DialogTrigger>
+              <DialogContent className='space-y-2 sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Are you sure you want to delete this note?</DialogTitle>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button
+                    type='submit'
+                    variant='destructive'
+                    onClick={() => {
+                      deleteNoteMutation.mutate({
+                        type: 'verseCode' in props.note ? 'verse' : 'chapter',
+                        bibleAbbreviation: props.bible.abbreviation,
+                        code:
+                          'verseCode' in props.note ? props.note.verseCode : props.note.chapterCode,
+                      });
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <Button onClick={() => setIsEditingNote(!isEditingNote)}>Edit</Button>
+            {props.showViewButton && (
+              <Button asChild>
+                <Link
+                  to={`/bible/${props.bible.abbreviation}/${props.book.code}/${props.chapter.number}${props.verse ? `/${props.verse.number}` : ''}`}
+                >
+                  View
+                </Link>
+              </Button>
+            )}
+          </>
+        )}
       </CardFooter>
     </Card>
   );

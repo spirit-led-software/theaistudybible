@@ -16,7 +16,7 @@ export type VerseContentProps = {
   style?: string;
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   props: any;
-  class?: string;
+  className?: string;
 };
 
 export const VerseContent = (props: VerseContentProps) => {
@@ -37,10 +37,10 @@ export const VerseContent = (props: VerseContentProps) => {
       className={cn(
         props.style,
         'inline-flex transition-all duration-500 ease-in-out',
-        props.class,
+        props.className,
       )}
     >
-      {notes?.length && notes.length > 0 && (
+      {(notes?.length ?? 0) > 0 && (
         <Popover>
           <PopoverTrigger asChild>
             <Button variant='ghost' size='icon' className='size-6 p-1.5 align-sub'>
@@ -48,8 +48,8 @@ export const VerseContent = (props: VerseContentProps) => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className='flex max-h-96 w-80 flex-col gap-2 overflow-y-auto p-4'>
-            <H5>User note{notes.length > 1 ? 's' : ''}</H5>
-            {notes.map((note, idx) => (
+            <H5>User note{notes!.length > 1 ? 's' : ''}</H5>
+            {notes!.map((note, idx) => (
               <div
                 key={`${note.bibleAbbreviation}-${note.verseCode}-${idx}`}
                 className='flex max-h-52 w-full shrink-0 flex-col overflow-y-auto rounded-lg border p-2'
@@ -61,7 +61,13 @@ export const VerseContent = (props: VerseContentProps) => {
         </Popover>
       )}
       <Link
-        to={`/bible/${brStore.bible.abbreviation}/${brStore.book.code}/${brStore.chapter.number}/${props.content.number}`}
+        to={'/bible/$bibleAbbreviation/$bookCode/$chapterNumber/$verseNumber'}
+        params={{
+          bibleAbbreviation: brStore.bible.abbreviation,
+          bookCode: brStore.book.code,
+          chapterNumber: brStore.chapter.number,
+          verseNumber: props.content.number,
+        }}
         className='hover:underline'
       >
         {props.content.number}

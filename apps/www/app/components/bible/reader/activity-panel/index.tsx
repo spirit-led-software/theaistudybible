@@ -9,25 +9,10 @@ import {
 import { Spinner } from '@/www/components/ui/spinner';
 import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
-import { createResizeObserver, useWindowSize } from '@solid-primitives/resize-observer';
-import { useSearchParams } from '@solidjs/router';
-import { Highlighter, Image, MessageCircle, Notebook, Share, Sparkles, X } from 'lucide-solid';
-import {
-  type Accessor,
-  type JSXElement,
-  Match,
-  type Setter,
-  Show,
-  Suspense,
-  Switch,
-  createContext,
-  createEffect,
-  createSignal,
-  lazy,
-  splitProps,
-  useContext,
-} from 'solid-js';
-import { createStore } from 'solid-js/store';
+import { useNavigate } from '@tanstack/react-router';
+import { Highlighter, Image, MessageCircle, Notebook, Share, Sparkles, X } from 'lucide-react';
+import { Suspense, createContext, lazy, useContext, useEffect, useRef, useState } from 'react';
+import { useResizeObserver, useWindowSize } from 'usehooks-ts';
 import { ReferencesMenuItem } from './references/menu-item';
 
 const ShareCard = lazy(async () => ({ default: (await import('./share/card')).ShareCard }));
@@ -49,27 +34,26 @@ export type ActivityPanelValue =
   | 'bookmark';
 
 export type ActivityPanelContextValue = {
-  value: Accessor<ActivityPanelValue | undefined>;
-  setValue: Setter<ActivityPanelValue | undefined>;
-  isMenuOpen: Accessor<boolean>;
-  setIsMenuOpen: Setter<boolean>;
+  value: ActivityPanelValue | undefined;
+  setValue: React.Dispatch<React.SetStateAction<ActivityPanelValue | undefined>>;
+  isMenuOpen: boolean;
+  setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const ActivityPanelContext = createContext<ActivityPanelContextValue>();
+export const ActivityPanelContext = createContext<ActivityPanelContextValue | null>(null);
 
 export type ActivityPanelProps = {
   defaultValue?: ActivityPanelValue;
-  children: JSXElement;
+  children: React.ReactNode;
 };
 
-export const ActivityPanel = (props: ActivityPanelProps) => {
-  const [local, others] = splitProps(props, ['children']);
-  const [value, setValue] = createSignal(others.defaultValue);
-  const [isMenuOpen, setIsMenuOpen] = createSignal(false);
+export const ActivityPanel = ({ children, defaultValue }: ActivityPanelProps) => {
+  const [value, setValue] = useState(defaultValue);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <ActivityPanelContext.Provider value={{ value, setValue, isMenuOpen, setIsMenuOpen }}>
-      {local.children}
+      {children}
     </ActivityPanelContext.Provider>
   );
 };
@@ -83,25 +67,29 @@ export const useActivityPanel = () => {
 };
 
 export const ActivityPanelMenu = () => {
-  const [, setSearchParams] = useSearchParams();
-  const [brStore, setBrStore] = useBibleReaderStore();
+  const navigate = useNavigate();
+  const brStore = useBibleReaderStore();
   const { setValue, isMenuOpen, setIsMenuOpen } = useActivityPanel();
   const windowSize = useWindowSize();
 
-  const [buttonRef, setButtonRef] = createSignal<HTMLButtonElement>();
-  const [buttonContentRef, setButtonContentRef] = createSignal<HTMLDivElement>();
-  const [buttonContentSize, setButtonContentSize] = createStore({ height: 0, width: 0 });
-  createResizeObserver(buttonContentRef, (_size, _element, entry) =>
-    setButtonContentSize({
-      height: entry.borderBoxSize[0].blockSize,
-      width: entry.borderBoxSize[0].inlineSize,
-    }),
-  );
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const buttonContentRef = useRef<HTMLDivElement>(null);
+  const [buttonContentSize, setButtonContentSize] = useState({ height: 0, width: 0 });
+  useResizeObserver({
+    // @ts-expect-error - Ref is not null
+    ref: buttonContentRef,
+    onResize: (size) => {
+      setButtonContentSize({
+        height: size.height ?? 0,
+        width: size.width ?? 0,
+      });
+    },
+  });
 
-  createEffect(() => {
+  useEffect(() => {
     const minHeight = 56; // ! Match size-x below in pixels
     const minWidth = brStore.selectedIds.length ? 176 : minHeight; // ! Match size-x and w-x below in pixels
-    const currentButton = buttonRef();
+    const currentButton = buttonRef.current;
     if (currentButton) {
       currentButton.style.setProperty(
         'height',
@@ -109,46 +97,44 @@ export const ActivityPanelMenu = () => {
       );
       currentButton.style.setProperty('width', `${Math.max(buttonContentSize.width, minWidth)}px`);
     }
-  });
+  }, [buttonContentSize, brStore.selectedIds.length]);
 
   return (
-    <DropdownMenu
-      modal={false}
-      placement={windowSize.width > 640 ? 'top-end' : 'top'}
-      open={isMenuOpen()}
-      onOpenChange={setIsMenuOpen}
-    >
-      <DropdownMenuTrigger
-        as={Button}
-        ref={setButtonRef}
-        className={cn(
-          '-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 flex size-14 max-w-52 items-center justify-center rounded-full transition-all duration-300 ease-in-out sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 lg:right-[15%]',
-          brStore.selectedIds.length && 'w-44 md:w-44',
-        )}
-      >
-        <div
-          ref={setButtonContentRef}
-          className='flex items-center justify-center gap-2 p-2 transition-all duration-300 ease-in-out'
+    <DropdownMenu modal={false} open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          ref={buttonRef}
+          className={cn(
+            '-translate-x-1/2 fixed inset-x-1/2 bottom-safe-offset-1 flex size-14 max-w-52 items-center justify-center rounded-full transition-all duration-300 ease-in-out sm:inset-x-[unset] sm:right-safe-offset-1 sm:translate-x-0 md:right-safe-offset-2 lg:right-[15%]',
+            brStore.selectedIds.length && 'w-44 md:w-44',
+          )}
         >
-          <Sparkles
-            className='h-full w-auto shrink-0 transition-all duration-300 ease-in-out'
-            fill='hsl(var(--primary-foreground))'
-          />
-          <Show when={brStore.selectedIds.length}>
-            <span className='line-clamp-2 animate-nowrap-to-wrap text-wrap text-sm transition-all duration-300 ease-in-out'>
-              {brStore.selectedTitle.replace(/\(.*\)/, '')}
-            </span>
-          </Show>
-        </div>
+          <div
+            ref={buttonContentRef}
+            className='flex items-center justify-center gap-2 p-2 transition-all duration-300 ease-in-out'
+          >
+            <Sparkles
+              className='h-full w-auto shrink-0 transition-all duration-300 ease-in-out'
+              fill='hsl(var(--primary-foreground))'
+            />
+            {brStore.selectedIds.length > 0 && (
+              <span className='line-clamp-2 animate-nowrap-to-wrap text-wrap text-sm transition-all duration-300 ease-in-out'>
+                {brStore.selectedTitle.replace(/\(.*\)/, '')}
+              </span>
+            )}
+          </div>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
+        side='bottom'
+        align={windowSize.width > 640 ? 'end' : 'center'}
         onInteractOutside={(e) => e.preventDefault()}
         className='grid grid-cols-2 bg-background/80 backdrop-blur-xs *:px-4 *:py-3 hover:*:cursor-pointer'
       >
         <DropdownMenuItem
           onSelect={() => {
             if (brStore.selectedIds.length) {
-              setBrStore('selectedVerseInfos', []);
+              brStore.setSelectedVerseInfos([]);
             }
             setIsMenuOpen(false);
           }}
@@ -162,7 +148,10 @@ export const ActivityPanelMenu = () => {
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() => {
-            setSearchParams({ query: 'Generate an image based on this passage.' });
+            navigate({
+              to: '/chat',
+              search: { query: 'Generate an image based on this passage.' },
+            });
             setValue('chat');
           }}
         >
@@ -173,84 +162,84 @@ export const ActivityPanelMenu = () => {
           <Notebook className='mr-3' />
           Notes
         </DropdownMenuItem>
-        <Show
-          when={brStore.selectedIds.length}
-          fallback={
-            <Show when={'share' in navigator}>
-              <DropdownMenuItem
-                onSelect={() =>
-                  navigator.share({
-                    title: brStore.verse ? brStore.verse.name : brStore.chapter.name,
-                    url: window.location.href,
-                  })
-                }
-              >
-                <Share className='mr-3' />
-                Share
-              </DropdownMenuItem>
-            </Show>
-          }
-        >
-          <ReferencesMenuItem />
-          <DropdownMenuItem onSelect={() => setValue('share')}>
-            <Share className='mr-3' />
-            Share
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setValue('highlight')}>
-            <Highlighter className='mr-3' />
-            Highlight
-          </DropdownMenuItem>
-        </Show>
+        {brStore.selectedIds.length ? (
+          'share' in navigator && (
+            <DropdownMenuItem
+              onSelect={() =>
+                navigator.share({
+                  title: brStore.verse ? brStore.verse.name : brStore.chapter.name,
+                  url: window.location.href,
+                })
+              }
+            >
+              <Share className='mr-3' />
+              Share
+            </DropdownMenuItem>
+          )
+        ) : (
+          <>
+            <ReferencesMenuItem />
+            <DropdownMenuItem onSelect={() => setValue('share')}>
+              <Share className='mr-3' />
+              Share
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setValue('highlight')}>
+              <Highlighter className='mr-3' />
+              Highlight
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
 export const ActivityPanelContent = () => {
-  const [brStore] = useBibleReaderStore();
+  const brStore = useBibleReaderStore();
   const { value, setValue } = useActivityPanel();
 
   return (
-    <Drawer
-      side='bottom'
-      modal={false}
-      trapFocus={false}
-      open={!!value()}
-      onOpenChange={(isOpen) => !isOpen && setValue(undefined)}
-    >
+    <Drawer modal={false} open={!!value} onOpenChange={(isOpen) => !isOpen && setValue(undefined)}>
       <DrawerContent
         className='w-full max-w-2xl justify-self-center shadow-lg'
-        style={{
-          '--activity-panel-max-height': 'calc(100vh - 120px)',
-        }}
+        style={
+          {
+            '--activity-panel-max-height': 'calc(100vh - 120px)',
+          } as React.CSSProperties
+        }
       >
         <div className='mx-auto flex max-h-(--activity-panel-max-height) w-full flex-col overflow-hidden p-4'>
-          <Show when={value() !== 'chat'}>
+          {value !== 'chat' && (
             <DrawerHeader className='mb-2'>
               <DrawerTitle className='text-center'>{brStore.selectedTitle}</DrawerTitle>
             </DrawerHeader>
-          </Show>
-          <Suspense fallback={<Spinner />}>
-            <Switch>
-              <Match when={value() === 'share'}>
-                <ShareCard />
-              </Match>
-              <Match when={value() === 'highlight'}>
-                <HighlightCard />
-              </Match>
-              <Match when={value() === 'notes'}>
-                <NotesCard />
-              </Match>
-              <Match when={value() === 'references'}>
-                <ReferencesCard />
-              </Match>
-              <Match when={value() === 'chat'}>
-                <ChatCard />
-              </Match>
-            </Switch>
-          </Suspense>
+          )}
+          <Suspense fallback={<Spinner />}>{renderActivityPanelCard(value)}</Suspense>
         </div>
       </DrawerContent>
     </Drawer>
   );
+};
+
+const renderActivityPanelCard = (value: ActivityPanelValue | undefined) => {
+  switch (value) {
+    case 'share': {
+      return <ShareCard />;
+    }
+    case 'highlight': {
+      return <HighlightCard />;
+    }
+    case 'notes': {
+      return <NotesCard />;
+    }
+    case 'references': {
+      return <ReferencesCard />;
+    }
+    case 'chat': {
+      return <ChatCard />;
+    }
+    default: {
+      return null;
+    }
+  }
 };

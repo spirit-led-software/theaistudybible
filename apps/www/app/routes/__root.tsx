@@ -4,8 +4,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import type { ReactNode } from 'react';
-import { DefaultErrorComponent } from '../components/default-error';
-import { NotFoundComponent } from '../components/not-found';
 import { NotificationPromptDialog } from '../components/notification-prompt-dialog';
 import { Toaster } from '../components/ui/sonner';
 import { BibleProvider } from '../contexts/bible';
@@ -42,18 +40,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       ],
     };
   },
-  errorComponent: (props) => {
-    return (
-      <RootDocument>
-        <DefaultErrorComponent {...props} />
-      </RootDocument>
-    );
-  },
-  notFoundComponent: () => (
-    <RootDocument>
-      <NotFoundComponent />
-    </RootDocument>
-  ),
   component: RootComponent,
 });
 

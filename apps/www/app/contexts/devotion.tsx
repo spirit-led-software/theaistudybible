@@ -1,6 +1,7 @@
 import type { Devotion } from '@/schemas/devotions/types';
 import { type ReactNode, createContext, useContext, useRef } from 'react';
 import { useStore } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 import { type StoreApi, createStore } from 'zustand/vanilla';
 
 export type DevotionState = {
@@ -52,5 +53,5 @@ export const useDevotionStore = <T = DevotionStore>(selector?: (store: DevotionS
     return useStore(devotionStoreContext, (state) => state) as T;
   }
 
-  return useStore(devotionStoreContext, selector);
+  return useStore(devotionStoreContext, useShallow(selector));
 };

@@ -1,12 +1,10 @@
 import type { useChat } from '@/www/hooks/use-chat';
 import type { useChatScrollAnchor } from '@/www/hooks/use-chat-scroll-anchor';
-import type { chatSuggestionsSchema } from '@/www/server/api/schemas/chat-suggestions';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { useWindowSize } from '@uidotdev/usehooks';
 import { ArrowUp, StopCircle } from 'lucide-react';
 import { useMemo } from 'react';
 import { toast } from 'sonner';
-import type { z } from 'zod';
+import { useWindowSize } from 'usehooks-ts';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { RemainingMessages } from './remaining-messages';
@@ -35,7 +33,7 @@ export const ChatInput = (props: ChatInputProps) => {
 
   const handleSubmit = (...args: Parameters<typeof props.handleSubmit>) => {
     args?.[0]?.preventDefault?.();
-    if (!props.input()) {
+    if (!props.input) {
       toast.error('Please type a message');
       return;
     }
@@ -56,25 +54,17 @@ export const ChatInput = (props: ChatInputProps) => {
             ref={suggestionsList}
             className='mx-auto flex w-full max-w-3xl gap-2 overflow-x-auto pb-2'
           >
-            <For each={props.chatSuggestionsResult.object()?.suggestions ?? []}>
-              {(suggestion) => (
-                <Show
-                  when={suggestion as z.infer<typeof chatSuggestionsSchema>['suggestions'][number]}
-                  keyed
-                >
-                  {(suggestion) => (
-                    <Button
-                      variant='outline'
-                      className='shrink-0 whitespace-nowrap bg-background'
-                      disabled={props.chatSuggestionsResult.isLoading()}
-                      onClick={() => props.append({ role: 'user', content: suggestion.long })}
-                    >
-                      {suggestion.short}
-                    </Button>
-                  )}
-                </Show>
-              )}
-            </For>
+            {props.chatSuggestionsResult.object?.suggestions?.map((suggestion) => (
+              <Button
+                key={suggestion?.short}
+                variant='outline'
+                className='shrink-0 whitespace-nowrap bg-background'
+                disabled={props.chatSuggestionsResult.isLoading}
+                onClick={() => props.append({ role: 'user', content: suggestion?.long ?? '' })}
+              >
+                {suggestion?.short}
+              </Button>
+            ))}
           </div>
         )}
       </div>
@@ -100,6 +90,7 @@ export const ChatInput = (props: ChatInputProps) => {
               rows={1}
               minLength={1}
               autoCapitalize='sentences'
+              autoResize
               aria-label='Message input'
             />
           </div>

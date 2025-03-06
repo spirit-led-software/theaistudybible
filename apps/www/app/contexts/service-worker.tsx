@@ -15,14 +15,10 @@ interface ServiceWorkerProviderProps {
 export const ServiceWorkerProvider = ({ children }: ServiceWorkerProviderProps) => {
   const [registration, setRegistration] = useState<ServiceWorkerRegistration>();
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    useRegisterSW({
-      onRegisteredSW: (_, registration) => setRegistration(registration),
-      onRegisterError: (error) => captureSentryException(error),
-    });
-  }, []);
+  useRegisterSW({
+    onRegisteredSW: (_, registration) => setRegistration(registration),
+    onRegisterError: (error) => captureSentryException(error),
+  });
 
   useEffect(() => {
     if (registration) {

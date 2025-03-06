@@ -6,7 +6,7 @@ import { db } from '@/core/database';
 import { createId } from '@/core/utils/id';
 import { getPosthog } from '@/core/utils/posthog';
 import type { Bindings, Variables } from '@/www/server/api/types';
-import { getChatSuggestionsRateLimit } from '@/www/server/api/utils/chat';
+import { getChatSuggestionsRateLimit } from '@/www/server/utils/chat';
 import { zValidator } from '@hono/zod-validator';
 import { Output, smoothStream, streamText } from 'ai';
 import { formatDate } from 'date-fns';

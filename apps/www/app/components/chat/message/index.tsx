@@ -6,16 +6,16 @@ import {
   AccordionTrigger,
 } from '@/www/components/ui/accordion';
 import { Button } from '@/www/components/ui/button';
-import { Markdown } from '@/www/components/ui/markdown';
 import { cn } from '@/www/lib/utils';
 import { getMessageId } from '@/www/utils/message';
 import type { Message as AiMessage, useChat } from '@ai-sdk/react';
-import { useCopyToClipboard } from '@uidotdev/usehooks';
 import { Copy } from 'lucide-react';
 import { Fragment, useMemo } from 'react';
 import { toast } from 'sonner';
+import { useCopyToClipboard } from 'usehooks-ts';
 import { UserAvatar } from '../../auth/user-avatar';
 import { Icon } from '../../branding/icon';
+import { MemoizedMarkdown } from '../../ui/memoized-markdown';
 import { MessageReactionButtons } from './reaction-buttons';
 import { Tool } from './tools';
 
@@ -89,12 +89,16 @@ export const Message = ({
                   isLoading={isLoading && !nextMessage}
                 />
               ))}
-            {message.content && <Markdown>{message.content}</Markdown>}
+            {message.content && (
+              <MemoizedMarkdown id={message.id}>{message.content}</MemoizedMarkdown>
+            )}
           </>
         ) : (
           message.parts?.map((part, idx) => (
             <Fragment key={`${part.type}-${idx}`}>
-              {part.type === 'text' && <Markdown>{part.text}</Markdown>}
+              {part.type === 'text' && (
+                <MemoizedMarkdown id={message.id}>{part.text}</MemoizedMarkdown>
+              )}
               {part.type === 'reasoning' && (
                 <Accordion type='single' collapsible>
                   <AccordionItem value='reasoning'>
@@ -102,7 +106,7 @@ export const Message = ({
                       View reasoning
                     </AccordionTrigger>
                     <AccordionContent>
-                      <Markdown>{part.reasoning}</Markdown>
+                      <MemoizedMarkdown id={message.id}>{part.reasoning}</MemoizedMarkdown>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
