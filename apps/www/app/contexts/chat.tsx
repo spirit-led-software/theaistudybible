@@ -24,8 +24,8 @@ export type ChatContextValue = StoreApi<ChatStore>;
 export const ChatContext = createContext<ChatContextValue | null>(null);
 
 export type ChatProviderProps = {
-  chatId?: string;
-  modelId?: string;
+  chatId?: string | null;
+  modelId?: string | null;
   children: ReactNode;
 };
 

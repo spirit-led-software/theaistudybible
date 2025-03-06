@@ -13,7 +13,7 @@ import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-quer
 import { createServerFn } from '@tanstack/react-start';
 import { getRequestIP } from '@tanstack/react-start/server';
 import { isNull } from 'drizzle-orm';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { authMiddleware } from '../server/middleware/auth';
 import { getChatRateLimit } from '../server/utils/chat';
@@ -110,6 +110,29 @@ export const useChat = (props?: UseChatProps) => {
     setChatId(props?.id ?? createId());
   }, [props?.id]);
 
+  const chatSuggestionsResult = useObject({
+    id: chatId,
+    api: '/api/chat-suggestions',
+    schema: chatSuggestionsSchema,
+  });
+
+  const chatQuery = useQuery(getChatQueryProps(chatId));
+  const remainingMessagesQuery = useQuery(getRemainingMessagesQueryProps());
+
+  const handleFinish = useCallback(
+    (
+      event: Parameters<NonNullable<UseChatProps['onFinish']>>[0],
+      options: Parameters<NonNullable<UseChatProps['onFinish']>>[1],
+    ) => {
+      chatQuery.refetch();
+      chatSuggestionsResult.submit({ chatId });
+      remainingMessagesQuery.refetch();
+      qc.invalidateQueries({ queryKey: ['chats'] });
+      props?.onFinish?.(event, options);
+    },
+    [chatId, chatQuery, chatSuggestionsResult, remainingMessagesQuery, qc, props?.onFinish],
+  );
+
   const useChatResult = useAIChat({
     ...props,
     api: '/api/chat',
@@ -125,13 +148,7 @@ export const useChat = (props?: UseChatProps) => {
       captureSentryException(err);
       return props?.onError?.(err);
     },
-    onFinish: (event, options) => {
-      chatQuery.refetch();
-      chatSuggestionsResult.submit({ chatId });
-      remainingMessagesQuery.refetch();
-      qc.invalidateQueries({ queryKey: ['chats'] });
-      props?.onFinish?.(event, options);
-    },
+    onFinish: handleFinish,
   });
 
   useEffect(() => {
@@ -151,8 +168,6 @@ export const useChat = (props?: UseChatProps) => {
     }
   }, [useChatResult.data, chatId]);
 
-  const chatQuery = useQuery(getChatQueryProps(chatId));
-
   const messagesQuery = useInfiniteQuery({
     ...getChatMessagesQueryProps(chatId),
     placeholderData: (prev) => ({
@@ -171,14 +186,6 @@ export const useChat = (props?: UseChatProps) => {
       );
     }
   }, [useChatResult.setMessages, messagesQuery.status, messagesQuery.data]);
-
-  const remainingMessagesQuery = useQuery(getRemainingMessagesQueryProps());
-
-  const chatSuggestionsResult = useObject({
-    id: chatId,
-    api: '/api/chat-suggestions',
-    schema: chatSuggestionsSchema,
-  });
 
   return {
     ...useChatResult,

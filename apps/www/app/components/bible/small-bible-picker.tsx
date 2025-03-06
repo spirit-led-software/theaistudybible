@@ -16,7 +16,7 @@ import { cn } from '@/www/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { createServerFn } from '@tanstack/react-start';
 import { Check, ChevronsUpDown } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const getSmallBiblePickerData = createServerFn({ method: 'GET' }).handler(async () => {
   const bibles = await db.query.bibles.findMany({
@@ -65,20 +65,18 @@ export function SmallBiblePicker({
     }
   }, [query.status, query.data, defaultValue]);
 
-  const value = () => {
+  const value = useCallback(() => {
     if (propValue) {
       if (typeof propValue === 'string') {
         if (query.status === 'success') {
-          const val = query.data.bibles.find((bible) => bible.abbreviation === propValue);
-          _setValue(val);
-          return val;
+          return query.data.bibles.find((bible) => bible.abbreviation === propValue);
         }
         return undefined;
       }
       return propValue;
     }
     return _value;
-  };
+  }, [propValue, query.status, query.data, _value]);
 
   const setValue = (val?: Bible | ((val?: Bible) => Bible | undefined)) => {
     if (onValueChange) {

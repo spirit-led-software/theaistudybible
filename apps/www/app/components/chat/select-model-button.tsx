@@ -12,7 +12,8 @@ import { useSubscription } from '@/www/hooks/use-pro-subscription';
 import { cn } from '@/www/lib/utils';
 import { useNavigate } from '@tanstack/react-router';
 import { Lock } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { memo } from 'react';
 import { Anthropic, DeepSeek, Google, Meta, Mistral, OpenAI } from '../ui/brand-icons';
 
 export const SelectModelButton = () => {
@@ -30,6 +31,19 @@ export const SelectModelButton = () => {
     const model = allChatModels.find((m) => m.id === modelId?.split(':')[1]);
     return model ?? defaultChatModel;
   }, [modelId]);
+
+  const handleModelSelect = useCallback(
+    (modelValue: string) => {
+      setModelId(modelValue);
+      setOpen(false);
+    },
+    [setModelId],
+  );
+
+  const handleUpgradeClick = useCallback(() => {
+    navigate({ to: '/pro' });
+    setOpen(false);
+  }, [navigate]);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -51,11 +65,7 @@ export const SelectModelButton = () => {
               <Button
                 size='sm'
                 className='h-7 w-full border-none bg-primary text-primary-foreground text-xs hover:bg-primary/90'
-                onClick={() => {
-                  // @ts-ignore - '/pro' route is used throughout the app but not in the generated type
-                  navigate({ to: '/pro' });
-                  setOpen(false);
-                }}
+                onClick={handleUpgradeClick}
               >
                 Upgrade to Pro
               </Button>
@@ -69,10 +79,7 @@ export const SelectModelButton = () => {
               'h-fit w-full cursor-pointer justify-start rounded-none px-5 py-3',
               modelId === `${model.host}:${model.id}` && 'bg-accent/80',
             )}
-            onClick={() => {
-              setModelId(`${model.host}:${model.id}`);
-              setOpen(false);
-            }}
+            onClick={() => handleModelSelect(`${model.host}:${model.id}`)}
             disabled={model.tier === 'advanced' && !isActive && !isAdmin}
           >
             <div className='flex items-center gap-2'>
@@ -93,21 +100,23 @@ export const SelectModelButton = () => {
   );
 };
 
-const ProviderIcon = ({ provider }: { provider: (typeof allChatModels)[number]['provider'] }) => {
-  switch (provider) {
-    case 'openai':
-      return <OpenAI fill='hsl(var(--foreground))' className='size-full' />;
-    case 'anthropic':
-      return <Anthropic fill='hsl(var(--foreground))' className='size-full' />;
-    case 'mistral':
-      return <Mistral className='size-full' />;
-    case 'meta':
-      return <Meta fill='hsl(var(--foreground))' className='size-full' />;
-    case 'deepseek':
-      return <DeepSeek fill='hsl(var(--foreground))' className='size-full' />;
-    case 'google':
-      return <Google fill='hsl(var(--foreground))' monochrome className='size-full' />;
-    default:
-      return <OpenAI fill='hsl(var(--foreground))' className='size-full' />;
-  }
-};
+const ProviderIcon = memo(
+  ({ provider }: { provider: (typeof allChatModels)[number]['provider'] }) => {
+    switch (provider) {
+      case 'openai':
+        return <OpenAI fill='hsl(var(--foreground))' className='size-full' />;
+      case 'anthropic':
+        return <Anthropic fill='hsl(var(--foreground))' className='size-full' />;
+      case 'mistral':
+        return <Mistral className='size-full' />;
+      case 'meta':
+        return <Meta fill='hsl(var(--foreground))' className='size-full' />;
+      case 'deepseek':
+        return <DeepSeek fill='hsl(var(--foreground))' className='size-full' />;
+      case 'google':
+        return <Google fill='hsl(var(--foreground))' monochrome className='size-full' />;
+      default:
+        return <OpenAI fill='hsl(var(--foreground))' className='size-full' />;
+    }
+  },
+);
