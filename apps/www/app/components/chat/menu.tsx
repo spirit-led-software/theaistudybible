@@ -8,8 +8,10 @@ import { H6 } from '../ui/typography';
 import { EditChatButton } from './sidebar/edit-chat-button';
 
 export const ChatMenu = () => {
-  const chatStore = useChatStore();
-  const chatName = useMemo(() => chatStore.chat?.name ?? 'New Chat', [chatStore.chat]);
+  const { chat } = useChatStore((s) => ({
+    chat: s.chat,
+  }));
+  const chatName = useMemo(() => chat?.name ?? 'New Chat', [chat]);
 
   const { open } = useSidebar();
   const isChatPage = useIsChatPage();
@@ -27,7 +29,7 @@ export const ChatMenu = () => {
         <H6 className='truncate' aria-label='Chat name'>
           {chatName}
         </H6>
-        {chatStore.chat && <EditChatButton chat={chatStore.chat} />}
+        {chat && <EditChatButton chat={chat} />}
       </div>
       {isChatPage && <UserButton className='size-8' />}
     </div>
