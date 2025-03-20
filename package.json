@@ -34,7 +34,7 @@
     "test:e2e:prod": "sst shell --stage production -- cypress run",
     "test:e2e": "sst shell -- cypress run",
     "test": "sst shell -- vitest run",
-    "type-check": "tsc --noEmit && turbo run type-check",
+    "type-check": "turbo run type-check",
     "upgrade": "pnpm update -rL && sst upgrade"
   },
   "devDependencies": {

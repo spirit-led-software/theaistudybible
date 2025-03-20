@@ -22,7 +22,7 @@ importers:
         version: 3.758.0
       '@langchain/community':
         specifier: ^0.3.36
-        version: 0.3.36(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.758.0)(@aws-sdk/credential-provider-node@3.758.0)(@browserbasehq/sdk@2.4.0)(@browserbasehq/stagehand@1.13.1(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(@libsql/client@0.15.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@2.0.5(@upstash/redis@1.34.5))(@upstash/redis@1.34.5)(@upstash/vector@1.2.1)(axios@1.7.9)(crypto-js@4.2.0)(fast-xml-parser@5.0.9)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.1.3)(ioredis@5.6.0)(jsdom@26.0.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.50.1)(ws@8.18.1)
+        version: 0.3.36(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.758.0)(@aws-sdk/credential-provider-node@3.758.0)(@browserbasehq/sdk@2.4.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.51.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.6.0(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(@libsql/client@0.15.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@2.0.5(@upstash/redis@1.34.5))(@upstash/redis@1.34.5)(@upstash/vector@1.2.1)(axios@1.8.4)(crypto-js@4.2.0)(fast-xml-parser@5.0.9)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.3.2)(ioredis@5.6.0)(jsdom@26.0.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.51.1)(ws@8.18.1)
       '@langchain/core':
         specifier: ^0.3.42
         version: 0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2))
@@ -49,7 +49,7 @@ importers:
         version: 0.7.0(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(zod@3.24.2)
       langchain:
         specifier: ^0.3.19
-        version: 0.3.19(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(axios@1.7.9)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
+        version: 0.3.19(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
       sst:
         specifier: 3.10.0
         version: 3.10.0
@@ -202,7 +202,7 @@ importers:
         version: 0.0.4
       '@sentry/solidstart':
         specifier: ^9.6.1
-        version: 9.6.1(3cc6437ca71141ba0218b05ab743190f)
+        version: 9.6.1(bb1cc872a516bfd50cf9129ec6442c09)
       '@solid-primitives/clipboard':
         specifier: ^1.6.0
         version: 1.6.0(solid-js@1.9.5)
@@ -238,7 +238,7 @@ importers:
         version: 0.15.3(solid-js@1.9.5)
       '@solidjs/start':
         specifier: ^1.1.3
-        version: 1.1.3(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(solid-js@1.9.5)(terser@5.39.0)(tsx@4.19.3)(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)
+        version: 1.1.3(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(solid-js@1.9.5)(terser@5.39.0)(tsx@4.19.3)(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)
       '@stripe/stripe-js':
         specifier: ^6.1.0
         version: 6.1.0
@@ -292,7 +292,7 @@ importers:
         version: 12.5.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       posthog-js:
         specifier: ^1.231.3
-        version: 1.231.3(@rrweb/types@2.0.0-alpha.17)
+        version: 1.231.3
       posthog-node:
         specifier: ^4.10.1
         version: 4.10.1
@@ -338,7 +338,7 @@ importers:
         version: 0.6.0(tailwindcss@4.0.14)
       vinxi:
         specifier: ^0.5.3
-        version: 0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0)
+        version: 0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0)
       vite-bundle-analyzer:
         specifier: ^0.18.0
         version: 0.18.0
@@ -395,7 +395,7 @@ importers:
         version: 1.2.1
       braintrust:
         specifier: ^0.0.191
-        version: 0.0.191(@aws-sdk/credential-provider-web-identity@3.758.0)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.2.0(svelte@5.22.1))(svelte@5.22.1)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2)
+        version: 0.0.191(@aws-sdk/credential-provider-web-identity@3.758.0)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.2.0(svelte@5.23.2))(svelte@5.23.2)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2)
       openai:
         specifier: ^4.88.0
         version: 4.88.0(ws@8.18.1)(zod@3.24.2)
@@ -503,7 +503,7 @@ importers:
         version: 19.0.12
       react-email:
         specifier: 3.0.7
-        version: 3.0.7(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 3.0.7(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   packages/schemas:
     devDependencies:
@@ -1480,8 +1480,8 @@ packages:
   '@browserbasehq/sdk@2.4.0':
     resolution: {integrity: sha512-o1+6C4MQCpZ9+8je1IUF9UvWLuSzLcBjE1kPfu2sw7MgRFNFJS1NcWCiEmjZe71ke4CNojZWaU7XTNxh8z2PUw==}
 
-  '@browserbasehq/stagehand@1.13.1':
-    resolution: {integrity: sha512-sty9bDiuuQJDOS+/uBfXpwYQY+mhFyqi6uT5wSOrazagZ5s8tgk3ryCIheB/BGS5iisc6ivAsKe9aC9n5WBTAg==}
+  '@browserbasehq/stagehand@1.14.0':
+    resolution: {integrity: sha512-Hi/EzgMFWz+FKyepxHTrqfTPjpsuBS4zRy3e9sbMpBgLPv+9c0R+YZEvS7Bw4mTS66QtvvURRT6zgDGFotthVQ==}
     peerDependencies:
       '@playwright/test': ^1.42.1
       deepmerge: ^4.3.1
@@ -2500,8 +2500,8 @@ packages:
       hono: '>=3.9.0'
       zod: ^3.19.1
 
-  '@ibm-cloud/watsonx-ai@1.5.1':
-    resolution: {integrity: sha512-7srn4TgknDWcql63OXLNsZnqVbsqHzFVLTihDPI/UyufDxQbGdsYbdc/aEua1qW9HYDoAmEerXuYuohsMwthjw==}
+  '@ibm-cloud/watsonx-ai@1.6.0':
+    resolution: {integrity: sha512-Cm2UmNX8ynZgvTvTSS3w7Ix13nAO7E5KCvrDinrEBenJhZgG+WrzhToPbQXNJSg7A9NXwSlf31Fk57Rw7Jil2Q==}
     engines: {node: '>=18.0.0'}
 
   '@img/sharp-darwin-arm64@0.33.5':
@@ -3562,8 +3562,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@playwright/test@1.50.1':
-    resolution: {integrity: sha512-Jii3aBg+CEDpgnuDxEp/h7BimHcUTDlpEtce89xEumlJ5ef2hqepZ+PWp1DDpYC/VO9fmWVI1IlEaoI5fK9FXQ==}
+  '@playwright/test@1.51.1':
+    resolution: {integrity: sha512-nM+kEaTSAoVlXmMPH10017vn3FSiFqr/bh4fKg9vmAdMfd9SDqRZNvPSiAHADc/itWak+qPvMPZQOPwCBW7k7Q==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -3933,9 +3933,6 @@ packages:
     resolution: {integrity: sha512-aRXd7tRZkWLqGbChgcMMDEHjOKudo1kChb1Jt1IfR8cY/KIpgNviLeJy5FUb9IpSuQj8dU2fAYNMPW/hLKOSTw==}
     cpu: [x64]
     os: [win32]
-
-  '@rrweb/types@2.0.0-alpha.17':
-    resolution: {integrity: sha512-AfDTVUuCyCaIG0lTSqYtrZqJX39ZEYzs4fYKnexhQ+id+kbZIpIJtaut5cto6dWZbB3SEe4fW0o90Po3LvTmfg==}
 
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
@@ -4745,9 +4742,6 @@ packages:
   '@types/node-fetch@2.6.12':
     resolution: {integrity: sha512-8nneRWKCg3rMtF69nLQJnOYUcbafYeFSjqkw3jCRLsqkWFlHaoQrr5mXmofFGOx3DKn7UfmBMyov8ySvLRVldA==}
 
-  '@types/node@10.14.22':
-    resolution: {integrity: sha512-9taxKC944BqoTVjE+UT3pQH0nHZlTvITwfsOZqyc+R3sfJuxaTtxWjfn1K2UlxyPcKHf0rnaXcVFrS9F9vf0bw==}
-
   '@types/node@18.19.80':
     resolution: {integrity: sha512-kEWeMwMeIvxYkeg1gTc01awpwLbfMRZXdIhwRcakd/KlK53jmRC26LqcbIt7fnAQTu5GzlnWmzA3H6+l1u6xxQ==}
 
@@ -5348,12 +5342,6 @@ packages:
 
   aws4fetch@1.0.18:
     resolution: {integrity: sha512-3Cf+YaUl07p24MoQ46rFwulAmiyCwH2+1zw1ZyPAX5OtJ34Hh185DwB8y/qRLb6cYYYtSFJ9pthyLc0MD4e8sQ==}
-
-  aws4fetch@1.0.20:
-    resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
-
-  axios@1.7.9:
-    resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
 
   axios@1.8.4:
     resolution: {integrity: sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==}
@@ -6873,8 +6861,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  ibm-cloud-sdk-core@5.1.3:
-    resolution: {integrity: sha512-FCJSK4Gf5zdmR3yEM2DDlaYDrkfhSwP3hscKzPrQEfc4/qMnFn6bZuOOw5ulr3bB/iAbfeoGF0CkIe+dWdpC7Q==}
+  ibm-cloud-sdk-core@5.3.2:
+    resolution: {integrity: sha512-YhtS+7hGNO61h/4jNShHxbbuJ1TnDqiFKQzfEaqePnonOvv8NnxWxOk92FlKKCCzZNOT34Gnd7WCLVJTntwEFQ==}
     engines: {node: '>=18'}
 
   ico-endec@0.1.6:
@@ -8206,13 +8194,13 @@ packages:
   pkg-types@2.1.0:
     resolution: {integrity: sha512-wmJwA+8ihJixSoHKxZJRBQG1oY8Yr9pGLzRmSsNms0iNWyHHAlZCa7mmKiFR10YPZuz/2k169JiS/inOjBCZ2A==}
 
-  playwright-core@1.50.1:
-    resolution: {integrity: sha512-ra9fsNWayuYumt+NiM069M6OkcRb1FZSK8bgi66AtpFoWkg2+y0bJSNmkFrWhMbEBbVKC/EruAHH3g0zmtwGmQ==}
+  playwright-core@1.51.1:
+    resolution: {integrity: sha512-/crRMj8+j/Nq5s8QcvegseuyeZPxpQCZb6HNk3Sos3BlZyAknRjoyJPFWkpNn8v0+P3WiwqFF8P+zQo4eqiNuw==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.50.1:
-    resolution: {integrity: sha512-G8rwsOQJ63XG6BbKj2w5rHeavFjy5zynBA9zsJMMtBoe/Uf757oG12NXz6e6OirF7RCrTVAKFXbLmn1RbL7Qaw==}
+  playwright@1.51.1:
+    resolution: {integrity: sha512-kkx+MB2KQRkyxjYPc3a0wLZZoDczmppyGJIvQ43l+aZihkaVvmu/21kiyaHeHjiFxjxNNFnUncKmcGIyOojsaw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -8581,9 +8569,6 @@ packages:
 
   rrweb-cssom@0.8.0:
     resolution: {integrity: sha512-guoltQEx+9aMf2gDZ0s62EcV8lsXR+0w8915TC3ITdn2YueuNjdAYh/levpU9nFaoChh9RUS5ZdQMrKfVEN9tw==}
-
-  rrweb-snapshot@2.0.0-alpha.18:
-    resolution: {integrity: sha512-hBHZL/NfgQX6wO1D9mpwqFu1NJPpim+moIcKhFEjVTZVRUfCln+LOugRc4teVTCISYHN8Cw5e2iNTWCSm+SkoA==}
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -9071,8 +9056,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  svelte@5.22.1:
-    resolution: {integrity: sha512-b9DQGnfrZc+km4u3j6qkEY87pYe23yfgBT03CkeBlYST+Wzij7ut1o0BSoQ+UmiyAO1nPh9DMJJCoGDdUOrunw==}
+  svelte@5.23.2:
+    resolution: {integrity: sha512-PHP1o0aYJNMatiZ+0nq1W/Z1W1/l5Z94B9nhMIo7gsuTBbxC454g4O5SQMjQpZBUZi5ANYUrXJOE4gPzcN/VQw==}
     engines: {node: '>=18'}
 
   svix-fetch@3.0.0:
@@ -10194,13 +10179,13 @@ snapshots:
     optionalDependencies:
       solid-js: 1.9.5
 
-  '@ai-sdk/svelte@0.0.57(svelte@5.22.1)(zod@3.24.2)':
+  '@ai-sdk/svelte@0.0.57(svelte@5.23.2)(zod@3.24.2)':
     dependencies:
       '@ai-sdk/provider-utils': 1.0.22(zod@3.24.2)
       '@ai-sdk/ui-utils': 0.0.50(zod@3.24.2)
-      sswr: 2.2.0(svelte@5.22.1)
+      sswr: 2.2.0(svelte@5.23.2)
     optionalDependencies:
-      svelte: 5.22.1
+      svelte: 5.23.2
     transitivePeerDependencies:
       - zod
 
@@ -11650,11 +11635,11 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@browserbasehq/stagehand@1.13.1(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)':
+  '@browserbasehq/stagehand@1.14.0(@playwright/test@1.51.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)':
     dependencies:
       '@anthropic-ai/sdk': 0.27.3
       '@browserbasehq/sdk': 2.4.0
-      '@playwright/test': 1.50.1
+      '@playwright/test': 1.51.1
       deepmerge: 4.3.1
       dotenv: 16.4.7
       openai: 4.88.0(ws@8.18.1)(zod@3.24.2)
@@ -12302,12 +12287,12 @@ snapshots:
       hono: 4.7.5
       zod: 3.24.2
 
-  '@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))':
+  '@ibm-cloud/watsonx-ai@1.6.0(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))':
     dependencies:
       '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))
       '@types/node': 18.19.80
       extend: 3.0.2
-      ibm-cloud-sdk-core: 5.1.3
+      ibm-cloud-sdk-core: 5.3.2
     transitivePeerDependencies:
       - '@langchain/core'
       - supports-color
@@ -12474,18 +12459,18 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@langchain/community@0.3.36(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.758.0)(@aws-sdk/credential-provider-node@3.758.0)(@browserbasehq/sdk@2.4.0)(@browserbasehq/stagehand@1.13.1(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(@libsql/client@0.15.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@2.0.5(@upstash/redis@1.34.5))(@upstash/redis@1.34.5)(@upstash/vector@1.2.1)(axios@1.7.9)(crypto-js@4.2.0)(fast-xml-parser@5.0.9)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.1.3)(ioredis@5.6.0)(jsdom@26.0.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.50.1)(ws@8.18.1)':
+  '@langchain/community@0.3.36(@aws-crypto/sha256-js@5.2.0)(@aws-sdk/client-s3@3.758.0)(@aws-sdk/credential-provider-node@3.758.0)(@browserbasehq/sdk@2.4.0)(@browserbasehq/stagehand@1.14.0(@playwright/test@1.51.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.6.0(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(@libsql/client@0.15.0)(@smithy/util-utf8@2.3.0)(@upstash/ratelimit@2.0.5(@upstash/redis@1.34.5))(@upstash/redis@1.34.5)(@upstash/vector@1.2.1)(axios@1.8.4)(crypto-js@4.2.0)(fast-xml-parser@5.0.9)(html-to-text@9.0.5)(ibm-cloud-sdk-core@5.3.2)(ioredis@5.6.0)(jsdom@26.0.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.51.1)(ws@8.18.1)':
     dependencies:
-      '@browserbasehq/stagehand': 1.13.1(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)
-      '@ibm-cloud/watsonx-ai': 1.5.1(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))
+      '@browserbasehq/stagehand': 1.14.0(@playwright/test@1.51.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)
+      '@ibm-cloud/watsonx-ai': 1.6.0(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))
       '@langchain/core': 0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2))
       '@langchain/openai': 0.4.5(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(ws@8.18.1)
       binary-extensions: 2.3.0
       expr-eval: 2.0.2
       flat: 5.0.2
-      ibm-cloud-sdk-core: 5.1.3
+      ibm-cloud-sdk-core: 5.3.2
       js-yaml: 4.1.0
-      langchain: 0.3.19(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(axios@1.7.9)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
+      langchain: 0.3.19(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
       langsmith: 0.3.14(openai@4.88.0(ws@8.18.1)(zod@3.24.2))
       openai: 4.88.0(ws@8.18.1)(zod@3.24.2)
       uuid: 10.0.0
@@ -12509,7 +12494,7 @@ snapshots:
       jsonwebtoken: 9.0.2
       lodash: 4.17.21
       pdf-parse: 1.1.1
-      playwright: 1.50.1
+      playwright: 1.51.1
       ws: 8.18.1
     transitivePeerDependencies:
       - '@langchain/anthropic'
@@ -13097,9 +13082,9 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@playwright/test@1.50.1':
+  '@playwright/test@1.51.1':
     dependencies:
-      playwright: 1.50.1
+      playwright: 1.51.1
 
   '@poppinss/colors@4.1.4':
     dependencies:
@@ -13438,11 +13423,6 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.36.0':
     optional: true
 
-  '@rrweb/types@2.0.0-alpha.17':
-    dependencies:
-      rrweb-snapshot: 2.0.0-alpha.18
-    optional: true
-
   '@selderee/plugin-htmlparser2@0.11.0':
     dependencies:
       domhandler: 5.0.3
@@ -13672,14 +13652,14 @@ snapshots:
     optionalDependencies:
       '@solidjs/router': 0.15.3(solid-js@1.9.5)
 
-  '@sentry/solidstart@9.6.1(3cc6437ca71141ba0218b05ab743190f)':
+  '@sentry/solidstart@9.6.1(bb1cc872a516bfd50cf9129ec6442c09)':
     dependencies:
       '@sentry/core': 9.6.1
       '@sentry/node': 9.6.1
       '@sentry/opentelemetry': 9.6.1(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.30.0)
       '@sentry/solid': 9.6.1(@solidjs/router@0.15.3(solid-js@1.9.5))(solid-js@1.9.5)
       '@sentry/vite-plugin': 2.22.6
-      '@solidjs/start': 1.1.3(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(solid-js@1.9.5)(terser@5.39.0)(tsx@4.19.3)(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)
+      '@solidjs/start': 1.1.3(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(solid-js@1.9.5)(terser@5.39.0)(tsx@4.19.3)(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)
     optionalDependencies:
       '@solidjs/router': 0.15.3(solid-js@1.9.5)
     transitivePeerDependencies:
@@ -14246,11 +14226,11 @@ snapshots:
     dependencies:
       solid-js: 1.9.5
 
-  '@solidjs/start@1.1.3(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(solid-js@1.9.5)(terser@5.39.0)(tsx@4.19.3)(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)':
+  '@solidjs/start@1.1.3(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(solid-js@1.9.5)(terser@5.39.0)(tsx@4.19.3)(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)':
     dependencies:
       '@tanstack/server-functions-plugin': 1.114.12(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
-      '@vinxi/plugin-directives': 0.5.0(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))
-      '@vinxi/server-components': 0.5.0(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))
+      '@vinxi/plugin-directives': 0.5.0(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))
+      '@vinxi/server-components': 0.5.0(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))
       defu: 6.1.4
       error-stack-parser: 2.1.4
       html-to-image: 1.11.13
@@ -14261,7 +14241,7 @@ snapshots:
       source-map-js: 1.2.1
       terracotta: 1.0.6(solid-js@1.9.5)
       tinyglobby: 0.2.12
-      vinxi: 0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0)
+      vinxi: 0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0)
       vite-plugin-solid: 2.11.6(solid-js@1.9.5)(vite@6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))
     transitivePeerDependencies:
       - '@testing-library/jest-dom'
@@ -14532,10 +14512,8 @@ snapshots:
 
   '@types/node-fetch@2.6.12':
     dependencies:
-      '@types/node': 18.19.80
+      '@types/node': 22.13.10
       form-data: 4.0.2
-
-  '@types/node@10.14.22': {}
 
   '@types/node@18.19.80':
     dependencies:
@@ -14662,7 +14640,7 @@ snapshots:
       untun: 0.1.3
       uqr: 0.1.2
 
-  '@vinxi/plugin-directives@0.5.0(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))':
+  '@vinxi/plugin-directives@0.5.0(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))':
     dependencies:
       '@babel/parser': 7.26.10
       acorn: 8.14.1
@@ -14673,18 +14651,18 @@ snapshots:
       magicast: 0.2.11
       recast: 0.23.11
       tslib: 2.8.1
-      vinxi: 0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0)
+      vinxi: 0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0)
 
-  '@vinxi/server-components@0.5.0(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))':
+  '@vinxi/server-components@0.5.0(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))':
     dependencies:
-      '@vinxi/plugin-directives': 0.5.0(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))
+      '@vinxi/plugin-directives': 0.5.0(vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0))
       acorn: 8.14.1
       acorn-loose: 8.4.0
       acorn-typescript: 1.4.13(acorn@8.14.1)
       astring: 1.9.0
       magicast: 0.2.11
       recast: 0.23.11
-      vinxi: 0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0)
+      vinxi: 0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0)
 
   '@vite-pwa/assets-generator@0.2.6':
     dependencies:
@@ -15320,13 +15298,13 @@ snapshots:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
-  ai@3.4.33(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.2.0(svelte@5.22.1))(svelte@5.22.1)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2):
+  ai@3.4.33(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.2.0(svelte@5.23.2))(svelte@5.23.2)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2):
     dependencies:
       '@ai-sdk/provider': 0.0.26
       '@ai-sdk/provider-utils': 1.0.22(zod@3.24.2)
       '@ai-sdk/react': 0.0.70(react@19.0.0)(zod@3.24.2)
       '@ai-sdk/solid': 0.0.54(solid-js@1.9.5)(zod@3.24.2)
-      '@ai-sdk/svelte': 0.0.57(svelte@5.22.1)(zod@3.24.2)
+      '@ai-sdk/svelte': 0.0.57(svelte@5.23.2)(zod@3.24.2)
       '@ai-sdk/ui-utils': 0.0.50(zod@3.24.2)
       '@ai-sdk/vue': 0.0.59(vue@3.5.13(typescript@5.8.2))(zod@3.24.2)
       '@opentelemetry/api': 1.9.0
@@ -15338,8 +15316,8 @@ snapshots:
     optionalDependencies:
       openai: 4.88.0(ws@8.18.1)(zod@3.24.2)
       react: 19.0.0
-      sswr: 2.2.0(svelte@5.22.1)
-      svelte: 5.22.1
+      sswr: 2.2.0(svelte@5.23.2)
+      svelte: 5.23.2
       zod: 3.24.2
     transitivePeerDependencies:
       - solid-js
@@ -15497,18 +15475,7 @@ snapshots:
 
   aws4fetch@1.0.18: {}
 
-  aws4fetch@1.0.20:
-    optional: true
-
-  axios@1.7.9(debug@4.4.0):
-    dependencies:
-      follow-redirects: 1.15.9(debug@4.4.0)
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-
-  axios@1.8.4:
+  axios@1.8.4(debug@4.4.0):
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.0)
       form-data: 4.0.2
@@ -15665,13 +15632,13 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  braintrust@0.0.191(@aws-sdk/credential-provider-web-identity@3.758.0)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.2.0(svelte@5.22.1))(svelte@5.22.1)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2):
+  braintrust@0.0.191(@aws-sdk/credential-provider-web-identity@3.758.0)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.2.0(svelte@5.23.2))(svelte@5.23.2)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2):
     dependencies:
       '@ai-sdk/provider': 1.0.12
       '@braintrust/core': 0.0.82
       '@next/env': 14.2.25
       '@vercel/functions': 1.6.0(@aws-sdk/credential-provider-web-identity@3.758.0)
-      ai: 3.4.33(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.2.0(svelte@5.22.1))(svelte@5.22.1)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2)
+      ai: 3.4.33(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(react@19.0.0)(solid-js@1.9.5)(sswr@2.2.0(svelte@5.23.2))(svelte@5.23.2)(vue@3.5.13(typescript@5.8.2))(zod@3.24.2)
       argparse: 2.0.1
       chalk: 4.1.2
       cli-progress: 3.12.0
@@ -17257,12 +17224,12 @@ snapshots:
 
   husky@9.1.7: {}
 
-  ibm-cloud-sdk-core@5.1.3:
+  ibm-cloud-sdk-core@5.3.2:
     dependencies:
       '@types/debug': 4.1.12
-      '@types/node': 10.14.22
+      '@types/node': 18.19.80
       '@types/tough-cookie': 4.0.5
-      axios: 1.7.9(debug@4.4.0)
+      axios: 1.8.4(debug@4.4.0)
       camelcase: 6.3.0
       debug: 4.4.0(supports-color@8.1.1)
       dotenv: 16.4.7
@@ -17272,7 +17239,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.0))
+      retry-axios: 2.6.0(axios@1.8.4(debug@4.4.0))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -17705,7 +17672,7 @@ snapshots:
 
   knitwork@1.2.0: {}
 
-  langchain@0.3.19(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(axios@1.7.9)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1):
+  langchain@0.3.19(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(openai@4.88.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1):
     dependencies:
       '@langchain/core': 0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2))
       '@langchain/openai': 0.4.5(@langchain/core@0.3.42(openai@4.88.0(ws@8.18.1)(zod@3.24.2)))(ws@8.18.1)
@@ -17721,7 +17688,7 @@ snapshots:
       zod: 3.24.2
       zod-to-json-schema: 3.24.4(zod@3.24.2)
     optionalDependencies:
-      axios: 1.7.9(debug@4.4.0)
+      axios: 1.8.4(debug@4.4.0)
     transitivePeerDependencies:
       - encoding
       - openai
@@ -18291,7 +18258,7 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  next@15.1.2(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  next@15.1.2(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       '@next/env': 15.1.2
       '@swc/counter': 0.1.3
@@ -18312,13 +18279,13 @@ snapshots:
       '@next/swc-win32-arm64-msvc': 15.1.2
       '@next/swc-win32-x64-msvc': 15.1.2
       '@opentelemetry/api': 1.9.0
-      '@playwright/test': 1.50.1
+      '@playwright/test': 1.51.1
       sharp: 0.33.5
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
 
-  nitropack@2.11.7(@libsql/client@0.15.0)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(typescript@5.8.2)(xml2js@0.6.2):
+  nitropack@2.11.7(@libsql/client@0.15.0)(@upstash/redis@1.34.5)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(typescript@5.8.2)(xml2js@0.6.2):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@netlify/functions': 3.0.2
@@ -18387,7 +18354,7 @@ snapshots:
       unenv: 2.0.0-rc.15
       unimport: 4.1.2
       unplugin-utils: 0.2.4
-      unstorage: 1.15.0(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(ioredis@5.6.0)
+      unstorage: 1.15.0(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(ioredis@5.6.0)
       untyped: 2.0.0
       unwasm: 0.3.9
       youch: 4.1.0-beta.6
@@ -18747,11 +18714,11 @@ snapshots:
       exsolve: 1.0.4
       pathe: 2.0.3
 
-  playwright-core@1.50.1: {}
+  playwright-core@1.51.1: {}
 
-  playwright@1.50.1:
+  playwright@1.51.1:
     dependencies:
-      playwright-core: 1.50.1
+      playwright-core: 1.51.1
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -18781,18 +18748,16 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  posthog-js@1.231.3(@rrweb/types@2.0.0-alpha.17):
+  posthog-js@1.231.3:
     dependencies:
       core-js: 3.41.0
       fflate: 0.4.8
       preact: 10.26.4
       web-vitals: 4.2.4
-    optionalDependencies:
-      '@rrweb/types': 2.0.0-alpha.17
 
   posthog-node@4.10.1:
     dependencies:
-      axios: 1.8.4
+      axios: 1.8.4(debug@4.4.0)
     transitivePeerDependencies:
       - debug
 
@@ -18909,7 +18874,7 @@ snapshots:
       react: 19.0.0
       scheduler: 0.25.0
 
-  react-email@3.0.7(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  react-email@3.0.7(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       '@babel/core': 7.24.5
       '@babel/parser': 7.24.5
@@ -18921,7 +18886,7 @@ snapshots:
       glob: 10.3.4
       log-symbols: 4.1.0
       mime-types: 2.1.35
-      next: 15.1.2(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.50.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      next: 15.1.2(@babel/core@7.24.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       normalize-path: 3.0.0
       ora: 5.4.1
       socket.io: 4.8.1
@@ -19123,9 +19088,9 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
 
-  retry-axios@2.6.0(axios@1.7.9(debug@4.4.0)):
+  retry-axios@2.6.0(axios@1.8.4(debug@4.4.0)):
     dependencies:
-      axios: 1.7.9(debug@4.4.0)
+      axios: 1.8.4(debug@4.4.0)
 
   retry@0.13.1: {}
 
@@ -19187,11 +19152,6 @@ snapshots:
       path-to-regexp: 8.2.0
 
   rrweb-cssom@0.8.0: {}
-
-  rrweb-snapshot@2.0.0-alpha.18:
-    dependencies:
-      postcss: 8.5.3
-    optional: true
 
   run-parallel@1.2.0:
     dependencies:
@@ -19660,9 +19620,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  sswr@2.2.0(svelte@5.22.1):
+  sswr@2.2.0(svelte@5.23.2):
     dependencies:
-      svelte: 5.22.1
+      svelte: 5.23.2
       swrev: 4.0.0
 
   stackback@0.0.2: {}
@@ -19821,7 +19781,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte@5.22.1:
+  svelte@5.23.2:
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@jridgewell/sourcemap-codec': 1.5.0
@@ -20282,7 +20242,7 @@ snapshots:
       acorn: 8.14.1
       webpack-virtual-modules: 0.6.2
 
-  unstorage@1.15.0(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(ioredis@5.6.0):
+  unstorage@1.15.0(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(ioredis@5.6.0):
     dependencies:
       anymatch: 3.1.3
       chokidar: 4.0.3
@@ -20294,7 +20254,6 @@ snapshots:
       ufo: 1.5.4
     optionalDependencies:
       '@upstash/redis': 1.34.5
-      aws4fetch: 1.0.20
       db0: 0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))
       ioredis: 5.6.0
 
@@ -20393,7 +20352,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0):
+  vinxi@0.5.3(@libsql/client@0.15.0)(@types/node@22.13.10)(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(ioredis@5.6.0)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(xml2js@0.6.2)(yaml@2.7.0):
     dependencies:
       '@babel/core': 7.26.10
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.26.10)
@@ -20415,7 +20374,7 @@ snapshots:
       hookable: 5.5.3
       http-proxy: 1.18.1
       micromatch: 4.0.8
-      nitropack: 2.11.7(@libsql/client@0.15.0)(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(typescript@5.8.2)(xml2js@0.6.2)
+      nitropack: 2.11.7(@libsql/client@0.15.0)(@upstash/redis@1.34.5)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1))(typescript@5.8.2)(xml2js@0.6.2)
       node-fetch-native: 1.6.6
       path-to-regexp: 6.3.0
       pathe: 1.1.2
@@ -20426,7 +20385,7 @@ snapshots:
       ufo: 1.5.4
       unctx: 2.4.1
       unenv: 1.10.0
-      unstorage: 1.15.0(@upstash/redis@1.34.5)(aws4fetch@1.0.20)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(ioredis@5.6.0)
+      unstorage: 1.15.0(@upstash/redis@1.34.5)(db0@0.3.1(@libsql/client@0.15.0)(drizzle-orm@0.40.1(@cloudflare/workers-types@4.20250319.0)(@libsql/client@0.15.0)(@opentelemetry/api@1.9.0)(@types/pg@8.6.1)(gel@2.0.1)))(ioredis@5.6.0)
       vite: 6.2.2(@types/node@22.13.10)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
       zod: 3.24.2
     transitivePeerDependencies:
