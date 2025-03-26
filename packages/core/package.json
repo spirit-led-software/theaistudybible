@@ -18,7 +18,7 @@
     "@oslojs/encoding": "^1.1.0",
     "@oslojs/webauthn": "^1.0.0",
     "@paralleldrive/cuid2": "^2.2.2",
-    "@sentry/node": "^9.6.1",
+    "@sentry/node": "^9.9.0",
     "@theaistudybible/schemas": "workspace:*",
     "arctic": "^3.5.0",
     "cookie": "^1.0.2",

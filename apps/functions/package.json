@@ -8,10 +8,10 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@sentry/aws-serverless": "^9.6.1",
-    "@sentry/esbuild-plugin": "^3.2.2",
+    "@sentry/aws-serverless": "^9.9.0",
+    "@sentry/esbuild-plugin": "^3.2.3",
     "@theaistudybible/tsconfig": "workspace:*",
-    "posthog-node": "^4.10.1"
+    "posthog-node": "^4.10.2"
   },
   "dependencies": {
     "@theaistudybible/ai": "workspace:*",
