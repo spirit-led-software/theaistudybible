@@ -44,6 +44,7 @@ export const renameChat = async ({
   const {
     experimental_output: { title },
   } = await generateText({
+    // @ts-expect-error
     model: registry.languageModel(`${defaultChatModel.host}:${defaultChatModel.id}`),
     experimental_output: Output.object({
       schema: z.object({
@@ -151,6 +152,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
   //   model: registry.languageModel(options.modelId),
   //   middleware: cacheMiddleware,
   // });
+  // @ts-expect-error
   let model = registry.languageModel(`${options.modelInfo.host}:${options.modelInfo.id}`);
   if (Resource.Stage.value === 'production') {
     model = wrapAISDKModel(model);

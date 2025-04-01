@@ -77,6 +77,7 @@ export const APIRoute = createAPIFileRoute('/api/chat-suggestions')({
     });
 
     const result = streamText({
+      // @ts-expect-error
       model: registry.languageModel(`${defaultChatModel.host}:${defaultChatModel.id}`),
       experimental_output: Output.object({ schema: chatSuggestionsSchema }),
       system: `You must generate a list of follow up questions that the user may ask a chatbot that is an expert on Christian faith and theology, given the messages provided. 

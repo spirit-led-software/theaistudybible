@@ -28,6 +28,7 @@ initLogger({
 });
 
 const modelInfo = advancedChatModels[0];
+// @ts-expect-error
 let model = registry.languageModel(`${modelInfo.host}:${modelInfo.id}`);
 if (Resource.Stage.value === 'production') {
   model = wrapAISDKModel(model);
