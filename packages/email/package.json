@@ -9,21 +9,21 @@
   },
   "devDependencies": {
     "@theaistudybible/tsconfig": "workspace:*",
-    "@types/react": "^19.0.12",
-    "react-email": "4.0.2"
+    "@types/react": "^19.1.0",
+    "react-email": "4.0.3"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
-    "@react-email/components": "0.0.34",
+    "@react-email/components": "0.0.35",
     "@vitejs/plugin-react": "^4.3.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.486.0",
+    "lucide-react": "^0.487.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-markdown": "^10.1.0",
     "tailwind-merge": "^3.1.0",
-    "tailwindcss": "^4.0.17",
+    "tailwindcss": "^4.1.1",
     "tailwindcss-animate": "^1.0.7"
   }
 }
