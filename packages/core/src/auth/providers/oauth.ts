@@ -5,7 +5,7 @@ import { Resource } from 'sst';
 export const google = new Google(
   Resource.GoogleClientId.value,
   Resource.GoogleClientSecret.value,
-  `${Resource.WebAppUrl.value}/sign-in/google/callback`,
+  `${Resource.WebAppUrl.value}/api/auth/google/callback`,
 );
 
 export const apple = new Apple(
@@ -20,5 +20,5 @@ export const apple = new Apple(
       .replaceAll('\n', '')
       .trim(),
   ),
-  `${Resource.WebAppUrl.value}/sign-in/apple/callback`,
+  `${Resource.WebAppUrl.value}/api/auth/apple/callback`,
 );

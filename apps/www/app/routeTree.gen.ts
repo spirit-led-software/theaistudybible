@@ -22,6 +22,7 @@ import { Route as AuthSignUpImport } from './routes/_auth/sign-up'
 import { Route as AuthSignInImport } from './routes/_auth/sign-in'
 import { Route as AuthResetPasswordImport } from './routes/_auth/reset-password'
 import { Route as AuthForgotPasswordImport } from './routes/_auth/forgot-password'
+import { Route as WithHeaderProfileIndexImport } from './routes/_with-header/profile/index'
 import { Route as WithFooterWithHeaderIndexImport } from './routes/_with-footer/_with-header/index'
 import { Route as WithSidebarChatIdImport } from './routes/_with-sidebar/chat_/$id'
 import { Route as WithFooterWithHeaderBibleImport } from './routes/_with-footer/_with-header/bible'
@@ -94,6 +95,12 @@ const AuthForgotPasswordRoute = AuthForgotPasswordImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
   getParentRoute: () => AuthRoute,
+} as any)
+
+const WithHeaderProfileIndexRoute = WithHeaderProfileIndexImport.update({
+  id: '/profile/',
+  path: '/profile/',
+  getParentRoute: () => WithHeaderRoute,
 } as any)
 
 const WithFooterWithHeaderIndexRoute = WithFooterWithHeaderIndexImport.update({
@@ -267,6 +274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WithFooterWithHeaderIndexImport
       parentRoute: typeof WithFooterWithHeaderImport
     }
+    '/_with-header/profile/': {
+      id: '/_with-header/profile/'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof WithHeaderProfileIndexImport
+      parentRoute: typeof WithHeaderImport
+    }
     '/_with-footer/_with-header/about/faq': {
       id: '/_with-footer/_with-header/about/faq'
       path: '/about/faq'
@@ -382,10 +396,12 @@ const WithFooterRouteWithChildren = WithFooterRoute._addFileChildren(
 
 interface WithHeaderRouteChildren {
   WithHeaderProRoute: typeof WithHeaderProRoute
+  WithHeaderProfileIndexRoute: typeof WithHeaderProfileIndexRoute
 }
 
 const WithHeaderRouteChildren: WithHeaderRouteChildren = {
   WithHeaderProRoute: WithHeaderProRoute,
+  WithHeaderProfileIndexRoute: WithHeaderProfileIndexRoute,
 }
 
 const WithHeaderRouteWithChildren = WithHeaderRoute._addFileChildren(
@@ -417,6 +433,7 @@ export interface FileRoutesByFullPath {
   '/bible': typeof WithFooterWithHeaderBibleRoute
   '/chat/$id': typeof WithSidebarChatIdRoute
   '/': typeof WithFooterWithHeaderIndexRoute
+  '/profile': typeof WithHeaderProfileIndexRoute
   '/about/faq': typeof WithFooterWithHeaderAboutFaqRoute
   '/about/install': typeof WithFooterWithHeaderAboutInstallRoute
   '/bible/$bibleAbbreviation': typeof WithFooterWithHeaderBibleBibleAbbreviationRoute
@@ -437,6 +454,7 @@ export interface FileRoutesByTo {
   '/bible': typeof WithFooterWithHeaderBibleRoute
   '/chat/$id': typeof WithSidebarChatIdRoute
   '/': typeof WithFooterWithHeaderIndexRoute
+  '/profile': typeof WithHeaderProfileIndexRoute
   '/about/faq': typeof WithFooterWithHeaderAboutFaqRoute
   '/about/install': typeof WithFooterWithHeaderAboutInstallRoute
   '/bible/$bibleAbbreviation': typeof WithFooterWithHeaderBibleBibleAbbreviationRoute
@@ -462,6 +480,7 @@ export interface FileRoutesById {
   '/_with-footer/_with-header/bible': typeof WithFooterWithHeaderBibleRoute
   '/_with-sidebar/chat_/$id': typeof WithSidebarChatIdRoute
   '/_with-footer/_with-header/': typeof WithFooterWithHeaderIndexRoute
+  '/_with-header/profile/': typeof WithHeaderProfileIndexRoute
   '/_with-footer/_with-header/about/faq': typeof WithFooterWithHeaderAboutFaqRoute
   '/_with-footer/_with-header/about/install': typeof WithFooterWithHeaderAboutInstallRoute
   '/_with-footer/_with-header/bible_/$bibleAbbreviation': typeof WithFooterWithHeaderBibleBibleAbbreviationRoute
@@ -484,6 +503,7 @@ export interface FileRouteTypes {
     | '/bible'
     | '/chat/$id'
     | '/'
+    | '/profile'
     | '/about/faq'
     | '/about/install'
     | '/bible/$bibleAbbreviation'
@@ -503,6 +523,7 @@ export interface FileRouteTypes {
     | '/bible'
     | '/chat/$id'
     | '/'
+    | '/profile'
     | '/about/faq'
     | '/about/install'
     | '/bible/$bibleAbbreviation'
@@ -526,6 +547,7 @@ export interface FileRouteTypes {
     | '/_with-footer/_with-header/bible'
     | '/_with-sidebar/chat_/$id'
     | '/_with-footer/_with-header/'
+    | '/_with-header/profile/'
     | '/_with-footer/_with-header/about/faq'
     | '/_with-footer/_with-header/about/install'
     | '/_with-footer/_with-header/bible_/$bibleAbbreviation'
@@ -584,7 +606,8 @@ export const routeTree = rootRoute
     "/_with-header": {
       "filePath": "_with-header.tsx",
       "children": [
-        "/_with-header/pro"
+        "/_with-header/pro",
+        "/_with-header/profile/"
       ]
     },
     "/_with-sidebar": {
@@ -644,6 +667,10 @@ export const routeTree = rootRoute
     "/_with-footer/_with-header/": {
       "filePath": "_with-footer/_with-header/index.tsx",
       "parent": "/_with-footer/_with-header"
+    },
+    "/_with-header/profile/": {
+      "filePath": "_with-header/profile/index.tsx",
+      "parent": "/_with-header"
     },
     "/_with-footer/_with-header/about/faq": {
       "filePath": "_with-footer/_with-header/about/faq.tsx",

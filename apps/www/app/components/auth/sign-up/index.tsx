@@ -30,14 +30,18 @@ export function SignUp(props: SignUpProps) {
           </div>
           <div className='flex flex-wrap justify-center gap-2'>
             <Button variant='outline' asChild>
-              <Link to='/sign-up/google/authorize'>
+              <a
+                href={`/api/auth/google/authorize${props.redirectUrl ? `?redirectUrl=${encodeURIComponent(props.redirectUrl)}` : ''}`}
+              >
                 <Google className='size-4' /> Google
-              </Link>
+              </a>
             </Button>
             <Button variant='outline' asChild>
-              <Link to='/sign-up/apple/authorize'>
+              <a
+                href={`/api/auth/apple/authorize${props.redirectUrl ? `?redirectUrl=${encodeURIComponent(props.redirectUrl)}` : ''}`}
+              >
                 <Apple className='size-4' /> Apple
-              </Link>
+              </a>
             </Button>
             <PasskeyForm redirectUrl={props.redirectUrl} />
           </div>

@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { createRouter as createTanStackRouter } from '@tanstack/react-router';
+import { Link, createRouter as createTanStackRouter } from '@tanstack/react-router';
 import { routerWithQueryClient } from '@tanstack/react-router-with-query';
 import { Button } from './components/ui/button';
 import { CodeBlock, H1, P } from './components/ui/typography';
@@ -29,6 +29,16 @@ export function createRouter() {
             {error.stack && <CodeBlock className='mt-2'>{error.stack}</CodeBlock>}
             <Button className='mt-4' onClick={reset}>
               Reset
+            </Button>
+          </div>
+        </div>
+      ),
+      defaultNotFoundComponent: () => (
+        <div className='flex min-h-full w-full flex-col items-center justify-center'>
+          <div className='mx-auto flex max-w-3xl flex-col items-center justify-center px-2'>
+            <H1>Page not found</H1>
+            <Button className='mt-4' asChild>
+              <Link to='/'>Go home</Link>
             </Button>
           </div>
         </div>

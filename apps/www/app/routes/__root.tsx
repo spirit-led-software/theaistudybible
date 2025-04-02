@@ -11,11 +11,12 @@ import { ChatProvider } from '../contexts/chat';
 import { DevotionProvider } from '../contexts/devotion';
 import { ServiceWorkerProvider } from '../contexts/service-worker';
 import { getAuth } from '../server/functions/auth';
+import { getSubscription } from '../server/functions/pro';
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async () => {
-    const { auth } = await getAuth();
-    return { auth };
+    const [{ auth }, { subscription, type }] = await Promise.all([getAuth(), getSubscription()]);
+    return { auth, subscription, subscriptionType: type };
   },
   head: () => {
     return {

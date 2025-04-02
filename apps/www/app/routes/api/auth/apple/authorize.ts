@@ -4,7 +4,7 @@ import { createAPIFileRoute } from '@tanstack/react-start/api';
 import { setCookie } from '@tanstack/react-start/server';
 import { generateState } from 'arctic';
 
-export const Route = createAPIFileRoute('/api/auth/sign-in/apple/authorize')({
+export const Route = createAPIFileRoute('/api/auth/apple/authorize')({
   GET: async ({ request }) => {
     const { session, user } = await authenticate();
     if (session && user) {

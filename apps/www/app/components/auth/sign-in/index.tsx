@@ -30,16 +30,20 @@ export const SignIn = (props: SignInProps) => {
           </div>
           <div className='flex flex-wrap justify-center gap-2'>
             <Button variant='outline' asChild>
-              <Link to='/sign-in/google/authorize' search={{ redirectUrl: props.redirectUrl }}>
+              <a
+                href={`/api/auth/google/authorize${props.redirectUrl ? `?redirectUrl=${encodeURIComponent(props.redirectUrl)}` : ''}`}
+              >
                 <Google className='mr-2 size-4' />
                 Google
-              </Link>
+              </a>
             </Button>
             <Button variant='outline' asChild>
-              <Link to='/sign-in/apple/authorize' search={{ redirectUrl: props.redirectUrl }}>
+              <a
+                href={`/api/auth/apple/authorize${props.redirectUrl ? `?redirectUrl=${encodeURIComponent(props.redirectUrl)}` : ''}`}
+              >
                 <Apple className='mr-2 size-4' />
                 Apple
-              </Link>
+              </a>
             </Button>
             <PasskeyButton redirectUrl={props.redirectUrl} />
           </div>

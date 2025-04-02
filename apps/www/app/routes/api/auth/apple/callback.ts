@@ -10,7 +10,7 @@ import { eq } from 'drizzle-orm';
 
 type AppleNameObject = { firstName?: string; lastName?: string };
 
-export const Route = createAPIFileRoute('/api/auth/sign-in/apple/callback')({
+export const Route = createAPIFileRoute('/api/auth/apple/callback')({
   POST: async ({ request }) => {
     const storedState = getCookie('apple_oauth_state');
     const body = await request.formData();

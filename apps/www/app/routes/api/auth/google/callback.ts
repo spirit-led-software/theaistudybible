@@ -8,7 +8,7 @@ import { getCookie, setCookie } from '@tanstack/react-start/server';
 import { decodeIdToken } from 'arctic';
 import { eq } from 'drizzle-orm';
 
-export const APIRoute = createAPIFileRoute('/api/auth/sign-in/google/callback')({
+export const APIRoute = createAPIFileRoute('/api/auth/google/callback')({
   GET: async ({ request }) => {
     const storedState = getCookie('google_oauth_state');
     const codeVerifier = getCookie('google_code_verifier');

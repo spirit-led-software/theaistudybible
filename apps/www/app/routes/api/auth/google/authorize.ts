@@ -4,7 +4,7 @@ import { createAPIFileRoute } from '@tanstack/react-start/api';
 import { setCookie } from '@tanstack/react-start/server';
 import { generateCodeVerifier, generateState } from 'arctic';
 
-export const APIRoute = createAPIFileRoute('/api/auth/sign-in/google/authorize')({
+export const APIRoute = createAPIFileRoute('/api/auth/google/authorize')({
   GET: async ({ request }) => {
     const { session, user } = await authenticate();
     if (session && user) {
