@@ -20,7 +20,7 @@ const chatSuggestionsApiSchema = z.object({
   chatId: z.string().nullish(),
 });
 
-export const APIRoute = createAPIFileRoute('/api/chat-suggestions')({
+export const APIRoute = createAPIFileRoute('/api/chat/suggestions')({
   POST: async ({ request }) => {
     const validationResult = chatSuggestionsApiSchema.safeParse(await request.json());
     if (!validationResult.success) {

@@ -8,7 +8,6 @@ import { SignInButton } from '../auth/sign-in-button';
 import { UserButton } from '../auth/user-button';
 import { Logo } from '../branding/logo';
 import { LogoSmall } from '../branding/logo-small';
-import { Button } from '../ui/button';
 import { NavigationDropdown } from './dropdown';
 import { Menu } from './menu';
 
@@ -100,9 +99,7 @@ export function NavigationHeader({ sticky = true }: NavigationHeaderProps) {
       </div>
       <div className='flex items-center justify-end gap-2'>
         <SignedOut>
-          <Button asChild>
-            <SignInButton redirectUrl={`${location.pathname}${location.search}`} />
-          </Button>
+          <SignInButton redirectUrl={`${location.pathname}${location.searchStr}`} />
         </SignedOut>
         <SignedIn>
           <UserButton />

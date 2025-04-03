@@ -11,7 +11,7 @@
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^1.2.4",
+    "@ai-sdk/anthropic": "^1.2.5",
     "@ai-sdk/deepseek": "^0.2.5",
     "@ai-sdk/google": "^1.2.5",
     "@ai-sdk/groq": "^1.2.3",

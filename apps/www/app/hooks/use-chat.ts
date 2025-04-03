@@ -112,7 +112,7 @@ export const useChat = (props?: UseChatProps) => {
 
   const chatSuggestionsResult = useObject({
     id: chatId,
-    api: '/api/chat-suggestions',
+    api: '/api/chat/suggestions',
     schema: chatSuggestionsSchema,
   });
 
