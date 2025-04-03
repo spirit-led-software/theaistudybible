@@ -1159,7 +1159,7 @@ export const chapterBookmarksRelations = relations(chapterBookmarks, ({ one }) =
 export const chapterNotes = sqliteTable(
   'chapter_notes',
   {
-    ...baseModelNoId,
+    ...baseModel,
     bibleAbbreviation: text('bible_abbreviation')
       .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
@@ -1170,7 +1170,6 @@ export const chapterNotes = sqliteTable(
     content: text('content').notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.bibleAbbreviation, table.chapterCode, table.userId] }),
     foreignKey({
       columns: [table.bibleAbbreviation, table.chapterCode],
       foreignColumns: [chapters.bibleAbbreviation, chapters.code],
@@ -1357,7 +1356,7 @@ export const verseHighlightsRelations = relations(verseHighlights, ({ one }) => 
 export const verseNotes = sqliteTable(
   'verse_notes',
   {
-    ...baseModelNoId,
+    ...baseModel,
     bibleAbbreviation: text('bible_abbreviation')
       .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
@@ -1368,7 +1367,6 @@ export const verseNotes = sqliteTable(
     content: text('content').notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.bibleAbbreviation, table.verseCode, table.userId] }),
     foreignKey({
       columns: [table.bibleAbbreviation, table.verseCode],
       foreignColumns: [verses.bibleAbbreviation, verses.code],

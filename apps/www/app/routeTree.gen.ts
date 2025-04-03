@@ -25,6 +25,9 @@ import { Route as AuthForgotPasswordImport } from './routes/_auth/forgot-passwor
 import { Route as WithHeaderProfileIndexImport } from './routes/_with-header/profile/index'
 import { Route as WithFooterWithHeaderIndexImport } from './routes/_with-footer/_with-header/index'
 import { Route as WithSidebarChatIdImport } from './routes/_with-sidebar/chat_/$id'
+import { Route as WithHeaderProfileNotesImport } from './routes/_with-header/profile/notes'
+import { Route as WithHeaderProfileHighlightsImport } from './routes/_with-header/profile/highlights'
+import { Route as WithHeaderProfileBookmarksImport } from './routes/_with-header/profile/bookmarks'
 import { Route as WithFooterWithHeaderBibleImport } from './routes/_with-footer/_with-header/bible'
 import { Route as WithFooterWithHeaderAboutIndexImport } from './routes/_with-footer/_with-header/about/index'
 import { Route as WithFooterWithHeaderBibleBibleAbbreviationImport } from './routes/_with-footer/_with-header/bible_/$bibleAbbreviation'
@@ -114,6 +117,27 @@ const WithSidebarChatIdRoute = WithSidebarChatIdImport.update({
   path: '/chat/$id',
   getParentRoute: () => WithSidebarRoute,
 } as any)
+
+const WithHeaderProfileNotesRoute = WithHeaderProfileNotesImport.update({
+  id: '/profile/notes',
+  path: '/profile/notes',
+  getParentRoute: () => WithHeaderRoute,
+} as any)
+
+const WithHeaderProfileHighlightsRoute =
+  WithHeaderProfileHighlightsImport.update({
+    id: '/profile/highlights',
+    path: '/profile/highlights',
+    getParentRoute: () => WithHeaderRoute,
+  } as any)
+
+const WithHeaderProfileBookmarksRoute = WithHeaderProfileBookmarksImport.update(
+  {
+    id: '/profile/bookmarks',
+    path: '/profile/bookmarks',
+    getParentRoute: () => WithHeaderRoute,
+  } as any,
+)
 
 const WithFooterWithHeaderBibleRoute = WithFooterWithHeaderBibleImport.update({
   id: '/bible',
@@ -260,6 +284,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WithFooterWithHeaderBibleImport
       parentRoute: typeof WithFooterWithHeaderImport
     }
+    '/_with-header/profile/bookmarks': {
+      id: '/_with-header/profile/bookmarks'
+      path: '/profile/bookmarks'
+      fullPath: '/profile/bookmarks'
+      preLoaderRoute: typeof WithHeaderProfileBookmarksImport
+      parentRoute: typeof WithHeaderImport
+    }
+    '/_with-header/profile/highlights': {
+      id: '/_with-header/profile/highlights'
+      path: '/profile/highlights'
+      fullPath: '/profile/highlights'
+      preLoaderRoute: typeof WithHeaderProfileHighlightsImport
+      parentRoute: typeof WithHeaderImport
+    }
+    '/_with-header/profile/notes': {
+      id: '/_with-header/profile/notes'
+      path: '/profile/notes'
+      fullPath: '/profile/notes'
+      preLoaderRoute: typeof WithHeaderProfileNotesImport
+      parentRoute: typeof WithHeaderImport
+    }
     '/_with-sidebar/chat_/$id': {
       id: '/_with-sidebar/chat_/$id'
       path: '/chat/$id'
@@ -396,11 +441,17 @@ const WithFooterRouteWithChildren = WithFooterRoute._addFileChildren(
 
 interface WithHeaderRouteChildren {
   WithHeaderProRoute: typeof WithHeaderProRoute
+  WithHeaderProfileBookmarksRoute: typeof WithHeaderProfileBookmarksRoute
+  WithHeaderProfileHighlightsRoute: typeof WithHeaderProfileHighlightsRoute
+  WithHeaderProfileNotesRoute: typeof WithHeaderProfileNotesRoute
   WithHeaderProfileIndexRoute: typeof WithHeaderProfileIndexRoute
 }
 
 const WithHeaderRouteChildren: WithHeaderRouteChildren = {
   WithHeaderProRoute: WithHeaderProRoute,
+  WithHeaderProfileBookmarksRoute: WithHeaderProfileBookmarksRoute,
+  WithHeaderProfileHighlightsRoute: WithHeaderProfileHighlightsRoute,
+  WithHeaderProfileNotesRoute: WithHeaderProfileNotesRoute,
   WithHeaderProfileIndexRoute: WithHeaderProfileIndexRoute,
 }
 
@@ -431,6 +482,9 @@ export interface FileRoutesByFullPath {
   '/pro': typeof WithHeaderProRoute
   '/chat': typeof WithSidebarChatRoute
   '/bible': typeof WithFooterWithHeaderBibleRoute
+  '/profile/bookmarks': typeof WithHeaderProfileBookmarksRoute
+  '/profile/highlights': typeof WithHeaderProfileHighlightsRoute
+  '/profile/notes': typeof WithHeaderProfileNotesRoute
   '/chat/$id': typeof WithSidebarChatIdRoute
   '/': typeof WithFooterWithHeaderIndexRoute
   '/profile': typeof WithHeaderProfileIndexRoute
@@ -452,6 +506,9 @@ export interface FileRoutesByTo {
   '/pro': typeof WithHeaderProRoute
   '/chat': typeof WithSidebarChatRoute
   '/bible': typeof WithFooterWithHeaderBibleRoute
+  '/profile/bookmarks': typeof WithHeaderProfileBookmarksRoute
+  '/profile/highlights': typeof WithHeaderProfileHighlightsRoute
+  '/profile/notes': typeof WithHeaderProfileNotesRoute
   '/chat/$id': typeof WithSidebarChatIdRoute
   '/': typeof WithFooterWithHeaderIndexRoute
   '/profile': typeof WithHeaderProfileIndexRoute
@@ -478,6 +535,9 @@ export interface FileRoutesById {
   '/_with-header/pro': typeof WithHeaderProRoute
   '/_with-sidebar/chat': typeof WithSidebarChatRoute
   '/_with-footer/_with-header/bible': typeof WithFooterWithHeaderBibleRoute
+  '/_with-header/profile/bookmarks': typeof WithHeaderProfileBookmarksRoute
+  '/_with-header/profile/highlights': typeof WithHeaderProfileHighlightsRoute
+  '/_with-header/profile/notes': typeof WithHeaderProfileNotesRoute
   '/_with-sidebar/chat_/$id': typeof WithSidebarChatIdRoute
   '/_with-footer/_with-header/': typeof WithFooterWithHeaderIndexRoute
   '/_with-header/profile/': typeof WithHeaderProfileIndexRoute
@@ -501,6 +561,9 @@ export interface FileRouteTypes {
     | '/pro'
     | '/chat'
     | '/bible'
+    | '/profile/bookmarks'
+    | '/profile/highlights'
+    | '/profile/notes'
     | '/chat/$id'
     | '/'
     | '/profile'
@@ -521,6 +584,9 @@ export interface FileRouteTypes {
     | '/pro'
     | '/chat'
     | '/bible'
+    | '/profile/bookmarks'
+    | '/profile/highlights'
+    | '/profile/notes'
     | '/chat/$id'
     | '/'
     | '/profile'
@@ -545,6 +611,9 @@ export interface FileRouteTypes {
     | '/_with-header/pro'
     | '/_with-sidebar/chat'
     | '/_with-footer/_with-header/bible'
+    | '/_with-header/profile/bookmarks'
+    | '/_with-header/profile/highlights'
+    | '/_with-header/profile/notes'
     | '/_with-sidebar/chat_/$id'
     | '/_with-footer/_with-header/'
     | '/_with-header/profile/'
@@ -607,6 +676,9 @@ export const routeTree = rootRoute
       "filePath": "_with-header.tsx",
       "children": [
         "/_with-header/pro",
+        "/_with-header/profile/bookmarks",
+        "/_with-header/profile/highlights",
+        "/_with-header/profile/notes",
         "/_with-header/profile/"
       ]
     },
@@ -659,6 +731,18 @@ export const routeTree = rootRoute
     "/_with-footer/_with-header/bible": {
       "filePath": "_with-footer/_with-header/bible.tsx",
       "parent": "/_with-footer/_with-header"
+    },
+    "/_with-header/profile/bookmarks": {
+      "filePath": "_with-header/profile/bookmarks.tsx",
+      "parent": "/_with-header"
+    },
+    "/_with-header/profile/highlights": {
+      "filePath": "_with-header/profile/highlights.tsx",
+      "parent": "/_with-header"
+    },
+    "/_with-header/profile/notes": {
+      "filePath": "_with-header/profile/notes.tsx",
+      "parent": "/_with-header"
     },
     "/_with-sidebar/chat_/$id": {
       "filePath": "_with-sidebar/chat_/$id.tsx",
