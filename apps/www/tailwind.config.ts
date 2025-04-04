@@ -5,7 +5,7 @@ import plugin from 'tailwindcss/plugin';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ['variant', ['.dark &', '[data-kb-theme="dark"] &']],
+  darkMode: ['variant', ['.dark &']],
   content: ['./src/**/*.{ts,tsx,js,jsx,mdx,html}'],
   theme: {
     container: {

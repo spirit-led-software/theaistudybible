@@ -3,14 +3,14 @@ import { numTokensFromString } from './num-tokens-from-string';
 
 const messageChunkSize = 10;
 export async function getValidMessages({
-  userId,
   chatId,
+  userId,
   maxTokens,
   offset = 0,
   mustStartWithUserMessage = false,
 }: {
-  userId: string;
   chatId: string;
+  userId: string;
   maxTokens: number;
   offset?: number;
   mustStartWithUserMessage?: boolean;

@@ -90,7 +90,8 @@ export type CreateChatChainOptions = Omit<
 > & {
   chat: Chat;
   modelInfo: ChatModelInfo;
-  user: User;
+  userId: string;
+  user?: User | null;
   roles?: Role[] | null;
   settings?: UserSettings | null;
   dataStream: DataStreamWriter;
@@ -111,7 +112,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
 
   console.time('getValidMessages');
   const dbMessages = await getValidMessages({
-    userId: options.user.id,
+    userId: options.userId,
     chatId: options.chat.id,
     maxTokens: options.modelInfo.contextSize - systemTokens - maxResponseTokens,
     mustStartWithUserMessage: options.modelInfo.host === 'anthropic',
@@ -140,6 +141,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
 
   const resolvedTools = tools({
     dataStream: options.dataStream,
+    userId: options.userId,
     user: options.user,
     roles: options.roles,
     bibleAbbreviation: options.bible?.abbreviation,
@@ -182,7 +184,7 @@ export const createChatChain = async (options: CreateChatChainOptions) => {
               .values({
                 ...rest,
                 originMessageId: lastUserMessage.id,
-                userId: options.user.id,
+                userId: options.userId,
                 chatId: options.chat.id,
               })
               .returning();

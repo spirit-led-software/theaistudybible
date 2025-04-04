@@ -267,7 +267,8 @@ export const vectorStoreTool = (input: {
 
 export const generateImageTool = (input: {
   dataStream: DataStreamWriter;
-  user: User;
+  userId: string;
+  user?: User | null;
   roles?: Role[] | null;
 }) =>
   tool({
@@ -294,22 +295,24 @@ export const generateImageTool = (input: {
         redis: cache,
         limiter: Ratelimit.slidingWindow(2, '24h'),
       });
-      const subData = await getStripeData(input.user.stripeCustomerId);
-      if (isPro(subData)) {
-        ratelimit = new Ratelimit({
-          prefix: rlPrefix,
-          redis: cache,
-          limiter: Ratelimit.slidingWindow(10, '24h'),
-        });
-      } else if (isMinistry(subData) || input.roles?.some((role) => role.id === 'admin')) {
-        ratelimit = new Ratelimit({
-          prefix: rlPrefix,
-          redis: cache,
-          limiter: Ratelimit.slidingWindow(100, '24h'),
-        });
+      if (input.user) {
+        const subData = await getStripeData(input.user.stripeCustomerId);
+        if (isPro(subData)) {
+          ratelimit = new Ratelimit({
+            prefix: rlPrefix,
+            redis: cache,
+            limiter: Ratelimit.slidingWindow(10, '24h'),
+          });
+        } else if (isMinistry(subData) || input.roles?.some((role) => role.id === 'admin')) {
+          ratelimit = new Ratelimit({
+            prefix: rlPrefix,
+            redis: cache,
+            limiter: Ratelimit.slidingWindow(100, '24h'),
+          });
+        }
       }
 
-      const ratelimitResult = await ratelimit.limit(input.user.id);
+      const ratelimitResult = await ratelimit.limit(input.userId);
       if (!ratelimitResult.success) {
         return {
           status: 'error',
@@ -350,7 +353,7 @@ export const generateImageTool = (input: {
             id,
             url: `${Resource.Cdn.url}/generated-images/${key}`,
             userPrompt: prompt,
-            userId: input.user.id,
+            userId: input.userId,
           })
           .returning();
 
@@ -361,8 +364,8 @@ export const generateImageTool = (input: {
         } as const;
       } catch (error) {
         console.error('Error generating image', error);
-        await ratelimit.resetUsedTokens(input.user.id).then(() =>
-          ratelimit.limit(input.user.id, {
+        await ratelimit.resetUsedTokens(input.userId).then(() =>
+          ratelimit.limit(input.userId, {
             rate: ratelimitResult.limit - ratelimitResult.remaining,
           }),
         );
@@ -376,15 +379,17 @@ export const generateImageTool = (input: {
 
 export const tools = (input: {
   dataStream: DataStreamWriter;
-  user: User;
+  userId: string;
+  user?: User | null;
   roles?: Role[] | null;
   bibleAbbreviation?: string | null;
 }) => ({
   askForHighlightColor: askForHighlightColorTool({ dataStream: input.dataStream }),
-  highlightVerse: highlightVerseTool({ dataStream: input.dataStream, userId: input.user.id }),
-  bookmarkChapter: bookmarkChapterTool({ dataStream: input.dataStream, userId: input.user.id }),
+  highlightVerse: highlightVerseTool({ dataStream: input.dataStream, userId: input.userId }),
+  bookmarkChapter: bookmarkChapterTool({ dataStream: input.dataStream, userId: input.userId }),
   generateImage: generateImageTool({
     dataStream: input.dataStream,
+    userId: input.userId,
     user: input.user,
     roles: input.roles,
   }),
