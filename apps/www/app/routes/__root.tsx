@@ -1,9 +1,14 @@
 import appCss from '@/www/styles/globals.css?url';
 import type { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
+import {
+  HeadContent,
+  Outlet,
+  type ReactNode,
+  Scripts,
+  createRootRouteWithContext,
+} from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import type { ReactNode } from 'react';
 import { NotificationPromptDialog } from '../components/notification-prompt-dialog';
 import { Toaster } from '../components/ui/sonner';
 import { BibleProvider } from '../contexts/bible';
@@ -65,7 +70,6 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
                 {children}
                 <Toaster />
                 <NotificationPromptDialog />
-                {/* <PosthogInit /> */}
               </DevotionProvider>
             </ChatProvider>
           </BibleProvider>
@@ -73,6 +77,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <TanStackRouterDevtools position='bottom-right' />
         <ReactQueryDevtools buttonPosition='bottom-left' />
         <Scripts />
+        {/* <PostHog /> */}
       </body>
     </html>
   );

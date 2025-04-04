@@ -1,16 +1,15 @@
+import { posthog } from 'posthog-js';
 import { useEffect } from 'react';
 
-export const PosthogInit = () => {
+export const PostHog = () => {
   useEffect(() => {
-    import('posthog-js').then(({ default: posthog }) => {
+    if (typeof document !== 'undefined') {
       posthog.init(import.meta.env.PUBLIC_POSTHOG_API_KEY, {
         api_host: import.meta.env.PUBLIC_POSTHOG_API_HOST,
+        opt_out_capturing_by_default: import.meta.env.PUBLIC_STAGE !== 'production',
         disable_session_recording: true,
       });
-      if (import.meta.env.PUBLIC_STAGE !== 'production') {
-        posthog.opt_out_capturing();
-      }
-    });
+    }
   }, []);
 
   return null;

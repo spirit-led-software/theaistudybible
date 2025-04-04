@@ -33,7 +33,7 @@
     "secret:set": "sst secret set",
     "test:e2e:prod": "sst shell --stage production -- cypress run",
     "test:e2e": "sst shell -- cypress run",
-    "test": "sst shell -- vitest run",
+    "test": "vitest run",
     "type-check": "turbo run type-check",
     "upgrade": "pnpm update -rL && sst upgrade"
   },
