@@ -7,7 +7,6 @@ import {
   TableRow,
 } from '@/www/components/ui/table';
 import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { For } from 'solid-js';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -22,7 +21,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
   });
 
   return (
-    <div class='rounded-md border'>
+    <div className='rounded-md border'>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -38,22 +37,18 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows?.length ? (
-            <For each={table.getRowModel().rows}>
-              {(row) => (
-                <TableRow data-state={row.getIsSelected() && 'selected'}>
-                  <For each={row.getVisibleCells()}>
-                    {(cell) => (
-                      <TableCell>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    )}
-                  </For>
-                </TableRow>
-              )}
-            </For>
+            table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
           ) : (
             <TableRow>
-              <TableCell colSpan={props.columns.length} class='h-24 text-center'>
+              <TableCell colSpan={props.columns.length} className='h-24 text-center'>
                 No results.
               </TableCell>
             </TableRow>
