@@ -33,7 +33,7 @@ const app = new Hono().post('/', async (c) => {
   }
 
   try {
-    c.executionCtx.waitUntil(processEvent(stripeEvent));
+    await processEvent(stripeEvent);
   } catch (e) {
     console.error('Stripe webhook error:', e);
   }

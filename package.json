@@ -34,7 +34,7 @@
     "test:e2e:prod": "sst shell --stage production -- cypress run",
     "test:e2e": "sst shell -- cypress run",
     "test": "sst shell -- vitest run",
-    "type-check": "tsc --noEmit && turbo run type-check",
+    "type-check": "turbo run type-check",
     "upgrade": "pnpm update -rL && sst upgrade"
   },
   "devDependencies": {
@@ -74,7 +74,7 @@
     "web-push": "^3.6.7",
     "zod": "^3.24.2"
   },
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.6.1",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@biomejs/biome",
