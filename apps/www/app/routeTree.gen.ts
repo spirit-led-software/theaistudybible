@@ -16,6 +16,7 @@ import { Route as WithHeaderImport } from './routes/_with-header'
 import { Route as WithFooterImport } from './routes/_with-footer'
 import { Route as AuthPagesImport } from './routes/_auth-pages'
 import { Route as WithSidebarChatImport } from './routes/_with-sidebar/chat'
+import { Route as WithSidebarAdminImport } from './routes/_with-sidebar/admin'
 import { Route as WithHeaderProfileImport } from './routes/_with-header/profile'
 import { Route as WithHeaderProImport } from './routes/_with-header/pro'
 import { Route as WithFooterWithHeaderImport } from './routes/_with-footer/_with-header'
@@ -26,11 +27,20 @@ import { Route as AuthPagesForgotPasswordImport } from './routes/_auth-pages/for
 import { Route as WithHeaderProfileIndexImport } from './routes/_with-header/profile/index'
 import { Route as WithFooterWithHeaderIndexImport } from './routes/_with-footer/_with-header/index'
 import { Route as WithSidebarChatIdImport } from './routes/_with-sidebar/chat_/$id'
+import { Route as WithSidebarAdminPushNotificationImport } from './routes/_with-sidebar/admin/push-notification'
+import { Route as WithSidebarAdminDevotionImport } from './routes/_with-sidebar/admin/devotion'
+import { Route as WithSidebarAdminDataSourcesImport } from './routes/_with-sidebar/admin/data-sources'
+import { Route as WithSidebarAdminDataSourceImport } from './routes/_with-sidebar/admin/data-source'
+import { Route as WithSidebarAdminBibleImport } from './routes/_with-sidebar/admin/bible'
 import { Route as WithHeaderProfileNotesImport } from './routes/_with-header/profile/notes'
 import { Route as WithHeaderProfileHighlightsImport } from './routes/_with-header/profile/highlights'
 import { Route as WithHeaderProfileBookmarksImport } from './routes/_with-header/profile/bookmarks'
+import { Route as WithFooterWithHeaderTermsImport } from './routes/_with-footer/_with-header/terms'
+import { Route as WithFooterWithHeaderPrivacyImport } from './routes/_with-footer/_with-header/privacy'
 import { Route as WithFooterWithHeaderBibleImport } from './routes/_with-footer/_with-header/bible'
+import { Route as WithFooterWithHeaderDevotionIndexImport } from './routes/_with-footer/_with-header/devotion/index'
 import { Route as WithFooterWithHeaderAboutIndexImport } from './routes/_with-footer/_with-header/about/index'
+import { Route as WithFooterWithHeaderDevotionIdImport } from './routes/_with-footer/_with-header/devotion/$id'
 import { Route as WithFooterWithHeaderBibleBibleAbbreviationImport } from './routes/_with-footer/_with-header/bible_/$bibleAbbreviation'
 import { Route as WithFooterWithHeaderAboutInstallImport } from './routes/_with-footer/_with-header/about/install'
 import { Route as WithFooterWithHeaderAboutFaqImport } from './routes/_with-footer/_with-header/about/faq'
@@ -63,6 +73,12 @@ const AuthPagesRoute = AuthPagesImport.update({
 const WithSidebarChatRoute = WithSidebarChatImport.update({
   id: '/chat',
   path: '/chat',
+  getParentRoute: () => WithSidebarRoute,
+} as any)
+
+const WithSidebarAdminRoute = WithSidebarAdminImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => WithSidebarRoute,
 } as any)
 
@@ -125,6 +141,40 @@ const WithSidebarChatIdRoute = WithSidebarChatIdImport.update({
   getParentRoute: () => WithSidebarRoute,
 } as any)
 
+const WithSidebarAdminPushNotificationRoute =
+  WithSidebarAdminPushNotificationImport.update({
+    id: '/push-notification',
+    path: '/push-notification',
+    getParentRoute: () => WithSidebarAdminRoute,
+  } as any)
+
+const WithSidebarAdminDevotionRoute = WithSidebarAdminDevotionImport.update({
+  id: '/devotion',
+  path: '/devotion',
+  getParentRoute: () => WithSidebarAdminRoute,
+} as any)
+
+const WithSidebarAdminDataSourcesRoute =
+  WithSidebarAdminDataSourcesImport.update({
+    id: '/data-sources',
+    path: '/data-sources',
+    getParentRoute: () => WithSidebarAdminRoute,
+  } as any)
+
+const WithSidebarAdminDataSourceRoute = WithSidebarAdminDataSourceImport.update(
+  {
+    id: '/data-source',
+    path: '/data-source',
+    getParentRoute: () => WithSidebarAdminRoute,
+  } as any,
+)
+
+const WithSidebarAdminBibleRoute = WithSidebarAdminBibleImport.update({
+  id: '/bible',
+  path: '/bible',
+  getParentRoute: () => WithSidebarAdminRoute,
+} as any)
+
 const WithHeaderProfileNotesRoute = WithHeaderProfileNotesImport.update({
   id: '/notes',
   path: '/notes',
@@ -146,16 +196,43 @@ const WithHeaderProfileBookmarksRoute = WithHeaderProfileBookmarksImport.update(
   } as any,
 )
 
+const WithFooterWithHeaderTermsRoute = WithFooterWithHeaderTermsImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => WithFooterWithHeaderRoute,
+} as any)
+
+const WithFooterWithHeaderPrivacyRoute =
+  WithFooterWithHeaderPrivacyImport.update({
+    id: '/privacy',
+    path: '/privacy',
+    getParentRoute: () => WithFooterWithHeaderRoute,
+  } as any)
+
 const WithFooterWithHeaderBibleRoute = WithFooterWithHeaderBibleImport.update({
   id: '/bible',
   path: '/bible',
   getParentRoute: () => WithFooterWithHeaderRoute,
 } as any)
 
+const WithFooterWithHeaderDevotionIndexRoute =
+  WithFooterWithHeaderDevotionIndexImport.update({
+    id: '/devotion/',
+    path: '/devotion/',
+    getParentRoute: () => WithFooterWithHeaderRoute,
+  } as any)
+
 const WithFooterWithHeaderAboutIndexRoute =
   WithFooterWithHeaderAboutIndexImport.update({
     id: '/about/',
     path: '/about/',
+    getParentRoute: () => WithFooterWithHeaderRoute,
+  } as any)
+
+const WithFooterWithHeaderDevotionIdRoute =
+  WithFooterWithHeaderDevotionIdImport.update({
+    id: '/devotion/$id',
+    path: '/devotion/$id',
     getParentRoute: () => WithFooterWithHeaderRoute,
   } as any)
 
@@ -284,6 +361,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WithHeaderProfileImport
       parentRoute: typeof WithHeaderImport
     }
+    '/_with-sidebar/admin': {
+      id: '/_with-sidebar/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof WithSidebarAdminImport
+      parentRoute: typeof WithSidebarImport
+    }
     '/_with-sidebar/chat': {
       id: '/_with-sidebar/chat'
       path: '/chat'
@@ -296,6 +380,20 @@ declare module '@tanstack/react-router' {
       path: '/bible'
       fullPath: '/bible'
       preLoaderRoute: typeof WithFooterWithHeaderBibleImport
+      parentRoute: typeof WithFooterWithHeaderImport
+    }
+    '/_with-footer/_with-header/privacy': {
+      id: '/_with-footer/_with-header/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof WithFooterWithHeaderPrivacyImport
+      parentRoute: typeof WithFooterWithHeaderImport
+    }
+    '/_with-footer/_with-header/terms': {
+      id: '/_with-footer/_with-header/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof WithFooterWithHeaderTermsImport
       parentRoute: typeof WithFooterWithHeaderImport
     }
     '/_with-header/profile/bookmarks': {
@@ -318,6 +416,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/profile/notes'
       preLoaderRoute: typeof WithHeaderProfileNotesImport
       parentRoute: typeof WithHeaderProfileImport
+    }
+    '/_with-sidebar/admin/bible': {
+      id: '/_with-sidebar/admin/bible'
+      path: '/bible'
+      fullPath: '/admin/bible'
+      preLoaderRoute: typeof WithSidebarAdminBibleImport
+      parentRoute: typeof WithSidebarAdminImport
+    }
+    '/_with-sidebar/admin/data-source': {
+      id: '/_with-sidebar/admin/data-source'
+      path: '/data-source'
+      fullPath: '/admin/data-source'
+      preLoaderRoute: typeof WithSidebarAdminDataSourceImport
+      parentRoute: typeof WithSidebarAdminImport
+    }
+    '/_with-sidebar/admin/data-sources': {
+      id: '/_with-sidebar/admin/data-sources'
+      path: '/data-sources'
+      fullPath: '/admin/data-sources'
+      preLoaderRoute: typeof WithSidebarAdminDataSourcesImport
+      parentRoute: typeof WithSidebarAdminImport
+    }
+    '/_with-sidebar/admin/devotion': {
+      id: '/_with-sidebar/admin/devotion'
+      path: '/devotion'
+      fullPath: '/admin/devotion'
+      preLoaderRoute: typeof WithSidebarAdminDevotionImport
+      parentRoute: typeof WithSidebarAdminImport
+    }
+    '/_with-sidebar/admin/push-notification': {
+      id: '/_with-sidebar/admin/push-notification'
+      path: '/push-notification'
+      fullPath: '/admin/push-notification'
+      preLoaderRoute: typeof WithSidebarAdminPushNotificationImport
+      parentRoute: typeof WithSidebarAdminImport
     }
     '/_with-sidebar/chat_/$id': {
       id: '/_with-sidebar/chat_/$id'
@@ -361,11 +494,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WithFooterWithHeaderBibleBibleAbbreviationImport
       parentRoute: typeof WithFooterWithHeaderImport
     }
+    '/_with-footer/_with-header/devotion/$id': {
+      id: '/_with-footer/_with-header/devotion/$id'
+      path: '/devotion/$id'
+      fullPath: '/devotion/$id'
+      preLoaderRoute: typeof WithFooterWithHeaderDevotionIdImport
+      parentRoute: typeof WithFooterWithHeaderImport
+    }
     '/_with-footer/_with-header/about/': {
       id: '/_with-footer/_with-header/about/'
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof WithFooterWithHeaderAboutIndexImport
+      parentRoute: typeof WithFooterWithHeaderImport
+    }
+    '/_with-footer/_with-header/devotion/': {
+      id: '/_with-footer/_with-header/devotion/'
+      path: '/devotion'
+      fullPath: '/devotion'
+      preLoaderRoute: typeof WithFooterWithHeaderDevotionIndexImport
       parentRoute: typeof WithFooterWithHeaderImport
     }
     '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode': {
@@ -414,11 +561,15 @@ const AuthPagesRouteWithChildren = AuthPagesRoute._addFileChildren(
 
 interface WithFooterWithHeaderRouteChildren {
   WithFooterWithHeaderBibleRoute: typeof WithFooterWithHeaderBibleRoute
+  WithFooterWithHeaderPrivacyRoute: typeof WithFooterWithHeaderPrivacyRoute
+  WithFooterWithHeaderTermsRoute: typeof WithFooterWithHeaderTermsRoute
   WithFooterWithHeaderIndexRoute: typeof WithFooterWithHeaderIndexRoute
   WithFooterWithHeaderAboutFaqRoute: typeof WithFooterWithHeaderAboutFaqRoute
   WithFooterWithHeaderAboutInstallRoute: typeof WithFooterWithHeaderAboutInstallRoute
   WithFooterWithHeaderBibleBibleAbbreviationRoute: typeof WithFooterWithHeaderBibleBibleAbbreviationRoute
+  WithFooterWithHeaderDevotionIdRoute: typeof WithFooterWithHeaderDevotionIdRoute
   WithFooterWithHeaderAboutIndexRoute: typeof WithFooterWithHeaderAboutIndexRoute
+  WithFooterWithHeaderDevotionIndexRoute: typeof WithFooterWithHeaderDevotionIndexRoute
   WithFooterWithHeaderBibleBibleAbbreviationBookCodeRoute: typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeRoute
   WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberRoute: typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberRoute
   WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberVerseNumberRoute: typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberVerseNumberRoute
@@ -426,12 +577,17 @@ interface WithFooterWithHeaderRouteChildren {
 
 const WithFooterWithHeaderRouteChildren: WithFooterWithHeaderRouteChildren = {
   WithFooterWithHeaderBibleRoute: WithFooterWithHeaderBibleRoute,
+  WithFooterWithHeaderPrivacyRoute: WithFooterWithHeaderPrivacyRoute,
+  WithFooterWithHeaderTermsRoute: WithFooterWithHeaderTermsRoute,
   WithFooterWithHeaderIndexRoute: WithFooterWithHeaderIndexRoute,
   WithFooterWithHeaderAboutFaqRoute: WithFooterWithHeaderAboutFaqRoute,
   WithFooterWithHeaderAboutInstallRoute: WithFooterWithHeaderAboutInstallRoute,
   WithFooterWithHeaderBibleBibleAbbreviationRoute:
     WithFooterWithHeaderBibleBibleAbbreviationRoute,
+  WithFooterWithHeaderDevotionIdRoute: WithFooterWithHeaderDevotionIdRoute,
   WithFooterWithHeaderAboutIndexRoute: WithFooterWithHeaderAboutIndexRoute,
+  WithFooterWithHeaderDevotionIndexRoute:
+    WithFooterWithHeaderDevotionIndexRoute,
   WithFooterWithHeaderBibleBibleAbbreviationBookCodeRoute:
     WithFooterWithHeaderBibleBibleAbbreviationBookCodeRoute,
   WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberRoute:
@@ -486,12 +642,33 @@ const WithHeaderRouteWithChildren = WithHeaderRoute._addFileChildren(
   WithHeaderRouteChildren,
 )
 
+interface WithSidebarAdminRouteChildren {
+  WithSidebarAdminBibleRoute: typeof WithSidebarAdminBibleRoute
+  WithSidebarAdminDataSourceRoute: typeof WithSidebarAdminDataSourceRoute
+  WithSidebarAdminDataSourcesRoute: typeof WithSidebarAdminDataSourcesRoute
+  WithSidebarAdminDevotionRoute: typeof WithSidebarAdminDevotionRoute
+  WithSidebarAdminPushNotificationRoute: typeof WithSidebarAdminPushNotificationRoute
+}
+
+const WithSidebarAdminRouteChildren: WithSidebarAdminRouteChildren = {
+  WithSidebarAdminBibleRoute: WithSidebarAdminBibleRoute,
+  WithSidebarAdminDataSourceRoute: WithSidebarAdminDataSourceRoute,
+  WithSidebarAdminDataSourcesRoute: WithSidebarAdminDataSourcesRoute,
+  WithSidebarAdminDevotionRoute: WithSidebarAdminDevotionRoute,
+  WithSidebarAdminPushNotificationRoute: WithSidebarAdminPushNotificationRoute,
+}
+
+const WithSidebarAdminRouteWithChildren =
+  WithSidebarAdminRoute._addFileChildren(WithSidebarAdminRouteChildren)
+
 interface WithSidebarRouteChildren {
+  WithSidebarAdminRoute: typeof WithSidebarAdminRouteWithChildren
   WithSidebarChatRoute: typeof WithSidebarChatRoute
   WithSidebarChatIdRoute: typeof WithSidebarChatIdRoute
 }
 
 const WithSidebarRouteChildren: WithSidebarRouteChildren = {
+  WithSidebarAdminRoute: WithSidebarAdminRouteWithChildren,
   WithSidebarChatRoute: WithSidebarChatRoute,
   WithSidebarChatIdRoute: WithSidebarChatIdRoute,
 }
@@ -508,18 +685,28 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof AuthPagesSignUpRoute
   '/pro': typeof WithHeaderProRoute
   '/profile': typeof WithHeaderProfileRouteWithChildren
+  '/admin': typeof WithSidebarAdminRouteWithChildren
   '/chat': typeof WithSidebarChatRoute
   '/bible': typeof WithFooterWithHeaderBibleRoute
+  '/privacy': typeof WithFooterWithHeaderPrivacyRoute
+  '/terms': typeof WithFooterWithHeaderTermsRoute
   '/profile/bookmarks': typeof WithHeaderProfileBookmarksRoute
   '/profile/highlights': typeof WithHeaderProfileHighlightsRoute
   '/profile/notes': typeof WithHeaderProfileNotesRoute
+  '/admin/bible': typeof WithSidebarAdminBibleRoute
+  '/admin/data-source': typeof WithSidebarAdminDataSourceRoute
+  '/admin/data-sources': typeof WithSidebarAdminDataSourcesRoute
+  '/admin/devotion': typeof WithSidebarAdminDevotionRoute
+  '/admin/push-notification': typeof WithSidebarAdminPushNotificationRoute
   '/chat/$id': typeof WithSidebarChatIdRoute
   '/': typeof WithFooterWithHeaderIndexRoute
   '/profile/': typeof WithHeaderProfileIndexRoute
   '/about/faq': typeof WithFooterWithHeaderAboutFaqRoute
   '/about/install': typeof WithFooterWithHeaderAboutInstallRoute
   '/bible/$bibleAbbreviation': typeof WithFooterWithHeaderBibleBibleAbbreviationRoute
+  '/devotion/$id': typeof WithFooterWithHeaderDevotionIdRoute
   '/about': typeof WithFooterWithHeaderAboutIndexRoute
+  '/devotion': typeof WithFooterWithHeaderDevotionIndexRoute
   '/bible/$bibleAbbreviation/$bookCode': typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeRoute
   '/bible/$bibleAbbreviation/$bookCode/$chapterNumber': typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberRoute
   '/bible/$bibleAbbreviation/$bookCode/$chapterNumber/$verseNumber': typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberVerseNumberRoute
@@ -532,18 +719,28 @@ export interface FileRoutesByTo {
   '/sign-in': typeof AuthPagesSignInRoute
   '/sign-up': typeof AuthPagesSignUpRoute
   '/pro': typeof WithHeaderProRoute
+  '/admin': typeof WithSidebarAdminRouteWithChildren
   '/chat': typeof WithSidebarChatRoute
   '/bible': typeof WithFooterWithHeaderBibleRoute
+  '/privacy': typeof WithFooterWithHeaderPrivacyRoute
+  '/terms': typeof WithFooterWithHeaderTermsRoute
   '/profile/bookmarks': typeof WithHeaderProfileBookmarksRoute
   '/profile/highlights': typeof WithHeaderProfileHighlightsRoute
   '/profile/notes': typeof WithHeaderProfileNotesRoute
+  '/admin/bible': typeof WithSidebarAdminBibleRoute
+  '/admin/data-source': typeof WithSidebarAdminDataSourceRoute
+  '/admin/data-sources': typeof WithSidebarAdminDataSourcesRoute
+  '/admin/devotion': typeof WithSidebarAdminDevotionRoute
+  '/admin/push-notification': typeof WithSidebarAdminPushNotificationRoute
   '/chat/$id': typeof WithSidebarChatIdRoute
   '/': typeof WithFooterWithHeaderIndexRoute
   '/profile': typeof WithHeaderProfileIndexRoute
   '/about/faq': typeof WithFooterWithHeaderAboutFaqRoute
   '/about/install': typeof WithFooterWithHeaderAboutInstallRoute
   '/bible/$bibleAbbreviation': typeof WithFooterWithHeaderBibleBibleAbbreviationRoute
+  '/devotion/$id': typeof WithFooterWithHeaderDevotionIdRoute
   '/about': typeof WithFooterWithHeaderAboutIndexRoute
+  '/devotion': typeof WithFooterWithHeaderDevotionIndexRoute
   '/bible/$bibleAbbreviation/$bookCode': typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeRoute
   '/bible/$bibleAbbreviation/$bookCode/$chapterNumber': typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberRoute
   '/bible/$bibleAbbreviation/$bookCode/$chapterNumber/$verseNumber': typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberVerseNumberRoute
@@ -562,18 +759,28 @@ export interface FileRoutesById {
   '/_with-footer/_with-header': typeof WithFooterWithHeaderRouteWithChildren
   '/_with-header/pro': typeof WithHeaderProRoute
   '/_with-header/profile': typeof WithHeaderProfileRouteWithChildren
+  '/_with-sidebar/admin': typeof WithSidebarAdminRouteWithChildren
   '/_with-sidebar/chat': typeof WithSidebarChatRoute
   '/_with-footer/_with-header/bible': typeof WithFooterWithHeaderBibleRoute
+  '/_with-footer/_with-header/privacy': typeof WithFooterWithHeaderPrivacyRoute
+  '/_with-footer/_with-header/terms': typeof WithFooterWithHeaderTermsRoute
   '/_with-header/profile/bookmarks': typeof WithHeaderProfileBookmarksRoute
   '/_with-header/profile/highlights': typeof WithHeaderProfileHighlightsRoute
   '/_with-header/profile/notes': typeof WithHeaderProfileNotesRoute
+  '/_with-sidebar/admin/bible': typeof WithSidebarAdminBibleRoute
+  '/_with-sidebar/admin/data-source': typeof WithSidebarAdminDataSourceRoute
+  '/_with-sidebar/admin/data-sources': typeof WithSidebarAdminDataSourcesRoute
+  '/_with-sidebar/admin/devotion': typeof WithSidebarAdminDevotionRoute
+  '/_with-sidebar/admin/push-notification': typeof WithSidebarAdminPushNotificationRoute
   '/_with-sidebar/chat_/$id': typeof WithSidebarChatIdRoute
   '/_with-footer/_with-header/': typeof WithFooterWithHeaderIndexRoute
   '/_with-header/profile/': typeof WithHeaderProfileIndexRoute
   '/_with-footer/_with-header/about/faq': typeof WithFooterWithHeaderAboutFaqRoute
   '/_with-footer/_with-header/about/install': typeof WithFooterWithHeaderAboutInstallRoute
   '/_with-footer/_with-header/bible_/$bibleAbbreviation': typeof WithFooterWithHeaderBibleBibleAbbreviationRoute
+  '/_with-footer/_with-header/devotion/$id': typeof WithFooterWithHeaderDevotionIdRoute
   '/_with-footer/_with-header/about/': typeof WithFooterWithHeaderAboutIndexRoute
+  '/_with-footer/_with-header/devotion/': typeof WithFooterWithHeaderDevotionIndexRoute
   '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode': typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeRoute
   '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode_/$chapterNumber': typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberRoute
   '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode_/$chapterNumber_/$verseNumber': typeof WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberVerseNumberRoute
@@ -589,18 +796,28 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/pro'
     | '/profile'
+    | '/admin'
     | '/chat'
     | '/bible'
+    | '/privacy'
+    | '/terms'
     | '/profile/bookmarks'
     | '/profile/highlights'
     | '/profile/notes'
+    | '/admin/bible'
+    | '/admin/data-source'
+    | '/admin/data-sources'
+    | '/admin/devotion'
+    | '/admin/push-notification'
     | '/chat/$id'
     | '/'
     | '/profile/'
     | '/about/faq'
     | '/about/install'
     | '/bible/$bibleAbbreviation'
+    | '/devotion/$id'
     | '/about'
+    | '/devotion'
     | '/bible/$bibleAbbreviation/$bookCode'
     | '/bible/$bibleAbbreviation/$bookCode/$chapterNumber'
     | '/bible/$bibleAbbreviation/$bookCode/$chapterNumber/$verseNumber'
@@ -612,18 +829,28 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/pro'
+    | '/admin'
     | '/chat'
     | '/bible'
+    | '/privacy'
+    | '/terms'
     | '/profile/bookmarks'
     | '/profile/highlights'
     | '/profile/notes'
+    | '/admin/bible'
+    | '/admin/data-source'
+    | '/admin/data-sources'
+    | '/admin/devotion'
+    | '/admin/push-notification'
     | '/chat/$id'
     | '/'
     | '/profile'
     | '/about/faq'
     | '/about/install'
     | '/bible/$bibleAbbreviation'
+    | '/devotion/$id'
     | '/about'
+    | '/devotion'
     | '/bible/$bibleAbbreviation/$bookCode'
     | '/bible/$bibleAbbreviation/$bookCode/$chapterNumber'
     | '/bible/$bibleAbbreviation/$bookCode/$chapterNumber/$verseNumber'
@@ -640,18 +867,28 @@ export interface FileRouteTypes {
     | '/_with-footer/_with-header'
     | '/_with-header/pro'
     | '/_with-header/profile'
+    | '/_with-sidebar/admin'
     | '/_with-sidebar/chat'
     | '/_with-footer/_with-header/bible'
+    | '/_with-footer/_with-header/privacy'
+    | '/_with-footer/_with-header/terms'
     | '/_with-header/profile/bookmarks'
     | '/_with-header/profile/highlights'
     | '/_with-header/profile/notes'
+    | '/_with-sidebar/admin/bible'
+    | '/_with-sidebar/admin/data-source'
+    | '/_with-sidebar/admin/data-sources'
+    | '/_with-sidebar/admin/devotion'
+    | '/_with-sidebar/admin/push-notification'
     | '/_with-sidebar/chat_/$id'
     | '/_with-footer/_with-header/'
     | '/_with-header/profile/'
     | '/_with-footer/_with-header/about/faq'
     | '/_with-footer/_with-header/about/install'
     | '/_with-footer/_with-header/bible_/$bibleAbbreviation'
+    | '/_with-footer/_with-header/devotion/$id'
     | '/_with-footer/_with-header/about/'
+    | '/_with-footer/_with-header/devotion/'
     | '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode'
     | '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode_/$chapterNumber'
     | '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode_/$chapterNumber_/$verseNumber'
@@ -713,6 +950,7 @@ export const routeTree = rootRoute
     "/_with-sidebar": {
       "filePath": "_with-sidebar.tsx",
       "children": [
+        "/_with-sidebar/admin",
         "/_with-sidebar/chat",
         "/_with-sidebar/chat_/$id"
       ]
@@ -738,11 +976,15 @@ export const routeTree = rootRoute
       "parent": "/_with-footer",
       "children": [
         "/_with-footer/_with-header/bible",
+        "/_with-footer/_with-header/privacy",
+        "/_with-footer/_with-header/terms",
         "/_with-footer/_with-header/",
         "/_with-footer/_with-header/about/faq",
         "/_with-footer/_with-header/about/install",
         "/_with-footer/_with-header/bible_/$bibleAbbreviation",
+        "/_with-footer/_with-header/devotion/$id",
         "/_with-footer/_with-header/about/",
+        "/_with-footer/_with-header/devotion/",
         "/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode",
         "/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode_/$chapterNumber",
         "/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode_/$chapterNumber_/$verseNumber"
@@ -762,12 +1004,31 @@ export const routeTree = rootRoute
         "/_with-header/profile/"
       ]
     },
+    "/_with-sidebar/admin": {
+      "filePath": "_with-sidebar/admin.tsx",
+      "parent": "/_with-sidebar",
+      "children": [
+        "/_with-sidebar/admin/bible",
+        "/_with-sidebar/admin/data-source",
+        "/_with-sidebar/admin/data-sources",
+        "/_with-sidebar/admin/devotion",
+        "/_with-sidebar/admin/push-notification"
+      ]
+    },
     "/_with-sidebar/chat": {
       "filePath": "_with-sidebar/chat.tsx",
       "parent": "/_with-sidebar"
     },
     "/_with-footer/_with-header/bible": {
       "filePath": "_with-footer/_with-header/bible.tsx",
+      "parent": "/_with-footer/_with-header"
+    },
+    "/_with-footer/_with-header/privacy": {
+      "filePath": "_with-footer/_with-header/privacy.tsx",
+      "parent": "/_with-footer/_with-header"
+    },
+    "/_with-footer/_with-header/terms": {
+      "filePath": "_with-footer/_with-header/terms.tsx",
       "parent": "/_with-footer/_with-header"
     },
     "/_with-header/profile/bookmarks": {
@@ -781,6 +1042,26 @@ export const routeTree = rootRoute
     "/_with-header/profile/notes": {
       "filePath": "_with-header/profile/notes.tsx",
       "parent": "/_with-header/profile"
+    },
+    "/_with-sidebar/admin/bible": {
+      "filePath": "_with-sidebar/admin/bible.tsx",
+      "parent": "/_with-sidebar/admin"
+    },
+    "/_with-sidebar/admin/data-source": {
+      "filePath": "_with-sidebar/admin/data-source.tsx",
+      "parent": "/_with-sidebar/admin"
+    },
+    "/_with-sidebar/admin/data-sources": {
+      "filePath": "_with-sidebar/admin/data-sources.tsx",
+      "parent": "/_with-sidebar/admin"
+    },
+    "/_with-sidebar/admin/devotion": {
+      "filePath": "_with-sidebar/admin/devotion.tsx",
+      "parent": "/_with-sidebar/admin"
+    },
+    "/_with-sidebar/admin/push-notification": {
+      "filePath": "_with-sidebar/admin/push-notification.tsx",
+      "parent": "/_with-sidebar/admin"
     },
     "/_with-sidebar/chat_/$id": {
       "filePath": "_with-sidebar/chat_/$id.tsx",
@@ -806,8 +1087,16 @@ export const routeTree = rootRoute
       "filePath": "_with-footer/_with-header/bible_/$bibleAbbreviation.tsx",
       "parent": "/_with-footer/_with-header"
     },
+    "/_with-footer/_with-header/devotion/$id": {
+      "filePath": "_with-footer/_with-header/devotion/$id.tsx",
+      "parent": "/_with-footer/_with-header"
+    },
     "/_with-footer/_with-header/about/": {
       "filePath": "_with-footer/_with-header/about/index.tsx",
+      "parent": "/_with-footer/_with-header"
+    },
+    "/_with-footer/_with-header/devotion/": {
+      "filePath": "_with-footer/_with-header/devotion/index.tsx",
       "parent": "/_with-footer/_with-header"
     },
     "/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode": {

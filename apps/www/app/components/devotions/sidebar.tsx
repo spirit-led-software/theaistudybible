@@ -78,6 +78,7 @@ export const DevotionSidebar = () => {
 
   return (
     <Sidebar
+      variant='sheet'
       className='h-full pt-safe-offset-2 pr-1 pb-safe-offset-2 pl-safe-offset-2'
       gapFixerClassName='h-full'
     >
@@ -138,7 +139,8 @@ export const DevotionSidebar = () => {
                           <span className='text-muted-foreground text-xs'>
                             {formatDate(devotion.createdAt, 'MMMM d, yyyy')}
                           </span>
-                          {searchQuery && renderHighlightedContent(devotion, searchQuery)}
+                          {searchQuery.trim() !== '' &&
+                            renderHighlightedContent(devotion, searchQuery)}
                         </div>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -168,25 +170,42 @@ export const DevotionSidebar = () => {
 };
 
 const renderHighlightedContent = (devotion: Devotion, query: string) => {
-  if (devotion.bibleReading.toLowerCase().includes(query.toLowerCase())) {
+  // Early return if query is empty
+  if (!query || query.trim() === '') {
+    return null;
+  }
+
+  const normalizedQuery = query.toLowerCase();
+
+  // Check if bibleReading exists and contains the query
+  if (devotion.bibleReading?.toLowerCase().includes(normalizedQuery)) {
+    return (
+      <span className='mt-1 text-xs'>
+        {getHighlightedContent(devotion.bibleReading, query, 50)}
+      </span>
+    );
+  }
+
+  // Check if summary exists and contains the query
+  if (devotion.summary?.toLowerCase().includes(normalizedQuery)) {
     return (
       <span className='mt-1 text-xs'>{getHighlightedContent(devotion.summary, query, 50)}</span>
     );
   }
-  if (devotion.summary.toLowerCase().includes(query.toLowerCase())) {
-    return (
-      <span className='mt-1 text-xs'>{getHighlightedContent(devotion.summary, query, 50)}</span>
-    );
-  }
-  if (devotion.reflection.toLowerCase().includes(query.toLowerCase())) {
+
+  // Check if reflection exists and contains the query
+  if (devotion.reflection?.toLowerCase().includes(normalizedQuery)) {
     return (
       <span className='mt-1 text-xs'>{getHighlightedContent(devotion.reflection, query, 50)}</span>
     );
   }
-  if (devotion.prayer.toLowerCase().includes(query.toLowerCase())) {
+
+  // Check if prayer exists and contains the query
+  if (devotion.prayer?.toLowerCase().includes(normalizedQuery)) {
     return (
       <span className='mt-1 text-xs'>{getHighlightedContent(devotion.prayer, query, 50)}</span>
     );
   }
+
   return null;
 };

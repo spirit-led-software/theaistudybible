@@ -30,7 +30,7 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
   });
 
   const onSubmit = useMutation({
-    mutationFn: (values: z.infer<typeof forgotPasswordSchema>) => forgotPassword(values),
+    mutationFn: (values: z.infer<typeof forgotPasswordSchema>) => forgotPassword({ data: values }),
     onSuccess: () => {
       toast.success('Password reset email sent. Please check your inbox.');
       props.onSuccess?.();
