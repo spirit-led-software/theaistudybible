@@ -37,7 +37,7 @@
     "workbox-window": "^7.3.0"
   },
   "dependencies": {
-    "@ai-sdk/react": "^1.2.5",
+    "@ai-sdk/react": "^1.2.6",
     "@fontsource-variable/inter": "^5.2.5",
     "@fontsource/goldman": "^5.2.5",
     "@formkit/auto-animate": "^0.8.2",
@@ -75,8 +75,8 @@
     "@sentry/node": "^9.11.0",
     "@sentry/react": "^9.11.0",
     "@stripe/stripe-js": "^7.0.0",
-    "@tanstack/react-query": "^5.71.5",
-    "@tanstack/react-query-devtools": "^5.71.5",
+    "@tanstack/react-query": "^5.71.10",
+    "@tanstack/react-query-devtools": "^5.71.10",
     "@tanstack/react-router": "^1.114.34",
     "@tanstack/react-router-devtools": "^1.114.34",
     "@tanstack/react-router-with-query": "^1.114.34",
