@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useRouter, useRouterState } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { z } from 'zod';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
@@ -186,17 +186,37 @@ export function VerseReader(props: VerseReaderProps) {
           </div>
         }
         render={({ bible, book, chapter, verse, rightsHolder }) => {
-          const previousVerse =
-            verse.previous ?? chapter.previous?.verses[0] ?? book.previous?.chapters[0]?.verses[0];
-          const previousVerseRoute =
-            `/bible/${bible.abbreviation}/${previousVerse?.code.split('.')[0]}` +
-            `/${previousVerse?.code.split('.')[1]}/${previousVerse?.number}`;
+          useEffect(() => {
+            setBible(bible);
+            setBook(book);
+            setChapter(chapter);
+            setVerse(verse);
+          }, [bible, book, chapter, verse]);
 
-          const nextVerse =
-            verse.next ?? chapter.next?.verses[0] ?? book.next?.chapters[0]?.verses[0];
-          const nextVerseRoute =
-            `/bible/${bible.abbreviation}/${nextVerse?.code.split('.')[0]}` +
-            `/${nextVerse?.code.split('.')[1]}/${nextVerse?.number}`;
+          const previousVerse = useMemo(
+            () =>
+              verse.previous ??
+              chapter.previous?.verses[0] ??
+              book.previous?.chapters[0]?.verses[0],
+            [verse, chapter, book],
+          );
+          const previousVerseRoute = useMemo(
+            () =>
+              `/bible/${bible.abbreviation}/${previousVerse?.code.split('.')[0]}` +
+              `/${previousVerse?.code.split('.')[1]}/${previousVerse?.number}`,
+            [bible, previousVerse],
+          );
+
+          const nextVerse = useMemo(
+            () => verse.next ?? chapter.next?.verses[0] ?? book.next?.chapters[0]?.verses[0],
+            [verse, chapter, book],
+          );
+          const nextVerseRoute = useMemo(
+            () =>
+              `/bible/${bible.abbreviation}/${nextVerse?.code.split('.')[0]}` +
+              `/${nextVerse?.code.split('.')[1]}/${nextVerse?.number}`,
+            [bible, nextVerse],
+          );
 
           const router = useRouter();
           useEffect(() => {
@@ -246,7 +266,14 @@ export function VerseReader(props: VerseReaderProps) {
               </div>
               <div className='flex w-full flex-col items-center'>
                 <Button asChild variant='outline'>
-                  <Link to={`/bible/${bible.abbreviation}/${book.code}/${chapter.number}`}>
+                  <Link
+                    to='/bible/$bibleAbbreviation/$bookCode/$chapterNumber'
+                    params={{
+                      bibleAbbreviation: bible.abbreviation,
+                      bookCode: book.code,
+                      chapterNumber: chapter.number,
+                    }}
+                  >
                     View all of <strong>{chapter.name}</strong>
                   </Link>
                 </Button>

@@ -102,13 +102,13 @@ export type UseChatProps = Prettify<
   Omit<UseChatOptions, 'api' | 'generateId' | 'sendExtraMessageFields' | 'maxToolRoundtrips'>
 >;
 
-export const useChat = (props?: UseChatProps) => {
+export const useChat = (props: UseChatProps = {}) => {
   const qc = useQueryClient();
 
-  const [chatId, setChatId] = useState(() => props?.id ?? createId());
+  const [chatId, setChatId] = useState(() => props.id ?? createId());
   useEffect(() => {
-    setChatId(props?.id ?? createId());
-  }, [props?.id]);
+    setChatId(props.id ?? createId());
+  }, [props.id]);
 
   const chatSuggestionsResult = useObject({
     id: chatId,

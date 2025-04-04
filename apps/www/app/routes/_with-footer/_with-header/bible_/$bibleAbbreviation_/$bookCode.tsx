@@ -3,6 +3,33 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 
+export const Route = createFileRoute(
+  '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode',
+)({
+  params: z.object({
+    bibleAbbreviation: z.string(),
+    bookCode: z.string(),
+  }),
+  beforeLoad: async ({ params }) => {
+    if ('chapterNumber' in params) {
+      return;
+    }
+
+    const { bible, book, chapter } = await getRedirectData({
+      data: { bibleAbbreviation: params.bibleAbbreviation, bookCode: params.bookCode },
+    });
+
+    throw redirect({
+      to: '/bible/$bibleAbbreviation/$bookCode/$chapterNumber',
+      params: {
+        bibleAbbreviation: bible.abbreviation,
+        bookCode: book.code,
+        chapterNumber: chapter.number,
+      },
+    });
+  },
+});
+
 const getRedirectData = createServerFn({ method: 'GET' })
   .validator(
     z.object({
@@ -50,30 +77,3 @@ const getRedirectData = createServerFn({ method: 'GET' })
       chapter,
     };
   });
-
-export const Route = createFileRoute(
-  '/_with-footer/_with-header/bible_/$bibleAbbreviation_/$bookCode',
-)({
-  params: z.object({
-    bibleAbbreviation: z.string(),
-    bookCode: z.string(),
-  }),
-  beforeLoad: async ({ params }) => {
-    if ('chapterNumber' in params) {
-      return;
-    }
-
-    const { bible, book, chapter } = await getRedirectData({
-      data: { bibleAbbreviation: params.bibleAbbreviation, bookCode: params.bookCode },
-    });
-
-    throw redirect({
-      to: '/bible/$bibleAbbreviation/$bookCode/$chapterNumber',
-      params: {
-        bibleAbbreviation: bible.abbreviation,
-        bookCode: book.code,
-        chapterNumber: chapter.number,
-      },
-    });
-  },
-});

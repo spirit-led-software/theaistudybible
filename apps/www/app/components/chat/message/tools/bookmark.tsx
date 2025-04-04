@@ -54,7 +54,12 @@ export const BookmarkTool = (props: BookmarkToolProps) => {
                     </span>
                     <Button asChild variant='link' className='h-fit p-0 text-accent-foreground'>
                       <Link
-                        to={`/bible/${result.bible.abbreviation}/${result.book.code}/${chapter.number}`}
+                        to='/bible/$bibleAbbreviation/$bookCode/$chapterNumber'
+                        params={{
+                          bibleAbbreviation: result.bible.abbreviation,
+                          bookCode: result.book.code,
+                          chapterNumber: chapter.number,
+                        }}
                       >
                         View
                       </Link>

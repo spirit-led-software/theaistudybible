@@ -14,14 +14,15 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as WithSidebarImport } from './routes/_with-sidebar'
 import { Route as WithHeaderImport } from './routes/_with-header'
 import { Route as WithFooterImport } from './routes/_with-footer'
-import { Route as AuthImport } from './routes/_auth'
+import { Route as AuthPagesImport } from './routes/_auth-pages'
 import { Route as WithSidebarChatImport } from './routes/_with-sidebar/chat'
+import { Route as WithHeaderProfileImport } from './routes/_with-header/profile'
 import { Route as WithHeaderProImport } from './routes/_with-header/pro'
 import { Route as WithFooterWithHeaderImport } from './routes/_with-footer/_with-header'
-import { Route as AuthSignUpImport } from './routes/_auth/sign-up'
-import { Route as AuthSignInImport } from './routes/_auth/sign-in'
-import { Route as AuthResetPasswordImport } from './routes/_auth/reset-password'
-import { Route as AuthForgotPasswordImport } from './routes/_auth/forgot-password'
+import { Route as AuthPagesSignUpImport } from './routes/_auth-pages/sign-up'
+import { Route as AuthPagesSignInImport } from './routes/_auth-pages/sign-in'
+import { Route as AuthPagesResetPasswordImport } from './routes/_auth-pages/reset-password'
+import { Route as AuthPagesForgotPasswordImport } from './routes/_auth-pages/forgot-password'
 import { Route as WithHeaderProfileIndexImport } from './routes/_with-header/profile/index'
 import { Route as WithFooterWithHeaderIndexImport } from './routes/_with-footer/_with-header/index'
 import { Route as WithSidebarChatIdImport } from './routes/_with-sidebar/chat_/$id'
@@ -54,8 +55,8 @@ const WithFooterRoute = WithFooterImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthRoute = AuthImport.update({
-  id: '/_auth',
+const AuthPagesRoute = AuthPagesImport.update({
+  id: '/_auth-pages',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -63,6 +64,12 @@ const WithSidebarChatRoute = WithSidebarChatImport.update({
   id: '/chat',
   path: '/chat',
   getParentRoute: () => WithSidebarRoute,
+} as any)
+
+const WithHeaderProfileRoute = WithHeaderProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => WithHeaderRoute,
 } as any)
 
 const WithHeaderProRoute = WithHeaderProImport.update({
@@ -76,34 +83,34 @@ const WithFooterWithHeaderRoute = WithFooterWithHeaderImport.update({
   getParentRoute: () => WithFooterRoute,
 } as any)
 
-const AuthSignUpRoute = AuthSignUpImport.update({
+const AuthPagesSignUpRoute = AuthPagesSignUpImport.update({
   id: '/sign-up',
   path: '/sign-up',
-  getParentRoute: () => AuthRoute,
+  getParentRoute: () => AuthPagesRoute,
 } as any)
 
-const AuthSignInRoute = AuthSignInImport.update({
+const AuthPagesSignInRoute = AuthPagesSignInImport.update({
   id: '/sign-in',
   path: '/sign-in',
-  getParentRoute: () => AuthRoute,
+  getParentRoute: () => AuthPagesRoute,
 } as any)
 
-const AuthResetPasswordRoute = AuthResetPasswordImport.update({
+const AuthPagesResetPasswordRoute = AuthPagesResetPasswordImport.update({
   id: '/reset-password',
   path: '/reset-password',
-  getParentRoute: () => AuthRoute,
+  getParentRoute: () => AuthPagesRoute,
 } as any)
 
-const AuthForgotPasswordRoute = AuthForgotPasswordImport.update({
+const AuthPagesForgotPasswordRoute = AuthPagesForgotPasswordImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
-  getParentRoute: () => AuthRoute,
+  getParentRoute: () => AuthPagesRoute,
 } as any)
 
 const WithHeaderProfileIndexRoute = WithHeaderProfileIndexImport.update({
-  id: '/profile/',
-  path: '/profile/',
-  getParentRoute: () => WithHeaderRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => WithHeaderProfileRoute,
 } as any)
 
 const WithFooterWithHeaderIndexRoute = WithFooterWithHeaderIndexImport.update({
@@ -119,23 +126,23 @@ const WithSidebarChatIdRoute = WithSidebarChatIdImport.update({
 } as any)
 
 const WithHeaderProfileNotesRoute = WithHeaderProfileNotesImport.update({
-  id: '/profile/notes',
-  path: '/profile/notes',
-  getParentRoute: () => WithHeaderRoute,
+  id: '/notes',
+  path: '/notes',
+  getParentRoute: () => WithHeaderProfileRoute,
 } as any)
 
 const WithHeaderProfileHighlightsRoute =
   WithHeaderProfileHighlightsImport.update({
-    id: '/profile/highlights',
-    path: '/profile/highlights',
-    getParentRoute: () => WithHeaderRoute,
+    id: '/highlights',
+    path: '/highlights',
+    getParentRoute: () => WithHeaderProfileRoute,
   } as any)
 
 const WithHeaderProfileBookmarksRoute = WithHeaderProfileBookmarksImport.update(
   {
-    id: '/profile/bookmarks',
-    path: '/profile/bookmarks',
-    getParentRoute: () => WithHeaderRoute,
+    id: '/bookmarks',
+    path: '/bookmarks',
+    getParentRoute: () => WithHeaderProfileRoute,
   } as any,
 )
 
@@ -200,11 +207,11 @@ const WithFooterWithHeaderBibleBibleAbbreviationBookCodeChapterNumberVerseNumber
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_auth': {
-      id: '/_auth'
+    '/_auth-pages': {
+      id: '/_auth-pages'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AuthImport
+      preLoaderRoute: typeof AuthPagesImport
       parentRoute: typeof rootRoute
     }
     '/_with-footer': {
@@ -228,33 +235,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WithSidebarImport
       parentRoute: typeof rootRoute
     }
-    '/_auth/forgot-password': {
-      id: '/_auth/forgot-password'
+    '/_auth-pages/forgot-password': {
+      id: '/_auth-pages/forgot-password'
       path: '/forgot-password'
       fullPath: '/forgot-password'
-      preLoaderRoute: typeof AuthForgotPasswordImport
-      parentRoute: typeof AuthImport
+      preLoaderRoute: typeof AuthPagesForgotPasswordImport
+      parentRoute: typeof AuthPagesImport
     }
-    '/_auth/reset-password': {
-      id: '/_auth/reset-password'
+    '/_auth-pages/reset-password': {
+      id: '/_auth-pages/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
-      preLoaderRoute: typeof AuthResetPasswordImport
-      parentRoute: typeof AuthImport
+      preLoaderRoute: typeof AuthPagesResetPasswordImport
+      parentRoute: typeof AuthPagesImport
     }
-    '/_auth/sign-in': {
-      id: '/_auth/sign-in'
+    '/_auth-pages/sign-in': {
+      id: '/_auth-pages/sign-in'
       path: '/sign-in'
       fullPath: '/sign-in'
-      preLoaderRoute: typeof AuthSignInImport
-      parentRoute: typeof AuthImport
+      preLoaderRoute: typeof AuthPagesSignInImport
+      parentRoute: typeof AuthPagesImport
     }
-    '/_auth/sign-up': {
-      id: '/_auth/sign-up'
+    '/_auth-pages/sign-up': {
+      id: '/_auth-pages/sign-up'
       path: '/sign-up'
       fullPath: '/sign-up'
-      preLoaderRoute: typeof AuthSignUpImport
-      parentRoute: typeof AuthImport
+      preLoaderRoute: typeof AuthPagesSignUpImport
+      parentRoute: typeof AuthPagesImport
     }
     '/_with-footer/_with-header': {
       id: '/_with-footer/_with-header'
@@ -268,6 +275,13 @@ declare module '@tanstack/react-router' {
       path: '/pro'
       fullPath: '/pro'
       preLoaderRoute: typeof WithHeaderProImport
+      parentRoute: typeof WithHeaderImport
+    }
+    '/_with-header/profile': {
+      id: '/_with-header/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof WithHeaderProfileImport
       parentRoute: typeof WithHeaderImport
     }
     '/_with-sidebar/chat': {
@@ -286,24 +300,24 @@ declare module '@tanstack/react-router' {
     }
     '/_with-header/profile/bookmarks': {
       id: '/_with-header/profile/bookmarks'
-      path: '/profile/bookmarks'
+      path: '/bookmarks'
       fullPath: '/profile/bookmarks'
       preLoaderRoute: typeof WithHeaderProfileBookmarksImport
-      parentRoute: typeof WithHeaderImport
+      parentRoute: typeof WithHeaderProfileImport
     }
     '/_with-header/profile/highlights': {
       id: '/_with-header/profile/highlights'
-      path: '/profile/highlights'
+      path: '/highlights'
       fullPath: '/profile/highlights'
       preLoaderRoute: typeof WithHeaderProfileHighlightsImport
-      parentRoute: typeof WithHeaderImport
+      parentRoute: typeof WithHeaderProfileImport
     }
     '/_with-header/profile/notes': {
       id: '/_with-header/profile/notes'
-      path: '/profile/notes'
+      path: '/notes'
       fullPath: '/profile/notes'
       preLoaderRoute: typeof WithHeaderProfileNotesImport
-      parentRoute: typeof WithHeaderImport
+      parentRoute: typeof WithHeaderProfileImport
     }
     '/_with-sidebar/chat_/$id': {
       id: '/_with-sidebar/chat_/$id'
@@ -321,10 +335,10 @@ declare module '@tanstack/react-router' {
     }
     '/_with-header/profile/': {
       id: '/_with-header/profile/'
-      path: '/profile'
-      fullPath: '/profile'
+      path: '/'
+      fullPath: '/profile/'
       preLoaderRoute: typeof WithHeaderProfileIndexImport
-      parentRoute: typeof WithHeaderImport
+      parentRoute: typeof WithHeaderProfileImport
     }
     '/_with-footer/_with-header/about/faq': {
       id: '/_with-footer/_with-header/about/faq'
@@ -380,21 +394,23 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-interface AuthRouteChildren {
-  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
-  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
-  AuthSignInRoute: typeof AuthSignInRoute
-  AuthSignUpRoute: typeof AuthSignUpRoute
+interface AuthPagesRouteChildren {
+  AuthPagesForgotPasswordRoute: typeof AuthPagesForgotPasswordRoute
+  AuthPagesResetPasswordRoute: typeof AuthPagesResetPasswordRoute
+  AuthPagesSignInRoute: typeof AuthPagesSignInRoute
+  AuthPagesSignUpRoute: typeof AuthPagesSignUpRoute
 }
 
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
-  AuthResetPasswordRoute: AuthResetPasswordRoute,
-  AuthSignInRoute: AuthSignInRoute,
-  AuthSignUpRoute: AuthSignUpRoute,
+const AuthPagesRouteChildren: AuthPagesRouteChildren = {
+  AuthPagesForgotPasswordRoute: AuthPagesForgotPasswordRoute,
+  AuthPagesResetPasswordRoute: AuthPagesResetPasswordRoute,
+  AuthPagesSignInRoute: AuthPagesSignInRoute,
+  AuthPagesSignUpRoute: AuthPagesSignUpRoute,
 }
 
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+const AuthPagesRouteWithChildren = AuthPagesRoute._addFileChildren(
+  AuthPagesRouteChildren,
+)
 
 interface WithFooterWithHeaderRouteChildren {
   WithFooterWithHeaderBibleRoute: typeof WithFooterWithHeaderBibleRoute
@@ -439,20 +455,31 @@ const WithFooterRouteWithChildren = WithFooterRoute._addFileChildren(
   WithFooterRouteChildren,
 )
 
-interface WithHeaderRouteChildren {
-  WithHeaderProRoute: typeof WithHeaderProRoute
+interface WithHeaderProfileRouteChildren {
   WithHeaderProfileBookmarksRoute: typeof WithHeaderProfileBookmarksRoute
   WithHeaderProfileHighlightsRoute: typeof WithHeaderProfileHighlightsRoute
   WithHeaderProfileNotesRoute: typeof WithHeaderProfileNotesRoute
   WithHeaderProfileIndexRoute: typeof WithHeaderProfileIndexRoute
 }
 
-const WithHeaderRouteChildren: WithHeaderRouteChildren = {
-  WithHeaderProRoute: WithHeaderProRoute,
+const WithHeaderProfileRouteChildren: WithHeaderProfileRouteChildren = {
   WithHeaderProfileBookmarksRoute: WithHeaderProfileBookmarksRoute,
   WithHeaderProfileHighlightsRoute: WithHeaderProfileHighlightsRoute,
   WithHeaderProfileNotesRoute: WithHeaderProfileNotesRoute,
   WithHeaderProfileIndexRoute: WithHeaderProfileIndexRoute,
+}
+
+const WithHeaderProfileRouteWithChildren =
+  WithHeaderProfileRoute._addFileChildren(WithHeaderProfileRouteChildren)
+
+interface WithHeaderRouteChildren {
+  WithHeaderProRoute: typeof WithHeaderProRoute
+  WithHeaderProfileRoute: typeof WithHeaderProfileRouteWithChildren
+}
+
+const WithHeaderRouteChildren: WithHeaderRouteChildren = {
+  WithHeaderProRoute: WithHeaderProRoute,
+  WithHeaderProfileRoute: WithHeaderProfileRouteWithChildren,
 }
 
 const WithHeaderRouteWithChildren = WithHeaderRoute._addFileChildren(
@@ -475,11 +502,12 @@ const WithSidebarRouteWithChildren = WithSidebarRoute._addFileChildren(
 
 export interface FileRoutesByFullPath {
   '': typeof WithFooterWithHeaderRouteWithChildren
-  '/forgot-password': typeof AuthForgotPasswordRoute
-  '/reset-password': typeof AuthResetPasswordRoute
-  '/sign-in': typeof AuthSignInRoute
-  '/sign-up': typeof AuthSignUpRoute
+  '/forgot-password': typeof AuthPagesForgotPasswordRoute
+  '/reset-password': typeof AuthPagesResetPasswordRoute
+  '/sign-in': typeof AuthPagesSignInRoute
+  '/sign-up': typeof AuthPagesSignUpRoute
   '/pro': typeof WithHeaderProRoute
+  '/profile': typeof WithHeaderProfileRouteWithChildren
   '/chat': typeof WithSidebarChatRoute
   '/bible': typeof WithFooterWithHeaderBibleRoute
   '/profile/bookmarks': typeof WithHeaderProfileBookmarksRoute
@@ -487,7 +515,7 @@ export interface FileRoutesByFullPath {
   '/profile/notes': typeof WithHeaderProfileNotesRoute
   '/chat/$id': typeof WithSidebarChatIdRoute
   '/': typeof WithFooterWithHeaderIndexRoute
-  '/profile': typeof WithHeaderProfileIndexRoute
+  '/profile/': typeof WithHeaderProfileIndexRoute
   '/about/faq': typeof WithFooterWithHeaderAboutFaqRoute
   '/about/install': typeof WithFooterWithHeaderAboutInstallRoute
   '/bible/$bibleAbbreviation': typeof WithFooterWithHeaderBibleBibleAbbreviationRoute
@@ -499,10 +527,10 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '': typeof WithSidebarRouteWithChildren
-  '/forgot-password': typeof AuthForgotPasswordRoute
-  '/reset-password': typeof AuthResetPasswordRoute
-  '/sign-in': typeof AuthSignInRoute
-  '/sign-up': typeof AuthSignUpRoute
+  '/forgot-password': typeof AuthPagesForgotPasswordRoute
+  '/reset-password': typeof AuthPagesResetPasswordRoute
+  '/sign-in': typeof AuthPagesSignInRoute
+  '/sign-up': typeof AuthPagesSignUpRoute
   '/pro': typeof WithHeaderProRoute
   '/chat': typeof WithSidebarChatRoute
   '/bible': typeof WithFooterWithHeaderBibleRoute
@@ -523,16 +551,17 @@ export interface FileRoutesByTo {
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/_auth': typeof AuthRouteWithChildren
+  '/_auth-pages': typeof AuthPagesRouteWithChildren
   '/_with-footer': typeof WithFooterRouteWithChildren
   '/_with-header': typeof WithHeaderRouteWithChildren
   '/_with-sidebar': typeof WithSidebarRouteWithChildren
-  '/_auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/_auth/reset-password': typeof AuthResetPasswordRoute
-  '/_auth/sign-in': typeof AuthSignInRoute
-  '/_auth/sign-up': typeof AuthSignUpRoute
+  '/_auth-pages/forgot-password': typeof AuthPagesForgotPasswordRoute
+  '/_auth-pages/reset-password': typeof AuthPagesResetPasswordRoute
+  '/_auth-pages/sign-in': typeof AuthPagesSignInRoute
+  '/_auth-pages/sign-up': typeof AuthPagesSignUpRoute
   '/_with-footer/_with-header': typeof WithFooterWithHeaderRouteWithChildren
   '/_with-header/pro': typeof WithHeaderProRoute
+  '/_with-header/profile': typeof WithHeaderProfileRouteWithChildren
   '/_with-sidebar/chat': typeof WithSidebarChatRoute
   '/_with-footer/_with-header/bible': typeof WithFooterWithHeaderBibleRoute
   '/_with-header/profile/bookmarks': typeof WithHeaderProfileBookmarksRoute
@@ -559,6 +588,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/pro'
+    | '/profile'
     | '/chat'
     | '/bible'
     | '/profile/bookmarks'
@@ -566,7 +596,7 @@ export interface FileRouteTypes {
     | '/profile/notes'
     | '/chat/$id'
     | '/'
-    | '/profile'
+    | '/profile/'
     | '/about/faq'
     | '/about/install'
     | '/bible/$bibleAbbreviation'
@@ -599,16 +629,17 @@ export interface FileRouteTypes {
     | '/bible/$bibleAbbreviation/$bookCode/$chapterNumber/$verseNumber'
   id:
     | '__root__'
-    | '/_auth'
+    | '/_auth-pages'
     | '/_with-footer'
     | '/_with-header'
     | '/_with-sidebar'
-    | '/_auth/forgot-password'
-    | '/_auth/reset-password'
-    | '/_auth/sign-in'
-    | '/_auth/sign-up'
+    | '/_auth-pages/forgot-password'
+    | '/_auth-pages/reset-password'
+    | '/_auth-pages/sign-in'
+    | '/_auth-pages/sign-up'
     | '/_with-footer/_with-header'
     | '/_with-header/pro'
+    | '/_with-header/profile'
     | '/_with-sidebar/chat'
     | '/_with-footer/_with-header/bible'
     | '/_with-header/profile/bookmarks'
@@ -628,14 +659,14 @@ export interface FileRouteTypes {
 }
 
 export interface RootRouteChildren {
-  AuthRoute: typeof AuthRouteWithChildren
+  AuthPagesRoute: typeof AuthPagesRouteWithChildren
   WithFooterRoute: typeof WithFooterRouteWithChildren
   WithHeaderRoute: typeof WithHeaderRouteWithChildren
   WithSidebarRoute: typeof WithSidebarRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  AuthRoute: AuthRouteWithChildren,
+  AuthPagesRoute: AuthPagesRouteWithChildren,
   WithFooterRoute: WithFooterRouteWithChildren,
   WithHeaderRoute: WithHeaderRouteWithChildren,
   WithSidebarRoute: WithSidebarRouteWithChildren,
@@ -651,19 +682,19 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/_auth",
+        "/_auth-pages",
         "/_with-footer",
         "/_with-header",
         "/_with-sidebar"
       ]
     },
-    "/_auth": {
-      "filePath": "_auth.tsx",
+    "/_auth-pages": {
+      "filePath": "_auth-pages.tsx",
       "children": [
-        "/_auth/forgot-password",
-        "/_auth/reset-password",
-        "/_auth/sign-in",
-        "/_auth/sign-up"
+        "/_auth-pages/forgot-password",
+        "/_auth-pages/reset-password",
+        "/_auth-pages/sign-in",
+        "/_auth-pages/sign-up"
       ]
     },
     "/_with-footer": {
@@ -676,10 +707,7 @@ export const routeTree = rootRoute
       "filePath": "_with-header.tsx",
       "children": [
         "/_with-header/pro",
-        "/_with-header/profile/bookmarks",
-        "/_with-header/profile/highlights",
-        "/_with-header/profile/notes",
-        "/_with-header/profile/"
+        "/_with-header/profile"
       ]
     },
     "/_with-sidebar": {
@@ -689,21 +717,21 @@ export const routeTree = rootRoute
         "/_with-sidebar/chat_/$id"
       ]
     },
-    "/_auth/forgot-password": {
-      "filePath": "_auth/forgot-password.tsx",
-      "parent": "/_auth"
+    "/_auth-pages/forgot-password": {
+      "filePath": "_auth-pages/forgot-password.tsx",
+      "parent": "/_auth-pages"
     },
-    "/_auth/reset-password": {
-      "filePath": "_auth/reset-password.tsx",
-      "parent": "/_auth"
+    "/_auth-pages/reset-password": {
+      "filePath": "_auth-pages/reset-password.tsx",
+      "parent": "/_auth-pages"
     },
-    "/_auth/sign-in": {
-      "filePath": "_auth/sign-in.tsx",
-      "parent": "/_auth"
+    "/_auth-pages/sign-in": {
+      "filePath": "_auth-pages/sign-in.tsx",
+      "parent": "/_auth-pages"
     },
-    "/_auth/sign-up": {
-      "filePath": "_auth/sign-up.tsx",
-      "parent": "/_auth"
+    "/_auth-pages/sign-up": {
+      "filePath": "_auth-pages/sign-up.tsx",
+      "parent": "/_auth-pages"
     },
     "/_with-footer/_with-header": {
       "filePath": "_with-footer/_with-header.tsx",
@@ -724,6 +752,16 @@ export const routeTree = rootRoute
       "filePath": "_with-header/pro.tsx",
       "parent": "/_with-header"
     },
+    "/_with-header/profile": {
+      "filePath": "_with-header/profile.tsx",
+      "parent": "/_with-header",
+      "children": [
+        "/_with-header/profile/bookmarks",
+        "/_with-header/profile/highlights",
+        "/_with-header/profile/notes",
+        "/_with-header/profile/"
+      ]
+    },
     "/_with-sidebar/chat": {
       "filePath": "_with-sidebar/chat.tsx",
       "parent": "/_with-sidebar"
@@ -734,15 +772,15 @@ export const routeTree = rootRoute
     },
     "/_with-header/profile/bookmarks": {
       "filePath": "_with-header/profile/bookmarks.tsx",
-      "parent": "/_with-header"
+      "parent": "/_with-header/profile"
     },
     "/_with-header/profile/highlights": {
       "filePath": "_with-header/profile/highlights.tsx",
-      "parent": "/_with-header"
+      "parent": "/_with-header/profile"
     },
     "/_with-header/profile/notes": {
       "filePath": "_with-header/profile/notes.tsx",
-      "parent": "/_with-header"
+      "parent": "/_with-header/profile"
     },
     "/_with-sidebar/chat_/$id": {
       "filePath": "_with-sidebar/chat_/$id.tsx",
@@ -754,7 +792,7 @@ export const routeTree = rootRoute
     },
     "/_with-header/profile/": {
       "filePath": "_with-header/profile/index.tsx",
-      "parent": "/_with-header"
+      "parent": "/_with-header/profile"
     },
     "/_with-footer/_with-header/about/faq": {
       "filePath": "_with-footer/_with-header/about/faq.tsx",

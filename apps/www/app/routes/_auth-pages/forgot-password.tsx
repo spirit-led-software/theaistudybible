@@ -1,7 +1,7 @@
 import { ForgotPassword } from '@/www/components/auth/forgot-password';
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/_auth/forgot-password')({
+export const Route = createFileRoute('/_auth-pages/forgot-password')({
   head: () => {
     const title = 'Forgot Password';
     const description =

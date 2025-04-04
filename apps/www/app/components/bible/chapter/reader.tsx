@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useRouter } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
 import { ChevronLeft, ChevronRight, Copyright } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { z } from 'zod';
 import { Button, buttonVariants } from '../../ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
@@ -147,11 +147,32 @@ export function ChapterReader(props: ChapterReaderProps) {
           </div>
         }
         render={({ bible, book, chapter, rightsHolder }) => {
-          const previousChapter = chapter.previous ?? book.previous?.chapters[0];
-          const previousChapterRoute = `/bible/${bible.abbreviation}/${previousChapter?.code.split('.')[0]}/${previousChapter?.number}`;
+          useEffect(() => {
+            setBible(bible);
+            setBook(book);
+            setChapter(chapter);
+            setVerse(null);
+          }, [bible, book, chapter]);
 
-          const nextChapter = chapter.next ?? book.next?.chapters[0];
-          const nextChapterRoute = `/bible/${bible.abbreviation}/${nextChapter?.code.split('.')[0]}/${nextChapter?.number}`;
+          const previousChapter = useMemo(
+            () => chapter.previous ?? book.previous?.chapters[0],
+            [chapter, book],
+          );
+          const previousChapterRoute = useMemo(
+            () =>
+              `/bible/${bible.abbreviation}/${previousChapter?.code.split('.')[0]}/${previousChapter?.number}`,
+            [bible, previousChapter],
+          );
+
+          const nextChapter = useMemo(
+            () => chapter.next ?? book.next?.chapters[0],
+            [chapter, book],
+          );
+          const nextChapterRoute = useMemo(
+            () =>
+              `/bible/${bible.abbreviation}/${nextChapter?.code.split('.')[0]}/${nextChapter?.number}`,
+            [bible, nextChapter],
+          );
 
           const router = useRouter();
           useEffect(() => {

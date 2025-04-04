@@ -76,7 +76,10 @@ export function LargeTranslationPicker() {
                             className='flex h-fit w-full flex-col items-start justify-start overflow-hidden text-start'
                             asChild
                           >
-                            <Link to={`/bible/${bible.abbreviation}`}>
+                            <Link
+                              to='/bible/$bibleAbbreviation'
+                              params={{ bibleAbbreviation: bible.abbreviation }}
+                            >
                               <div className='line-clamp-2 text-wrap font-bold text-lg'>
                                 {bible.abbreviationLocal}
                               </div>

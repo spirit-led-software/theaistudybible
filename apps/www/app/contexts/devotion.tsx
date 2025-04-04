@@ -1,5 +1,5 @@
 import type { Devotion } from '@/schemas/devotions/types';
-import { type ReactNode, createContext, useContext, useRef } from 'react';
+import { type ReactNode, createContext, useContext, useEffect, useRef } from 'react';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 import { type StoreApi, createStore } from 'zustand/vanilla';
@@ -39,6 +39,14 @@ export const DevotionProvider = ({ devotion, children }: DevotionProviderProps) 
       },
     }));
   }
+
+  useEffect(() => {
+    if (storeRef.current) {
+      storeRef.current.setState({
+        devotion: devotion ?? null,
+      });
+    }
+  }, [devotion]);
 
   return <DevotionContext.Provider value={storeRef.current}>{children}</DevotionContext.Provider>;
 };

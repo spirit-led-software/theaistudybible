@@ -1,9 +1,7 @@
 import { getChatsQueryOptions } from '@/www/components/chat/sidebar';
 import { ChatWindow } from '@/www/components/chat/window';
-import { useChatStore } from '@/www/contexts/chat';
 import { getChatMessagesQueryProps, getChatQueryProps } from '@/www/hooks/use-chat';
 import { createFileRoute } from '@tanstack/react-router';
-import { useEffect } from 'react';
 import { z } from 'zod';
 
 export const Route = createFileRoute('/_with-sidebar/chat_/$id')({
@@ -25,13 +23,7 @@ export const Route = createFileRoute('/_with-sidebar/chat_/$id')({
 });
 
 function RouteComponent() {
-  const params = Route.useParams();
-  const setChatId = useChatStore((s) => s.setChatId);
-  useEffect(() => {
-    if (params.id) {
-      setChatId(params.id);
-    }
-  }, [params.id, setChatId]);
+  const { id } = Route.useParams();
 
-  return <ChatWindow />;
+  return <ChatWindow id={id} />;
 }

@@ -261,7 +261,12 @@ export const NoteItemCard = (props: NoteItemCardProps) => {
             {props.showViewButton && (
               <Button asChild>
                 <Link
-                  to={`/bible/${props.bible.abbreviation}/${props.book.code}/${props.chapter.number}${props.verse ? `/${props.verse.number}` : ''}`}
+                  to='/bible/$bibleAbbreviation/$bookCode/$chapterNumber'
+                  params={{
+                    bibleAbbreviation: props.bible.abbreviation,
+                    bookCode: props.book.code,
+                    chapterNumber: props.chapter.number,
+                  }}
                 >
                   View
                 </Link>

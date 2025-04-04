@@ -41,9 +41,9 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
-  const { chatId, setChatId } = useChatStore((state) => ({
-    chatId: state.chatId,
-    setChatId: state.setChatId,
+  const { chat, setChat } = useChatStore((state) => ({
+    chat: state.chat,
+    setChat: state.setChat,
   }));
 
   // Setup mutation for deleting chat
@@ -52,8 +52,8 @@ export const DeleteChatButton = (props: DeleteChatButtonProps) => {
     onSuccess: () => {
       setIsOpen(false);
       // Handle navigation and state updates
-      if (chatId === props.chat.id) {
-        setChatId(null);
+      if (chat?.id === props.chat.id) {
+        setChat(null);
         if (location.pathname.startsWith('/chat')) {
           navigate({ to: '/chat' });
         }

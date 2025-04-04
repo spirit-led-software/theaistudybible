@@ -2,7 +2,7 @@ import appCss from '@/www/styles/globals.css?url';
 import type { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import type { ReactNode } from 'react';
 import { NotificationPromptDialog } from '../components/notification-prompt-dialog';
 import { Toaster } from '../components/ui/sonner';
@@ -16,7 +16,7 @@ import { getSubscription } from '../server/functions/pro';
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   beforeLoad: async () => {
     const [{ auth }, { subscription, type }] = await Promise.all([getAuth(), getSubscription()]);
-    return { auth, subscription, subscriptionType: type };
+    return { ...auth, subscription, subscriptionType: type };
   },
   head: () => {
     return {

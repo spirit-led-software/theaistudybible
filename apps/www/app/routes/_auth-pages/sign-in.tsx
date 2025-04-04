@@ -1,12 +1,12 @@
-import { SignUp } from '@/www/components/auth/sign-up';
+import { SignIn } from '@/www/components/auth/sign-in';
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 
-export const Route = createFileRoute('/_auth/sign-up')({
+export const Route = createFileRoute('/_auth-pages/sign-in')({
   head: () => {
-    const title = 'Sign Up | The AI Study Bible';
+    const title = 'Sign In | The AI Study Bible';
     const description =
-      'Create your free account on The AI Study Bible - Discover AI-powered Bible study tools, personalized insights, and a revolutionary way to explore Scripture. Join our community today!';
+      'Sign in to access your personalized Bible study experience with AI-powered insights, verse explanations, notes, and study tools. The AI Study Bible helps you understand Scripture deeper through intelligent assistance.';
     return {
       meta: [
         { title },
@@ -27,5 +27,6 @@ export const Route = createFileRoute('/_auth/sign-up')({
 
 function RouteComponent() {
   const search = Route.useSearch();
-  return <SignUp redirectUrl={search.redirectUrl} />;
+
+  return <SignIn redirectUrl={search.redirectUrl} />;
 }

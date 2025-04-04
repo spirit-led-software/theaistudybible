@@ -4,20 +4,11 @@ import type { Content } from '@/schemas/bibles/contents';
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import type React from 'react';
-import {
-  type ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import { type ReactNode, createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useShallow } from 'zustand/react/shallow';
 import { type StoreApi, createStore } from 'zustand/vanilla';
-import { useBibleStore } from './bible';
 
 export type SelectedVerseInfo = {
   number: number;
@@ -104,9 +95,7 @@ const calculateSelectedText = (selectedVerseInfos: SelectedVerseInfo[]): string 
 };
 
 export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
-  const navigate = useNavigate();
   const searchParams = useSearch({ strict: false });
-
   const getVerseInfosFromVerseSearchParams = useCallback(() => {
     const verseNumbers = searchParams.verseNumbers;
     if (!verseNumbers) return [];
@@ -237,69 +226,37 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     );
   }
 
-  // Memoize the Bible store selectors
-  const bible = useBibleStore(useMemo(() => (state) => state.bible, []));
-  const book = useBibleStore(useMemo(() => (state) => state.book, []));
-  const chapter = useBibleStore(useMemo(() => (state) => state.chapter, []));
-  const verse = useBibleStore(useMemo(() => (state) => state.verse, []));
-
-  // Update state only when dependencies change
   useEffect(() => {
-    if (bible) {
-      storeRef.current?.setState((state) => ({
-        ...state,
-        bible,
-      }));
+    if (storeRef.current) {
+      const store = storeRef.current;
+      store.setState({
+        bible: props.bible,
+        book: props.book,
+        chapter: props.chapter,
+        verse: props.verse ?? null,
+        selectedVerseInfos: props.selectedVerseInfos ?? [],
+      });
     }
-  }, [bible]);
+  }, [props.bible, props.book, props.chapter, props.verse, props.selectedVerseInfos]);
 
-  useEffect(() => {
-    if (book) {
-      storeRef.current?.setState((state) => ({
-        ...state,
-        book,
-      }));
-    }
-  }, [book]);
-
-  useEffect(() => {
-    if (chapter) {
-      storeRef.current?.setState((state) => ({
-        ...state,
-        chapter,
-      }));
-    }
-  }, [chapter]);
-
-  useEffect(() => {
-    if (verse) {
-      storeRef.current?.setState((state) => ({
-        ...state,
-        verse,
-      }));
-    }
-  }, [verse]);
-
-  // Memoize the subscribe callback
+  const navigate = useNavigate();
   const navigateToVerses = useCallback(
     (state: BibleReaderStore) => {
       const verseNumbers = Array.from(new Set(state.selectedVerseInfos.map((info) => info.number)));
       navigate({
         from: '/bible/$bibleAbbreviation/$bookCode/$chapterNumber',
         replace: true,
-        search: { verseNumbers: verseNumbers },
+        search: { verseNumbers: verseNumbers.length ? verseNumbers : undefined },
       });
     },
     [navigate],
   );
 
   useEffect(() => {
-    // Subscribe to changes in selectedVerseInfos
-    const unsubscribe = storeRef.current!.subscribe(navigateToVerses);
-    return () => unsubscribe();
+    const unsubscribe = storeRef.current?.subscribe(navigateToVerses);
+    return () => unsubscribe?.();
   }, [navigateToVerses]);
 
-  // Memoize provider value
   return (
     <BibleReaderContext.Provider value={storeRef.current}>
       {props.children}

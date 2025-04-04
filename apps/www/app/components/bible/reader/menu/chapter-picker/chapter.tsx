@@ -108,7 +108,12 @@ export function ChapterPicker(props: ChapterPickerProps) {
                     className='flex place-items-center justify-center overflow-visible'
                   >
                     <Link
-                      to={`/bible/${brStore.bible.abbreviation}/${book.code}/${foundChapter.number}`}
+                      to='/bible/$bibleAbbreviation/$bookCode/$chapterNumber'
+                      params={{
+                        bibleAbbreviation: brStore.bible.abbreviation,
+                        bookCode: book.code,
+                        chapterNumber: foundChapter.number,
+                      }}
                     >
                       <Check
                         size={10}

@@ -82,9 +82,9 @@ export const getChatsQueryOptions = (searchQuery?: string) => ({
 export const ChatSidebar = () => {
   const navigate = useNavigate();
 
-  const { chat: storeChat, setChatId } = useChatStore((s) => ({
+  const { chat: storeChat, setChat } = useChatStore((s) => ({
     chat: s.chat,
-    setChatId: s.setChatId,
+    setChat: s.setChat,
   }));
   const { isMobile, toggleSidebar } = useSidebar();
 
@@ -111,7 +111,7 @@ export const ChatSidebar = () => {
                 size='icon'
                 variant='ghost'
                 onClick={() => {
-                  setChatId(null);
+                  setChat(null);
                   if (!isChatPage || isMobile) {
                     toggleSidebar();
                   }
@@ -171,7 +171,7 @@ export const ChatSidebar = () => {
                     >
                       <SidebarMenuButton
                         onClick={() => {
-                          setChatId(chat.id);
+                          setChat(chat);
                           if (isChatPage) {
                             navigate({ to: `/chat/${chat.id}` });
                           }

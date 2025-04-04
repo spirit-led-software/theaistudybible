@@ -46,7 +46,11 @@ export const Route = createFileRoute('/_with-header/pro')({
     success: z.boolean().optional(),
     canceled: z.boolean().optional(),
   }),
-  beforeLoad: ({ context }) => {
+  beforeLoad: ({ context, location }) => {
+    if (!context.user) {
+      throw redirect({ to: '/sign-in', search: { redirectUrl: location.href } });
+    }
+
     if (context.subscriptionType !== 'free') {
       throw redirect({ to: '/profile' });
     }

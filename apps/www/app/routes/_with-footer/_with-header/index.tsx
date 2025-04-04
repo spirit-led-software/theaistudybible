@@ -17,7 +17,7 @@ import {
 
 export const Route = createFileRoute('/_with-footer/_with-header/')({
   beforeLoad: ({ context }) => {
-    if (context.auth.user) {
+    if (context.user) {
       return redirect({ to: '/bible' });
     }
   },

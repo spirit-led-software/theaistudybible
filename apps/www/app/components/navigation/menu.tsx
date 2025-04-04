@@ -5,6 +5,7 @@ import {
   Bookmark,
   CreditCard,
   CreditCardIcon,
+  Download,
   FileText,
   HelpCircle,
   Highlighter,
@@ -38,9 +39,12 @@ export const Menu = (props: MenuProps) => {
         <NavigationMenuItem>
           <NavigationMenuLink
             asChild
-            className='bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground focus:bg-primary/80 focus:text-primary-foreground'
+            className='flex flex-row items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground focus:bg-primary/80 focus:text-primary-foreground'
           >
-            <Link to='/about/install'>Install</Link>
+            <Link to='/about/install'>
+              <Download className='text-primary-foreground' />
+              Install
+            </Link>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
@@ -215,12 +219,10 @@ export const Menu = (props: MenuProps) => {
         </NavigationMenuItem>
         {isAdmin && (
           <NavigationMenuItem>
-            <NavigationMenuLink asChild className='bg-transparent'>
+            <NavigationMenuLink asChild className='flex flex-row items-center gap-2 bg-transparent'>
               <Link to='/admin'>
-                <H6 className='flex items-center gap-2'>
-                  <Shield />
-                  Admin
-                </H6>
+                <Shield />
+                Admin
               </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>

@@ -1,5 +1,5 @@
 import type { Bible, Book, Chapter, Verse } from '@/schemas/bibles/types';
-import { type ReactNode, createContext, useContext, useRef } from 'react';
+import { type ReactNode, createContext, useContext, useEffect, useRef } from 'react';
 import type { StoreApi } from 'zustand';
 import { useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -85,6 +85,17 @@ export const BibleProvider = ({ bible, book, chapter, verse, children }: BiblePr
       ),
     );
   }
+
+  useEffect(() => {
+    if (storeRef.current) {
+      storeRef.current.setState({
+        bible: bible ?? null,
+        book: book ?? null,
+        chapter: chapter ?? null,
+        verse: verse ?? null,
+      });
+    }
+  }, [bible, book, chapter, verse]);
 
   return <BibleContext.Provider value={storeRef.current}>{children}</BibleContext.Provider>;
 };

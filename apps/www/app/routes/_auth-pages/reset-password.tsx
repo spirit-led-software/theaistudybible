@@ -3,7 +3,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useNavigate } from '@tanstack/react-router';
 import { z } from 'zod';
 
-export const Route = createFileRoute('/_auth/reset-password')({
+export const Route = createFileRoute('/_auth-pages/reset-password')({
   head: () => {
     const title = 'Reset Password';
     const description =

@@ -83,7 +83,7 @@ export const SubscriptionButton = (props: SubscriptionButtonProps) => {
     },
   });
 
-  if (isActive && subscription.currentPeriodEnd) {
+  if (isActive && subscription.cancelAtPeriodEnd) {
     <Button onClick={() => handleRenew.mutate()} {...props}>
       Renew
     </Button>;

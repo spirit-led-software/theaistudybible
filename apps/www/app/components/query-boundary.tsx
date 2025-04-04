@@ -24,8 +24,17 @@ export interface QueryBoundaryProps<T = unknown> {
 
   /**
    * Triggered when fetching is complete, and the returned data is not falsey.
+   *
+   * The `children` prop is preferred over this prop.
    */
-  render: (data: Exclude<T, null | false | undefined>) => React.ReactNode;
+  render?: (data: Exclude<T, null | false | undefined>) => React.ReactNode;
+
+  /**
+   * Triggered when fetching is complete, and the returned data is not falsey.
+   *
+   * This is preferred over the `render` prop.
+   */
+  children?: (data: Exclude<T, null | false | undefined>) => React.ReactNode;
 }
 
 /**
@@ -72,5 +81,13 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
     );
   }
 
-  return props.render(props.query.data as Exclude<T, null | false | undefined>);
+  if (props.children) {
+    return props.children(props.query.data as Exclude<T, null | false | undefined>);
+  }
+
+  if (props.render) {
+    return props.render(props.query.data as Exclude<T, null | false | undefined>);
+  }
+
+  return null;
 }

@@ -14,15 +14,21 @@ import { ChatMessageList } from './message-list';
 import { ChatSidebar } from './sidebar';
 
 export type ChatWindowProps = {
+  id?: string;
   additionalContext?: string;
 };
 
 export const ChatWindow = (props: ChatWindowProps) => {
-  const chatStore = useChatStore();
-  const bibleStore = useBibleStore();
+  const chatStore = useChatStore((s) => ({
+    chat: s.chat,
+    modelId: s.modelId,
+    setChat: s.setChat,
+  }));
+  const bibleStore = useBibleStore((s) => ({
+    bible: s.bible,
+  }));
 
   const {
-    id,
     input,
     handleInputChange,
     handleSubmit,
@@ -37,7 +43,7 @@ export const ChatWindow = (props: ChatWindowProps) => {
     remainingMessagesQuery,
     chatSuggestionsResult,
   } = useChat({
-    id: chatStore.chatId ?? undefined,
+    id: props.id,
     body: {
       additionalContext: props.additionalContext,
       modelId: chatStore.modelId,
@@ -55,10 +61,6 @@ export const ChatWindow = (props: ChatWindowProps) => {
   useEffect(() => {
     setIsSidebarOpen(!isMobile && isChatPage);
   }, [isMobile, isChatPage]);
-
-  useEffect(() => {
-    chatStore.setChatId(id ?? null);
-  }, [id, chatStore.setChatId]);
 
   useEffect(() => {
     if (chatQuery.status === 'success') {
