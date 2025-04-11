@@ -15,6 +15,8 @@ import { BibleProvider } from '../contexts/bible';
 import { ChatProvider } from '../contexts/chat';
 import { DevotionProvider } from '../contexts/devotion';
 import { ServiceWorkerProvider } from '../contexts/service-worker';
+import { ThemeProvider, useTheme } from '../contexts/theme';
+import { cn } from '../lib/utils';
 import { getAuth } from '../server/functions/auth';
 import { getSubscription } from '../server/functions/pro';
 
@@ -50,15 +52,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
+    <ThemeProvider defaultTheme='system' storageKey='asb-theme'>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    </ThemeProvider>
   );
 }
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+  const { resolvedTheme } = useTheme();
   return (
-    <html suppressHydrationWarning>
+    <html suppressHydrationWarning className={cn(resolvedTheme)}>
       <head>
         <HeadContent />
       </head>

@@ -1,4 +1,3 @@
-import { getChatsQueryOptions } from '@/www/components/chat/sidebar';
 import { ChatWindow } from '@/www/components/chat/window';
 import { getChatMessagesQueryProps, getChatQueryProps } from '@/www/hooks/use-chat';
 import { createFileRoute } from '@tanstack/react-router';
@@ -14,7 +13,6 @@ export const Route = createFileRoute('/_with-sidebar/chat_/$id')({
   beforeLoad: ({ params, context }) => {
     const qc = context.queryClient;
     Promise.all([
-      qc.prefetchInfiniteQuery(getChatsQueryOptions()),
       qc.prefetchQuery(getChatQueryProps(params.id)),
       qc.prefetchInfiniteQuery(getChatMessagesQueryProps(params.id)),
     ]);

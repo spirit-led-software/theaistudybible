@@ -229,13 +229,14 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
   useEffect(() => {
     if (storeRef.current) {
       const store = storeRef.current;
-      store.setState({
+      store.setState((s) => ({
+        ...s,
         bible: props.bible,
         book: props.book,
         chapter: props.chapter,
         verse: props.verse ?? null,
         selectedVerseInfos: props.selectedVerseInfos ?? [],
-      });
+      }));
     }
   }, [props.bible, props.book, props.chapter, props.verse, props.selectedVerseInfos]);
 

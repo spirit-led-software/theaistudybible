@@ -62,10 +62,11 @@ export const ChatProvider = ({ chat, modelId, children }: ChatProviderProps) => 
 
   useEffect(() => {
     if (storeRef.current) {
-      storeRef.current.setState({
-        chat: chat ?? null,
-        modelId: modelId ?? null,
-      });
+      storeRef.current.setState((s) => ({
+        ...s,
+        chat: chat ?? s.chat,
+        modelId: modelId ?? s.modelId,
+      }));
     }
   }, [chat, modelId]);
 

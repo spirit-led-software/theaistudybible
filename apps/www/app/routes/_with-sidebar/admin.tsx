@@ -13,6 +13,10 @@ export const Route = createFileRoute('/_with-sidebar/admin')({
     if (!context.roles?.some((role) => role.id === 'admin')) {
       throw redirect({ to: '/' });
     }
+
+    if (location.pathname === '/admin') {
+      throw redirect({ to: '/admin/devotion' });
+    }
   },
   component: RouteComponent,
 });

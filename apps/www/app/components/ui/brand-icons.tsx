@@ -1,3 +1,4 @@
+import { useTheme } from '@/www/contexts/theme';
 import type { ComponentProps } from 'react';
 
 export const Chrome = (props: ComponentProps<'svg'>) => {
@@ -178,9 +179,10 @@ export const Google = ({ monochrome, ...props }: GoogleProps) => {
 };
 
 export const Apple = (props: ComponentProps<'svg'>) => {
+  const { resolvedTheme } = useTheme();
   return (
     <svg
-      fill={'#000000'}
+      fill={resolvedTheme === 'dark' ? '#FFFFFF' : '#000000'}
       height='200px'
       width='200px'
       version='1.1'

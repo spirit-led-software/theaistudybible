@@ -1,4 +1,5 @@
 import { lucia } from '@/core/auth';
+import { type Theme, useTheme } from '@/www/contexts/theme';
 import { useAuth } from '@/www/hooks/use-auth';
 import { useBeforeLeave } from '@/www/hooks/use-before-leave';
 import { cn } from '@/www/lib/utils';
@@ -6,7 +7,7 @@ import { requireAuthMiddleware } from '@/www/server/middleware/auth';
 import { useMutation } from '@tanstack/react-query';
 import { Link, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/react-start';
-import { Bookmark, Highlighter, LogOut, User } from 'lucide-react';
+import { Bookmark, Highlighter, Laptop, LogOut, Moon, Sun, User } from 'lucide-react';
 import { type ComponentProps, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
@@ -16,7 +17,13 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { UserAvatar } from './user-avatar';
@@ -35,6 +42,7 @@ export type UserButtonProps = ComponentProps<typeof Button> & {
 
 export const UserButton = ({ children, className, showName, ...props }: UserButtonProps) => {
   const { isLoaded, isSignedIn, user, refetch } = useAuth();
+  const { theme, setTheme } = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -109,13 +117,13 @@ export const UserButton = ({ children, className, showName, ...props }: UserButt
 
               <DropdownMenuSeparator />
 
-              {/* <DropdownMenuSub>
+              <DropdownMenuSub>
                 <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
                     <DropdownMenuRadioGroup
-                      value={colorMode()}
-                      onChange={(value) => setColorMode(value as ConfigColorMode)}
+                      value={theme}
+                      onValueChange={(value) => setTheme(value as Theme)}
                     >
                       <DropdownMenuRadioItem value='light' className='flex items-center gap-2'>
                         <Sun size={18} /> Light
@@ -129,7 +137,7 @@ export const UserButton = ({ children, className, showName, ...props }: UserButt
                     </DropdownMenuRadioGroup>
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
-              </DropdownMenuSub> */}
+              </DropdownMenuSub>
 
               <DropdownMenuSeparator />
 

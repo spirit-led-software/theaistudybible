@@ -42,9 +42,10 @@ export const DevotionProvider = ({ devotion, children }: DevotionProviderProps) 
 
   useEffect(() => {
     if (storeRef.current) {
-      storeRef.current.setState({
-        devotion: devotion ?? null,
-      });
+      storeRef.current.setState((s) => ({
+        ...s,
+        devotion: devotion ?? s.devotion,
+      }));
     }
   }, [devotion]);
 

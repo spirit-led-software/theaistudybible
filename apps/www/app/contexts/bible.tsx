@@ -88,12 +88,13 @@ export const BibleProvider = ({ bible, book, chapter, verse, children }: BiblePr
 
   useEffect(() => {
     if (storeRef.current) {
-      storeRef.current.setState({
-        bible: bible ?? null,
-        book: book ?? null,
-        chapter: chapter ?? null,
-        verse: verse ?? null,
-      });
+      storeRef.current.setState((s) => ({
+        ...s,
+        bible: bible ?? s.bible,
+        book: book ?? s.book,
+        chapter: chapter ?? s.chapter,
+        verse: verse ?? s.verse,
+      }));
     }
   }, [bible, book, chapter, verse]);
 
