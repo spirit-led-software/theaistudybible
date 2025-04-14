@@ -42,8 +42,8 @@ export async function syncStripeData(customerId?: string | null): Promise<Subscr
     status: subscription.status,
     productId,
     priceId: subscription.items.data[0].price.id,
-    currentPeriodEnd: subscription.current_period_end,
-    currentPeriodStart: subscription.current_period_start,
+    currentPeriodEnd: subscription.items.data[0].current_period_end,
+    currentPeriodStart: subscription.items.data[0].current_period_start,
     cancelAtPeriodEnd: subscription.cancel_at_period_end,
     paymentMethod:
       subscription.default_payment_method && typeof subscription.default_payment_method !== 'string'

@@ -249,9 +249,7 @@ export const chats = sqliteTable(
   'chats',
   {
     ...baseModel,
-    userId: text('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
     name: text('name').notNull().default('New Chat'),
     customName: integer('custom_name', { mode: 'boolean' }).notNull().default(false),
   },
@@ -293,12 +291,10 @@ export const messages = sqliteTable(
     chatId: text('chat_id')
       .notNull()
       .references(() => chats.id, { onDelete: 'cascade' }),
-    userId: text('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
     originMessageId: text('origin_message_id').references((): AnySQLiteColumn => messages.id, {
       onDelete: 'cascade',
     }),
+    userId: text('user_id').notNull(),
 
     // Fields required by the ai sdk
     content: text('content').notNull().default(''),
@@ -1163,7 +1159,7 @@ export const chapterBookmarksRelations = relations(chapterBookmarks, ({ one }) =
 export const chapterNotes = sqliteTable(
   'chapter_notes',
   {
-    ...baseModelNoId,
+    ...baseModel,
     bibleAbbreviation: text('bible_abbreviation')
       .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
@@ -1174,7 +1170,6 @@ export const chapterNotes = sqliteTable(
     content: text('content').notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.bibleAbbreviation, table.chapterCode, table.userId] }),
     foreignKey({
       columns: [table.bibleAbbreviation, table.chapterCode],
       foreignColumns: [chapters.bibleAbbreviation, chapters.code],
@@ -1361,7 +1356,7 @@ export const verseHighlightsRelations = relations(verseHighlights, ({ one }) => 
 export const verseNotes = sqliteTable(
   'verse_notes',
   {
-    ...baseModelNoId,
+    ...baseModel,
     bibleAbbreviation: text('bible_abbreviation')
       .references(() => bibles.abbreviation, { onDelete: 'cascade' })
       .notNull(),
@@ -1372,7 +1367,6 @@ export const verseNotes = sqliteTable(
     content: text('content').notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.bibleAbbreviation, table.verseCode, table.userId] }),
     foreignKey({
       columns: [table.bibleAbbreviation, table.verseCode],
       foreignColumns: [verses.bibleAbbreviation, verses.code],

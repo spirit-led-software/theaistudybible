@@ -3,7 +3,7 @@
     "**/.sst": true
   },
   "files.associations": {
-    "**/www/src/**/*.css": "tailwindcss"
+    "**/www/**/*.css": "tailwindcss"
   },
   "cSpell.words": [
     "autocorrect",

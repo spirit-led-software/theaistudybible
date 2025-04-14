@@ -8,17 +8,17 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@sentry/aws-serverless": "^9.9.0",
-    "@sentry/esbuild-plugin": "^3.2.3",
+    "@sentry/aws-serverless": "^9.12.0",
+    "@sentry/esbuild-plugin": "^3.3.1",
     "@theaistudybible/tsconfig": "workspace:*",
-    "posthog-node": "^4.10.2"
+    "posthog-node": "^4.11.3"
   },
   "dependencies": {
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
-    "hono": "^4.7.5",
+    "hono": "^4.7.6",
     "pdf-parse": "^1.1.1",
-    "svix": "^1.62.0"
+    "svix": "^1.64.0"
   }
 }

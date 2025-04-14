@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@config '../../tailwind.config.ts';
+
+@layer base {
+  :root {
+    --background: 237 39% 100%;
+    --foreground: 237 64% 3%;
+    --muted: 207 8% 87%;
+    --muted-foreground: 207 14% 38%;
+    --popover: 0 0% 99%;
+    --popover-foreground: 237 64% 2%;
+    --card: 0 0% 99%;
+    --card-foreground: 237 64% 2%;
+    --border: 237 10% 94%;
+    --input: 237 10% 94%;
+    --primary: 237 86% 8%;
+    --primary-foreground: 237 0% 100%;
+    --secondary: 207 86% 8%;
+    --secondary-foreground: 182.24 89.33% 70.59%;
+    --accent: 220, 13%, 91%;
+    --accent-foreground: 305.12 79.61% 59.61%;
+    --destructive: 360 100% 57.79%;
+    --destructive-foreground: 0 0% 100%;
+    --error: 360 100% 57.79%;
+    --error-foreground: 0 0% 100%;
+    --ring: 237 86% 8%;
+    --radius: 0.7rem;
+    --sidebar-background: 237 39% 100%;
+    --sidebar-foreground: 237 64% 3%;
+    --sidebar-primary: 237 86% 8%;
+    --sidebar-primary-foreground: 237 0% 100%;
+    --sidebar-accent: 220, 13%, 91%;
+    --sidebar-accent-foreground: 305.12 79.61% 59.61%;
+    --sidebar-border: 237 10% 94%;
+    --sidebar-ring: 237 86% 8%;
+  }
+
+  .dark {
+    --background: 237 34% 0%;
+    --foreground: 237 28% 99%;
+    --muted: 207 8% 13%;
+    --muted-foreground: 207 14% 62%;
+    --popover: 0 0% 1%;
+    --popover-foreground: 0 0% 100%;
+    --card: 0 0% 1%;
+    --card-foreground: 0 0% 100%;
+    --border: 237 10% 10%;
+    --input: 237 10% 10%;
+    --primary: 237 23.41% 12.47%;
+    --primary-foreground: 237 100% 95.94%;
+    --secondary: 207 86% 8%;
+    --secondary-foreground: 182.24 89.33% 70.59%;
+    --accent: 267 86% 8%;
+    --accent-foreground: 305.12 79.61% 59.61%;
+    --destructive: 356.6 100% 68.31%;
+    --destructive-foreground: 0 0% 0%;
+    --error: 360 100% 57.79%;
+    --error-foreground: 0 0% 100%;
+    --ring: 237 86% 8%;
+    --radius: 0.5rem;
+    --sidebar-background: 237 34% 0%;
+    --sidebar-foreground: 237 28% 99%;
+    --sidebar-primary: 237 23.41% 12.47%;
+    --sidebar-primary-foreground: 237 100% 95.94%;
+    --sidebar-accent: 267 86% 8%;
+    --sidebar-accent-foreground: 305.12 79.61% 59.61%;
+    --sidebar-border: 237 10% 10%;
+    --sidebar-ring: 237 86% 8%;
+  }
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: Inter, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: Goldman, system-ui;
+  }
+}
+
+/* Scrollbar */
+@layer base {
+  /* Base scrollbar style */
+  ::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 4px;
+    transition: background-color 0.1s ease;
+  }
+
+  /* Show scrollbar on hover/scroll */
+  :hover::-webkit-scrollbar-thumb,
+  :focus::-webkit-scrollbar-thumb,
+  :active::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--foreground) / 0.2);
+  }
+
+  /* For Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.1s ease;
+  }
+
+  *:hover,
+  *:focus,
+  *:active {
+    scrollbar-color: hsl(var(--foreground) / 0.2) transparent;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding-left: calc(var(--spacing) * 4);
+    padding-right: calc(var(--spacing) * 4);
+  }
+}
