@@ -25,11 +25,7 @@ const doNotCacheHeaders = {
 };
 
 export default defineConfig({
-  react: {
-    babel: {
-      plugins: ['babel-plugin-react-compiler'],
-    },
-  },
+  react: { babel: { plugins: ['babel-plugin-react-compiler'] } },
   server: {
     preset: 'node-server',
     compatibilityDate: '2025-03-06',
@@ -50,7 +46,6 @@ export default defineConfig({
       '/maskable-icon-512x512.png': { headers: defaultCacheControlHeaders },
       '/robots.txt': { headers: doNotCacheHeaders },
     },
-    esbuild: { options: { target: 'esnext' } },
     alias: {
       '@/www': path.resolve(__dirname, './app'),
       '@/schemas': path.resolve(__dirname, '../../packages/schemas/src'),
@@ -66,7 +61,6 @@ export default defineConfig({
     },
   },
   vite: {
-    build: { target: 'esnext' },
     envPrefix: 'PUBLIC_',
     plugins: [
       tsconfigPaths(),

@@ -63,7 +63,6 @@ const getHighlights = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data: { limit, offset, search }, context }) => {
-    'use server';
     const { user } = context;
     if (!user) {
       return { highlights: [], nextCursor: null };
@@ -142,7 +141,6 @@ const deleteHighlight = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data: { bibleAbbreviation, verseCode }, context }) => {
-    'use server';
     const { user } = context;
     if (!user) {
       throw new Error('Not authenticated');

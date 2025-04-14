@@ -26,7 +26,6 @@ const getVerseReaderData = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
-    'use server';
     const bibleData = await db.query.bibles.findFirst({
       where: (bibles, { and, eq }) =>
         and(eq(bibles.abbreviation, data.bibleAbbreviation), eq(bibles.readyForPublication, true)),

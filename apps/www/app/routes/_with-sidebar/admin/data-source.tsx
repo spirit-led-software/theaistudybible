@@ -95,7 +95,6 @@ const createDataSource = createServerFn({ method: 'POST' })
   .middleware([requireAdminMiddleware])
   .validator(CreateDataSourceFormSchema.omit({ file: true }))
   .handler(async ({ data }) => {
-    'use server';
     const [dataSource] = await db.insert(dataSources).values(data).returning();
     return { dataSource };
   });
@@ -110,7 +109,6 @@ const getPresignedUrl = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data }) => {
-    'use server';
     const { name, contentType, metadata } = data;
     const command = new PutObjectCommand({
       Bucket: Resource.DataSourceFilesBucket.name,

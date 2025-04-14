@@ -59,7 +59,6 @@ export const Route = createFileRoute('/_with-header/pro')({
 });
 
 const getProducts = createServerFn({ method: 'GET' }).handler(() => {
-  'use server';
   return {
     products: [
       {
@@ -78,7 +77,6 @@ const createCheckoutSession = createServerFn({ method: 'POST' })
   .middleware([requireAuthMiddleware])
   .validator(z.object({ priceId: z.string() }))
   .handler(async ({ data, context }) => {
-    'use server';
     let { user } = context;
     if (!user.stripeCustomerId) {
       const customer = await stripe.customers.create({
@@ -109,7 +107,6 @@ const createCheckoutSession = createServerFn({ method: 'POST' })
 const syncSubscription = createServerFn({ method: 'POST' })
   .middleware([requireAuthMiddleware])
   .handler(async ({ context }) => {
-    'use server';
     const { user } = context;
     if (!user.stripeCustomerId) {
       throw new Error('User does not have a Stripe customer ID');

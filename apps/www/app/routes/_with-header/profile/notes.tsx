@@ -46,7 +46,6 @@ const getNotes = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data: { limit, offset, search }, context }) => {
-    'use server';
     const { user } = context;
     if (!user) {
       return { notes: [], nextCursor: null };

@@ -24,7 +24,6 @@ const triggerPushNotification = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    'use server';
     webPush.setVapidDetails(
       'mailto:support@theaistudybible.com',
       Resource.VapidPublicKey.value,

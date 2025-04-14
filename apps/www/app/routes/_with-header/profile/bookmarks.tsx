@@ -62,7 +62,6 @@ const getBookmarks = createServerFn({ method: 'GET' })
     }),
   )
   .handler(async ({ data: { limit, offset, search }, context }) => {
-    'use server';
     const { user } = context;
     if (!user) {
       return { bookmarks: [], nextCursor: null };
@@ -128,7 +127,6 @@ const deleteBookmark = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data: { bibleAbbreviation, code }, context }) => {
-    'use server';
     const { user } = context;
     await db
       .delete(chapterBookmarks)

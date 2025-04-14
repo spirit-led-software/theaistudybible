@@ -31,7 +31,6 @@ export const Route = createFileRoute('/_with-footer/_with-header/devotion/$id')(
 const getDevotion = createServerFn({ method: 'GET' })
   .validator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
-    'use server';
     const devotion = await db.query.devotions.findFirst({
       where: (devotions, { eq }) => eq(devotions.id, id),
       with: { images: true },
