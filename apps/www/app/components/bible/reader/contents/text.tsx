@@ -3,7 +3,7 @@ import { useBibleReaderStore } from '@/www/contexts/bible-reader';
 import { cn } from '@/www/lib/utils';
 import type { HighlightInfo } from '@/www/types/bible';
 import { gatherElementIdsByVerseNumber, hexToRgb } from '@/www/utils';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 export type TextContentProps = {
   content: TextContentType;
@@ -25,7 +25,7 @@ export function TextContent({ content, style, props, highlights, className }: Te
     [brStore.selectedVerseInfos, content.id],
   );
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (content.verseNumber === undefined) {
       return;
     }
@@ -54,12 +54,11 @@ export function TextContent({ content, style, props, highlights, className }: Te
         },
       ];
     });
-  };
+  }, [brStore, content.verseNumber]);
 
   const bgColor = useMemo(() => {
-    const hlColor = highlightColor;
-    if (hlColor) {
-      const rgb = hexToRgb(hlColor);
+    if (highlightColor) {
+      const rgb = hexToRgb(highlightColor);
       if (rgb) {
         return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.50)`;
       }

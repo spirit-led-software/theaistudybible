@@ -53,6 +53,8 @@ export function QueryBoundary<T>(props: QueryBoundaryProps<T>) {
   }
 
   if (props.query.isError) {
+    console.error(props.query.error);
+
     return (
       props.errorFallback?.(props.query.error, props.query.refetch) || (
         <div className='flex h-full w-full items-center justify-center'>

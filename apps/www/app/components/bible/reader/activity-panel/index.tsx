@@ -177,7 +177,7 @@ export const ActivityPanelMenu = () => {
           <Notebook className='mr-3' />
           Notes
         </DropdownMenuItem>
-        {brStore.selectedIds.length ? (
+        {!brStore.selectedIds.length ? (
           canShare && (
             <DropdownMenuItem
               onSelect={() =>

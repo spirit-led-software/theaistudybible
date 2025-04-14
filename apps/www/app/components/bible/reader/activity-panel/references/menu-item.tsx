@@ -9,11 +9,7 @@ import { z } from 'zod';
 import { useActivityPanel } from '..';
 
 const getHasReferences = createServerFn({ method: 'GET' })
-  .validator(
-    z.object({
-      bibleAbbreviation: z.string(),
-    }),
-  )
+  .validator(z.object({ bibleAbbreviation: z.string() }))
   .handler(async ({ data: { bibleAbbreviation } }) => {
     const bibleData = await db.query.bibles.findFirst({
       columns: {},

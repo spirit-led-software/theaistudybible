@@ -3,7 +3,7 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createGroq } from '@ai-sdk/groq';
 import { createOpenAI } from '@ai-sdk/openai';
-import { experimental_createProviderRegistry as createProviderRegistry } from 'ai';
+import { createProviderRegistry } from 'ai';
 import { Resource } from 'sst';
 
 export const openai = createOpenAI({ apiKey: Resource.OpenAiApiKey.value });

@@ -240,12 +240,11 @@ export const BibleReaderProvider = (props: BibleReaderProviderProps) => {
     }
   }, [props.bible, props.book, props.chapter, props.verse, props.selectedVerseInfos]);
 
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: '/bible/$bibleAbbreviation/$bookCode/$chapterNumber' });
   const navigateToVerses = useCallback(
     (state: BibleReaderStore) => {
       const verseNumbers = Array.from(new Set(state.selectedVerseInfos.map((info) => info.number)));
       navigate({
-        from: '/bible/$bibleAbbreviation/$bookCode/$chapterNumber',
         replace: true,
         search: { verseNumbers: verseNumbers.length ? verseNumbers : undefined },
       });

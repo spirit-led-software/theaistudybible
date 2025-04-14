@@ -161,7 +161,7 @@ export const HighlightCard = () => {
         <CardContent>
           <ToggleGroup
             type='single'
-            className='grid grid-cols-4 grid-rows-2'
+            className='grid h-full w-full grid-cols-4 grid-rows-2'
             onValueChange={(value) => setTgValue(value)}
           >
             <ToggleGroupItem value='clear' className='flex justify-center sm:justify-start'>

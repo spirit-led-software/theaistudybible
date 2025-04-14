@@ -25,6 +25,11 @@ const doNotCacheHeaders = {
 };
 
 export default defineConfig({
+  react: {
+    babel: {
+      plugins: ['babel-plugin-react-compiler'],
+    },
+  },
   server: {
     preset: 'node-server',
     compatibilityDate: '2025-03-06',

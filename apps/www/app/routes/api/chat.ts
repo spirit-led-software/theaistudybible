@@ -208,7 +208,7 @@ export const APIRoute = createAPIFileRoute('/api/chat')({
             });
           },
           abortSignal: request.signal,
-          experimental_toolCallStreaming: true,
+          toolCallStreaming: true,
           experimental_transform: smoothStream(),
         });
 

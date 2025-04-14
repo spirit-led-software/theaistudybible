@@ -52,11 +52,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   return (
-    <ThemeProvider defaultTheme='system' storageKey='asb-theme'>
-      <RootDocument>
-        <Outlet />
-      </RootDocument>
-    </ThemeProvider>
+    <ServiceWorkerProvider>
+      <ThemeProvider defaultTheme='system' storageKey='asb-theme'>
+        <RootDocument>
+          <Outlet />
+        </RootDocument>
+      </ThemeProvider>
+    </ServiceWorkerProvider>
   );
 }
 
@@ -68,20 +70,21 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <HeadContent />
       </head>
       <body>
-        <ServiceWorkerProvider>
-          <BibleProvider>
-            <ChatProvider>
-              <DevotionProvider>
-                {children}
-                <Toaster />
-                <NotificationPromptDialog />
-              </DevotionProvider>
-            </ChatProvider>
-          </BibleProvider>
-        </ServiceWorkerProvider>
+        <BibleProvider>
+          <ChatProvider>
+            <DevotionProvider>
+              {children}
+              <Toaster />
+              <NotificationPromptDialog />
+            </DevotionProvider>
+          </ChatProvider>
+        </BibleProvider>
         <TanStackRouterDevtools position='bottom-right' />
         <ReactQueryDevtools buttonPosition='bottom-left' />
         <Scripts />
+        {import.meta.env.DEV && (
+          <script crossOrigin='anonymous' src='//unpkg.com/react-scan/dist/auto.global.js' />
+        )}
         {/* <PostHog /> */}
       </body>
     </html>

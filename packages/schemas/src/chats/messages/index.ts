@@ -94,12 +94,24 @@ export const SourcePartSchema = z.object({
   source: SourceSchema,
 });
 
+export const FilePartSchema = z.object({
+  type: z.literal('file'),
+  mimeType: z.string(),
+  data: z.string(),
+});
+
+export const StepStartPartSchema = z.object({
+  type: z.literal('step-start'),
+});
+
 export const MessagePartSchema: z.ZodType<NonNullable<Message['parts']>[number]> =
   z.discriminatedUnion('type', [
     TextPartSchema,
     ReasoningPartSchema,
     ToolInvocationPartSchema,
     SourcePartSchema,
+    FilePartSchema,
+    StepStartPartSchema,
   ]);
 
 const refine = {
