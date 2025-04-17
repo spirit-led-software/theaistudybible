@@ -52,24 +52,24 @@ ARG sentry_auth_token
 
 ARG donation_link
 
-ENV PUBLIC_STAGE ${stage}
-ENV PUBLIC_WEBAPP_URL ${webapp_url}
-ENV PUBLIC_CDN_URL ${cdn_url}
-ENV PUBLIC_STRIPE_PUBLISHABLE_KEY ${stripe_publishable_key}
+ENV PUBLIC_STAGE=${stage}
+ENV PUBLIC_WEBAPP_URL=${webapp_url}
+ENV PUBLIC_CDN_URL=${cdn_url}
+ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
 
-ENV PUBLIC_POSTHOG_UI_HOST ${posthog_ui_host}
-ENV PUBLIC_POSTHOG_API_HOST ${posthog_api_host}
-ENV PUBLIC_POSTHOG_API_KEY ${posthog_api_key}
+ENV PUBLIC_POSTHOG_UI_HOST=${posthog_ui_host}
+ENV PUBLIC_POSTHOG_API_HOST=${posthog_api_host}
+ENV PUBLIC_POSTHOG_API_KEY=${posthog_api_key}
 
-ENV PUBLIC_SENTRY_DSN ${sentry_dsn}
-ENV PUBLIC_SENTRY_ORG ${sentry_org}
-ENV PUBLIC_SENTRY_PROJECT_ID ${sentry_project_id}
-ENV PUBLIC_SENTRY_PROJECT_NAME ${sentry_project_name}
-ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
+ENV PUBLIC_SENTRY_DSN=${sentry_dsn}
+ENV PUBLIC_SENTRY_ORG=${sentry_org}
+ENV PUBLIC_SENTRY_PROJECT_ID=${sentry_project_id}
+ENV PUBLIC_SENTRY_PROJECT_NAME=${sentry_project_name}
+ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
 
-ENV PUBLIC_DONATION_LINK ${donation_link}
+ENV PUBLIC_DONATION_LINK=${donation_link}
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 WORKDIR /build
 
@@ -98,26 +98,43 @@ RUN pnpm run build
 ########################################################
 FROM base AS release
 
-ENV NODE_ENV production
-ENV HOSTNAME 0.0.0.0
-ENV PORT 8080
+ARG stage
+ARG webapp_url
+ARG cdn_url
+ARG stripe_publishable_key
 
-ENV PUBLIC_STAGE ${stage}
-ENV PUBLIC_WEBAPP_URL ${webapp_url}
-ENV PUBLIC_CDN_URL ${cdn_url}
-ENV PUBLIC_STRIPE_PUBLISHABLE_KEY ${stripe_publishable_key}
+ARG posthog_ui_host
+ARG posthog_api_host
+ARG posthog_api_key
 
-ENV PUBLIC_POSTHOG_UI_HOST ${posthog_ui_host}
-ENV PUBLIC_POSTHOG_API_HOST ${posthog_api_host}
-ENV PUBLIC_POSTHOG_API_KEY ${posthog_api_key}
+ARG sentry_dsn
+ARG sentry_org
+ARG sentry_project_id
+ARG sentry_project_name
+ARG sentry_auth_token
 
-ENV PUBLIC_SENTRY_DSN ${sentry_dsn}
-ENV PUBLIC_SENTRY_ORG ${sentry_org}
-ENV PUBLIC_SENTRY_PROJECT_ID ${sentry_project_id}
-ENV PUBLIC_SENTRY_PROJECT_NAME ${sentry_project_name}
-ENV SENTRY_AUTH_TOKEN ${sentry_auth_token}
+ARG donation_link
 
-ENV PUBLIC_DONATION_LINK ${donation_link}
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+ENV PORT=8080
+
+ENV PUBLIC_STAGE=${stage}
+ENV PUBLIC_WEBAPP_URL=${webapp_url}
+ENV PUBLIC_CDN_URL=${cdn_url}
+ENV PUBLIC_STRIPE_PUBLISHABLE_KEY=${stripe_publishable_key}
+
+ENV PUBLIC_POSTHOG_UI_HOST=${posthog_ui_host}
+ENV PUBLIC_POSTHOG_API_HOST=${posthog_api_host}
+ENV PUBLIC_POSTHOG_API_KEY=${posthog_api_key}
+
+ENV PUBLIC_SENTRY_DSN=${sentry_dsn}
+ENV PUBLIC_SENTRY_ORG=${sentry_org}
+ENV PUBLIC_SENTRY_PROJECT_ID=${sentry_project_id}
+ENV PUBLIC_SENTRY_PROJECT_NAME=${sentry_project_name}
+ENV SENTRY_AUTH_TOKEN=${sentry_auth_token}
+
+ENV PUBLIC_DONATION_LINK=${donation_link}
 
 WORKDIR /app
 
@@ -128,7 +145,7 @@ RUN apt-get -qq update && \
 COPY --from=build /build/apps/www/.output .
 
 WORKDIR /app/server
-ENTRYPOINT [ "node", "--import", "./instrument.server.mjs", "./index.mjs" ]
+ENTRYPOINT [ "node", "./index.mjs" ]
 EXPOSE ${PORT}
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
   CMD curl -f http://localhost:${PORT}/health || exit 1
