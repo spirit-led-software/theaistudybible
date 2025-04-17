@@ -56,11 +56,13 @@ export default defineConfig({
       '@/workers': path.resolve(__dirname, '../workers/src'),
       '@/scripts': path.resolve(__dirname, '../../tools/scripts/src'),
     },
+    esbuild: { options: { target: 'esnext' } },
     $production: {
       plugins: ['./app/server/plugins/compression.ts', './app/server/plugins/posthog.ts'],
     },
   },
   vite: {
+    build: { target: 'esnext' },
     envPrefix: 'PUBLIC_',
     plugins: [
       tsconfigPaths(),

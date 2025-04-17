@@ -1,5 +1,7 @@
+import { createServerFn } from '@tanstack/react-start';
 import { getCookie } from '@tanstack/react-start/server';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, use, useContext, useEffect, useState } from 'react';
+import { z } from 'zod';
 import { createCookie, readCookie } from '../utils/cookies';
 
 export type Theme = 'dark' | 'light' | 'system';
@@ -24,6 +26,10 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
+const getThemeCookie = createServerFn({ method: 'GET' })
+  .validator(z.string())
+  .handler(({ data: storageKey }) => getCookie(storageKey) as Theme);
+
 export function ThemeProvider({
   children,
   defaultTheme = 'system',
@@ -32,7 +38,7 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() =>
     typeof document === 'undefined'
-      ? ((getCookie(storageKey) as Theme) ?? defaultTheme)
+      ? (use(getThemeCookie({ data: storageKey })) ?? defaultTheme)
       : ((readCookie(storageKey) as Theme) ?? defaultTheme),
   );
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() =>
