@@ -11,7 +11,7 @@
     "@sentry/aws-serverless": "^9.13.0",
     "@sentry/esbuild-plugin": "^3.3.1",
     "@theaistudybible/tsconfig": "workspace:*",
-    "posthog-node": "^4.11.7"
+    "posthog-node": "^4.13.0"
   },
   "dependencies": {
     "@theaistudybible/ai": "workspace:*",
