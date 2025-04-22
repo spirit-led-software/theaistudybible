@@ -94,9 +94,7 @@ export const ChatInput = (props: ChatInputProps) => {
               onChange={props.handleInputChange}
               placeholder={props.isLoading ? 'Generating...' : 'Type a message'}
               className='flex max-h-24 min-h-fit w-full resize-none items-center justify-center border-none bg-transparent px-2 py-0 shadow-none outline-none placeholder:text-wrap focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0'
-              rows={1}
-              minLength={1}
-              maxLength={5}
+              maxRows={5}
               autoCapitalize='sentences'
               autoResize
               aria-label='Message input'

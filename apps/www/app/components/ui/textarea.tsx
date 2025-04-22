@@ -6,8 +6,16 @@ import { cn } from '@/www/lib/utils';
 function Textarea({
   className,
   autoResize,
+  maxRows = 5,
+  minRows = 1,
+  // Remove rows from being spread into textarea
+  rows: _rows,
   ...props
-}: React.ComponentProps<'textarea'> & { autoResize?: boolean }) {
+}: React.ComponentProps<'textarea'> & {
+  autoResize?: boolean;
+  maxRows?: number;
+  minRows?: number;
+}) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const adjustHeight = useCallback(() => {
@@ -16,9 +24,26 @@ function Textarea({
 
     // Reset height to auto to get the correct scrollHeight
     textarea.style.height = 'auto';
-    // Set the height to scrollHeight to fit the content
-    textarea.style.height = `${textarea.scrollHeight}px`;
-  }, []);
+
+    // Calculate heights based on rows and lineHeight
+    const computedStyle = window.getComputedStyle(textarea);
+    const lineHeight = Number.parseFloat(computedStyle.lineHeight || '20');
+    const paddingTop = Number.parseFloat(computedStyle.paddingTop || '0');
+    const paddingBottom = Number.parseFloat(computedStyle.paddingBottom || '0');
+    const padding = paddingTop + paddingBottom;
+
+    const minHeight = lineHeight * minRows + padding;
+    const maxHeight = lineHeight * maxRows + padding;
+
+    // Set the height between min and max based on content
+    const newHeight = Math.max(minHeight, Math.min(textarea.scrollHeight, maxHeight));
+    textarea.style.height = `${newHeight}px`;
+    textarea.style.minHeight = `${minHeight}px`;
+    textarea.style.maxHeight = `${maxHeight}px`;
+
+    // Show scrollbar only when content exceeds maxHeight
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  }, [maxRows, minRows]);
 
   useEffect(() => {
     if (!autoResize) return;
