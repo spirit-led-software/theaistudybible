@@ -7,7 +7,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250422.0",
+    "@cloudflare/workers-types": "^4.20250423.0",
     "@theaistudybible/tsconfig": "workspace:*"
   },
   "dependencies": {

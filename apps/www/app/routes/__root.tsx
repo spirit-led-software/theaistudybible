@@ -1,4 +1,5 @@
 import appCss from '@/www/styles/globals.css?url';
+import { wrapCreateRootRouteWithSentry } from '@sentry/tanstackstart-react';
 import type { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
@@ -20,7 +21,9 @@ import { cn } from '../lib/utils';
 import { getAuth } from '../server/functions/auth';
 import { getSubscription } from '../server/functions/pro';
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = wrapCreateRootRouteWithSentry(
+  createRootRouteWithContext<{ queryClient: QueryClient }>(),
+)({
   beforeLoad: async () => {
     const [{ auth }, { subscription, type }] = await Promise.all([getAuth(), getSubscription()]);
     return { ...auth, subscription, subscriptionType: type };
@@ -28,23 +31,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => {
     return {
       meta: [
-        {
-          charSet: 'utf-8',
-        },
-        {
-          name: 'viewport',
-          content: 'width=device-width, initial-scale=1',
-        },
-        {
-          title: 'The AI Study Bible',
-        },
+        { charSet: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { title: 'The AI Study Bible' },
       ],
-      links: [
-        {
-          rel: 'stylesheet',
-          href: appCss,
-        },
-      ],
+      links: [{ rel: 'stylesheet', href: appCss }],
     };
   },
   component: RootComponent,
@@ -64,6 +55,7 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const { resolvedTheme } = useTheme();
+
   return (
     <html suppressHydrationWarning className={cn(resolvedTheme)}>
       <head>

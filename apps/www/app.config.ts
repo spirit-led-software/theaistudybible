@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createId } from '@paralleldrive/cuid2';
+import { wrapVinxiConfigWithSentry } from '@sentry/tanstackstart-react';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from '@tanstack/react-start/config';
 import { analyzer } from 'vite-bundle-analyzer';
@@ -24,7 +25,7 @@ const doNotCacheHeaders = {
   'cache-control': 'public,max-age=0,s-maxage=0,must-revalidate',
 };
 
-export default defineConfig({
+const config = defineConfig({
   react: { babel: { plugins: ['babel-plugin-react-compiler'] } },
   server: {
     preset: 'node-server',
@@ -122,4 +123,11 @@ export default defineConfig({
     ],
     ssr: { external: ['posthog-js', '@stripe/stripe-js'] },
   },
+});
+
+export default wrapVinxiConfigWithSentry(config, {
+  org: process.env.PUBLIC_SENTRY_ORG,
+  project: process.env.PUBLIC_SENTRY_PROJECT_NAME,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
 });
