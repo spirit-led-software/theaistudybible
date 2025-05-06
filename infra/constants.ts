@@ -17,7 +17,17 @@ export const WEBHOOKS_URL = new Constant(
   $interpolate`https://webhooks.${DOMAIN.value}`,
 );
 
-export const CLOUDFLARE_ZONE_ID = cloudflare.getZoneOutput({ name: BASE_DOMAIN });
+const cloudflareZone = cloudflare.getZoneOutput({ name: BASE_DOMAIN });
+if (!cloudflareZone.zoneId) {
+  throw new Error(`Zone ID for ${BASE_DOMAIN} not found`);
+}
+
+export const CLOUDFLARE_ZONE_ID = cloudflareZone.zoneId.apply((zoneId) => {
+  if (!zoneId) {
+    throw new Error(`Zone ID for ${BASE_DOMAIN} not found`);
+  }
+  return zoneId;
+});
 
 export const STRIPE_PUBLISHABLE_KEY = new Constant(
   'StripePublishableKey',

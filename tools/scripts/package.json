@@ -17,7 +17,7 @@
     "@theaistudybible/ai": "workspace:*",
     "@theaistudybible/core": "workspace:*",
     "@theaistudybible/schemas": "workspace:*",
-    "fast-xml-parser": "^5.2.1",
+    "fast-xml-parser": "^5.2.2",
     "jsdom": "^26.1.0",
     "jszip": "^3.10.1",
     "yargs": "^17.7.2"

@@ -16,39 +16,35 @@ if (isProd) {
     mailFromDomain: $interpolate`mail.${DOMAIN.value}`,
   });
   new cloudflare.Record('MailFromMX', {
-    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+    zoneId: CLOUDFLARE_ZONE_ID,
     name: mailFrom.mailFromDomain,
     type: 'MX',
     ttl: 300,
     content: 'feedback-smtp.us-east-1.amazonses.com',
     priority: 10,
     proxied: false,
-    allowOverwrite: true,
   });
   new cloudflare.Record('MailFromTXT', {
-    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+    zoneId: CLOUDFLARE_ZONE_ID,
     name: mailFrom.mailFromDomain,
     type: 'TXT',
     ttl: 300,
     content: 'v=spf1 include:amazonses.com ~all',
-    allowOverwrite: true,
   });
 
   // BIMI setup
   new cloudflare.Record('DmarcRecord', {
-    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+    zoneId: CLOUDFLARE_ZONE_ID,
     name: $interpolate`_dmarc.${DOMAIN.value}`,
     type: 'TXT',
     ttl: 300,
     content: $interpolate`v=DMARC1;p=reject;rua=mailto:dmarcreports@${DOMAIN.value}`,
-    allowOverwrite: true,
   });
   new cloudflare.Record('BimiRecord', {
-    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+    zoneId: CLOUDFLARE_ZONE_ID,
     name: $interpolate`default._bimi.${DOMAIN.value}`,
     type: 'TXT',
     ttl: 300,
     content: $interpolate`v=BIMI1;l=https://${DOMAIN.value}/icon.svg;a=self`,
-    allowOverwrite: true,
   });
 }

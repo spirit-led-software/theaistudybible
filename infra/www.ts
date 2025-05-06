@@ -105,9 +105,8 @@ if (!$dev) {
     type: 'CNAME',
     proxied: false,
     ttl: 60,
-    zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+    zoneId: CLOUDFLARE_ZONE_ID,
     content: cert.dnsValidationTarget,
-    allowOverwrite: true,
   });
 
   const webAppImage = buildWebAppImage();
@@ -147,9 +146,9 @@ if (!$dev) {
       name: DOMAIN.value,
       type: 'A',
       proxied: true,
-      zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+      zoneId: CLOUDFLARE_ZONE_ID,
       content: flyApp.sharedIpAddress,
-      allowOverwrite: true,
+      ttl: 60,
     },
     { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
   );
@@ -159,9 +158,9 @@ if (!$dev) {
       name: DOMAIN.value,
       type: 'AAAA',
       proxied: true,
-      zoneId: CLOUDFLARE_ZONE_ID.zoneId,
+      zoneId: CLOUDFLARE_ZONE_ID,
       content: ipv6.address,
-      allowOverwrite: true,
+      ttl: 60,
     },
     { dependsOn: regionalResources.flatMap(({ machines }) => machines) },
   );
